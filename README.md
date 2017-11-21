@@ -6,9 +6,9 @@
 
 #### Dependencies
 
+	github.com/jinzhu/gorm
 
 
 #### Install
-```bash
-go get gopkg.in/webnice/kit.v1
-```
+
+	go get gopkg.in/webnice/kit.v1

@@ -12,6 +12,9 @@ func (db *Implementation) MakeDsn() (err error) {
 	var cnf *Configuration = db.cnf
 
 	if cnf == nil {
+		cnf = defaultConfiguration
+	}
+	if cnf == nil {
 		err = fmt.Errorf("Configuration is empty")
 		return
 	}
