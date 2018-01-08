@@ -41,4 +41,5 @@ type SmtpConfiguration struct {
 	SMTPTLS      bool   `yaml:"SMTPTLS"`      // Протокол используемый для подключения к почтовому серверу. =true-TLS, =false-без шифрования
 	AuthUserName string `yaml:"AuthUserName"` // Имя пользователя - Реквизиты доступа к серверу
 	AuthPassword string `yaml:"AuthPassword"` // Пароль - Реквизиты доступа к серверу
+	Templates    string `yaml:"Templates"`    // Папка шаблонов писем
 }
