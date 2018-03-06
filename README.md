@@ -8,6 +8,10 @@
 
 	github.com/jinzhu/gorm
 
+	github.com/jmoiron/sqlx
+	
+	github.com/kshvakov/clickhouse
+
 
 #### Install
 

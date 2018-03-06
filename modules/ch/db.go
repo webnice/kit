@@ -1,27 +1,19 @@
-package db // import "gopkg.in/webnice/kit.v1/modules/db"
+package ch // import "gopkg.in/webnice/kit.v1/modules/ch"
 
 //import "gopkg.in/webnice/debug.v1"
 import "gopkg.in/webnice/log.v2"
 import (
-	"gopkg.in/webnice/kit.v1/modules/db/connector"
+	"gopkg.in/webnice/kit.v1/modules/ch/connector"
 
-	"github.com/jinzhu/gorm"
-
-	// gorm dependences
-	_ "github.com/jinzhu/gorm/dialects/mssql"
-	_ "github.com/jinzhu/gorm/dialects/mysql"
-	_ "github.com/jinzhu/gorm/dialects/postgres"
-	_ "github.com/jinzhu/gorm/dialects/sqlite"
+	"github.com/jmoiron/sqlx"
 )
 
 // New creates new lib implementation
 func New(cnf ...*Configuration) Interface {
-	var db *Implementation
-	var i int
+	var db = new(Implementation)
 
-	db = new(Implementation)
-	// Установка яавно переданной конфигурации подключения к базе данных
-	for i = range cnf {
+	// Установка явно переданной конфигурации подключения к базе данных
+	for i := range cnf {
 		if cnf[i] != nil {
 			db.cnf = cnf[i]
 		}
@@ -30,13 +22,15 @@ func New(cnf ...*Configuration) Interface {
 	if db.cnf == nil {
 		db.cnf = defaultConfiguration
 	}
+	if db.cnf.Debug {
+		db.debug = true
+	}
+
 	return db
 }
 
 // Default Установка конфигурации подключения к базе данных по умолчанию
-func Default(cnf *Configuration) {
-	defaultConfiguration = cnf
-}
+func Default(cnf *Configuration) { defaultConfiguration = cnf }
 
 // Debug Включение или отключение режима debug
 func (db *Implementation) Debug(d bool) { db.debug = d }
@@ -64,9 +58,9 @@ func (db *Implementation) Connect() (err error) {
 	}
 
 	// Открываем соединение
-	err = db.conn.Open(db.drv, db.dsn)
+	err = db.conn.Open(db.dsn)
 	if err != nil {
-		log.Errorf("Unable to open database session gorm.Open(%s, %s): %s", db.drv, db.dsn, err.Error())
+		log.Errorf("Unable to open clickhouse database session Open(%q): %s", db.dsn, err.Error())
 		return
 	}
 	if db.debug {
@@ -92,8 +86,8 @@ func (db *Implementation) Disconnect() (err error) {
 	return
 }
 
-// Gist Return ORM object
-func (db *Implementation) Gist() *gorm.DB {
+// Gist Return DB connection object
+func (db *Implementation) Gist() *sqlx.DB {
 	db.findConnectorObject()
 	// Autoconnect
 	if !db.conn.IsOpened() {
@@ -102,9 +96,5 @@ func (db *Implementation) Gist() *gorm.DB {
 			return nil
 		}
 	}
-	if db.debug {
-		return db.conn.Gist().Debug()
-	} else {
-		return db.conn.Gist()
-	}
+	return db.conn.Gist()
 }

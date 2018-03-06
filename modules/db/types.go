@@ -12,18 +12,29 @@ var defaultConfiguration *Configuration
 
 // Interface is an interface of repository
 type Interface interface {
-	Connect() error
-	Disconnect() error
-	Gist() *gorm.DB
+	// Dsn Return DSN string
 	Dsn() (string, error)
+
+	// Connect Установка соединения с базой данных
+	Connect() error
+
+	// Disconnect Закрытие соединения с базой данных
+	Disconnect() error
+
+	// Gist Return DB connection object
+	Gist() *gorm.DB
+
+	// Debug Включение или отключение режима отладки
+	Debug(d bool)
 }
 
-// Implementation Is an implementation of repository
+// Implementation Is an implementation of module
 type Implementation struct {
-	cnf  *Configuration      // Конфигурация подключения к базе данных
-	drv  string              // Драйвер базы данных
-	dsn  string              // Строка подключения к базе данных
-	conn connector.Interface // Интерфейс соединения с базой данных считающий количество открытий и закрытий
+	cnf   *Configuration      // Конфигурация подключения к базе данных
+	drv   string              // Драйвер базы данных
+	dsn   string              // Строка подключения к базе данных
+	debug bool                // Режим дебага
+	conn  connector.Interface // Интерфейс соединения с базой данных считающий количество открытий и закрытий
 }
 
 // Configuration SQL database configuration structure
