@@ -53,4 +53,5 @@ type Configuration struct {
 	Secure       bool          `yaml:"Secure"          json:"secure"`        // Установить безопасное соединение
 	SkipVerify   bool          `yaml:"SkipVerify"      json:"skip_verify"`   // Пропустить проверку сертификата
 	Debug        bool          `yaml:"Debug"           json:"debug"`         // Режим отладки
+	Migrations   string        `yaml:"Migrations"      json:"migrations"`    // Путь к папке с файлами миграций базы данных
 }
