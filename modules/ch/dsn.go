@@ -46,7 +46,7 @@ func (db *Implementation) MakeDsn() (err error) {
 	v.Add(`read_timeout`, fmt.Sprintf("%d", cnf.ReadTimeout/time.Second))
 	v.Add(`write_timeout`, fmt.Sprintf("%d", cnf.WriteTimeout/time.Second))
 	v.Add(`no_delay`, fmt.Sprintf("%t", cnf.NoDelay))
-	v.Add(`compress`, fmt.Sprintf("%t", cnf.Compress))
+	// v.Add(`compress`, fmt.Sprintf("%t", cnf.Compress)) // compression not implemented yet
 	v.Add(`connection_open_strategy`, cnf.OpenStrategy)
 	if cnf.BlockSize > 0 {
 		v.Add(`block_size`, fmt.Sprintf("%d", cnf.BlockSize))
