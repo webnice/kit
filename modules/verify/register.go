@@ -7,8 +7,7 @@ import ()
 
 func init() {
 	// Регистрация внешней функции проверки данных
-	context.New(nil).
-		RegisterVerifyPlugin(new(webContextVerify))
+	context.New().RegisterVerifyPlugin(new(webContextVerify))
 }
 
 type webContextVerify struct{}
