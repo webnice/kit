@@ -16,30 +16,35 @@ var smtpDialTimeout = time.Second * 10
 
 // Interface is an interface of mail
 type Interface interface {
-	NewMessage() message.Interface      // Создание нового сообщения
-	Encoder(encode.Interface) Interface // Set encoder
-	Send(...message.Interface) error    // Отправка сообщения
+	// NewMessage Создание нового сообщения
+	NewMessage() message.Interface
+
+	// Encoder Установка кодировщика
+	Encoder(encode.Interface) Interface
+
+	// Send Отправка сообщения
+	Send(...message.Interface) error
 }
 
 // impl is an implementation of mail
 type impl struct {
-	smtpConfiguration *SmtpConfiguration // Конфигурация доступа к SMTP серверу
-	encoder           encode.Interface   // Деволтовый кодировщик сообщений, передаётся в NewMessage
-	isOnline          bool               // =true - соединение с SMTP сервером установлено
-	smtpClient        *smtp.Client       // Соединение с SMTP сервером
-	smtpTLSConfig     *tls.Config        // TLS configuration
-	smtpAuth          smtp.Auth          // SMTP Auth
+	smtpCfg       *SMTP            // Конфигурация доступа к SMTP серверу
+	encoder       encode.Interface // Деволтовый кодировщик сообщений, передаётся в NewMessage
+	isOnline      bool             // =true - соединение с SMTP сервером установлено
+	smtpClient    *smtp.Client     // Соединение с SMTP сервером
+	smtpTLSConfig *tls.Config      // TLS configuration
+	smtpAuth      smtp.Auth        // SMTP Auth
 
 	sync.Mutex
 }
 
-// SmtpConfiguration Структура описания конфигурации SMTP сервера для отправки почты
-type SmtpConfiguration struct {
-	FromAddress  string `yaml:"FromAddress"`  // Адрес электронной почты с которого сервер отправляет все сообщения по умолчанию
-	SMTPServer   string `yaml:"SMTPServer"`   // Адрес почтового сервера для отправки сообщений по протоколу SMTP
-	SMTPPort     uint32 `yaml:"SMTPPort"`     // Порт почтового сервера SMTP
-	SMTPTLS      bool   `yaml:"SMTPTLS"`      // Протокол используемый для подключения к почтовому серверу. =true-TLS, =false-без шифрования
-	AuthUserName string `yaml:"AuthUserName"` // Имя пользователя - Реквизиты доступа к серверу
-	AuthPassword string `yaml:"AuthPassword"` // Пароль - Реквизиты доступа к серверу
-	Templates    string `yaml:"Templates"`    // Папка шаблонов писем
+// SMTP Структура конфигурации SMTP сервера
+type SMTP struct {
+	Host      string `yaml:"Host"`      // Адрес почтового сервера для отправки сообщений по протоколу SMTP
+	Port      uint32 `yaml:"Port"`      // Порт почтового сервера SMTP
+	TLS       bool   `yaml:"TLS"`       // Протокол используемый для подключения к почтовому серверу. =true-TLS, =false-без шифрования
+	Source    string `yaml:"Source"`    // Адрес электронной почты с которого сервер отправляет все сообщения по умолчанию
+	Username  string `yaml:"Username"`  // Имя пользователя - Реквизиты доступа к серверу
+	Password  string `yaml:"Password"`  // Пароль - Реквизиты доступа к серверу
+	Templates string `yaml:"Templates"` // Папка шаблонов писем
 }

@@ -68,7 +68,7 @@ func (ml *impl) Send(messages ...message.Interface) (err error) {
 func (ml *impl) tls() *tls.Config {
 	if ml.smtpTLSConfig == nil {
 		ml.smtpTLSConfig = &tls.Config{
-			ServerName: ml.smtpConfiguration.SMTPServer,
+			ServerName: ml.smtpCfg.Host,
 		}
 	}
 	return ml.smtpTLSConfig
@@ -79,20 +79,20 @@ func (ml *impl) makeSMTPClient() (client *smtp.Client, err error) {
 	var conn net.Conn
 	var ok bool
 
-	if conn, err = net.DialTimeout("tcp", fmt.Sprintf("%s:%d", ml.smtpConfiguration.SMTPServer, ml.smtpConfiguration.SMTPPort), smtpDialTimeout); err != nil {
+	if conn, err = net.DialTimeout("tcp", fmt.Sprintf("%s:%d", ml.smtpCfg.Host, ml.smtpCfg.Port), smtpDialTimeout); err != nil {
 		return
 	}
-	if ml.smtpConfiguration.SMTPTLS {
+	if ml.smtpCfg.TLS {
 		conn = tls.Client(conn, ml.tls())
 	}
-	if client, err = smtp.NewClient(conn, ml.smtpConfiguration.SMTPServer); err != nil {
+	if client, err = smtp.NewClient(conn, ml.smtpCfg.Host); err != nil {
 		return
 	}
 	// HELLO SMTP command
 	if err = client.Hello("localhost"); err != nil {
 		return
 	}
-	if !ml.smtpConfiguration.SMTPTLS {
+	if !ml.smtpCfg.TLS {
 		if ok, _ = client.Extension(`STARTTLS`); ok {
 			if err = client.StartTLS(ml.tls()); err != nil {
 				_ = client.Close()
@@ -102,18 +102,18 @@ func (ml *impl) makeSMTPClient() (client *smtp.Client, err error) {
 	}
 
 	// Функция авторизации
-	if ml.smtpAuth == nil && ml.smtpConfiguration.AuthUserName != "" {
+	if ml.smtpAuth == nil && ml.smtpCfg.Username != "" {
 		var auths string
 		if ok, auths = client.Extension("AUTH"); ok {
 			if strings.Contains(auths, "CRAM-MD5") {
-				ml.smtpAuth = smtp.CRAMMD5Auth(ml.smtpConfiguration.AuthUserName, ml.smtpConfiguration.AuthPassword)
+				ml.smtpAuth = smtp.CRAMMD5Auth(ml.smtpCfg.Username, ml.smtpCfg.Password)
 			} else if strings.Contains(auths, "LOGIN") && !strings.Contains(auths, "PLAIN") {
 				ml.smtpAuth = auth.New().
-					UserName(ml.smtpConfiguration.AuthUserName).
-					Password(ml.smtpConfiguration.AuthPassword).
-					HostName(ml.smtpConfiguration.SMTPServer)
+					UserName(ml.smtpCfg.Username).
+					Password(ml.smtpCfg.Password).
+					HostName(ml.smtpCfg.Host)
 			} else {
-				ml.smtpAuth = smtp.PlainAuth("", ml.smtpConfiguration.AuthUserName, ml.smtpConfiguration.AuthPassword, ml.smtpConfiguration.SMTPServer)
+				ml.smtpAuth = smtp.PlainAuth("", ml.smtpCfg.Username, ml.smtpCfg.Password, ml.smtpCfg.Host)
 			}
 		}
 	}

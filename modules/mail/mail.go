@@ -11,23 +11,13 @@ import (
 )
 
 // New return mail interface
-func New(cfg *SmtpConfiguration) Interface {
-	var ml = new(impl)
-	ml.smtpConfiguration = cfg
-	ml.encoder = encode.New()
+func New(cfg *SMTP) Interface {
+	var ml = &impl{
+		smtpCfg: cfg,
+		encoder: encode.New(),
+	}
 	runtime.SetFinalizer(ml, destructor)
 	return ml
-}
-
-// checkOKError Проверка на "250 2.0.0 Ok"
-func checkOKError(inp error) (err error) {
-	if inp == nil {
-		return
-	}
-	if strings.Index(strings.TrimSpace(inp.Error()), "250") != 0 {
-		err = inp
-	}
-	return
 }
 
 // destructor Object destructor
@@ -41,12 +31,23 @@ func destructor(ml *impl) {
 	}
 }
 
+// checkOKError Проверка на "250 2.0.0 Ok"
+func checkOKError(inp error) (err error) {
+	if inp == nil {
+		return
+	}
+	if strings.Index(strings.TrimSpace(inp.Error()), "250") != 0 {
+		err = inp
+	}
+	return
+}
+
 // NewMessage Создание нового сообщения
 func (ml *impl) NewMessage() message.Interface {
 	var msg = message.New()
 	msg.Encoder(ml.encoder)
-	if ml.smtpConfiguration != nil {
-		msg.From(ml.smtpConfiguration.FromAddress)
+	if ml.smtpCfg != nil {
+		msg.From(ml.smtpCfg.Source)
 	}
 	return msg
 }
