@@ -40,11 +40,11 @@ type impl struct {
 
 // SMTP Структура конфигурации SMTP сервера
 type SMTP struct {
-	Host      string `yaml:"Host"`      // Адрес почтового сервера для отправки сообщений по протоколу SMTP
-	Port      uint32 `yaml:"Port"`      // Порт почтового сервера SMTP
-	TLS       bool   `yaml:"TLS"`       // Протокол используемый для подключения к почтовому серверу. =true-TLS, =false-без шифрования
-	Source    string `yaml:"Source"`    // Адрес электронной почты с которого сервер отправляет все сообщения по умолчанию
-	Username  string `yaml:"Username"`  // Имя пользователя - Реквизиты доступа к серверу
-	Password  string `yaml:"Password"`  // Пароль - Реквизиты доступа к серверу
-	Templates string `yaml:"Templates"` // Папка шаблонов писем
+	Host     string `yaml:"Host"`     // Адрес почтового сервера для отправки сообщений по протоколу SMTP
+	Port     uint32 `yaml:"Port"`     // Порт почтового сервера SMTP
+	TLS      bool   `yaml:"TLS"`      // Протокол используемый для подключения к почтовому серверу. =true-TLS, =false-без шифрования
+	Source   string `yaml:"Source"`   // Адрес электронной почты с которого сервер отправляет все сообщения по умолчанию
+	Username string `yaml:"Username"` // Имя пользователя - Реквизиты доступа к серверу
+	Password string `yaml:"Password"` // Пароль - Реквизиты доступа к серверу
+	Template string `yaml:"Template"` // Папка шаблонов писем
 }
