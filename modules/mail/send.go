@@ -17,6 +17,7 @@ import (
 // Send Отправка сообщения
 func (ml *impl) Send(messages ...message.Interface) (err error) {
 	var msg message.Interface
+	var wrc io.WriteCloser
 	var i int
 
 	ml.Lock()
@@ -31,11 +32,8 @@ func (ml *impl) Send(messages ...message.Interface) (err error) {
 		// Сбрасываем состояние предыдущей работы с сервером
 		_ = ml.smtpClient.Reset()
 	}
-
 	// Отправка всех сообщений через одно соединение
 	for i, msg = range messages {
-		var wr io.WriteCloser
-
 		// Если сообщений больше одного
 		if i > 0 {
 			log.Notice("mail client Reset()")
@@ -43,7 +41,6 @@ func (ml *impl) Send(messages ...message.Interface) (err error) {
 				return
 			}
 		}
-
 		//log.Noticef("From: '%s'", msg.GetFrom())
 		if err = ml.smtpClient.Mail(msg.GetFrom()); err != nil {
 			return
@@ -52,13 +49,13 @@ func (ml *impl) Send(messages ...message.Interface) (err error) {
 		if err = ml.smtpClient.Rcpt(msg.GetTo()); err != nil {
 			return
 		}
-		if wr, err = ml.smtpClient.Data(); err != nil {
+		if wrc, err = ml.smtpClient.Data(); err != nil {
 			return
 		}
-		if _, err = msg.WriteTo(wr); err != nil {
+		if _, err = msg.WriteTo(wrc); err != nil {
 			return
 		}
-		err = wr.Close()
+		err = wrc.Close()
 	}
 
 	return
@@ -100,7 +97,6 @@ func (ml *impl) makeSMTPClient() (client *smtp.Client, err error) {
 			}
 		}
 	}
-
 	// Функция авторизации
 	if ml.smtpAuth == nil && ml.smtpCfg.Username != "" {
 		var auths string
@@ -117,7 +113,6 @@ func (ml *impl) makeSMTPClient() (client *smtp.Client, err error) {
 			}
 		}
 	}
-
 	// Авторизация на SMTP сервере
 	if ml.smtpAuth != nil {
 		if err = client.Auth(ml.smtpAuth); err != nil {
