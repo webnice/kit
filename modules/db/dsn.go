@@ -9,52 +9,68 @@ import (
 
 // MakeDsn Создание строки подключения к базе данных для database/sql подобных драйверов
 func (db *Implementation) MakeDsn() (err error) {
+	const (
+		errNoConfiguration       = `configuration is empty`
+		errUnknownDatabaseDriver = `unknown database driver '%s'`
+		errNoUsername            = `database username(login) can not be empty`
+		errWrongConnectionType   = `wrong connection type '%s'`
+		keyMysql                 = `mysql`
+		keyPostgres              = `postgres`
+		keySqlite3               = `sqlite3`
+		keyMssql                 = `mssql`
+		keyTimeSettings          = `parseTime=True&loc=Local`
+		keyCharsetSettings       = `&charset=%s`
+		keyTcp                   = `tcp`
+		keySocket                = `socket`
+		keyUnix                  = `@unix(%s)`
+	)
 	var cnf *Configuration = db.cnf
 
 	if cnf == nil {
 		cnf = defaultConfiguration
 	}
 	if cnf == nil {
-		err = fmt.Errorf("Configuration is empty")
+		err = fmt.Errorf(errNoConfiguration)
 		return
 	}
-
 	// Driver
 	db.drv = strings.ToLower(cnf.Driver)
-	if !strings.EqualFold(db.drv, "mysql") &&
-		!strings.EqualFold(db.drv, "postgres") &&
-		!strings.EqualFold(db.drv, "sqlite3") &&
-		!strings.EqualFold(db.drv, "mssql") {
-		err = fmt.Errorf("Unknown database driver '%s'", cnf.Driver)
+	if !strings.EqualFold(db.drv, keyMysql) &&
+		!strings.EqualFold(db.drv, keyPostgres) &&
+		!strings.EqualFold(db.drv, keySqlite3) &&
+		!strings.EqualFold(db.drv, keyMssql) {
+		err = fmt.Errorf(errUnknownDatabaseDriver, cnf.Driver)
 		return
 	}
-
+	// sqlite3
+	if strings.EqualFold(db.drv, keySqlite3) {
+		db.dsn += fmt.Sprintf("%s?%s", cnf.Name, keyTimeSettings)
+		return
+	}
 	// Login and password
 	if cnf.Login == "" {
-		err = fmt.Errorf("Database username(login) can not be empty")
+		err = fmt.Errorf(errNoUsername)
 		return
 	}
 	db.dsn = fmt.Sprintf("%s:%s",
 		cnf.Login,
 		cnf.Password,
 	)
-
 	// Connection type and host, port, socket
-	if strings.EqualFold(cnf.Type, "tcp") {
-		db.dsn += fmt.Sprintf("@tcp(%s:%d)", cnf.Host, cnf.Port)
-	} else if strings.EqualFold(cnf.Type, "socket") {
-		db.dsn += fmt.Sprintf("@unix(%s)", cnf.Socket)
-	} else {
-		err = fmt.Errorf("Wrong connection type '%s'", cnf.Type)
+	switch strings.ToLower(cnf.Type) {
+	case keyTcp:
+		db.dsn += fmt.Sprintf("@%s(%s:%d)", keyTcp, cnf.Host, cnf.Port)
+	case keySocket:
+		db.dsn += fmt.Sprintf(keyUnix, cnf.Socket)
+	default:
+		err = fmt.Errorf(errWrongConnectionType, cnf.Type)
 		return
 	}
-
 	// Database name
-	db.dsn += fmt.Sprintf("/%s?parseTime=True&loc=Local", cnf.Name)
-
+	db.dsn += fmt.Sprintf("/%s?%s", cnf.Name, keyTimeSettings)
 	// Charset
 	if cnf.Charset != "" {
-		db.dsn += fmt.Sprintf("&charset=%s", cnf.Charset)
+		db.dsn += fmt.Sprintf(keyCharsetSettings, cnf.Charset)
 	}
 
 	return
