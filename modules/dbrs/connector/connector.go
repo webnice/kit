@@ -3,7 +3,6 @@ package connector // import "gopkg.in/webnice/kit.v1/modules/dbrs/connector"
 //import "gopkg.in/webnice/debug.v1"
 import "gopkg.in/webnice/log.v2"
 import (
-	"fmt"
 	"runtime"
 	"sync"
 	"sync/atomic"
@@ -16,7 +15,7 @@ var singleton *impl
 // Interface is an interface of connector
 type Interface interface {
 	// Open database connection
-	Open(network string, host string, port uint16, opt *redis.Options) error
+	Open(opt *redis.Options) error
 
 	// IsOpened return true if connection already open
 	IsOpened() bool
@@ -34,9 +33,6 @@ type impl struct {
 	Redis   *redis.Client  // Само соединение
 	Counter int64          // Счётчик для подсчёта Open/Close. Open +1, Close -1. Если <= 0 то делается закрытие соединения
 	Debug   bool           // Для отладки
-	Network string         // Сеть подключения. tcp, socket и т.п. Как описано https://golang.org/pkg/net/#Dial
-	Host    string         // Хост подключения
-	Port    uint16         // Порт подключения
 	Opt     *redis.Options // Опции подключения
 }
 
@@ -52,51 +48,37 @@ func New() Interface {
 
 func destructor(conn *impl) {
 	var err error
-	var ok bool
 
 	if conn.Debug {
-		log.Notice(" --- Destroy connector object")
+		log.Notice("--- Destroy connector object")
 	}
-	if conn.Tarantool == nil {
+	if conn.Redis == nil {
 		return
 	}
-	if ok, err = conn.Tarantool.IsClosed(); !ok && err == nil {
-		conn.Tarantool.Close()
+	if _, err = conn.Redis.Ping().Result(); err == nil {
+		_ = conn.Redis.Close()
 	}
-	conn.Tarantool = nil
+	conn.Redis = nil
 }
 
 // Open database connection
-func (conn *impl) Open(network string, host string, port uint16, opt *tarantool.Options) (err error) {
-	var obj *tarantool.Connection
-	var hps string
-	var ok bool
+func (conn *impl) Open(opt *redis.Options) (err error) {
+	var obj *redis.Client
 
 	conn.RLock()
 	defer conn.RUnlock()
-
-	conn.Network, conn.Host, conn.Port, conn.Opt = network, host, port, opt
-	if conn.Tarantool != nil {
-		if ok, err = conn.Tarantool.IsClosed(); err == nil && !ok {
+	conn.Opt = opt
+	if conn.Redis != nil {
+		if _, err = conn.Redis.Ping().Result(); err == nil {
 			v := atomic.AddInt64(&conn.Counter, 1)
 			if conn.Debug {
-				log.Noticef(" * Already open (%v)", v)
+				log.Noticef("* already open (%v)", v)
 			}
 			return
 		}
 	}
-	if port != 0 {
-		hps = fmt.Sprintf("%s:%d", host, port)
-	} else {
-		hps = host
-	}
-	if obj, err = tarantool.Connect(conn.Network, hps, conn.Opt); err != nil {
-		return
-	} else if obj == nil {
-		err = fmt.Errorf("db connection object is nil")
-		return
-	}
-	conn.Tarantool = obj
+	obj = redis.NewClient(conn.Opt)
+	conn.Redis = obj
 	atomic.AddInt64(&conn.Counter, 1)
 	if conn.Debug {
 		log.Noticef(" + Real open (%v)", int64(1))
@@ -107,10 +89,10 @@ func (conn *impl) Open(network string, host string, port uint16, opt *tarantool.
 
 // IsOpened return true if connection already open
 func (conn *impl) IsOpened() (ret bool) {
-	if conn.Tarantool == nil {
+	if conn.Redis == nil {
 		return
 	}
-	if ok, err := conn.Tarantool.IsClosed(); err != nil || ok {
+	if _, err := conn.Redis.Ping().Result(); err != nil {
 		return
 	}
 	if v := atomic.LoadInt64(&conn.Counter); v > 0 {
@@ -121,35 +103,33 @@ func (conn *impl) IsOpened() (ret bool) {
 
 // Close database connection
 func (conn *impl) Close() (err error) {
-	var ok bool
-
 	conn.RLock()
 	defer conn.RUnlock()
 
 	atomic.AddInt64(&conn.Counter, -1)
-	if conn.Tarantool == nil {
+	if conn.Redis == nil {
 		atomic.StoreInt64(&conn.Counter, 0)
 		if conn.Debug {
-			log.Noticef(" * Already close (%v)", 0)
+			log.Noticef("* Already close (%v)", 0)
 		}
 		return
 	}
-	if ok, err = conn.Tarantool.IsClosed(); ok || err != nil {
+	if _, err = conn.Redis.Ping().Result(); err != nil {
 		atomic.StoreInt64(&conn.Counter, 0)
 		if conn.Debug {
-			log.Noticef(" * Already close (%v)", 0)
+			log.Noticef("* Already close (%v)", 0)
 		}
 		return
 	}
 	if v := atomic.LoadInt64(&conn.Counter); v <= 0 {
-		conn.Tarantool.Close()
+		_ = conn.Redis.Close()
 		if conn.Debug {
-			log.Noticef(" - Real close (%v)", v)
+			log.Noticef("- Real close (%v)", v)
 		}
-		conn.Tarantool = nil
+		conn.Redis = nil
 	} else {
 		if conn.Debug {
-			log.Noticef(" - Fake close (%v)", v)
+			log.Noticef("- Fake close (%v)", v)
 		}
 	}
 
@@ -157,14 +137,15 @@ func (conn *impl) Close() (err error) {
 }
 
 // Gist return database object
-func (conn *impl) Gist() *tarantool.Connection {
-	var err error
-	var ok bool
+func (conn *impl) Gist() *redis.Client {
+	var (
+		err error
+		ok  bool
+	)
 
 	if conn.IsOpened() {
-		ok, err = conn.Tarantool.IsClosed()
-		ok = !ok
-		if err != nil {
+		ok = true
+		if _, err = conn.Redis.Ping().Result(); err != nil {
 			if conn.Debug {
 				log.Errorf("Gist() IsClosed(): %s", err.Error())
 			}
@@ -172,15 +153,15 @@ func (conn *impl) Gist() *tarantool.Connection {
 		}
 	}
 	if !ok {
-		if err := conn.Open(conn.Network, conn.Host, conn.Port, conn.Opt); err != nil {
+		if err := conn.Open(conn.Opt); err != nil {
 			if conn.Debug {
 				log.Errorf("Gist() Open(): %s", err.Error())
 			}
 		}
 	}
-	if conn.Debug && conn.Tarantool == nil {
-		log.Alertf("Gist(%v) == nil: %v", conn.Counter, conn.Tarantool != nil)
+	if conn.Debug && conn.Redis == nil {
+		log.Alertf("Gist(%v) == nil: %v", conn.Counter, conn.Redis != nil)
 	}
 
-	return conn.Tarantool
+	return conn.Redis
 }
