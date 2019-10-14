@@ -9,8 +9,10 @@
 	github.com/jinzhu/gorm
 
 	github.com/jmoiron/sqlx
-	
+
 	github.com/kshvakov/clickhouse
+
+	github.com/satori/go.uuid
 
 
 #### Install

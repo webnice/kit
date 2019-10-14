@@ -58,13 +58,8 @@ func NewSlave(scheme string, host string, opts ...Options) (s *Slave, err error)
 }
 
 func (s *Slave) parseOptions(options Options) (err error) {
-	var tmp uuid.UUID
-
 	if len(options.UUID) == 0 {
-		if tmp, err = uuid.NewV1(); err != nil {
-			return
-		}
-		s.UUID = tmp.String()
+		s.UUID = uuid.NewV1().String()
 	} else {
 		s.UUID = options.UUID
 	}
