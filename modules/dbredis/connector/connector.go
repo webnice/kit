@@ -1,4 +1,4 @@
-package connector // import "gopkg.in/webnice/kit.v1/modules/dbrs/connector"
+package connector // import "gopkg.in/webnice/kit.v1/modules/dbredis/connector"
 
 //import "gopkg.in/webnice/debug.v1"
 import "gopkg.in/webnice/log.v2"

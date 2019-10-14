@@ -1,19 +1,22 @@
-package dbtt // import "gopkg.in/webnice/kit.v1/modules/dbtt"
+package dbredis // import "gopkg.in/webnice/kit.v1/modules/dbredis"
 
 //import "gopkg.in/webnice/debug.v1"
 import "gopkg.in/webnice/log.v2"
 import (
-	"gopkg.in/webnice/kit.v1/modules/dbtt/connector"
-	"gopkg.in/webnice/kit.v1/modules/dbtt/tarantool"
+	"gopkg.in/webnice/kit.v1/modules/dbredis/connector"
+
+	redis "github.com/go-redis/redis/v7"
 )
 
 // New creates new lib implementation
 func New(cnf ...*Configuration) Interface {
-	var tt *Implementation
-	var i int
+	var (
+		tt *Implementation
+		i  int
+	)
 
 	tt = new(Implementation)
-	// Установка яавно переданной конфигурации подключения к базе данных
+	// Установка явно переданной конфигурации подключения к базе данных
 	for i = range cnf {
 		if cnf[i] != nil {
 			tt.cnf = cnf[i]
@@ -23,13 +26,13 @@ func New(cnf ...*Configuration) Interface {
 	if tt.cnf == nil {
 		tt.cnf = defaultConfiguration
 	}
+	Defaults(tt.cnf)
+
 	return tt
 }
 
 // Default Установка конфигурации подключения к базе данных по умолчанию
-func Default(cnf *Configuration) {
-	defaultConfiguration = cnf
-}
+func Default(cnf *Configuration) { defaultConfiguration = cnf }
 
 // Debug Включение или отключение режима debug
 func (tt *Implementation) Debug(d bool) { tt.debug = d }
@@ -51,13 +54,12 @@ func (tt *Implementation) Connect() (err error) {
 	}
 
 	// Открываем соединение
-	err = tt.conn.Open(tt.MakeConnectArgs())
-	if err != nil {
-		log.Errorf("Unable to open database session Open(%s, %s, %d, %v): %s", tt.cnf.Type, tt.cnf.Host, tt.cnf.Port, tt.opt, err)
+	if err = tt.conn.Open(tt.MakeConnectArgs()); err != nil {
+		log.Errorf("unable to open database session Open(%s, %s, %d, %v): %s", tt.cnf.Type, tt.cnf.Host, tt.cnf.Port, tt.opt, err)
 		return
 	}
 	if tt.debug {
-		log.Debug(" - Database connection openned")
+		log.Debug("- database connection opened")
 	}
 
 	return
@@ -72,7 +74,7 @@ func (tt *Implementation) Disconnect() (err error) {
 	// Закрываем соединение
 	err = tt.conn.Close()
 	if tt.debug {
-		log.Debug(" - Database connection closed")
+		log.Debug("- database connection closed")
 	}
 	tt.conn = nil
 
@@ -80,12 +82,12 @@ func (tt *Implementation) Disconnect() (err error) {
 }
 
 // Gist Return ORM object
-func (tt *Implementation) Gist() *tarantool.Connection {
+func (tt *Implementation) Gist() *redis.Client {
 	tt.findConnectorObject()
-	// Autoconnect
+	// Auto connect
 	if !tt.conn.IsOpened() {
 		if err := tt.Connect(); err != nil {
-			log.Criticalf("Unable connect to database from Gist(): %s", err.Error())
+			log.Criticalf("unable connect to database from Gist(): %s", err)
 			return nil
 		}
 	}

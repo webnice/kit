@@ -1,12 +1,12 @@
-package dbtt // import "gopkg.in/webnice/kit.v1/modules/dbtt"
+package dbtarantool // import "gopkg.in/webnice/kit.v1/modules/dbtarantool"
 
 //import "gopkg.in/webnice/debug.v1"
 //import "gopkg.in/webnice/log.v2"
 import (
 	"time"
 
-	"gopkg.in/webnice/kit.v1/modules/dbtt/connector"
-	"gopkg.in/webnice/kit.v1/modules/dbtt/tarantool"
+	"gopkg.in/webnice/kit.v1/modules/dbtarantool/connector"
+	"gopkg.in/webnice/kit.v1/modules/dbtarantool/tarantool"
 )
 
 var defaultConfiguration *Configuration

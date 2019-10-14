@@ -1,4 +1,4 @@
-package dbrs // import "gopkg.in/webnice/kit.v1/modules/dbrs"
+package dbredis // import "gopkg.in/webnice/kit.v1/modules/dbredis"
 
 //import "gopkg.in/webnice/debug.v1"
 //import "gopkg.in/webnice/log.v2"

@@ -1,11 +1,11 @@
-package dbch // import "gopkg.in/webnice/kit.v1/modules/dbch"
+package dbclickhouse // import "gopkg.in/webnice/kit.v1/modules/dbclickhouse"
 
 //import "gopkg.in/webnice/debug.v1"
 //import "gopkg.in/webnice/log.v2"
 import (
 	"time"
 
-	"gopkg.in/webnice/kit.v1/modules/dbch/connector"
+	"gopkg.in/webnice/kit.v1/modules/dbclickhouse/connector"
 
 	"github.com/jmoiron/sqlx"
 )

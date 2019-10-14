@@ -1,4 +1,4 @@
-package connector // import "gopkg.in/webnice/kit.v1/modules/dbtt/connector"
+package connector // import "gopkg.in/webnice/kit.v1/modules/dbtarantool/connector"
 
 //import "gopkg.in/webnice/debug.v1"
 import "gopkg.in/webnice/log.v2"
@@ -8,7 +8,7 @@ import (
 	"sync"
 	"sync/atomic"
 
-	"gopkg.in/webnice/kit.v1/modules/dbtt/tarantool"
+	"gopkg.in/webnice/kit.v1/modules/dbtarantool/tarantool"
 )
 
 var singleton *impl
