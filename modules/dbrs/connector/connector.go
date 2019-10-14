@@ -1,4 +1,4 @@
-package connector
+package connector // import "gopkg.in/webnice/kit.v1/modules/dbrs/connector"
 
 //import "gopkg.in/webnice/debug.v1"
 import "gopkg.in/webnice/log.v2"
@@ -8,7 +8,7 @@ import (
 	"sync"
 	"sync/atomic"
 
-	"gopkg.in/webnice/kit.v1/modules/tt/tarantool"
+	redis "github.com/go-redis/redis/v7"
 )
 
 var singleton *impl
@@ -16,7 +16,7 @@ var singleton *impl
 // Interface is an interface of connector
 type Interface interface {
 	// Open database connection
-	Open(network string, host string, port uint16, opt *tarantool.Options) error
+	Open(network string, host string, port uint16, opt *redis.Options) error
 
 	// IsOpened return true if connection already open
 	IsOpened() bool
@@ -25,19 +25,19 @@ type Interface interface {
 	Close() error
 
 	// Gist return database object
-	Gist() *tarantool.Connection
+	Gist() *redis.Client
 }
 
 // impl is an implementation of connector
 type impl struct {
 	sync.RWMutex
-	Tarantool *tarantool.Connection // Само соединение
-	Counter   int64                 // Счётчик для подсчёта Open/Close. Open +1, Close -1. Если <= 0 то делается закрытие соединения
-	Debug     bool                  // Для отладки
-	Network   string                // Сеть подключения. tcp, socket и т.п. Как описано https://golang.org/pkg/net/#Dial
-	Host      string                // Хост подключения
-	Port      uint16                // Порт подключения
-	Opt       *tarantool.Options    // Опции подключения
+	Redis   *redis.Client  // Само соединение
+	Counter int64          // Счётчик для подсчёта Open/Close. Open +1, Close -1. Если <= 0 то делается закрытие соединения
+	Debug   bool           // Для отладки
+	Network string         // Сеть подключения. tcp, socket и т.п. Как описано https://golang.org/pkg/net/#Dial
+	Host    string         // Хост подключения
+	Port    uint16         // Порт подключения
+	Opt     *redis.Options // Опции подключения
 }
 
 // New Create new object

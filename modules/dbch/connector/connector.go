@@ -1,4 +1,4 @@
-package connector // import "gopkg.in/webnice/kit.v1/modules/ch/connector"
+package connector // import "gopkg.in/webnice/kit.v1/modules/dbch/connector"
 
 //import "gopkg.in/webnice/debug.v1"
 import "gopkg.in/webnice/log.v2"
