@@ -5,6 +5,7 @@ go 1.13
 require (
 	github.com/go-playground/locales v0.12.1 // indirect
 	github.com/go-playground/universal-translator v0.16.1-0.20170327191703-71201497bace // indirect
+	github.com/go-redis/redis/v7 v7.0.0-beta.4
 	github.com/jinzhu/gorm v1.9.11
 	github.com/jmoiron/sqlx v1.2.0
 	github.com/kr/pretty v0.1.0 // indirect
