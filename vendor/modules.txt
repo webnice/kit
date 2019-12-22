@@ -1,15 +1,28 @@
-# cloud.google.com/go v0.37.4
-cloud.google.com/go/civil
+# github.com/ClickHouse/clickhouse-go v1.3.12
+github.com/ClickHouse/clickhouse-go
+github.com/ClickHouse/clickhouse-go/lib/binary
+github.com/ClickHouse/clickhouse-go/lib/cityhash102
+github.com/ClickHouse/clickhouse-go/lib/column
+github.com/ClickHouse/clickhouse-go/lib/data
+github.com/ClickHouse/clickhouse-go/lib/leakypool
+github.com/ClickHouse/clickhouse-go/lib/lz4
+github.com/ClickHouse/clickhouse-go/lib/protocol
+github.com/ClickHouse/clickhouse-go/lib/types
+github.com/ClickHouse/clickhouse-go/lib/writebuffer
 # github.com/cloudflare/golz4 v0.0.0-20150217214814-ef862a3cdc58
 github.com/cloudflare/golz4
-# github.com/denisenkom/go-mssqldb v0.0.0-20190515213511-eb9f6a1743f3
+# github.com/denisenkom/go-mssqldb v0.0.0-20191128021309-1d7a30a10f73
 github.com/denisenkom/go-mssqldb
 github.com/denisenkom/go-mssqldb/internal/cp
-# github.com/go-playground/locales v0.12.1
+github.com/denisenkom/go-mssqldb/internal/decimal
+github.com/denisenkom/go-mssqldb/internal/querytext
+# github.com/go-playground/locales v0.13.0
 github.com/go-playground/locales
 github.com/go-playground/locales/currency
-# github.com/go-playground/universal-translator v0.16.1-0.20170327191703-71201497bace
+# github.com/go-playground/universal-translator v0.17.0
 github.com/go-playground/universal-translator
+# github.com/go-playground/validator/v10 v10.0.1
+github.com/go-playground/validator/v10
 # github.com/go-redis/redis/v7 v7.0.0-beta.4
 github.com/go-redis/redis/v7
 github.com/go-redis/redis/v7/internal
@@ -20,7 +33,9 @@ github.com/go-redis/redis/v7/internal/proto
 github.com/go-redis/redis/v7/internal/util
 # github.com/go-sql-driver/mysql v1.4.1
 github.com/go-sql-driver/mysql
-# github.com/golang/protobuf v1.2.0
+# github.com/golang-sql/civil v0.0.0-20190719163853-cb61b32ac6fe
+github.com/golang-sql/civil
+# github.com/golang/protobuf v1.3.2
 github.com/golang/protobuf/proto
 # github.com/jinzhu/gorm v1.9.11
 github.com/jinzhu/gorm
@@ -33,36 +48,29 @@ github.com/jinzhu/inflection
 # github.com/jmoiron/sqlx v1.2.0
 github.com/jmoiron/sqlx
 github.com/jmoiron/sqlx/reflectx
-# github.com/kshvakov/clickhouse v1.3.11
-github.com/kshvakov/clickhouse
-github.com/kshvakov/clickhouse/lib/binary
-github.com/kshvakov/clickhouse/lib/cityhash102
-github.com/kshvakov/clickhouse/lib/column
-github.com/kshvakov/clickhouse/lib/data
-github.com/kshvakov/clickhouse/lib/leakypool
-github.com/kshvakov/clickhouse/lib/lz4
-github.com/kshvakov/clickhouse/lib/protocol
-github.com/kshvakov/clickhouse/lib/types
-github.com/kshvakov/clickhouse/lib/writebuffer
-# github.com/lib/pq v1.1.1
+# github.com/leodido/go-urn v1.2.0
+github.com/leodido/go-urn
+# github.com/lib/pq v1.3.0
 github.com/lib/pq
 github.com/lib/pq/hstore
 github.com/lib/pq/oid
 github.com/lib/pq/scram
-# github.com/mattn/go-sqlite3 v1.11.0
+# github.com/mattn/go-sqlite3 v2.0.2+incompatible
 github.com/mattn/go-sqlite3
 # github.com/satori/go.uuid v1.2.0
 github.com/satori/go.uuid
 # github.com/vmihailenco/msgpack v4.0.4+incompatible
 github.com/vmihailenco/msgpack/codes
-# golang.org/x/crypto v0.0.0-20190325154230-a5d413f7728c
+# golang.org/x/crypto v0.0.0-20191219195013-becbf705a915
 golang.org/x/crypto/md4
-# golang.org/x/net v0.0.0-20190311183353-d8887717615a
+# golang.org/x/net v0.0.0-20191209160850-c0dbc17a3553
 golang.org/x/net/context
-# google.golang.org/appengine v1.4.0
+# google.golang.org/appengine v1.6.5
 google.golang.org/appengine
 google.golang.org/appengine/cloudsql
 google.golang.org/appengine/datastore
+google.golang.org/appengine/datastore/internal/cloudkey
+google.golang.org/appengine/datastore/internal/cloudpb
 google.golang.org/appengine/internal
 google.golang.org/appengine/internal/app_identity
 google.golang.org/appengine/internal/base
@@ -70,8 +78,6 @@ google.golang.org/appengine/internal/datastore
 google.golang.org/appengine/internal/log
 google.golang.org/appengine/internal/modules
 google.golang.org/appengine/internal/remote_api
-# gopkg.in/go-playground/validator.v9 v9.17.1
-gopkg.in/go-playground/validator.v9
 # gopkg.in/vmihailenco/msgpack.v3 v3.3.3
 gopkg.in/vmihailenco/msgpack.v3
 gopkg.in/vmihailenco/msgpack.v3/codes
@@ -94,7 +100,7 @@ gopkg.in/webnice/log.v2/sender
 gopkg.in/webnice/log.v2/trace
 gopkg.in/webnice/log.v2/uuid
 gopkg.in/webnice/log.v2/writer
-# gopkg.in/webnice/web.v1 v1.0.0-20190628092128-2a577960f4d6
+# gopkg.in/webnice/web.v1 v1.0.0-20191216092242-ada2b8f44435
 gopkg.in/webnice/web.v1/ambry
 gopkg.in/webnice/web.v1/context
 gopkg.in/webnice/web.v1/context/errors
