@@ -8,8 +8,8 @@ import (
 	"sync"
 	"sync/atomic"
 
+	clickhouse "github.com/ClickHouse/clickhouse-go"
 	"github.com/jmoiron/sqlx"
-	"github.com/kshvakov/clickhouse"
 )
 
 var singleton *impl
