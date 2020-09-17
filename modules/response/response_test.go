@@ -1,8 +1,9 @@
 package response
 
 import (
-	"encoding/json"
 	"testing"
+
+	"github.com/goccy/go-json"
 )
 
 func TestNormalizeArrayIfNeeded(t *testing.T) {

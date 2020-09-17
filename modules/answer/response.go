@@ -4,7 +4,6 @@ package answer // import "gopkg.in/webnice/kit.v1/modules/answer"
 import "gopkg.in/webnice/log.v2"
 import (
 	"bytes"
-	"encoding/json"
 	"fmt"
 	"net/http"
 	"reflect"
@@ -13,6 +12,8 @@ import (
 	"gopkg.in/webnice/web.v1/header"
 	"gopkg.in/webnice/web.v1/mime"
 	"gopkg.in/webnice/web.v1/status"
+
+	"github.com/goccy/go-json"
 )
 
 // Response Ответ на запрос с проверкой передачи данных

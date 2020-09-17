@@ -3,10 +3,10 @@ package verify
 //import "gopkg.in/webnice/debug.v1"
 //import "gopkg.in/webnice/log.v2"
 import (
-	"encoding/json"
 	"fmt"
 
 	"github.com/go-playground/validator/v10"
+	"github.com/goccy/go-json"
 )
 
 // Code Set code
