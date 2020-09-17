@@ -4,6 +4,7 @@ package answer // import "gopkg.in/webnice/kit.v1/modules/answer"
 import "gopkg.in/webnice/log.v2"
 import (
 	"bytes"
+	"encoding/json"
 	"fmt"
 	"net/http"
 	"reflect"
@@ -12,8 +13,6 @@ import (
 	"gopkg.in/webnice/web.v1/header"
 	"gopkg.in/webnice/web.v1/mime"
 	"gopkg.in/webnice/web.v1/status"
-
-	"github.com/wI2L/jettison"
 )
 
 // Response Ответ на запрос с проверкой передачи данных
@@ -60,10 +59,10 @@ func JSON(wr http.ResponseWriter, statusCode int, obj interface{}) { // nolint: 
 	var (
 		err     error
 		buf     *bytes.Buffer
+		enc     *json.Encoder
 		rvo     reflect.Value
 		length  int
 		isSlice bool
-		enc     []byte
 	)
 
 	// Для среза получаем длинну
@@ -76,12 +75,13 @@ func JSON(wr http.ResponseWriter, statusCode int, obj interface{}) { // nolint: 
 	if isSlice && length == 0 {
 		buf = bytes.NewBufferString(sliceEmpty)
 	} else {
-		if enc, err = jettison.Marshal(obj); err != nil {
+		buf = &bytes.Buffer{}
+		enc = json.NewEncoder(buf)
+		if err = enc.Encode(obj); err != nil {
 			err = fmt.Errorf("json encode error: %s", err)
 			InternalServerError(wr, err)
 			return
 		}
-		buf = bytes.NewBuffer(enc)
 	}
 	wr.Header().Set(header.ContentType, mime.ApplicationJSONCharsetUTF8)
 	Response(wr, statusCode, buf.Bytes())

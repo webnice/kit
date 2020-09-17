@@ -1,9 +1,8 @@
 package response
 
 import (
+	"encoding/json"
 	"testing"
-
-	"github.com/wI2L/jettison"
 )
 
 func TestNormalizeArrayIfNeeded(t *testing.T) {
@@ -30,7 +29,7 @@ func TestNormalizeArrayIfNeeded(t *testing.T) {
 
 	for _, oneCase := range cases {
 		nVal := normalizeArrayIfNeeded(oneCase.a)
-		res, _ := jettison.Marshal(nVal)
+		res, _ := json.Marshal(nVal)
 		if string(res) != oneCase.b {
 			t.Errorf("a: %#v; expected: %#v; got: %#v", oneCase.a, oneCase.b, string(res))
 		}

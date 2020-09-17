@@ -3,10 +3,10 @@ package verify
 //import "gopkg.in/webnice/debug.v1"
 //import "gopkg.in/webnice/log.v2"
 import (
+	"encoding/json"
 	"fmt"
 
 	"github.com/go-playground/validator/v10"
-	"github.com/wI2L/jettison"
 )
 
 // Code Set code
@@ -27,7 +27,7 @@ func (e *Response) Response() *Response { return e }
 // Json Serialize and return object as json data
 func (e *Response) Json() (ret []byte) {
 	var err error
-	if ret, err = jettison.Marshal(e); err != nil {
+	if ret, err = json.Marshal(e); err != nil {
 		//e.Error = fmt.Errorf("Error marshal json: %s", err.Error())
 		return
 	}
