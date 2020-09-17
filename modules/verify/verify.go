@@ -6,7 +6,7 @@ import (
 	"fmt"
 
 	"github.com/go-playground/validator/v10"
-	"github.com/goccy/go-json"
+	json "github.com/json-iterator/go"
 )
 
 // Code Set code

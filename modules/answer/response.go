@@ -13,7 +13,7 @@ import (
 	"gopkg.in/webnice/web.v1/mime"
 	"gopkg.in/webnice/web.v1/status"
 
-	"github.com/goccy/go-json"
+	json "github.com/json-iterator/go"
 )
 
 // Response Ответ на запрос с проверкой передачи данных

@@ -3,7 +3,7 @@ package response
 import (
 	"testing"
 
-	"github.com/goccy/go-json"
+	json "github.com/json-iterator/go"
 )
 
 func TestNormalizeArrayIfNeeded(t *testing.T) {

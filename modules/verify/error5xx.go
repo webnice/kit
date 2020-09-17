@@ -2,7 +2,7 @@ package verify
 
 //import "gopkg.in/webnice/debug.v1"
 //import "gopkg.in/webnice/log.v2"
-import ()
+//import ()
 
 // E5xx HTTP error code 500-599
 func E5xx() Interface {
