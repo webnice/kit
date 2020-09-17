@@ -3,7 +3,7 @@ package response
 import (
 	"testing"
 
-	json "github.com/json-iterator/go"
+	"github.com/wI2L/jettison"
 )
 
 func TestNormalizeArrayIfNeeded(t *testing.T) {
@@ -30,7 +30,7 @@ func TestNormalizeArrayIfNeeded(t *testing.T) {
 
 	for _, oneCase := range cases {
 		nVal := normalizeArrayIfNeeded(oneCase.a)
-		res, _ := json.Marshal(nVal)
+		res, _ := jettison.Marshal(nVal)
 		if string(res) != oneCase.b {
 			t.Errorf("a: %#v; expected: %#v; got: %#v", oneCase.a, oneCase.b, string(res))
 		}

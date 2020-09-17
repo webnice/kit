@@ -13,7 +13,7 @@ import (
 	"gopkg.in/webnice/web.v1/mime"
 	"gopkg.in/webnice/web.v1/status"
 
-	json "github.com/json-iterator/go"
+	"github.com/wI2L/jettison"
 )
 
 // Response Ответ на запрос с проверкой передачи данных
@@ -60,10 +60,10 @@ func JSON(wr http.ResponseWriter, statusCode int, obj interface{}) { // nolint: 
 	var (
 		err     error
 		buf     *bytes.Buffer
-		enc     *json.Encoder
 		rvo     reflect.Value
 		length  int
 		isSlice bool
+		enc     []byte
 	)
 
 	// Для среза получаем длинну
@@ -76,13 +76,12 @@ func JSON(wr http.ResponseWriter, statusCode int, obj interface{}) { // nolint: 
 	if isSlice && length == 0 {
 		buf = bytes.NewBufferString(sliceEmpty)
 	} else {
-		buf = &bytes.Buffer{}
-		enc = json.NewEncoder(buf)
-		if err = enc.Encode(obj); err != nil {
+		if enc, err = jettison.Marshal(obj); err != nil {
 			err = fmt.Errorf("json encode error: %s", err)
 			InternalServerError(wr, err)
 			return
 		}
+		buf = bytes.NewBuffer(enc)
 	}
 	wr.Header().Set(header.ContentType, mime.ApplicationJSONCharsetUTF8)
 	Response(wr, statusCode, buf.Bytes())
