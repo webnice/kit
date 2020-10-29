@@ -1,4 +1,4 @@
-package db // import "github.com/webnice/kit/v1/modules/db"
+package db
 
 import (
 	"github.com/webnice/kit/v1/modules/db/connector"

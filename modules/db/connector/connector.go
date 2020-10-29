@@ -1,4 +1,4 @@
-package connector // import "github.com/webnice/kit/v1/modules/db/connector"
+package connector
 
 import (
 	"fmt"
@@ -10,7 +10,7 @@ import (
 
 	"github.com/jinzhu/gorm"
 
-	// gorm dependences
+	// gorm dependencies
 	_ "github.com/jinzhu/gorm/dialects/mssql"
 	_ "github.com/jinzhu/gorm/dialects/mysql"
 	_ "github.com/jinzhu/gorm/dialects/postgres"

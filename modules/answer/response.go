@@ -1,4 +1,4 @@
-package answer // import "github.com/webnice/kit/v1/modules/answer"
+package answer
 
 import (
 	"bytes"
@@ -9,9 +9,9 @@ import (
 
 	"github.com/webnice/kit/v1/modules/verify"
 	"github.com/webnice/log/v2"
-	"gopkg.in/webnice/web.v1/header"
-	"gopkg.in/webnice/web.v1/mime"
-	"gopkg.in/webnice/web.v1/status"
+	"github.com/webnice/web/v2/header"
+	"github.com/webnice/web/v2/mime"
+	"github.com/webnice/web/v2/status"
 )
 
 // Response Ответ на запрос с проверкой передачи данных

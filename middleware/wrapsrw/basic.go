@@ -1,9 +1,10 @@
 package wrapsrw
 
-import "gopkg.in/webnice/web.v1/status"
 import (
 	"io"
 	"net/http"
+
+	"github.com/webnice/web/v2/status"
 )
 
 func (b *basic) WriteHeader(code int) {

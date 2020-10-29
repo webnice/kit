@@ -1,6 +1,6 @@
 package verify
 
-import "gopkg.in/webnice/web.v1/context"
+import "github.com/webnice/web/v2/context"
 
 func init() {
 	// Регистрация внешней функции проверки данных

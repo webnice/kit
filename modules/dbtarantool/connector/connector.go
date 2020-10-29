@@ -1,4 +1,4 @@
-package connector // import "github.com/webnice/kit/v1/modules/dbtarantool/connector"
+package connector
 
 import (
 	"fmt"

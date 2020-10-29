@@ -1,4 +1,4 @@
-package message // import "github.com/webnice/kit/v1/modules/mail/message"
+package message
 
 import (
 	"bytes"

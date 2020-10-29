@@ -1,4 +1,4 @@
-package mail // import "github.com/webnice/kit/v1/modules/mail"
+package mail
 
 /*
 Пример использования

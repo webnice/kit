@@ -1,4 +1,4 @@
-package encode // import "github.com/webnice/kit/v1/modules/mail/encode"
+package encode
 
 import (
 	"bytes"

@@ -1,6 +1,6 @@
 // +build !go1.3
 
-package qp // import "github.com/webnice/kit/v1/modules/mail/qp"
+package qp
 
 import "bytes"
 

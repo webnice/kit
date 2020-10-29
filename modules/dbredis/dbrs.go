@@ -1,4 +1,4 @@
-package dbredis // import "github.com/webnice/kit/v1/modules/dbredis"
+package dbredis
 
 import (
 	"github.com/webnice/kit/v1/modules/dbredis/connector"

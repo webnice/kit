@@ -1,4 +1,4 @@
-package dbtarantool // import "github.com/webnice/kit/v1/modules/dbtarantool"
+package dbtarantool
 
 import (
 	"github.com/webnice/kit/v1/modules/dbtarantool/tarantool"

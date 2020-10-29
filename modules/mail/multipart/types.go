@@ -1,4 +1,4 @@
-package multipart // import "github.com/webnice/kit/v1/modules/mail/multipart"
+package multipart
 
 import (
 	"io"

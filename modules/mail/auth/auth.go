@@ -1,4 +1,4 @@
-package auth // import "github.com/webnice/kit/v1/modules/mail/auth"
+package auth
 
 import (
 	"bytes"

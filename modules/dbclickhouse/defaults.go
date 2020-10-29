@@ -1,4 +1,4 @@
-package dbclickhouse // import "github.com/webnice/kit/v1/modules/dbclickhouse"
+package dbclickhouse
 
 import "strings"
 

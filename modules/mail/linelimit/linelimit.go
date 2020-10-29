@@ -1,4 +1,4 @@
-package linelimit // import "github.com/webnice/kit/v1/modules/mail/linelimit"
+package linelimit
 
 import "io"
 

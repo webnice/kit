@@ -1,4 +1,4 @@
-package connector // import "github.com/webnice/kit/v1/modules/dbredis/connector"
+package connector
 
 import (
 	"runtime"
