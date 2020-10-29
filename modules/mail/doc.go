@@ -1,9 +1,9 @@
-package mail // import "gopkg.in/webnice/kit.v1/modules/mail"
+package mail // import "github.com/webnice/kit/v1/modules/mail"
 
 /*
 Пример использования
 
-import "gopkg.in/webnice/kit.v1/modules/mail"
+import "github.com/webnice/kit/v1/modules/mail"
 import "log"
 import "io/ioutil"
 import "bytes"

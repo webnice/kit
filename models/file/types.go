@@ -1,10 +1,6 @@
-package file // import "gopkg.in/webnice/kit.v1/models/file"
+package file // import "github.com/webnice/kit/v1/models/file"
 
-//import "gopkg.in/webnice/log.v2"
-//import "gopkg.in/webnice/debug.v1"
-import (
-	"bytes"
-)
+import "bytes"
 
 // Interface is an interface
 type Interface interface {

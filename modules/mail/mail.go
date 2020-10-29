@@ -1,13 +1,12 @@
-package mail // import "gopkg.in/webnice/kit.v1/modules/mail"
+package mail // import "github.com/webnice/kit/v1/modules/mail"
 
-//import "gopkg.in/webnice/debug.v1"
-import "gopkg.in/webnice/log.v2"
 import (
 	"runtime"
 	"strings"
 
-	"gopkg.in/webnice/kit.v1/modules/mail/encode"
-	"gopkg.in/webnice/kit.v1/modules/mail/message"
+	"github.com/webnice/kit/v1/modules/mail/encode"
+	"github.com/webnice/kit/v1/modules/mail/message"
+	"github.com/webnice/log/v2"
 )
 
 // New return mail interface

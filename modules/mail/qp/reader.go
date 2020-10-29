@@ -1,9 +1,7 @@
 // Package quotedprintable implements quoted-printable encoding as specified by RFC 2045.
 
-package qp // import "gopkg.in/webnice/kit.v1/modules/mail/qp"
+package qp // import "github.com/webnice/kit/v1/modules/mail/qp"
 
-//import "gopkg.in/webnice/debug.v1"
-//import "gopkg.in/webnice/log.v2"
 import (
 	"bufio"
 	"bytes"

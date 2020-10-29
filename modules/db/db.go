@@ -1,9 +1,8 @@
-package db // import "gopkg.in/webnice/kit.v1/modules/db"
+package db // import "github.com/webnice/kit/v1/modules/db"
 
-//import "gopkg.in/webnice/debug.v1"
-import "gopkg.in/webnice/log.v2"
 import (
-	"gopkg.in/webnice/kit.v1/modules/db/connector"
+	"github.com/webnice/kit/v1/modules/db/connector"
+	"github.com/webnice/log/v2"
 
 	"github.com/jinzhu/gorm"
 

@@ -1,15 +1,13 @@
-package multipart // import "gopkg.in/webnice/kit.v1/modules/mail/multipart"
+package multipart // import "github.com/webnice/kit/v1/modules/mail/multipart"
 
-//import "gopkg.in/webnice/debug.v1"
-//import "gopkg.in/webnice/log.v2"
 import (
 	"encoding/base64"
 	"fmt"
 	"io"
 	"mime/multipart"
 
-	"gopkg.in/webnice/kit.v1/modules/mail/linelimit"
-	"gopkg.in/webnice/kit.v1/modules/mail/qp"
+	"github.com/webnice/kit/v1/modules/mail/linelimit"
+	"github.com/webnice/kit/v1/modules/mail/qp"
 )
 
 // New interface

@@ -1,11 +1,9 @@
-package dbredis // import "gopkg.in/webnice/kit.v1/modules/dbredis"
+package dbredis // import "github.com/webnice/kit/v1/modules/dbredis"
 
-//import "gopkg.in/webnice/debug.v1"
-//import "gopkg.in/webnice/log.v2"
 import (
 	"time"
 
-	"gopkg.in/webnice/kit.v1/modules/dbredis/connector"
+	"github.com/webnice/kit/v1/modules/dbredis/connector"
 
 	redis "github.com/go-redis/redis/v7"
 )

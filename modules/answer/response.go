@@ -1,7 +1,5 @@
-package answer // import "gopkg.in/webnice/kit.v1/modules/answer"
+package answer // import "github.com/webnice/kit/v1/modules/answer"
 
-//import "gopkg.in/webnice/debug.v1"
-import "gopkg.in/webnice/log.v2"
 import (
 	"bytes"
 	"encoding/json"
@@ -9,7 +7,8 @@ import (
 	"net/http"
 	"reflect"
 
-	"gopkg.in/webnice/kit.v1/modules/verify"
+	"github.com/webnice/kit/v1/modules/verify"
+	"github.com/webnice/log/v2"
 	"gopkg.in/webnice/web.v1/header"
 	"gopkg.in/webnice/web.v1/mime"
 	"gopkg.in/webnice/web.v1/status"
@@ -35,8 +34,8 @@ func ResponseBadRequest(wr http.ResponseWriter, statusCode int, data verify.Inte
 	)
 
 	if buf = data.Json(); len(buf) == 0 {
-		// TODO: Добавить проверку ошибки кодирования JSON в библиотеке gopkg.in/webnice/kit.v1/modules/verify
-		err = fmt.Errorf("gopkg.in/webnice/kit.v1/modules/verify JSON encode error")
+		// TODO: Добавить проверку ошибки кодирования JSON в библиотеке github.com/webnice/kit/v1/modules/verify
+		err = fmt.Errorf("github.com/webnice/kit/v1/modules/verify JSON encode error")
 		InternalServerError(wr, err)
 		return
 	}

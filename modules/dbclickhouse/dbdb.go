@@ -1,9 +1,8 @@
-package dbclickhouse // import "gopkg.in/webnice/kit.v1/modules/dbclickhouse"
+package dbclickhouse // import "github.com/webnice/kit/v1/modules/dbclickhouse"
 
-//import "gopkg.in/webnice/debug.v1"
-import "gopkg.in/webnice/log.v2"
 import (
-	"gopkg.in/webnice/kit.v1/modules/dbclickhouse/connector"
+	"github.com/webnice/kit/v1/modules/dbclickhouse/connector"
+	"github.com/webnice/log/v2"
 
 	"github.com/jmoiron/sqlx"
 )

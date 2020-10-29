@@ -1,7 +1,5 @@
 package verify
 
-//import "gopkg.in/webnice/debug.v1"
-//import "gopkg.in/webnice/log.v2"
 import (
 	"encoding/json"
 	"fmt"
@@ -27,21 +25,25 @@ func (e *Response) Response() *Response { return e }
 // Json Serialize and return object as json data
 func (e *Response) Json() (ret []byte) {
 	var err error
+
 	if ret, err = json.Marshal(e); err != nil {
 		//e.Error = fmt.Errorf("Error marshal json: %s", err.Error())
 		return
 	}
+
 	return
 }
 
 // Verify Проверяет структуру разобранную из json на ошибки описанные в теге validate
 // В случае наличия ошибок возвращает Interface с данными составленными на основе ошибок верификации
 func Verify(data interface{}) (ret Interface, err error) {
-	var vrf *validator.Validate
-	var i int
-	var terr error
-	var vErr validator.ValidationErrors
-	var ok bool
+	var (
+		vrf  *validator.Validate
+		i    int
+		terr error
+		vErr validator.ValidationErrors
+		ok   bool
+	)
 
 	ret = E4xx()
 	vrf = validator.New()

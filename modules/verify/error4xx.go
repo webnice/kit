@@ -1,8 +1,5 @@
 package verify
 
-//import "gopkg.in/webnice/debug.v1"
-//import "gopkg.in/webnice/log.v2"
-
 // E4xx HTTP error code 400-499
 func E4xx() Interface {
 	var err = new(Response)

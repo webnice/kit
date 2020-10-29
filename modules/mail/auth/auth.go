@@ -1,7 +1,5 @@
-package auth // import "gopkg.in/webnice/kit.v1/modules/mail/auth"
+package auth // import "github.com/webnice/kit/v1/modules/mail/auth"
 
-//import "gopkg.in/webnice/debug.v1"
-//import "gopkg.in/webnice/log.v2"
 import (
 	"bytes"
 	"fmt"
@@ -9,9 +7,9 @@ import (
 )
 
 var (
-	errUnencryptedConnection     = fmt.Errorf(`Unencrypted connection`)
-	errWrongServerHostName       = fmt.Errorf(`Wrong server host name`)
-	errUnexpectedServerChallenge = fmt.Errorf(`Unexpected server challenge`)
+	errUnencryptedConnection     = fmt.Errorf(`unencrypted connection`)
+	errWrongServerHostName       = fmt.Errorf(`wrong server host name`)
+	errUnexpectedServerChallenge = fmt.Errorf(`unexpected server challenge`)
 )
 
 // Interface auth interface

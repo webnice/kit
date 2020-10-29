@@ -5,4 +5,4 @@
 
 #### Install
 
-	go get gopkg.in/webnice/kit.v1
+	go get github.com/webnice/kit/v1

@@ -1,10 +1,6 @@
-package dbclickhouse // import "gopkg.in/webnice/kit.v1/modules/dbclickhouse"
+package dbclickhouse // import "github.com/webnice/kit/v1/modules/dbclickhouse"
 
-//import "gopkg.in/webnice/debug.v1"
-//import "gopkg.in/webnice/log.v2"
-import (
-	"strings"
-)
+import "strings"
 
 // Defaults Проверка конфигурации и установка значений по умолчанию
 func Defaults(cnf *Configuration) {

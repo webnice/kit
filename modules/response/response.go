@@ -4,8 +4,8 @@ import (
 //	"net/http"
 //	"reflect"
 //
-//	"gopkg.in/webnice/web.v1/header"
-//	"gopkg.in/webnice/web.v1/mime"
+//	"github.com/webnice/web/v1/header"
+//	"github.com/webnice/web/v1/mime"
 )
 
 //func indirect(rv reflect.Value) reflect.Value {

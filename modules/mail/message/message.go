@@ -1,13 +1,11 @@
-package message // import "gopkg.in/webnice/kit.v1/modules/mail/message"
+package message // import "github.com/webnice/kit/v1/modules/mail/message"
 
-//import "gopkg.in/webnice/debug.v1"
-//import "gopkg.in/webnice/log.v2"
 import (
 	"io"
 	"time"
 
-	"gopkg.in/webnice/kit.v1/modules/mail/encode"
-	"gopkg.in/webnice/kit.v1/modules/mail/multipart"
+	"github.com/webnice/kit/v1/modules/mail/encode"
+	"github.com/webnice/kit/v1/modules/mail/multipart"
 )
 
 // New new message

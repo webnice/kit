@@ -1,15 +1,13 @@
-package mail // import "gopkg.in/webnice/kit.v1/modules/mail"
+package mail // import "github.com/webnice/kit/v1/modules/mail"
 
-//import "gopkg.in/webnice/debug.v1"
-//import "gopkg.in/webnice/log.v2"
 import (
 	"crypto/tls"
 	"net/smtp"
 	"sync"
 	"time"
 
-	"gopkg.in/webnice/kit.v1/modules/mail/encode"
-	"gopkg.in/webnice/kit.v1/modules/mail/message"
+	"github.com/webnice/kit/v1/modules/mail/encode"
+	"github.com/webnice/kit/v1/modules/mail/message"
 )
 
 var smtpDialTimeout = time.Second * 10

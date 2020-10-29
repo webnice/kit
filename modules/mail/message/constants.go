@@ -1,4 +1,4 @@
-package message // import "gopkg.in/webnice/kit.v1/modules/mail/message"
+package message // import "github.com/webnice/kit/v1/modules/mail/message"
 
 const (
 	// DeafultContentType default embeded Content-Type

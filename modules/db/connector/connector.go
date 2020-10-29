@@ -1,12 +1,12 @@
-package connector // import "gopkg.in/webnice/kit.v1/modules/db/connector"
+package connector // import "github.com/webnice/kit/v1/modules/db/connector"
 
-//import "gopkg.in/webnice/debug.v1"
-import "gopkg.in/webnice/log.v2"
 import (
 	"fmt"
 	"runtime"
 	"sync"
 	"sync/atomic"
+
+	"github.com/webnice/log/v2"
 
 	"github.com/jinzhu/gorm"
 
