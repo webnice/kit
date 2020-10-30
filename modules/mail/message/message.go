@@ -4,8 +4,8 @@ import (
 	"io"
 	"time"
 
-	"github.com/webnice/kit/v1/modules/mail/encode"
-	"github.com/webnice/kit/v1/modules/mail/multipart"
+	"github.com/webnice/kit/modules/mail/encode"
+	"github.com/webnice/kit/modules/mail/multipart"
 )
 
 // New new message

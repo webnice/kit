@@ -4,7 +4,7 @@ import (
 	"io"
 	"mime/multipart"
 
-	"github.com/webnice/kit/v1/modules/mail/encode"
+	"github.com/webnice/kit/modules/mail/encode"
 )
 
 const (

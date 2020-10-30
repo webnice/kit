@@ -8,8 +8,8 @@ import (
 	"net/smtp"
 	"strings"
 
-	"github.com/webnice/kit/v1/modules/mail/auth"
-	"github.com/webnice/kit/v1/modules/mail/message"
+	"github.com/webnice/kit/modules/mail/auth"
+	"github.com/webnice/kit/modules/mail/message"
 	"github.com/webnice/log/v2"
 )
 

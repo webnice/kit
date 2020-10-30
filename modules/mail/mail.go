@@ -4,8 +4,8 @@ import (
 	"runtime"
 	"strings"
 
-	"github.com/webnice/kit/v1/modules/mail/encode"
-	"github.com/webnice/kit/v1/modules/mail/message"
+	"github.com/webnice/kit/modules/mail/encode"
+	"github.com/webnice/kit/modules/mail/message"
 	"github.com/webnice/log/v2"
 )
 

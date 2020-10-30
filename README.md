@@ -4,5 +4,6 @@
 
 
 #### Install
-
-	go get github.com/webnice/kit/v1
+```bash
+go get -u github.com/webnice/kit
+```
