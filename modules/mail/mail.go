@@ -6,7 +6,7 @@ import (
 
 	"github.com/webnice/kit/modules/mail/encode"
 	"github.com/webnice/kit/modules/mail/message"
-	"github.com/webnice/log/v2"
+	log "github.com/webnice/lv2"
 )
 
 // New return mail interface
@@ -16,6 +16,7 @@ func New(cfg *SMTP) Interface {
 		encoder: encode.New(),
 	}
 	runtime.SetFinalizer(ml, destructor)
+
 	return ml
 }
 

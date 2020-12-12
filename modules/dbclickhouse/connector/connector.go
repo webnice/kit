@@ -6,7 +6,7 @@ import (
 	"sync"
 	"sync/atomic"
 
-	"github.com/webnice/log/v2"
+	log "github.com/webnice/lv2"
 
 	clickhouse "github.com/ClickHouse/clickhouse-go"
 	"github.com/jmoiron/sqlx"

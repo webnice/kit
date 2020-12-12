@@ -2,7 +2,7 @@ package dbtarantool
 
 import (
 	"github.com/webnice/kit/modules/dbtarantool/tarantool"
-	"github.com/webnice/log/v2"
+	log "github.com/webnice/lv2"
 )
 
 // MakeConnectArgs Создание параметров подключения к базе данных

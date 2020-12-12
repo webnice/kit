@@ -7,7 +7,7 @@ import (
 	"sync/atomic"
 
 	"github.com/webnice/kit/modules/dbtarantool/tarantool"
-	"github.com/webnice/log/v2"
+	log "github.com/webnice/lv2"
 )
 
 var singleton *impl

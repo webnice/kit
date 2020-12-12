@@ -2,7 +2,7 @@ package dbredis
 
 import (
 	"github.com/webnice/kit/modules/dbredis/connector"
-	"github.com/webnice/log/v2"
+	log "github.com/webnice/lv2"
 
 	redis "github.com/go-redis/redis/v7"
 )

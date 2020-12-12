@@ -10,7 +10,7 @@ import (
 
 	"github.com/webnice/kit/modules/mail/auth"
 	"github.com/webnice/kit/modules/mail/message"
-	"github.com/webnice/log/v2"
+	log "github.com/webnice/lv2"
 )
 
 // Send Отправка сообщения

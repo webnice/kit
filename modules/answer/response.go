@@ -8,7 +8,7 @@ import (
 	"reflect"
 
 	"github.com/webnice/kit/modules/verify"
-	"github.com/webnice/log/v2"
+	log "github.com/webnice/lv2"
 	"github.com/webnice/web/v2/header"
 	"github.com/webnice/web/v2/mime"
 	"github.com/webnice/web/v2/status"
