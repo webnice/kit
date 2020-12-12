@@ -12,7 +12,7 @@ github.com/ClickHouse/clickhouse-go/lib/types
 github.com/ClickHouse/clickhouse-go/lib/writebuffer
 # github.com/cloudflare/golz4 v0.0.0-20150217214814-ef862a3cdc58
 github.com/cloudflare/golz4
-# github.com/denisenkom/go-mssqldb v0.0.0-20200910202707-1e08a3fab204
+# github.com/denisenkom/go-mssqldb v0.9.0
 ## explicit
 github.com/denisenkom/go-mssqldb
 github.com/denisenkom/go-mssqldb/internal/cp
@@ -57,41 +57,41 @@ github.com/jmoiron/sqlx
 github.com/jmoiron/sqlx/reflectx
 # github.com/leodido/go-urn v1.2.0
 github.com/leodido/go-urn
-# github.com/lib/pq v1.8.0
+# github.com/lib/pq v1.9.0
 ## explicit
 github.com/lib/pq
 github.com/lib/pq/hstore
 github.com/lib/pq/oid
 github.com/lib/pq/scram
-# github.com/mattn/go-sqlite3 v1.14.4
+# github.com/mattn/go-sqlite3 v1.14.5
 ## explicit
 github.com/mattn/go-sqlite3
 # github.com/satori/go.uuid v1.2.0
 ## explicit
 github.com/satori/go.uuid
-# github.com/vmihailenco/msgpack v3.3.3+incompatible
+# github.com/vmihailenco/msgpack v4.0.4+incompatible
 ## explicit
 github.com/vmihailenco/msgpack/codes
-# github.com/webnice/log/v2 v2.0.0
+# github.com/webnice/lv2 v0.0.0-20201212082251-996f95a7bf70
 ## explicit
-github.com/webnice/log/v2
-github.com/webnice/log/v2/formater
-github.com/webnice/log/v2/gelf
-github.com/webnice/log/v2/level
-github.com/webnice/log/v2/message
-github.com/webnice/log/v2/middleware
-github.com/webnice/log/v2/middleware/fswformattext
-github.com/webnice/log/v2/receiver
-github.com/webnice/log/v2/receiver/fsfile
-github.com/webnice/log/v2/receiver/fsfilerotation
-github.com/webnice/log/v2/receiver/gelf
-github.com/webnice/log/v2/receiver/stderr
-github.com/webnice/log/v2/receiver/stdout
-github.com/webnice/log/v2/receiver/syslog
-github.com/webnice/log/v2/sender
-github.com/webnice/log/v2/trace
-github.com/webnice/log/v2/uuid
-github.com/webnice/log/v2/writer
+github.com/webnice/lv2
+github.com/webnice/lv2/formater
+github.com/webnice/lv2/gelf
+github.com/webnice/lv2/level
+github.com/webnice/lv2/message
+github.com/webnice/lv2/middleware
+github.com/webnice/lv2/middleware/fswformattext
+github.com/webnice/lv2/receiver
+github.com/webnice/lv2/receiver/fsfile
+github.com/webnice/lv2/receiver/fsfilerotation
+github.com/webnice/lv2/receiver/gelf
+github.com/webnice/lv2/receiver/stderr
+github.com/webnice/lv2/receiver/stdout
+github.com/webnice/lv2/receiver/syslog
+github.com/webnice/lv2/sender
+github.com/webnice/lv2/trace
+github.com/webnice/lv2/uuid
+github.com/webnice/lv2/writer
 # github.com/webnice/web/v2 v2.0.0
 ## explicit
 github.com/webnice/web/v2/ambry
@@ -103,14 +103,14 @@ github.com/webnice/web/v2/header
 github.com/webnice/web/v2/mime
 github.com/webnice/web/v2/param
 github.com/webnice/web/v2/status
-# golang.org/x/crypto v0.0.0-20201016220609-9e8e0b390897
+# golang.org/x/crypto v0.0.0-20201208171446-5f87f3452ae9
 ## explicit
 golang.org/x/crypto/md4
 golang.org/x/crypto/sha3
-# golang.org/x/net v0.0.0-20201029221708-28c70e62bb1d
+# golang.org/x/net v0.0.0-20201209123823-ac852fbbde11
 ## explicit
 golang.org/x/net/context
-# golang.org/x/sys v0.0.0-20201029080932-201ba4db2418
+# golang.org/x/sys v0.0.0-20201211090839-8ad439b19e0f
 ## explicit
 golang.org/x/sys/cpu
 # google.golang.org/appengine v1.6.7
