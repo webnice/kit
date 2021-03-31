@@ -4,13 +4,13 @@ import (
 	"github.com/webnice/kit/modules/db/connector"
 	log "github.com/webnice/lv2"
 
-	"github.com/jinzhu/gorm"
+	"gorm.io/gorm"
 
 	// gorm dependences
-	_ "github.com/jinzhu/gorm/dialects/mssql"
-	_ "github.com/jinzhu/gorm/dialects/mysql"
-	_ "github.com/jinzhu/gorm/dialects/postgres"
-	_ "github.com/jinzhu/gorm/dialects/sqlite"
+	_ "gorm.io/driver/mysql"
+	_ "gorm.io/driver/postgres"
+	_ "gorm.io/driver/sqlite"
+	_ "gorm.io/driver/sqlserver"
 )
 
 // New creates new lib implementation
@@ -63,8 +63,7 @@ func (db *Implementation) Connect() (err error) {
 	}
 
 	// Открываем соединение
-	err = db.conn.Open(db.drv, db.dsn)
-	if err != nil {
+	if err = db.conn.Open(db.drv, db.dsn); err != nil {
 		log.Errorf("Unable to open database session gorm.Open(%s, %s): %s", db.drv, db.dsn, err.Error())
 		return
 	}

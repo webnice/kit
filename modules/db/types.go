@@ -3,7 +3,7 @@ package db
 import (
 	"github.com/webnice/kit/modules/db/connector"
 
-	"github.com/jinzhu/gorm"
+	"gorm.io/gorm"
 )
 
 var defaultConfiguration *Configuration

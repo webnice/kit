@@ -8,20 +8,20 @@ import (
 
 	log "github.com/webnice/lv2"
 
-	"github.com/jinzhu/gorm"
+	"gorm.io/gorm"
 
 	// gorm dependencies
-	_ "github.com/jinzhu/gorm/dialects/mssql"
-	_ "github.com/jinzhu/gorm/dialects/mysql"
-	_ "github.com/jinzhu/gorm/dialects/postgres"
-	_ "github.com/jinzhu/gorm/dialects/sqlite"
+	"gorm.io/driver/mysql"
+	_ "gorm.io/driver/postgres"
+	_ "gorm.io/driver/sqlite"
+	_ "gorm.io/driver/sqlserver"
 )
 
 var singleton *impl
 
 // Interface is an interface of connector
 type Interface interface {
-	Open(string, ...interface{}) error
+	Open(string, string) error
 	IsOpened() bool
 	Close() error
 	Gist() *gorm.DB
@@ -30,11 +30,11 @@ type Interface interface {
 // impl is an implementation of connector
 type impl struct {
 	sync.RWMutex
-	Gorm    *gorm.DB      // Само соединение
-	Counter int64         // Счётчик для подсчёта Open/Close. Open +1, Close -1. Если <= 0 то делается закрытие соединения
-	Debug   bool          // Для отладки
-	Dialect string        // Database dialect identificator
-	Args    []interface{} // Database arguments
+	Gorm    *gorm.DB // Само соединение
+	Counter int64    // Счётчик для подсчёта Open/Close. Open +1, Close -1. Если <= 0 то делается закрытие соединения
+	Debug   bool     // Для отладки
+	Dialect string   // Database dialect identificator
+	Dsn     string   // Database DSN
 }
 
 // New Create new object
@@ -54,27 +54,20 @@ func destructor(conn *impl) {
 	if conn.Gorm == nil {
 		return
 	}
-	if conn.Gorm.DB().Ping() == nil {
-		if err := conn.Gorm.DB().Close(); err != nil {
-			log.Errorf("Error close database connection: %s", err.Error())
-		}
-	}
-	if err := conn.Gorm.Close(); err != nil {
-		log.Errorf("Error close gorm object: %s", err.Error())
-	}
 	conn.Gorm = nil
 }
 
 // Open database connection
-func (conn *impl) Open(dialect string, args ...interface{}) (err error) {
-	var obj *gorm.DB
+func (conn *impl) Open(dialect string, dsn string) (err error) {
+	var (
+		obj       *gorm.DB
+		dialector gorm.Dialector
+	)
 
 	conn.RLock()
 	defer conn.RUnlock()
 
-	conn.Dialect = dialect
-	conn.Args = args
-
+	conn.Dialect, conn.Dsn = dialect, dsn
 	if conn.Gorm != nil {
 		v := atomic.AddInt64(&conn.Counter, 1)
 		if conn.Debug {
@@ -83,7 +76,11 @@ func (conn *impl) Open(dialect string, args ...interface{}) (err error) {
 		return
 	}
 
-	if obj, err = gorm.Open(conn.Dialect, conn.Args...); err != nil {
+	dialector = mysql.New(mysql.Config{
+		DriverName: conn.Dialect,
+		DSN:        conn.Dsn,
+	})
+	if obj, err = gorm.Open(dialector); err != nil {
 		return
 	} else if obj == nil {
 		err = fmt.Errorf("db connection object is nil")
@@ -125,7 +122,7 @@ func (conn *impl) Close() (err error) {
 		return
 	}
 
-	if conn.Gorm.DB() == nil {
+	if conn.Gorm == nil {
 		atomic.StoreInt64(&conn.Counter, 0)
 		if conn.Debug {
 			log.Noticef(" * Already close (%v)", 0)
@@ -153,17 +150,10 @@ func (conn *impl) Gist() *gorm.DB {
 	var ok bool
 
 	if conn.IsOpened() {
-		err := conn.Gorm.DB().Ping()
-		if err != nil {
-			if conn.Debug {
-				log.Errorf("Gist() Ping(): %s", err.Error())
-			}
-		} else {
-			ok = true
-		}
+		ok = true
 	}
 	if !ok {
-		if err := conn.Open(conn.Dialect, conn.Args...); err != nil {
+		if err := conn.Open(conn.Dialect, conn.Dsn); err != nil {
 			if conn.Debug {
 				log.Errorf("Gist() Open(): %s", err.Error())
 			}
