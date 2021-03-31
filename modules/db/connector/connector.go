@@ -9,6 +9,7 @@ import (
 	log "github.com/webnice/lv2"
 
 	"gorm.io/gorm"
+	"gorm.io/gorm/logger"
 
 	// gorm dependencies
 	"gorm.io/driver/mysql"
@@ -62,6 +63,7 @@ func (conn *impl) Open(dialect string, dsn string) (err error) {
 	var (
 		obj       *gorm.DB
 		dialector gorm.Dialector
+		config     *gorm.Config
 	)
 
 	conn.RLock()
@@ -80,13 +82,18 @@ func (conn *impl) Open(dialect string, dsn string) (err error) {
 		DriverName: conn.Dialect,
 		DSN:        conn.Dsn,
 	})
-	if obj, err = gorm.Open(dialector); err != nil {
+	config = &gorm.Config{
+		Logger: logger.Default.LogMode(logger.Silent),
+	}
+	if conn.Debug {
+		config.Logger = logger.Default.LogMode(logger.Info)
+	}
+	if obj, err = gorm.Open(dialector, config); err != nil {
 		return
 	} else if obj == nil {
 		err = fmt.Errorf("db connection object is nil")
 		return
 	}
-
 	conn.Gorm = obj
 	atomic.AddInt64(&conn.Counter, 1)
 	if conn.Debug {
