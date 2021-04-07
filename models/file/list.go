@@ -1,8 +1,8 @@
-package file
+package file // import "github.com/webnice/kit/models/file"
 
 import (
-	"io/fs"
 	"io/ioutil"
+	"os"
 	"path"
 )
 
@@ -18,7 +18,7 @@ func (fl *impl) RecursiveFileList(folderPath string) (ret []string, err error) {
 func (fl *impl) recursiveFileListLoop(baseFolderPath, currentFolderPath string) (ret []string, err error) {
 	var (
 		pf  string
-		fis []fs.FileInfo
+		fis []os.FileInfo
 		n   int
 	)
 

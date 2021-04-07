@@ -1,4 +1,4 @@
-package file
+package file // import "github.com/webnice/kit/models/file"
 
 import (
 	"crypto/sha512"
@@ -7,21 +7,7 @@ import (
 	"hash"
 	"io"
 	"os"
-	"strings"
 )
-
-// GetFilename Выделение из полного пути и имени файла, имени файла
-func (fl *impl) GetFilename(filename string) (ret string) {
-	var ch []string
-
-	if ch = strings.Split(filename, string(os.PathSeparator)); len(ch) > 0 {
-		ret = ch[len(ch)-1]
-		return
-	}
-	ret = filename
-
-	return
-}
 
 // GetInfoSha512 Считывание информации о файле с контрольной суммой
 func (fl *impl) GetInfoSha512(filename string) (inf *InfoSha512, err error) {
