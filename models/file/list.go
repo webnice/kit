@@ -1,6 +1,7 @@
 package file
 
 import (
+	"io/fs"
 	"io/ioutil"
 	"path"
 )
@@ -9,25 +10,32 @@ import (
 // Возвращается слайс относительных имён файлов
 func (fl *impl) RecursiveFileList(path string) (ret []string, err error) {
 	ret, err = fl.RecursiveFileListLoop(path, "")
+
 	return
 }
 
 // RecursiveFileListLoop Удобная для рекурсии функция
 func (fl *impl) RecursiveFileListLoop(base, current string) (ret []string, err error) {
-	pf := path.Join(base, current)
-	fis, err := ioutil.ReadDir(pf)
+	var (
+		pf  string
+		fis []fs.FileInfo
+		n   int
+	)
 
-	for i := range fis {
+	pf = path.Join(base, current)
+	if fis, err = ioutil.ReadDir(pf); err != nil {
+		return
+	}
+	for n = range fis {
 		switch {
-		case fis[i].IsDir():
-			resp, err := fl.RecursiveFileListLoop(base, path.Join(current, fis[i].Name()))
-			if err != nil {
-				return ret, err
+		case fis[n].IsDir():
+			if ret, err = fl.RecursiveFileListLoop(base, path.Join(current, fis[n].Name())); err != nil {
+				return
 			}
-			ret = append(ret, resp...)
-		case !fis[i].IsDir():
-			ret = append(ret, path.Join(current, fis[i].Name()))
+		case !fis[n].IsDir():
+			ret = append(ret, path.Join(current, fis[n].Name()))
 		}
 	}
+
 	return
 }
