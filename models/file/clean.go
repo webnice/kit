@@ -8,12 +8,12 @@ import (
 )
 
 // CleanEmptyFolder Удаление пустых папок
-func (fl *impl) CleanEmptyFolder(pt string) (err error) {
-	return fl.CleanEmptyFolderRecursive(pt, 0)
+func (fl *impl) CleanEmptyFolder(folderPath string) (err error) {
+	return fl.cleanEmptyFolderRecursive(folderPath, 0)
 }
 
-// CleanEmptyFolderRecursive Более удобный для рекурсии вариант
-func (fl *impl) CleanEmptyFolderRecursive(pt string, level int64) (err error) {
+// Более удобный для рекурсии вариант функции удаления пустых папок
+func (fl *impl) cleanEmptyFolderRecursive(pt string, level int64) (err error) {
 	var (
 		fi []os.FileInfo
 		n  int
@@ -32,7 +32,7 @@ func (fl *impl) CleanEmptyFolderRecursive(pt string, level int64) (err error) {
 	for n = range fi {
 		switch {
 		case fi[n].IsDir():
-			if err = fl.CleanEmptyFolderRecursive(path.Join(pt, fi[n].Name()), level+1); err != nil {
+			if err = fl.cleanEmptyFolderRecursive(path.Join(pt, fi[n].Name()), level+1); err != nil {
 				return
 			}
 		}

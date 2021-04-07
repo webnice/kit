@@ -8,17 +8,22 @@ import (
 )
 
 // LoadFile Загрузка файла в память и возврат в виде *bytes.Buffer
-func (fl *impl) LoadFile(fileName string) (ret *bytes.Buffer, err error) {
+func (fl *impl) LoadFile(filename string) (data *bytes.Buffer, info os.FileInfo, err error) {
+	const defaultFileMode = os.FileMode(0755)
 	var fh *os.File
 
-	if fh, err = os.OpenFile(fileName, os.O_RDONLY, 0755); err != nil {
-		err = fmt.Errorf("open file %q, error: %s", fileName, err)
+	if fh, err = os.OpenFile(filename, os.O_RDONLY, defaultFileMode); err != nil {
+		fmt.Errorf("open file %q, error: %s", err)
 		return
 	}
 	defer func() { _ = fh.Close() }()
-	ret = bytes.NewBufferString(``)
-	if _, err = io.Copy(ret, fh); err != nil {
-		err = fmt.Errorf("read data from file %q, error: %s", fileName, err)
+	if info, err = fh.Stat(); err != nil {
+		err = fmt.Errorf("getting stat of file %q, error: %s", filename, err)
+		return
+	}
+	data = new(bytes.Buffer)
+	if _, err = io.Copy(data, fh); err != nil {
+		err = fmt.Errorf("reading data from file %q, error: %s", filename, err)
 		return
 	}
 
