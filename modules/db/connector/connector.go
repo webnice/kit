@@ -1,6 +1,7 @@
 package connector
 
 import (
+	"database/sql"
 	"fmt"
 	"runtime"
 	"sync"
@@ -60,10 +61,15 @@ func destructor(conn *impl) {
 
 // Open database connection
 func (conn *impl) Open(dialect string, dsn string) (err error) {
+	const (
+		defaultStringSize      = 256
+		defaultCreateBatchSize = 100
+	)
 	var (
 		obj       *gorm.DB
 		dialector gorm.Dialector
-		config     *gorm.Config
+		config    *gorm.Config
+		sqlDB     *sql.DB
 	)
 
 	conn.RLock()
@@ -79,21 +85,35 @@ func (conn *impl) Open(dialect string, dsn string) (err error) {
 	}
 
 	dialector = mysql.New(mysql.Config{
-		DriverName: conn.Dialect,
-		DSN:        conn.Dsn,
+		DriverName:        conn.Dialect,
+		DSN:               conn.Dsn,
+		DefaultStringSize: defaultStringSize,
 	})
+	_ = sqlDB
 	config = &gorm.Config{
-		Logger: logger.Default.LogMode(logger.Silent),
+		Logger:          logger.Default.LogMode(logger.Silent),
+		CreateBatchSize: defaultCreateBatchSize,
 	}
 	if conn.Debug {
 		config.Logger = logger.Default.LogMode(logger.Info)
 	}
 	if obj, err = gorm.Open(dialector, config); err != nil {
 		return
-	} else if obj == nil {
+	}
+	if obj == nil {
 		err = fmt.Errorf("db connection object is nil")
 		return
 	}
+	if obj.Logger = obj.Logger.LogMode(logger.Silent); conn.Debug {
+		config.Logger = logger.Default.LogMode(logger.Info)
+		obj.Logger = obj.Logger.LogMode(logger.Info)
+	}
+	//if db, err = obj.DB(); err == nil {
+	//	db.SetMaxIdleConns(10)
+	//	db.SetMaxOpenConns(100)
+	//	db.SetConnMaxIdleTime(time.Minute / 4)
+	//	db.SetConnMaxLifetime(time.Minute / 2)
+	//}
 	conn.Gorm = obj
 	atomic.AddInt64(&conn.Counter, 1)
 	if conn.Debug {
