@@ -26,18 +26,7 @@ func (fl *impl) Copy(dst string, src string) (size int64, err error) {
 		err = fmt.Errorf("create file %q, error: %s", dst, err)
 		return
 	}
-	defer func() {
-		var le error
-
-		if le = out.Sync(); err == nil {
-			err = fmt.Errorf("sync file %q, error: %s", dst, le)
-			return
-		}
-		if le = out.Close(); err == nil {
-			err = fmt.Errorf("close file %q, error: %s", dst, le)
-			return
-		}
-	}()
+	defer func() { _ = out.Sync(); _ = out.Close() }()
 	if size, err = io.Copy(out, inp); err != nil {
 		err = fmt.Errorf("copy data from file %q to file %q, error: %s", dst, src, err)
 		return

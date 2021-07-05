@@ -1,8 +1,9 @@
 DIR=$(strip $(shell dirname $(realpath $(lastword $(MAKEFILE_LIST)))))
 
-GOPATH       := $(GOPATH)
-DATE         =  $(shell date -u +%Y%m%d.%H%M%S.%Z)
-GOGENERATE   =  $(shell if [ -f .gogenerate ]; then cat .gogenerate; fi)
+OLDGOPATH   := $(GOPATH)
+GOPATH      := $(GOPATH)
+DATE         = $(shell date -u +%Y%m%d.%H%M%S.%Z)
+GOGENERATE   = $(shell if [ -f .gogenerate ]; then cat .gogenerate; fi)
 
 default: dep
 
