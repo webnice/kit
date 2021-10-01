@@ -1,4 +1,4 @@
-package file // import "github.com/webnice/kit/models/file"
+package file // import "github.com/webnice/kit/model/file"
 
 import (
 	"bytes"

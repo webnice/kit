@@ -1,4 +1,4 @@
-package file // import "github.com/webnice/kit/models/file"
+package file // import "github.com/webnice/kit/model/file"
 
 //go:generate go run mime_generate.go
 //go:generate gofmt -w mime.go
