@@ -1,6 +1,6 @@
 package dbpostgres
 
-//import "github.com/webnice/kit/modules/dbpostgres/connector"
+//import "github.com/webnice/kit/v2/module/dbpostgres/connector"
 
 //var defaultConfiguration *Configuration
 //

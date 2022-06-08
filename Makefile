@@ -8,14 +8,11 @@ GOGENERATE   = $(shell if [ -f .gogenerate ]; then cat .gogenerate; fi)
 default: dep
 
 dep:
-	@GO111MODULE=on GOSUMDB=off GOPROXY=direct GOPRIVATE="git.webdesk.ru" go get -u ./...
-	@GO111MODULE=on GOSUMDB=off GOPROXY=direct GOPRIVATE="git.webdesk.ru" go mod download
-	@GO111MODULE=on GOSUMDB=off GOPROXY=direct GOPRIVATE="git.webdesk.ru" go mod tidy
-	@GO111MODULE=on GOSUMDB=off GOPROXY=direct GOPRIVATE="git.webdesk.ru" go mod vendor
+	@go get -u ...
 .PHONY: dep
 
 gen:
-	@for PKGNAME in $(GOGENERATE); do GO111MODULE=on go generate $${PKGNAME}; done
+	@for PKGNAME in $(GOGENERATE); do go generate $${PKGNAME}; done
 .PHONY: dep
 
 clean:

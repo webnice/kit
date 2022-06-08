@@ -7,8 +7,8 @@ import (
 	"net/mail"
 	"strings"
 
-	"github.com/webnice/kit/modules/mail/encode"
-	"github.com/webnice/kit/modules/mail/multipart"
+	"github.com/webnice/kit/v2/module/mail/encode"
+	"github.com/webnice/kit/v2/module/mail/multipart"
 )
 
 // Encoder Set encoder

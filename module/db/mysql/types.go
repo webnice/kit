@@ -1,7 +1,7 @@
 package db
 
 import (
-	"github.com/webnice/kit/modules/db/connector"
+	"github.com/webnice/kit/v2/module/db/connector"
 
 	"gorm.io/gorm"
 )

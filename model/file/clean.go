@@ -1,4 +1,4 @@
-package file // import "github.com/webnice/kit/model/file"
+package file
 
 import (
 	"fmt"

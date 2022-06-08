@@ -1,9 +1,6 @@
 # kit
 
-#### Description
-
-
 #### Install
 ```bash
-go get -u github.com/webnice/kit
+go get github.com/webnice/kit/v2/v2
 ```

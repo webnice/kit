@@ -1,7 +1,7 @@
 package dbtarantool
 
 import (
-	"github.com/webnice/kit/modules/dbtarantool/tarantool"
+	"github.com/webnice/kit/v2/module/dbtarantool/tarantool"
 	log "github.com/webnice/lv2"
 )
 

@@ -3,8 +3,8 @@ package dbtarantool
 import (
 	"time"
 
-	"github.com/webnice/kit/modules/dbtarantool/connector"
-	"github.com/webnice/kit/modules/dbtarantool/tarantool"
+	"github.com/webnice/kit/v2/module/dbtarantool/connector"
+	"github.com/webnice/kit/v2/module/dbtarantool/tarantool"
 )
 
 var defaultConfiguration *Configuration
