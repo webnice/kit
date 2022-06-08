@@ -76,6 +76,7 @@ func (essence *gist) Version(version string, build string) Essence {
 func (essence *gist) Debug(debug bool) Essence {
 	essence.parent.bootstrapConfiguration.ApplicationDebug = debug
 	essence.parent.logger.Debug(debug)
+	essence.parent.bus.Gist().Debug(debug)
 	return essence
 }
 

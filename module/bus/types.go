@@ -22,6 +22,7 @@ const (
 
 // Объект сущности, интерфейс Interface
 type impl struct {
+	debug         bool               // Флаг отладки.
 	workerCount   int64              // Счётчик выполняющихся обработчиков шины данных.
 	workerContext context.Context    // Контекст остановки обработчиков шины данных.
 	workerCancel  context.CancelFunc // Функция прерывания работы обработчиков шины данных.

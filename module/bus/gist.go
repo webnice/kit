@@ -13,6 +13,14 @@ func newEssence(parent *impl) Essence {
 	return essence
 }
 
+// Debug Присвоение нового значения режима отладки.
+func (essence *gist) Debug(debug bool) Essence {
+	essence.parent.debug = debug
+	essence.parent.databus.Wrappers.Debug(debug)
+
+	return essence
+}
+
 // WorkerStart Запуск потоков обработчика шины данных.
 func (essence *gist) WorkerStart(workerCount int) Essence {
 	var n int

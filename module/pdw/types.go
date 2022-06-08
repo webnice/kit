@@ -15,11 +15,19 @@ import (
 
 // Interface Интерфейс пакета.
 type Interface interface {
+	// Debug Присвоение нового значения режима отладки.
+	Debug(debug bool) Interface
+
 	// Get Получение объекта из бассейна.
 	Get() Data
 
 	// Put Возвращение объекта в бассейн.
 	Put(wdo Data)
+
+	// Statistic Статистика работы бассейна.
+	// Статистика ведётся только если бассейн создан с флагом отладки New(isDebug=true).
+	// Если бассейн создан без флага отладки, статистика вернёт nil.
+	Statistic() *Statistic
 }
 
 // Data Интерфейс обёртки данных.
@@ -72,6 +80,8 @@ type Result interface {
 // Объект сущности, реализующий интерфейс Interface, бассейн объектов.
 type impl struct {
 	sync.Pool
+	debug     bool       // Флаг режима отладки.
+	statistic *Statistic // Статистика объектов.
 }
 
 // Обёртка над передаваемыми данными.
@@ -88,4 +98,19 @@ type data struct {
 type result struct {
 	data []interface{}
 	errs []error
+}
+
+// Statistic Статистика работы бассейна. Ведётся только в режиме отладки. New(isDebug=true).
+type Statistic struct {
+	// Создано объектов обёртки данных.
+	Constructor int64
+
+	// Уничтожено объектов обёртки данных, сборщиком мусора.
+	Destructor int64
+
+	// Получено из бассейна объектов обёртки данных.
+	GetObject int64
+
+	// Возвращено в бассейн объектов обёртки данных.
+	PutObject int64
 }

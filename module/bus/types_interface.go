@@ -69,6 +69,9 @@ type Interface interface {
 
 // Essence Служебный публичный интерфейс.
 type Essence interface {
+	// Debug Присвоение нового значения режима отладки.
+	Debug(debug bool) Essence
+
 	// WorkerStart Запуск обработчика шины данных.
 	WorkerStart(workerCount int) Essence
 

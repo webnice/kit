@@ -1,7 +1,11 @@
 // Package test
 package test
 
+import "github.com/webnice/debug"
+
 func (tst *impl) logPrint() {
+
+	debug.Nop()
 
 	tst.log().Trace("trace")
 	tst.log().Debug("debug")

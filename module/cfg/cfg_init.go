@@ -43,8 +43,8 @@ func init() {
 	// Пользователь операционной системы.
 	singleton.user = currentUser(singleton)
 	// Добавление интерфейсов используемых модулей.
-	singleton.bus, singleton.version, singleton.essence =
-		kitModuleBus.New(0, 0), newVersion(singleton), newEssence(singleton)
+	singleton.bus = kitModuleBus.New(0, 0, singleton.bootstrapConfiguration.ApplicationDebug)
+	singleton.version, singleton.essence = newVersion(singleton), newEssence(singleton)
 	singleton.rec, singleton.logger, singleton.uuid =
 		newRecorder(singleton), kitModuleLog.New(singleton.rawWriter, singleton.bus), kitModuleUuid.Get()
 	// Основная часть конфигурации приложения, интерфейс работы с командной строкой и переменными окружения.

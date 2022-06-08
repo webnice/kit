@@ -4,19 +4,25 @@ package pdw
 import (
 	"context"
 	"runtime"
+	"sync"
+	"sync/atomic"
 )
 
 // New Конструктор бассейна с объектами для обёртки данных.
-func New() Interface {
-	var pdw = new(impl)
+func New(isDebug bool) Interface {
+	var pdw = &impl{
+		Pool:      sync.Pool{},
+		debug:     isDebug,
+		statistic: new(Statistic),
+	}
 
-	pdw.New = constructorWrapperData
+	pdw.New = pdw.constructorWrapperData
 
 	return pdw
 }
 
 // Конструктор объектов пула.
-func constructorWrapperData() interface{} {
+func (pdw *impl) constructorWrapperData() interface{} {
 	var wdo = &data{
 		data:     nil,
 		sync:     false,
@@ -26,14 +32,20 @@ func constructorWrapperData() interface{} {
 		ctx:      context.Background(),
 	}
 
-	runtime.SetFinalizer(wdo, destructorWrapperData)
+	runtime.SetFinalizer(wdo, pdw.destructorWrapperData)
+	if pdw.debug {
+		atomic.AddInt64(&pdw.statistic.Constructor, 1)
+	}
 
 	return wdo
 }
 
 // Деструктор объектов бассейна.
-func destructorWrapperData(wdo *data) {
+func (pdw *impl) destructorWrapperData(wdo *data) {
 	safeCloseSignalChannel(wdo.done)
+	if pdw.debug {
+		atomic.AddInt64(&pdw.statistic.Destructor, 1)
+	}
 }
 
 // Закрытие канала с защитой от паники (закрытие закрытого канала).
@@ -42,24 +54,44 @@ func safeCloseSignalChannel(c chan struct{}) {
 	close(c)
 }
 
+// Debug Присвоение нового значения режима отладки.
+func (pdw *impl) Debug(debug bool) Interface { pdw.debug = debug; return pdw }
+
 // Get Получение объекта из бассейна.
-func (wdp *impl) Get() (ret Data) {
+func (pdw *impl) Get() (ret Data) {
 	var (
 		wdo *data
 		ok  bool
 	)
 
-	if wdo, ok = wdp.Pool.Get().(*data); ok {
+	if wdo, ok = pdw.Pool.Get().(*data); ok {
 		ret = wdo
+	}
+	if pdw.debug {
+		atomic.AddInt64(&pdw.statistic.GetObject, 1)
 	}
 
 	return
 }
 
 // Put Возвращение объекта в бассейн.
-func (wdp *impl) Put(wdi Data) {
+func (pdw *impl) Put(wdi Data) {
 	var wdo = wdi.(*data)
 
 	wdo.Reset()
-	wdp.Pool.Put(wdo)
+	pdw.Pool.Put(wdo)
+	if pdw.debug {
+		atomic.AddInt64(&pdw.statistic.PutObject, 1)
+	}
+}
+
+// Statistic Статистика работы бассейна.
+// Статистика ведётся только если бассейн создан с флагом отладки New(isDebug=true).
+func (pdw *impl) Statistic() (ret *Statistic) {
+	if !pdw.debug {
+		return
+	}
+	ret = pdw.statistic
+
+	return
 }

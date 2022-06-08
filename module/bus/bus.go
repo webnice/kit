@@ -17,7 +17,8 @@ import (
 //                равный 1000000 сообщений.
 // workerCount  - Количество запускаемых обработчиков сообщений шины данных. Если указано 0 или отрицательное число,
 //                используется значение по умолчанию, равное 1000 обработчиков.
-func New(bufferLength int, workerCount int) Interface {
+// isDebug      - Флаг отладки.
+func New(bufferLength int, workerCount int, isDebug bool) Interface {
 	var (
 		data *databus
 		bus  *impl
@@ -26,9 +27,11 @@ func New(bufferLength int, workerCount int) Interface {
 	if bufferLength <= 0 {
 		bufferLength = defaultDatabusBufferLength
 	}
-	bus = new(impl)
+	bus = &impl{
+		debug: isDebug,
+	}
 	data = &databus{
-		Wrappers:    kitModulePdw.New(),
+		Wrappers:    kitModulePdw.New(bus.debug),
 		Subscribers: newSubscribers(),
 		Bus:         make(chan kitModulePdw.Data, bufferLength),
 	}
