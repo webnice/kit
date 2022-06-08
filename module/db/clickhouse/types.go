@@ -3,7 +3,7 @@ package dbclickhouse
 import (
 	"time"
 
-	"github.com/webnice/kit/v2/module/dbclickhouse/connector"
+	"github.com/webnice/kit/module/db/clickhouse/connector"
 
 	"github.com/jmoiron/sqlx"
 )

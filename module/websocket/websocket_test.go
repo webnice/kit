@@ -1,8 +1,6 @@
 package websocket
 
-import (
-	"testing"
-)
+import "testing"
 
 func TestNew(t *testing.T) {
 	var wst = New()

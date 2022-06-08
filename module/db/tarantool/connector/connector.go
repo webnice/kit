@@ -6,7 +6,7 @@ import (
 	"sync"
 	"sync/atomic"
 
-	"github.com/webnice/kit/v2/module/dbtarantool/tarantool"
+	"github.com/webnice/kit/module/db/tarantool/tarantool"
 	log "github.com/webnice/lv2"
 )
 

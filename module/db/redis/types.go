@@ -3,7 +3,7 @@ package dbredis
 import (
 	"time"
 
-	"github.com/webnice/kit/v2/module/dbredis/connector"
+	"github.com/webnice/kit/module/db/redis/connector"
 
 	redis "github.com/go-redis/redis/v7"
 )

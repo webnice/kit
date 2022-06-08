@@ -61,7 +61,7 @@ func Verify(data interface{}) (ret Interface, err error) {
 			Message:    vErr[i].ActualTag(),
 		})
 	}
-	err = fmt.Errorf("Verification error: %s", vErr.Error())
+	err = fmt.Errorf("verification error: %s", vErr.Error())
 
 	return
 }

@@ -1,12 +1,12 @@
 package db
 
 import (
-	"github.com/webnice/kit/v2/module/db/connector"
+	"github.com/webnice/kit/module/db/mysql/connector"
 	log "github.com/webnice/lv2"
 
 	"gorm.io/gorm"
 
-	// gorm dependences
+	// gorm dependencies
 	_ "gorm.io/driver/mysql"
 	_ "gorm.io/driver/postgres"
 	_ "gorm.io/driver/sqlite"

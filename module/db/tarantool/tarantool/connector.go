@@ -1,13 +1,11 @@
 package tarantool
 
-import (
-	"sync"
-)
+import "sync"
 
 type Connector struct {
 	sync.Mutex
 	RemoteNetwork string
-	RemoteAddr   string
+	RemoteAddr    string
 	options       *Options
 	conn          *Connection
 }

@@ -3,7 +3,7 @@ package mail
 /*
 Пример использования
 
-import "github.com/webnice/kit/v2/module/mail"
+import "github.com/webnice/kit/module/mail"
 import "log"
 import "io/ioutil"
 import "bytes"

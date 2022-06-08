@@ -1,6 +1,6 @@
 package verify
 
-// Interface interface
+// Interface Интерфейс пакета.
 type Interface interface {
 	// Code Set code
 	Code(int64) Interface

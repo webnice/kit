@@ -7,7 +7,7 @@ import (
 	"net/http"
 	"reflect"
 
-	"github.com/webnice/kit/v2/module/verify"
+	"github.com/webnice/kit/module/verify"
 	log "github.com/webnice/lv2"
 	"github.com/webnice/web/v2/header"
 	"github.com/webnice/web/v2/mime"
@@ -34,8 +34,8 @@ func ResponseBadRequest(wr http.ResponseWriter, statusCode int, data verify.Inte
 	)
 
 	if buf = data.Json(); len(buf) == 0 {
-		// TODO: Добавить проверку ошибки кодирования JSON в библиотеке github.com/webnice/kit/v2/module/verify
-		err = fmt.Errorf("github.com/webnice/kit/v2/module/verify JSON encode error")
+		// TODO: Добавить проверку ошибки кодирования JSON в библиотеке github.com/webnice/kit/module/verify
+		err = fmt.Errorf("github.com/webnice/kit/module/verify JSON encode error")
 		InternalServerError(wr, err)
 		return
 	}

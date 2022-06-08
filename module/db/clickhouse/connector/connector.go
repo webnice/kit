@@ -8,7 +8,7 @@ import (
 
 	log "github.com/webnice/lv2"
 
-	clickhouse "github.com/ClickHouse/clickhouse-go"
+	"github.com/ClickHouse/clickhouse-go"
 	"github.com/jmoiron/sqlx"
 )
 

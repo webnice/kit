@@ -1,8 +1,6 @@
 package multipart
 
-import (
-	"io"
-)
+import "io"
 
 // SetWriter Назначение io.Writer
 func (mpt *impl) SetWriter(wr io.Writer) Interface {

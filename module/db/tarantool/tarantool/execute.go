@@ -1,8 +1,6 @@
 package tarantool
 
-import (
-	"context"
-)
+import "context"
 
 func (conn *Connection) doExecute(ctx context.Context, r *request) *Result {
 	var err error
