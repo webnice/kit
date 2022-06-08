@@ -1,6 +1,8 @@
-# kit
+# WEB NICE tooling
+---
 
-#### Install
+## Подключение пакета
+
 ```bash
-go get github.com/webnice/kit/v2
+  go get github.com/webnice/kit/v3
 ```

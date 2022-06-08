@@ -3,46 +3,39 @@ module github.com/webnice/kit
 go 1.18
 
 require (
-	github.com/ClickHouse/clickhouse-go v1.5.4 // indirect
-	github.com/cespare/xxhash/v2 v2.1.2 // indirect
-	github.com/cloudflare/golz4 v0.0.0-20150217214814-ef862a3cdc58 // indirect
-	github.com/denisenkom/go-mssqldb v0.12.0 // indirect
-	github.com/dgryski/go-rendezvous v0.0.0-20200823014737-9f7001d12a5f // indirect
-	github.com/go-playground/locales v0.14.0 // indirect
-	github.com/go-playground/universal-translator v0.18.0 // indirect
-	github.com/go-playground/validator/v10 v10.11.0 // indirect
-	github.com/go-redis/redis/v7 v7.4.1 // indirect
-	github.com/go-redis/redis/v8 v8.11.5 // indirect
-	github.com/go-redis/redis/v9 v9.0.0-beta.1 // indirect
-	github.com/go-sql-driver/mysql v1.6.0 // indirect
-	github.com/golang-sql/civil v0.0.0-20190719163853-cb61b32ac6fe // indirect
-	github.com/golang-sql/sqlexp v0.0.0-20170517235910-f1bb20e5a188 // indirect
-	github.com/golang/protobuf v1.3.2 // indirect
-	github.com/jackc/chunkreader/v2 v2.0.1 // indirect
-	github.com/jackc/pgconn v1.12.1 // indirect
-	github.com/jackc/pgio v1.0.0 // indirect
-	github.com/jackc/pgpassfile v1.0.0 // indirect
-	github.com/jackc/pgproto3/v2 v2.3.0 // indirect
-	github.com/jackc/pgservicefile v0.0.0-20200714003250-2b9c44734f2b // indirect
-	github.com/jackc/pgtype v1.11.0 // indirect
-	github.com/jackc/pgx/v4 v4.16.1 // indirect
-	github.com/jinzhu/inflection v1.0.0 // indirect
-	github.com/jinzhu/now v1.1.5 // indirect
-	github.com/jmoiron/sqlx v1.3.5 // indirect
-	github.com/leodido/go-urn v1.2.1 // indirect
-	github.com/mattn/go-sqlite3 v1.14.12 // indirect
-	github.com/vmihailenco/msgpack v4.0.4+incompatible // indirect
-	github.com/webnice/lv2 v0.0.0-20201212082251-996f95a7bf70 // indirect
-	github.com/webnice/web/v2 v2.0.0 // indirect
-	golang.org/x/crypto v0.0.0-20211215153901-e495a2d5b3d3 // indirect
-	golang.org/x/net v0.0.0-20220225172249-27dd8689420f // indirect
-	golang.org/x/sys v0.0.0-20211216021012-1d35b9e2eb4e // indirect
-	golang.org/x/text v0.3.7 // indirect
-	google.golang.org/appengine v1.6.7 // indirect
-	gopkg.in/vmihailenco/msgpack.v3 v3.3.3 // indirect
-	gorm.io/driver/mysql v1.3.4 // indirect
-	gorm.io/driver/postgres v1.3.7 // indirect
-	gorm.io/driver/sqlite v1.3.2 // indirect
-	gorm.io/driver/sqlserver v1.3.2 // indirect
-	gorm.io/gorm v1.23.5 // indirect
+	github.com/DaRealFreak/colored-nested-formatter v1.0.0
+	github.com/Masterminds/semver v1.5.0
+	github.com/apoorvam/goterminal v0.0.0-20180523175556-614d345c47e5
+	github.com/daviddengcn/go-colortext v1.0.0
+	github.com/fatih/color v1.13.0
+	github.com/mattn/go-colorable v0.1.12
+	github.com/muesli/termenv v0.12.0
+	github.com/sirupsen/logrus v1.8.1
+	github.com/webnice/debug v1.0.0
+	golang.org/x/sys v0.0.0-20220520151302-bc2c85ada10a
+	gopkg.in/yaml.v3 v3.0.1
+)
+
+require (
+	github.com/creack/pty v1.1.18 // indirect
+	github.com/davecgh/go-spew v1.1.1 // indirect
+	github.com/golangplus/bytes v1.0.0 // indirect
+	github.com/golangplus/fmt v1.0.0 // indirect
+	github.com/golangplus/testing v1.0.0 // indirect
+	github.com/konsorten/go-windows-terminal-sequences v1.0.3 // indirect
+	github.com/kr/pretty v0.3.0 // indirect
+	github.com/kr/pty v1.1.8 // indirect
+	github.com/kr/text v0.2.0 // indirect
+	github.com/lucasb-eyer/go-colorful v1.2.0 // indirect
+	github.com/mattn/go-isatty v0.0.14 // indirect
+	github.com/mattn/go-runewidth v0.0.13 // indirect
+	github.com/mgutz/ansi v0.0.0-20200706080929-d51e80ef957d // indirect
+	github.com/pkg/diff v0.0.0-20210226163009-20ebb0f2a09e // indirect
+	github.com/pmezard/go-difflib v1.0.0 // indirect
+	github.com/rivo/uniseg v0.2.0 // indirect
+	github.com/rogpeppe/go-internal v1.8.1 // indirect
+	github.com/stretchr/objx v0.4.0 // indirect
+	github.com/stretchr/testify v1.7.2 // indirect
+	gopkg.in/check.v1 v1.0.0-20201130134442-10cb98267c6c // indirect
+	gopkg.in/errgo.v2 v2.1.0 // indirect
 )
