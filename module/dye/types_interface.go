@@ -32,6 +32,9 @@ type Interface interface {
 	// CrossOut Добавление в последовательность переключения текста "Зачёркнутый".
 	CrossOut() Interface
 
+	// ResetBold Добавление в последовательность переключения текста "Сбросить жирный".
+	ResetBold() Interface
+
 	// ResetFaded Добавление в последовательность переключения текста "Сбросить блёклый".
 	ResetFaded() Interface
 

@@ -22,10 +22,10 @@ ${#: Дата и время с форматом вывода: }${#:timestamp:Eur
 
 ${-spc-}
 
-[${level:S:1}:${level:d:1}]:${dye:all:reset} ${message}${bp--}
+[${level:S:1}:${level:d:1}]:${dye:reset:all} ${message}${bp--}
 
-${-spc-:1}           ${dye:text:black:bright}{${package}/${shortfile}:${line}, функция: 
-${-spc-:1}           ${dye:back:Black:normal}${function}()${dye:all:reset}${dye:text:black:bright}}${dye:all:reset}
+${-spc-:1}           ${dye:text:black:bright}{${package}/${dye:set:Underline}${shortfile}${dye:reset:Underline}:${dye:set:reverse}${line}${dye:reset:reverse}, функция: 
+${-spc-:1}           ${dye:back:Black:normal}${dye:set:Underline}${function}()${dye:reset:all}${dye:text:black:bright}}${dye:reset:all}
 
 ${-spc-:1}${-spc-}
 

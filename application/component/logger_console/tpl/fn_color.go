@@ -38,11 +38,14 @@ func (ses *session) colorByLevel() (fg kitModuleDye.Interface, bg kitModuleDye.I
 func (ses *session) fnColorSet(dst string, opt string, brc string) (ret string) {
 	const tplBadParam = "не верный параметр %q"
 	const (
-		tagAll, tagReset, tagLevel             = "all", "reset", "level"
+		tagSet, tagReset                       = "set", "reset"
+		tagAll, tagLevel                       = "all", "level"
 		tagText, tagBack                       = "text", "back"
 		tagNormal, tagBright                   = "normal", "bright"
 		tagBlack, tagRed, tagGreen, tagYellow  = "black", "red", "green", "yellow"
 		tagBlue, tagMagenta, tagCyan, tagWhite = "blue", "magenta", "cyan", "white"
+		tagBold, tagFaded, tagItalic           = "bold", "faded", "italic"
+		tagUnderline, tagReverse, tagCrossout  = "underline", "reverse", "crossout"
 	)
 	var (
 		err                   error
@@ -57,15 +60,50 @@ func (ses *session) fnColorSet(dst string, opt string, brc string) (ret string) 
 		case tagLevel:
 			styleFg, styleBg = ses.colorByLevel()
 			seq.Add(styleFg.Source()...).Add(styleBg.Source()...)
-		case tagReset:
-			ret = seq.Reset().Done().String()
-			return
 		}
 	case tagText:
 		seq.Foreground()
 	case tagBack:
 		isBask = true
 		seq.Background()
+	case tagSet:
+		switch opt {
+		case tagBold:
+			ret = seq.Bold().Done().String()
+		case tagFaded:
+			ret = seq.Faded().Done().String()
+		case tagItalic:
+			ret = seq.Italic().Done().String()
+		case tagUnderline:
+			ret = seq.Underline().Done().String()
+		case tagReverse:
+			ret = seq.Reverse().Done().String()
+		case tagCrossout:
+			ret = seq.CrossOut().Done().String()
+		default:
+			ret = fmt.Sprintf(tplBadParam, dst)
+		}
+		return
+	case tagReset:
+		switch opt {
+		case tagAll:
+			ret = seq.Reset().Done().String()
+		case tagBold:
+			ret = seq.ResetBold().Done().String()
+		case tagFaded:
+			ret = seq.ResetFaded().Done().String()
+		case tagItalic:
+			ret = seq.ResetItalic().Done().String()
+		case tagUnderline:
+			ret = seq.ResetUnderline().Done().String()
+		case tagReverse:
+			ret = seq.ResetReverse().Done().String()
+		case tagCrossout:
+			ret = seq.ResetCrossOut().Done().String()
+		default:
+			ret = fmt.Sprintf(tplBadParam, dst)
+		}
+		return
 	default:
 		ret = fmt.Sprintf(tplBadParam, dst)
 		return

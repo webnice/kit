@@ -41,6 +41,7 @@ const (
 	seqUnderline      = "4"     // Подчёркнутый один раз.
 	seqReverse        = "7"     // Инвертирование цвета.
 	seqCrossOut       = "9"     // Зачёркнутый.
+	seqResetBold      = "21"    // Сбросить жирный.
 	seqResetFaded     = "22"    // Сбросить блёклый.
 	seqResetItalic    = "23"    // Сбросить курсив.
 	seqResetUnderline = "24"    // Сбросить подчёркнутый один раз.

@@ -50,6 +50,9 @@ func (dye *impl) Reverse() Interface { dye.seq = append(dye.seq, seqReverse); re
 // CrossOut Добавление в последовательность переключения текста "Зачёркнутый".
 func (dye *impl) CrossOut() Interface { dye.seq = append(dye.seq, seqCrossOut); return dye }
 
+// ResetBold Добавление в последовательность переключения текста "Сбросить жирный".
+func (dye *impl) ResetBold() Interface { dye.seq = append(dye.seq, seqResetBold); return dye }
+
 // ResetFaded Добавление в последовательность переключения текста "Сбросить блёклый".
 func (dye *impl) ResetFaded() Interface { dye.seq = append(dye.seq, seqResetFaded); return dye }
 
