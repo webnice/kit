@@ -91,7 +91,14 @@ func (pdw *impl) Statistic() (ret *Statistic) {
 	if !pdw.debug {
 		return
 	}
-	ret = pdw.statistic
+	// Копирование, для исключения возможности изменения извне, а так же
+	// для возможности сохранения значений на момент считывания, на стороне запрашивающего.
+	ret = &Statistic{
+		Constructor: pdw.statistic.Constructor,
+		Destructor:  pdw.statistic.Destructor,
+		GetObject:   pdw.statistic.GetObject,
+		PutObject:   pdw.statistic.PutObject,
+	}
 
 	return
 }

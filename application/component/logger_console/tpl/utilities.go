@@ -10,7 +10,6 @@ import (
 
 // Разделение строки с использованием разделителя и учётом возможности экранирования разделителя.
 func splitBySeparator(s string, separator string) (ret []string) {
-	const quote = "\\"
 	var (
 		sep string
 		buf []byte
@@ -18,7 +17,7 @@ func splitBySeparator(s string, separator string) (ret []string) {
 		n   int
 	)
 
-	sep = quote + separator
+	sep = keyQuote + separator
 	buf = bytes.Replace([]byte(s), []byte(sep), []byte{0}, -1)
 	arr = bytes.SplitN(buf, []byte(separator), 3)
 	ret = make([]string, 0, len(arr))

@@ -6,6 +6,8 @@ import (
 	"fmt"
 	"text/template"
 
+	"github.com/webnice/kit/application/component/logger_console/dye"
+
 	kitModuleTrace "github.com/webnice/kit/module/trace"
 )
 
@@ -25,7 +27,7 @@ func (ses *session) Do() (ret *bytes.Buffer, err error) {
 		Execute(ses.writer, nil); err != nil {
 		return
 	}
-	ses.writer.WriteString(fmt.Sprintf("%sm", seqCSI+seqResetSeq))
+	ses.writer.Write(dye.New().Reset().Done().Byte())
 	ret = ses.writer
 
 	return

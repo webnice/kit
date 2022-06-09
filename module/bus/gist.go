@@ -5,6 +5,8 @@ import (
 	"context"
 	"runtime"
 	"sync/atomic"
+
+	kitModulePdw "github.com/webnice/kit/module/pdw"
 )
 
 // Создание объекта и возвращение интерфейса Essence.
@@ -69,4 +71,11 @@ func (essence *gist) WorkerStop() Essence {
 	essence.parent.workerContext, essence.parent.workerCancel, essence.parent.workerCount = nil, nil, 0
 
 	return essence
+}
+
+// Statistic Статистика работы бассейна шины данных.
+// Статистика ведётся только если шина данных создана с флагом отладки New(..., isDebug=true).
+// Если шина данных создана без флага отладки, статистика вернёт nil.
+func (essence *gist) Statistic() *kitModulePdw.Statistic {
+	return essence.parent.databus.Wrappers.Statistic()
 }

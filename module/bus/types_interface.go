@@ -5,6 +5,7 @@ import (
 	"context"
 	"time"
 
+	kitModulePdw "github.com/webnice/kit/module/pdw"
 	kitTypes "github.com/webnice/kit/types"
 )
 
@@ -78,4 +79,9 @@ type Essence interface {
 	// WorkerStop Остановка обработчика шины данных с подтверждением остановки.
 	// Функция блокируется до подтверждения завершения потока обработчика.
 	WorkerStop() Essence
+
+	// Statistic Статистика работы бассейна шины данных.
+	// Статистика ведётся только если шина данных создана с флагом отладки New(..., isDebug=true).
+	// Если шина данных создана без флага отладки, статистика вернёт nil.
+	Statistic() *kitModulePdw.Statistic
 }

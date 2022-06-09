@@ -39,6 +39,7 @@ _testmain.go
 
 # Dependences
 /*.log
+.localpackages
 
 # Configs and etc...
 /.env

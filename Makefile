@@ -21,6 +21,7 @@ LDFLAGS              = -X main.build=$(DATE) $(PROJECT_LDFLAGS:'')
 GOGENERATE           = $(shell if [ -f .gogenerate ]; then cat .gogenerate; fi)
 TESTPACKETS          = $(shell if [ -f .testpackages ]; then cat .testpackages; fi)
 BENCHPACKETS         = $(shell if [ -f .benchpackages ]; then cat .benchpackages; fi)
+LOCALPACKAGES        = $(shell if [ -f .localpackages ]; then cat .localpackages; fi)
 
 BIN01               := $(DIR)/bin/$(APP)
 BINVERSION          := $(shell ${BIN01} version 2>/dev/null; true)
@@ -36,12 +37,29 @@ default: help
 
 ## Загрузка зависимостей.
 dep-init:
+	@rm -rf ${DIR}/vendor 2>/dev/null; true
 	$(call PROJECT_FOLDERS)
 .PHONY: dep-init
 dep: dep-init
+	@for item in $(LOCALPACKAGES); do PKGNAME=`echo $${item} | awk -F'=' '{print $$1}'`; REPLACE=`echo $${item} | awk -F'=' '{print $$2}'`; \
+		go mod edit -dropreplace $${PKGNAME}; \
+	done
+	@go clean -cache -modcache
+	@go get -u -v ./...
+	@go mod download
+	@go mod tidy
+	@go mod vendor
 	$(call PROJECT_DEPENDENCES)
 .PHONY: dep
-dep-dev: dep
+dep-dev: dep-init
+	@for item in $(LOCALPACKAGES); do PKGNAME=`echo $${item} | awk -F'=' '{print $$1}'`; REPLACE=`echo $${item} | awk -F'=' '{print $$2}'`; \
+		go mod edit -replace $${PKGNAME}=$${REPLACE}; \
+	done
+	@go clean -cache -modcache
+	@go get -u -v ./...
+	@go mod download
+	@go mod tidy
+	@go mod vendor
 	$(call PROJECT_DEPENDENCES_DEVELOPMENT)
 .PHONY: dep-dev
 
@@ -216,7 +234,7 @@ clear:
 
 ## Clearing project temporary files.
 clean:
-	@go clean -cache
+	@go clean -cache -modcache
 	@chown -R `whoami` ${DIR}/pkg/; true
 	@chmod -R 0777 ${DIR}/pkg/; true
 	@rm -rf ${DIR}/bin/*; true
@@ -233,7 +251,7 @@ help:
 	@echo "Usage: make [target]"
 	@echo "  target is:"
 	@echo "    dep                  - Загрузка и обновление зависимостей проекта."
-	@#echo "    dep-dev              - Загрузка и обновление зависимостей проекта для среды разработки."
+	@echo "    dep-dev              - Загрузка и обновление зависимостей проекта для среды разработки."
 	@#echo "    gen                  - Кодогенерация с использованием go generate."
 	@echo "    build                - Компиляция приложения."
 	@#echo "    build-i386           - Компиляция приложения для архитектуры i386."

@@ -9,13 +9,10 @@ import (
 
 	kitModuleLog "github.com/webnice/kit/module/log"
 	kitModuleTrace "github.com/webnice/kit/module/trace"
-
-	"github.com/muesli/termenv"
 )
 
 // Template Представления шаблона в виде text/template.
 func (tpl *impl) Template(name string) (ret *template.Template, err error) {
-	const tplPanic = `Работа с шаблоном прервана паникой:` + "\n%v\n%s."
 	var (
 		s strings.Builder
 		n int
@@ -41,12 +38,10 @@ func (tpl *impl) Template(name string) (ret *template.Template, err error) {
 
 // NewSession Создание сесии обработки данных по шаблону.
 func (tpl *impl) NewSession(data *kitModuleLog.Message) (ret Session, err error) {
-	const tplParseFirst = "перед созданием сессии, необходимо выполнить функцию Parse()"
 	var ses = &session{
-		parent:  tpl,
-		writer:  &bytes.Buffer{},
-		profile: termenv.ColorProfile(),
-		Data:    data,
+		parent: tpl,
+		writer: &bytes.Buffer{},
+		Data:   data,
 	}
 
 	if tpl.tpl == nil {

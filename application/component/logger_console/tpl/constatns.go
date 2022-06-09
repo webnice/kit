@@ -11,31 +11,12 @@ const (
 )
 
 const (
-	tplSuffix        = "..."
+	keyQuote         = "\\"
+	tplParseFirst    = "перед созданием сессии, необходимо выполнить функцию Parse()"
 	tplTimezoneError = "не найдена зона времени %q, ошибка вывода времени: %s"
 	tplNewLine       = "\n"
-)
-
-// Определение последовательностей.
-const (
-	seqCSI               = "\x1b[" // Начало последовательности управления.
-	seqOSC               = "\x1b]" // Команда операционной системы.
-	seqResetSeq          = "0"     // Сброс всего.
-	seqBoldSeq           = "1"     // Жирный.
-	seqFaintSeq          = "2"     //
-	seqItalicSeq         = "3"     // Курсив.
-	seqUnderlineSeq      = "4"     // Подчёркнутый.
-	seqBlinkSeq          = "5"     // Мигание.
-	seqReverseSeq        = "7"     // Символ назад.
-	seqCrossOutSeq       = "9"     // Зачёркнутый.
-	seqOverlineSeq       = "53"    // Над линией.
-	seqResetBoldSeq      = "21"    // Сбросить жирный.
-	seqResetFaintSeq     = "22"    //
-	seqResetItalicSeq    = "23"    // Сбросить курсив.
-	seqResetUnderlineSeq = "24"    // Сбросить подчёркнутый.
-	seqResetBlinkSeq     = "25"    // Сбросить мигание.
-	seqResetReverseSeq   = "27"    // Сбросить символ назад.
-	seqResetCrossOutSeq  = "29"    // Сбросить зачёркнутый.
+	tplSuffix        = "..."
+	tplPanic         = `Работа с шаблоном прервана паникой:` + "\n%v\n%s."
 )
 
 // Тип куска шаблона.

@@ -7,6 +7,7 @@ import (
 	"time"
 
 	kitModuleCfg "github.com/webnice/kit/module/cfg"
+	kitModulePdw "github.com/webnice/kit/module/pdw"
 	kitModuleTrace "github.com/webnice/kit/module/trace"
 )
 
@@ -69,12 +70,13 @@ func (tst *impl) KnownType() (ret []interface{}) {
 func (tst *impl) publisher() {
 	const tplPanic = `Работа с подпиской потребителя, в шине данных, прервана паникой:` + "\n%v\n%s."
 	var (
-		err     error
-		errs    []error
-		rto     time.Time
-		eto     time.Duration
-		average time.Duration
-		n       int
+		err       error
+		errs      []error
+		rto       time.Time
+		eto       time.Duration
+		average   time.Duration
+		statistic *kitModulePdw.Statistic
+		n         int
 	)
 	var maxCount = 2000000
 
@@ -101,8 +103,13 @@ func (tst *impl) publisher() {
 	tst.log().Noticef("Запуск шины данных.")
 	tst.cfg.Bus().Gist().WorkerStart(0)
 	tst.log().Noticef("Шина данных запущена.")
+	// Статистика шины данных.
+	if statistic = tst.cfg.Bus().Gist().Statistic(); statistic != nil {
+		fmt.Printf("Создано: %d, Уничтожено: %d\n", statistic.Constructor, statistic.Destructor)
+		fmt.Printf("Получено: %d, Отдано: %d\n", statistic.GetObject, statistic.PutObject)
+	}
 
-	for loop := 0; loop < 10; loop++ {
+	for loop := 0; loop < 1; loop++ {
 		average = 0
 
 		// Выполняется 1 000 000 асинхронных отправок данных в шину данных с ожиданием результата.
@@ -123,10 +130,13 @@ func (tst *impl) publisher() {
 
 		average = average / time.Duration(maxCount)
 		tst.log().Debugf("Среднее время одного асинхронного запроса %q, для %d запросов.", average, maxCount)
-		//runtime.Gosched()
-		//<-time.After(time.Second * 4)
-		//fmt.Printf("Создано: %d, Уничтожено: %d\n", bus.ConstructorWrapperData, bus.DestructorWrapperData)
-		//fmt.Printf("Получено: %d, Отдано: %d\n", bus.WrapperDataGet, bus.WrapperDataPut)
+		runtime.Gosched()
+		<-time.After(time.Second * 4)
+		// Статистика шины данных.
+		if statistic = tst.cfg.Bus().Gist().Statistic(); statistic != nil {
+			fmt.Printf("Создано: %d, Уничтожено: %d\n", statistic.Constructor, statistic.Destructor)
+			fmt.Printf("Получено: %d, Отдано: %d\n", statistic.GetObject, statistic.PutObject)
+		}
 
 		// Выполняется 1 000 000 синхронных отправок данных в шину данных с ожиданием результата.
 		// Замеряется среднее время запросов.
@@ -145,10 +155,13 @@ func (tst *impl) publisher() {
 
 		average = average / time.Duration(maxCount)
 		tst.log().Debugf("Среднее время одного синхронного запроса %q, для %d запросов.", average, maxCount)
-		//runtime.Gosched()
-		//<-time.After(time.Second * 4)
-		//fmt.Printf("Создано: %d, Уничтожено: %d\n", bus.ConstructorWrapperData, bus.DestructorWrapperData)
-		//fmt.Printf("Получено: %d, Отдано: %d\n", bus.WrapperDataGet, bus.WrapperDataPut)
+		runtime.Gosched()
+		<-time.After(time.Second * 4)
+		// Статистика шины данных.
+		if statistic = tst.cfg.Bus().Gist().Statistic(); statistic != nil {
+			fmt.Printf("Создано: %d, Уничтожено: %d\n", statistic.Constructor, statistic.Destructor)
+			fmt.Printf("Получено: %d, Отдано: %d\n", statistic.GetObject, statistic.PutObject)
+		}
 
 		// Небольшое издевательство, для тестирования стабильности.
 		//tst.log().Noticef("Остановка шины данных.")
@@ -160,10 +173,11 @@ func (tst *impl) publisher() {
 
 	runtime.Gosched()
 	<-time.After(time.Second * 4)
-	//fmt.Printf("Создано: %d, Уничтожено: %d\n", bus.ConstructorWrapperData, bus.DestructorWrapperData)
-	//fmt.Printf("Получено: %d, Отдано: %d\n", bus.WrapperDataGet, bus.WrapperDataPut)
-	//tst.log().Debugf("Создано: %d, Уничтожено: %d", bus.ConstructorWrapperData, bus.DestructorWrapperData)
-	//tst.log().Debugf("Получено: %d, Отдано: %d", bus.WrapperDataGet, bus.WrapperDataPut)
+	// Статистика шины данных.
+	if statistic = tst.cfg.Bus().Gist().Statistic(); statistic != nil {
+		fmt.Printf("Создано: %d, Уничтожено: %d\n", statistic.Constructor, statistic.Destructor)
+		fmt.Printf("Получено: %d, Отдано: %d\n", statistic.GetObject, statistic.PutObject)
+	}
 
 	//runtime.Gosched()
 	//<-time.After(time.Second * 4)

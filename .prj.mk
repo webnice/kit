@@ -9,10 +9,18 @@ wn
 endef
 export APP
 
-## Загрузка зависимостей проекта
+## Загрузка зависимостей проекта, продакшн режим.
 define PROJECT_DEPENDENCES
-  @go clean
-  @go get -d ...
+  @#go get -d ...
+endef
+
+## Загрузка зависимостей проекта, режим разработки.
+define PROJECT_DEPENDENCES_DEVELOPMENT
+	@#go get -d ...
+endef
+
+## Создание дополнительных директорий проекта, вызывается в make dep
+define PROJECT_FOLDERS
 endef
 
 ## Сборка проекта

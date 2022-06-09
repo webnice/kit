@@ -9,8 +9,6 @@ import (
 	"text/template"
 
 	kitModuleLog "github.com/webnice/kit/module/log"
-
-	"github.com/muesli/termenv"
 )
 
 // Регулярное выражение для извлечения из шаблона всех тегов.
@@ -21,7 +19,6 @@ var (
 	rexSpaceLast       = regexp.MustCompile(`(?i)([[:space:]]+)$`)
 	rexCurlyBraceOpen  = regexp.MustCompile(`(?i)({+)`)
 	rexCurlyBraceClose = regexp.MustCompile(`(?i)(}+)`)
-	rexHexColor        = regexp.MustCompile(`(?im)^(#[0-9a-f]{6})$`)
 )
 
 // Interface Интерфейс пакета.
@@ -56,11 +53,10 @@ type impl struct {
 
 // Объект сессии.
 type session struct {
-	parent  *impl                 // Ссылка на родительский объект.
-	writer  *bytes.Buffer         // Буфер писателя.
-	profile termenv.Profile       // Профайл терминала, конвертация цветов.
-	Data    *kitModuleLog.Message // Исходные данные для обработки.
-	Tpl     *template.Template    // Копия шаблона для обработки данных в пределах сессии.
+	parent *impl                 // Ссылка на родительский объект.
+	writer *bytes.Buffer         // Буфер писателя.
+	Data   *kitModuleLog.Message // Исходные данные для обработки.
+	Tpl    *template.Template    // Копия шаблона для обработки данных в пределах сессии.
 }
 
 // Информация о тегах данных и цвета.
