@@ -3,9 +3,7 @@
 
 package isatty
 
-import (
-	"syscall"
-)
+import "syscall"
 
 // IsTerminal returns true if the given file descriptor is a terminal.
 func IsTerminal(fd uintptr) bool {

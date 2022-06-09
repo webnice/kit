@@ -1,10 +1,8 @@
 package colorful
 
-import (
-	"math/rand"
-)
+import "math/rand"
 
-// Uses the HSV color space to generate colors with similar S,V but distributed
+// FastWarmPalette Uses the HSV color space to generate colors with similar S,V but distributed
 // evenly along their Hue. This is fast but not always pretty.
 // If you've got time to spare, use Lab (the non-fast below).
 func FastWarmPalette(colorsCount int) (colors []Color) {

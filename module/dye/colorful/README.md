@@ -1,18 +1,15 @@
-go-colorful
+colorful
 ===========
-
-[![Go Reference](https://pkg.go.dev/badge/github.com/lucasb-eyer/go-colorful.svg)](https://pkg.go.dev/github.com/lucasb-eyer/go-colorful)
-[![go reportcard](https://goreportcard.com/badge/github.com/lucasb-eyer/go-colorful)](https://goreportcard.com/report/github.com/lucasb-eyer/go-colorful)
 
 A library for playing with colors in Go. Supports Go 1.13 onwards.
 
 Why?
 ====
 I love games. I make games. I love detail and I get lost in detail.
-One such detail popped up during the development of [Memory Which Does Not Suck](https://github.com/lucasb-eyer/mwdns/),
+One such detail popped up during the development of Memory Which Does Not Suck,
 when we wanted the server to assign the players random colors. Sometimes
 two players got very similar colors, which bugged me. The very same evening,
-[I want hue](http://tools.medialab.sciences-po.fr/iwanthue/) was the top post
+I want hue was the top post
 on HackerNews' frontpage and showed me how to Do It Right™. Last but not
 least, there was no library for handling color spaces available in go. Colorful
 does just that and implements Go's `color.Color` interface.
@@ -70,13 +67,13 @@ How?
 Installing the library is as easy as
 
 ```bash
-$ go get github.com/lucasb-eyer/go-colorful
+$ go get github.com/webnice/kit/module/dye/colorful
 ```
 
 The package can then be used through an
 
 ```go
-import "github.com/lucasb-eyer/go-colorful"
+import "github.com/webnice/kit/module/dye/colorful"
 ```
 
 ### Basic usage
@@ -150,7 +147,7 @@ and bottom two colors in RGB, CIE-L\*a\*b\* and CIE-L\*u\*v\* space. You can fin
 package main
 
 import "fmt"
-import "github.com/lucasb-eyer/go-colorful"
+import "github.com/webnice/kit/module/dye/colorful"
 
 func main() {
 	c1a := colorful.Color{150.0 / 255.0, 10.0 / 255.0, 150.0 / 255.0}
@@ -225,7 +222,7 @@ The following is the code creating the above three images; it can be found in `d
 package main
 
 import "fmt"
-import "github.com/lucasb-eyer/go-colorful"
+import "github.com/webnice/kit/module/dye/colorful"
 import "image"
 import "image/draw"
 import "image/png"
@@ -362,13 +359,11 @@ from top to bottom: `Warm`, `FastWarm`, `Happy`, `FastHappy`, `Soft`,
 
 ![All example palettes](doc/palettegens/palettegens.png)
 
-Again, the code used for generating the above image is available as [doc/palettegens/palettegens.go](https://github.com/lucasb-eyer/go-colorful/blob/master/doc/palettegens/palettegens.go).
-
 ### Sorting colors
 
 Sorting colors is not a well-defined operation.  For example, {dark blue, dark red, light blue, light red} is already sorted if darker colors should precede lighter colors but would need to be re-sorted as {dark red, light red, dark blue, light blue} if longer-wavelength colors should precede shorter-wavelength colors.
 
-Go-Colorful's `Sorted` function orders a list of colors so as to minimize the average distance between adjacent colors, including between the last and the first.  (`Sorted` does not necessarily find the true minimum, only a reasonably close approximation.)  The following picture, drawn by [doc/colorsort/colorsort.go](https://github.com/lucasb-eyer/go-colorful/blob/master/doc/colorsort/colorsort.go), illustrates `Sorted`'s behavior:
+Go-Colorful's `Sorted` function orders a list of colors so as to minimize the average distance between adjacent colors, including between the last and the first.  (`Sorted` does not necessarily find the true minimum, only a reasonably close approximation.)  The following picture, illustrates `Sorted`'s behavior:
 
 ![Sorting colors](doc/colorsort/colorsort.png)
 
@@ -406,68 +401,6 @@ var hc HexColor
 _, err := db.QueryRow("SELECT '#ff0000';").Scan(&hc)
 // hc == HexColor{R: 1, G: 0, B: 0}; err == nil
 ```
-
-FAQ
-===
-
-### Q: I get all f!@#ed up values! Your library sucks!
-A: You probably provided values in the wrong range. For example, RGB values are
-expected to reside between 0 and 1, *not* between 0 and 255. Normalize your colors.
-
-### Q: Lab/Luv/HCl seem broken! Your library sucks!
-They look like this:
-
-<img height="150" src="https://user-images.githubusercontent.com/3779568/28646900-6548040c-7264-11e7-8f12-81097a97c260.png">
-
-A: You're likely trying to generate and display colors that can't be represented by RGB,
-and thus monitors. When you're trying to convert, say, `HCL(190.0, 1.0, 1.0).RGB255()`,
-you're asking for RGB values of `(-2105.254  300.680  286.185)`, which clearly don't exist,
-and the `RGB255` function just casts these numbers to `uint8`, creating wrap-around and
-what looks like a completely broken gradient. What you want to do, is either use more
-reasonable values of colors which actually exist in RGB, or just `Clamp()` the resulting
-color to its nearest existing one, living with the consequences:
-`HCL(190.0, 1.0, 1.0).Clamp().RGB255()`. It will look something like this:
-
-<img height="150" src="https://user-images.githubusercontent.com/1476029/29596343-9a8c62c6-8771-11e7-9026-b8eb8852cc4a.png">
-
-[Here's an issue going in-depth about this](https://github.com/lucasb-eyer/go-colorful/issues/14),
-as well as [my answer](https://github.com/lucasb-eyer/go-colorful/issues/14#issuecomment-324205385),
-both with code and pretty pictures. Also note that this was somewhat covered above in the
-["Blending colors" section](https://github.com/lucasb-eyer/go-colorful#blending-colors).
-
-### Q: In a tight loop, conversion to Lab/Luv/HCl/... are slooooow!
-A: Yes, they are.
-This library aims for correctness, readability, and modularity; it wasn't written with speed in mind.
-A large part of the slowness comes from these conversions going through `LinearRgb` which uses powers.
-I implemented a fast approximation to `LinearRgb` called `FastLinearRgb` by using Taylor approximations.
-The approximation is roughly 5x faster and precise up to roughly 0.5%,
-the major caveat being that if the input values are outside the range 0-1, accuracy drops dramatically.
-You can use these in your conversions as follows:
-
-```go
-col := // Get your color somehow
-l, a, b := XyzToLab(LinearRgbToXyz(col.LinearRgb()))
-```
-
-If you need faster versions of `Distance*` and `Blend*` that make use of this fast approximation,
-feel free to implement them and open a pull-request, I'll happily accept.
-
-The derivation of these functions can be followed in [this Jupyter notebook](doc/LinearRGB Approximations.ipynb).
-Here's the main figure showing the approximation quality:
-
-![approximation quality](doc/approx-quality.png)
-
-More speed could be gained by using SIMD instructions in many places.
-You can also get more speed for specific conversions by approximating the full conversion function,
-but that is outside the scope of this library.
-Thanks to [@ZirconiumX](https://github.com/ZirconiumX) for starting this investigation,
-see [issue #18](https://github.com/lucasb-eyer/go-colorful/issues/18) for details.
-
-### Q: Why would `MakeColor` ever fail!?
-A: `MakeColor` fails when the alpha channel is zero. In that case, the
-conversion is undefined. See [issue 21](https://github.com/lucasb-eyer/go-colorful/issues/21)
-as well as the short caveat note in the ["The `color.Color` interface"](README.md#the-colorcolor-interface)
-section above.
 
 Who?
 ====

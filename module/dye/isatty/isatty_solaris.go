@@ -3,9 +3,7 @@
 
 package isatty
 
-import (
-	"golang.org/x/sys/unix"
-)
+import "golang.org/x/sys/unix"
 
 // IsTerminal returns true if the given file descriptor is a terminal.
 // see: https://src.illumos.org/source/xref/illumos-gate/usr/src/lib/libc/port/gen/isatty.c

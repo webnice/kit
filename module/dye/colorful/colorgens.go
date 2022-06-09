@@ -2,11 +2,9 @@
 
 package colorful
 
-import (
-	"math/rand"
-)
+import "math/rand"
 
-// Creates a random dark, "warm" color through a restricted HSV space.
+// FastWarmColor Creates a random dark, "warm" color through a restricted HSV space.
 func FastWarmColor() Color {
 	return Hsv(
 		rand.Float64()*360.0,
@@ -14,7 +12,7 @@ func FastWarmColor() Color {
 		0.3+rand.Float64()*0.3)
 }
 
-// Creates a random dark, "warm" color through restricted HCL space.
+// WarmColor Creates a random dark, "warm" color through restricted HCL space.
 // This is slower than FastWarmColor but will likely give you colors which have
 // the same "warmness" if you run it many times.
 func WarmColor() (c Color) {
@@ -30,7 +28,7 @@ func randomWarm() Color {
 		0.2+rand.Float64()*0.3)
 }
 
-// Creates a random bright, "pimpy" color through a restricted HSV space.
+// FastHappyColor Creates a random bright, "pimpy" color through a restricted HSV space.
 func FastHappyColor() Color {
 	return Hsv(
 		rand.Float64()*360.0,
@@ -38,7 +36,7 @@ func FastHappyColor() Color {
 		0.6+rand.Float64()*0.3)
 }
 
-// Creates a random bright, "pimpy" color through restricted HCL space.
+// HappyColor Creates a random bright, "pimpy" color through restricted HCL space.
 // This is slower than FastHappyColor but will likely give you colors which
 // have the same "brightness" if you run it many times.
 func HappyColor() (c Color) {

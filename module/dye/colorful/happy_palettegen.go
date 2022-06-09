@@ -1,10 +1,8 @@
 package colorful
 
-import (
-	"math/rand"
-)
+import "math/rand"
 
-// Uses the HSV color space to generate colors with similar S,V but distributed
+// FastHappyPalette Uses the HSV color space to generate colors with similar S,V but distributed
 // evenly along their Hue. This is fast but not always pretty.
 // If you've got time to spare, use Lab (the non-fast below).
 func FastHappyPalette(colorsCount int) (colors []Color) {
@@ -16,6 +14,7 @@ func FastHappyPalette(colorsCount int) (colors []Color) {
 	return
 }
 
+// HappyPalette func
 func HappyPalette(colorsCount int) ([]Color, error) {
 	pimpy := func(l, a, b float64) bool {
 		_, c, _ := LabToHcl(l, a, b)

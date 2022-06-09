@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/mattn/go-isatty"
+	"github.com/webnice/kit/module/dye/isatty"
 )
 
 func Example() {

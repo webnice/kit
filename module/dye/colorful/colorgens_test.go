@@ -8,7 +8,7 @@ import (
 
 // This is really difficult to test, if you've got a good idea, pull request!
 
-// Check if it returns all valid colors.
+// TestColorValidity Check if it returns all valid colors.
 func TestColorValidity(t *testing.T) {
 	seed := time.Now().UTC().UnixNano()
 	rand.Seed(seed)

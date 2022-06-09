@@ -3,9 +3,7 @@
 
 package isatty
 
-import (
-	"testing"
-)
+import "testing"
 
 func TestCygwinPipeName(t *testing.T) {
 	tests := []struct {
