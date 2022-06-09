@@ -40,15 +40,9 @@ func colorProfile() terminalProfile {
 	return terminalTrueColor
 }
 
-func foregroundColor() Color {
-	// default gray
-	return ANSIColor(7)
-}
+func foregroundColor() Color { return ANSIColor(7) }
 
-func backgroundColor() Color {
-	// default black
-	return ANSIColor(0)
-}
+func backgroundColor() Color { return ANSIColor(0) }
 
 // WindowsAnsiConsoleEnable включает обработку виртуальных терминалов в Windows.
 // Это позволит использовать последовательности ANSI в консоли Windows.

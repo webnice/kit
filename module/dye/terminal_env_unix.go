@@ -56,46 +56,58 @@ func colorProfile() terminalProfile {
 	return terminalAscii
 }
 
-func foregroundColor() Color {
-	s, err := termStatusReport(10)
-	if err == nil {
-		c, err := xTermColor(s)
-		if err == nil {
-			return c
+func foregroundColor() (ret Color) {
+	var (
+		err       error
+		s         string
+		c         []string
+		colorFGBG string
+		i         int
+	)
+
+	if s, err = termStatusReport(10); err == nil {
+		if ret, err = xTermColor(s); err == nil {
+			return
 		}
 	}
-
-	colorFGBG := os.Getenv(envColorFgbg)
+	colorFGBG = os.Getenv(envColorFgbg)
 	if strings.Contains(colorFGBG, ";") {
-		c := strings.Split(colorFGBG, ";")
-		i, err := strconv.Atoi(c[0])
-		if err == nil {
-			return colorAnsi(i)
+		c = strings.Split(colorFGBG, ";")
+		if i, err = strconv.Atoi(c[0]); err == nil {
+			ret = colorAnsi(i)
+			return
 		}
 	}
+	ret = colorAnsi(7)
 
-	return colorAnsi(7)
+	return
 }
 
-func backgroundColor() Color {
-	s, err := termStatusReport(11)
-	if err == nil {
-		c, err := xTermColor(s)
-		if err == nil {
-			return c
+func backgroundColor() (ret Color) {
+	var (
+		err       error
+		s         string
+		c         []string
+		colorFGBG string
+		i         int
+	)
+
+	if s, err = termStatusReport(11); err == nil {
+		if ret, err = xTermColor(s); err == nil {
+			return
 		}
 	}
-
-	colorFGBG := os.Getenv(envColorFgbg)
+	colorFGBG = os.Getenv(envColorFgbg)
 	if strings.Contains(colorFGBG, ";") {
-		c := strings.Split(colorFGBG, ";")
-		i, err := strconv.Atoi(c[len(c)-1])
-		if err == nil {
-			return colorAnsi(i)
+		c = strings.Split(colorFGBG, ";")
+		if i, err = strconv.Atoi(c[len(c)-1]); err == nil {
+			ret = colorAnsi(i)
+			return
 		}
 	}
+	ret = colorAnsi(0)
 
-	return colorAnsi(0)
+	return
 }
 
 func waitForData(fd uintptr, timeout time.Duration) (err error) {
