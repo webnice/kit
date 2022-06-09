@@ -5,32 +5,27 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/webnice/kit/application/component/logger_console/dye"
-
+	kitModuleDye "github.com/webnice/kit/module/dye"
 	kmll "github.com/webnice/kit/module/log/level"
 )
 
-func (ses *session) colorByLevel() (fg dye.Interface, bg dye.Interface) {
-	type ansiStyle = struct {
-		Bg dye.Interface
-		Fg dye.Interface
-	}
+func (ses *session) colorByLevel() (fg kitModuleDye.Interface, bg kitModuleDye.Interface) {
 	var (
-		lm    map[kmll.Level]ansiStyle
-		style ansiStyle
+		lm    map[kmll.Level]colorAnsiStyle
+		style colorAnsiStyle
 		ok    bool
 	)
 
-	lm = map[kmll.Level]ansiStyle{
-		kmll.Fatal:    {Bg: dye.New().Background().Red(), Fg: dye.New().Bright().Yellow()},
-		kmll.Alert:    {Bg: dye.New().Background().Magenta(), Fg: dye.New().Bright().White()},
-		kmll.Critical: {Bg: dye.New().Background().Blue(), Fg: dye.New().Bright().Magenta()},
-		kmll.Error:    {Bg: dye.New().Background().Black(), Fg: dye.New().Bright().Red()},
-		kmll.Warning:  {Bg: dye.New().Background().Black(), Fg: dye.New().Bright().Yellow()},
-		kmll.Notice:   {Bg: dye.New().Background().Black(), Fg: dye.New().Green()},
-		kmll.Info:     {Bg: dye.New().Background().Black(), Fg: dye.New().White()},
-		kmll.Debug:    {Bg: dye.New().Background().Black(), Fg: dye.New().Cyan()},
-		kmll.Trace:    {Bg: dye.New().Background().Black(), Fg: dye.New().Bright().White()},
+	lm = map[kmll.Level]colorAnsiStyle{
+		kmll.Fatal:    {Bg: kitModuleDye.New().Background().Red(), Fg: kitModuleDye.New().Bright().Yellow()},
+		kmll.Alert:    {Bg: kitModuleDye.New().Background().Magenta(), Fg: kitModuleDye.New().Bright().White()},
+		kmll.Critical: {Bg: kitModuleDye.New().Background().Blue(), Fg: kitModuleDye.New().Bright().Magenta()},
+		kmll.Error:    {Bg: kitModuleDye.New().Background().Black(), Fg: kitModuleDye.New().Bright().Red()},
+		kmll.Warning:  {Bg: kitModuleDye.New().Background().Black(), Fg: kitModuleDye.New().Bright().Yellow()},
+		kmll.Notice:   {Bg: kitModuleDye.New().Background().Black(), Fg: kitModuleDye.New().Green()},
+		kmll.Info:     {Bg: kitModuleDye.New().Background().Black(), Fg: kitModuleDye.New().White()},
+		kmll.Debug:    {Bg: kitModuleDye.New().Background().Black(), Fg: kitModuleDye.New().Cyan()},
+		kmll.Trace:    {Bg: kitModuleDye.New().Background().Black(), Fg: kitModuleDye.New().Bright().White()},
 	}
 	if style, ok = lm[ses.Data.Level]; ok {
 		fg, bg = style.Fg, style.Bg
@@ -50,15 +45,12 @@ func (ses *session) fnColorSet(dst string, opt string, brc string) (ret string) 
 		tagBlue, tagMagenta, tagCyan, tagWhite = "blue", "magenta", "cyan", "white"
 	)
 	var (
-		err     error
-		styleFg dye.Interface
-		styleBg dye.Interface
-		seq     dye.Interface
-		isBask  bool
+		err                   error
+		seq, styleFg, styleBg kitModuleDye.Interface
+		isBask                bool
 	)
 
-	dst, opt, brc = strings.ToLower(dst), strings.ToLower(opt), strings.ToLower(brc)
-	seq = dye.New()
+	seq, dst, opt, brc = kitModuleDye.New(), strings.ToLower(dst), strings.ToLower(opt), strings.ToLower(brc)
 	switch dst {
 	case tagAll:
 		switch opt {

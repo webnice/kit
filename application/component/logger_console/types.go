@@ -19,14 +19,16 @@ const (
 const defaultTpl = `${dye:all:level}${-spc-}
 
 ${#: Дата и время с форматом вывода: }${#:timestamp:Europe/Moscow:02.01.2006 15:04:05.000000}
+
 ${-spc-}
 
 [${level:S:1}:${level:d:1}]:${dye:all:reset} ${message}${bp--}
 
 ${-spc-:1}           ${dye:text:black:bright}{${package}/${shortfile}:${line}, функция: 
 ${-spc-:1}           ${dye:back:Black:normal}${function}()${dye:all:reset}${dye:text:black:bright}}${dye:all:reset}
-${-spc-:1}
-${-spc-}
+
+${-spc-:1}${-spc-}
+
 ${#: Ключи для примера: }${-spc-:1}${dye:text:#FF0955}${keys}`
 
 // Interface is an interface of package.

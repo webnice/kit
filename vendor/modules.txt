@@ -3,25 +3,13 @@
 github.com/Masterminds/semver
 # github.com/kr/pretty v0.3.0
 ## explicit; go 1.12
-# github.com/lucasb-eyer/go-colorful v1.2.0
-## explicit; go 1.12
-github.com/lucasb-eyer/go-colorful
 # github.com/mattn/go-isatty v0.0.14
 ## explicit; go 1.12
 github.com/mattn/go-isatty
-# github.com/mattn/go-runewidth v0.0.13
-## explicit; go 1.9
-github.com/mattn/go-runewidth
-# github.com/muesli/termenv v0.12.0
-## explicit; go 1.13
-github.com/muesli/termenv
-# github.com/rivo/uniseg v0.2.0
-## explicit; go 1.12
-github.com/rivo/uniseg
 # github.com/rogpeppe/go-internal v1.8.1
 ## explicit; go 1.16
-# github.com/webnice/debug v1.0.0
-## explicit; go 1.15
+# github.com/webnice/debug v1.0.0 => /Users/kallisto/Projects/lib/github.com/webnice/debug
+## explicit; go 1.17
 github.com/webnice/debug
 # golang.org/x/sys v0.0.0-20220608164250-635b8c9b7f68
 ## explicit; go 1.17
@@ -33,3 +21,4 @@ golang.org/x/sys/windows
 # gopkg.in/yaml.v3 v3.0.1
 ## explicit
 gopkg.in/yaml.v3
+# github.com/webnice/debug => /Users/kallisto/Projects/lib/github.com/webnice/debug

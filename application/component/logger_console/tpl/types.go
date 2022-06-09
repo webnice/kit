@@ -8,6 +8,7 @@ import (
 	"sync"
 	"text/template"
 
+	kitModuleDye "github.com/webnice/kit/module/dye"
 	kitModuleLog "github.com/webnice/kit/module/log"
 )
 
@@ -72,4 +73,9 @@ type tagFormatInfo struct {
 	Name    string   // Название тега.
 	Docs    []string // Документация по тегу.
 	Example string   // Пример указания тега.
+}
+
+type colorAnsiStyle = struct {
+	Bg kitModuleDye.Interface
+	Fg kitModuleDye.Interface
 }

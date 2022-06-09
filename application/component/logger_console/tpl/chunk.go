@@ -27,9 +27,21 @@ func (c chunk) String() (ret string) {
 	return
 }
 
+func (c chunk) makeCallFnWithArgs(numberArgs int) (ret string) {
+	const prefix, tplarg, suffix = `{{ %s `, `%q `, `}}`
+	var n int
+
+	for ret, n = prefix, 0; n < numberArgs; n++ {
+		ret += tplarg
+	}
+	ret += suffix
+
+	return
+}
+
 // Template Представления куска как шаблона template/text.
 func (c chunk) Template() (ret string) {
-	const sep = ":"
+	const tplQuoteString = "{{%q}}"
 	var (
 		args  []string
 		argn  int
@@ -51,7 +63,7 @@ func (c chunk) Template() (ret string) {
 			quote = true
 		}
 		if ret = c.Src; quote {
-			ret = fmt.Sprintf("{{%q}}", c.Src)
+			ret = fmt.Sprintf(tplQuoteString, c.Src)
 		}
 	case chunkData:
 		// Кусок является тегом для вывода данных.
@@ -59,18 +71,18 @@ func (c chunk) Template() (ret string) {
 			return
 		}
 		switch tdi.Name {
-		case "line":
-			argn, argt = 0, "{{ %s }}"
-		case "timestamp", "level", "message", "keys":
-			argn, argt = 2, "{{ %s %q %q }}"
-		case "dye":
-			argn, argt = 3, "{{ %s %q %q %q }}"
+		case keyLine:
+			argn, argt = 0, c.makeCallFnWithArgs(0)
+		case keyTimestamp, keyLevel, keyMessage, keyKeys:
+			argn, argt = 2, c.makeCallFnWithArgs(2)
+		case keyDye:
+			argn, argt = 3, c.makeCallFnWithArgs(3)
 		default:
-			argn, argt = 1, "{{ %s %q }}"
+			argn, argt = 1, c.makeCallFnWithArgs(1)
 		}
-		args = splitBySeparator(c.Arg, sep)
+		args = splitBySeparator(c.Arg, keySep)
 		arr = append(arr, tdi.Name)
-		for _, arg = range fixSlice(args, argn, sep) {
+		for _, arg = range fixSlice(args, argn, keySep) {
 			arr = append(arr, arg)
 		}
 		ret = fmt.Sprintf(argt, arr...)
@@ -79,12 +91,12 @@ func (c chunk) Template() (ret string) {
 		if tdi, ok = c.Tag.(*tagDataInfo); !ok {
 			return
 		}
-		args = splitBySeparator(c.Arg, sep)
+		args = splitBySeparator(c.Arg, keySep)
 		arr = append(arr, tdi.Name)
-		for _, arg = range fixSlice(args, 3, sep) {
+		for _, arg = range fixSlice(args, 3, keySep) {
 			arr = append(arr, arg)
 		}
-		ret = fmt.Sprintf("{{ %s %q %q %q }}", arr...)
+		ret = fmt.Sprintf(c.makeCallFnWithArgs(3), arr...)
 	}
 
 	return

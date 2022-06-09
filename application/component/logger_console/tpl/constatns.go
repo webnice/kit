@@ -11,12 +11,23 @@ const (
 )
 
 const (
-	keyQuote         = "\\"
+	keyQuote     = "\\"
+	keySep       = ":"
+	keyLine      = "line"
+	keyTimestamp = "timestamp"
+	keyLevel     = "level"
+	keyMessage   = "message"
+	keyKeys      = "keys"
+	keyDye       = "dye"
+)
+
+const (
 	tplParseFirst    = "перед созданием сессии, необходимо выполнить функцию Parse()"
 	tplTimezoneError = "не найдена зона времени %q, ошибка вывода времени: %s"
 	tplNewLine       = "\n"
 	tplSuffix        = "..."
-	tplPanic         = `Работа с шаблоном прервана паникой:` + "\n%v\n%s."
+	tplPanic         = `Работа шаблонизатора прервана паникой:` + "\n%v\n%s."
+	tplParsePanic    = `Обработка данных шаблонизатором прервана паникой:` + "\n%v\n%s."
 )
 
 // Тип куска шаблона.
@@ -24,19 +35,28 @@ type chunkType uint
 
 // Интерфейс Stringer.
 func (ct chunkType) String() (ret string) {
+	const (
+		typeUnknown = "Неизвестно."
+		typeDelete  = "Удалённый."
+		typeText    = "Текст."
+		typeData    = "Данные."
+		typeColor   = "Цвет."
+		typeFormat  = "Формат."
+	)
+
 	switch ct {
 	case chunkDelete:
-		ret = "Удалённый."
+		ret = typeDelete
 	case chunkText:
-		ret = "Текст."
+		ret = typeText
 	case chunkData:
-		ret = "Данные."
+		ret = typeData
 	case chunkColor:
-		ret = "Цвет."
+		ret = typeColor
 	case chunkFormat:
-		ret = "Формат."
+		ret = typeFormat
 	default:
-		ret = "Неизвестно."
+		ret = typeUnknown
 	}
 
 	return
