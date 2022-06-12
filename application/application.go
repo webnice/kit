@@ -128,7 +128,6 @@ func (app *impl) Main() (code uint8, err error) {
 		runtime.Gosched()
 		// Остановка менеджера логирования.
 		app.Cfg().Gist().Logger().FlushAndClose()
-		runtime.Gosched()
 	}()
 	// Ожидание сигнала об окончании выполнения функций Finalize() всех зарегистрированных компонентов приложения
 	<-app.finalize
