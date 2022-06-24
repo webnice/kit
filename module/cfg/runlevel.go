@@ -4,8 +4,8 @@ package cfg
 import (
 	"container/list"
 
-	kitModuleTrace "github.com/webnice/kit/module/trace"
-	kitTypes "github.com/webnice/kit/types"
+	kitModuleTrace "github.com/webnice/kit/v3/module/trace"
+	kitTypes "github.com/webnice/kit/v3/types"
 )
 
 // Функция создаёт канал изменения уровня работы приложения.

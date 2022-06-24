@@ -6,7 +6,7 @@ import (
 	"runtime"
 	"sync/atomic"
 
-	kitModulePdw "github.com/webnice/kit/module/pdw"
+	kitModulePdw "github.com/webnice/kit/v3/module/pdw"
 )
 
 // Создание объекта и возвращение интерфейса Essence.

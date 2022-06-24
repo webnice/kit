@@ -1,7 +1,7 @@
 // Package types
 package types
 
-import kmll "github.com/webnice/kit/module/log/level"
+import kmll "github.com/webnice/kit/v3/module/log/level"
 
 // BootstrapConfiguration Структура стартовой конфигурации приложения.
 // Параметры тегов "env", "default", "help", описанные в блоке kong, обрабатываются в момент инициализации

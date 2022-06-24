@@ -7,7 +7,7 @@ import (
 	"sync"
 	"time"
 
-	kitTypes "github.com/webnice/kit/types"
+	kitTypes "github.com/webnice/kit/v3/types"
 )
 
 // Инициализация бассейна объектов.

@@ -6,7 +6,7 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/webnice/kit/module/dye/colorful"
+	"github.com/webnice/kit/v3/module/dye/colorful"
 )
 
 // Профиль терминала.

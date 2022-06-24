@@ -5,8 +5,8 @@ import (
 	"log"
 	"runtime"
 
-	kitModulePdw "github.com/webnice/kit/module/pdw"
-	kitModuleTrace "github.com/webnice/kit/module/trace"
+	kitModulePdw "github.com/webnice/kit/v3/module/pdw"
+	kitModuleTrace "github.com/webnice/kit/v3/module/trace"
 )
 
 // Обработчик входящих объектов канала шины данных.

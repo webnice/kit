@@ -7,9 +7,9 @@ import (
 	"runtime"
 	"time"
 
-	kitModulePdw "github.com/webnice/kit/module/pdw"
-	kitModuleTrace "github.com/webnice/kit/module/trace"
-	kitTypes "github.com/webnice/kit/types"
+	kitModulePdw "github.com/webnice/kit/v3/module/pdw"
+	kitModuleTrace "github.com/webnice/kit/v3/module/trace"
+	kitTypes "github.com/webnice/kit/v3/types"
 )
 
 // New Конструктор объекта пакета, возвращает интерфейс Interface.

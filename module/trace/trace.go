@@ -5,7 +5,7 @@ import (
 	"runtime"
 	"strings"
 
-	kitTypes "github.com/webnice/kit/types"
+	kitTypes "github.com/webnice/kit/v3/types"
 )
 
 // Short Получение информации о текущем вызове и коротком стеке вызовов активной горутины

@@ -4,8 +4,8 @@ package cli
 import (
 	"bytes"
 
-	kitModuleCfgCliKong "github.com/webnice/kit/module/cfg/cli/kong"
-	kitTypes "github.com/webnice/kit/types"
+	kitModuleCfgCliKong "github.com/webnice/kit/v3/module/cfg/cli/kong"
+	kitTypes "github.com/webnice/kit/v3/types"
 )
 
 // Interface Интерфейс пакета.

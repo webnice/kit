@@ -4,8 +4,8 @@ package log
 import (
 	"time"
 
-	kitModuleLogLevel "github.com/webnice/kit/module/log/level"
-	kitModuleTrace "github.com/webnice/kit/module/trace"
+	kitModuleLogLevel "github.com/webnice/kit/v3/module/log/level"
+	kitModuleTrace "github.com/webnice/kit/v3/module/trace"
 )
 
 // Write Реализация интерфейса io.Writer.

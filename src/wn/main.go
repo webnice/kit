@@ -2,8 +2,8 @@
 package main
 
 import (
-	app "github.com/webnice/kit/application"
-	"github.com/webnice/kit/module/cfg"
+	app "github.com/webnice/kit/v3/application"
+	"github.com/webnice/kit/v3/module/cfg"
 )
 
 var (

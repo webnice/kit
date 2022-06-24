@@ -5,10 +5,10 @@ import (
 	"math"
 	"strings"
 
-	kitModuleCfgCli "github.com/webnice/kit/module/cfg/cli"
-	kitModuleLog "github.com/webnice/kit/module/log"
-	kitModuleLogLevel "github.com/webnice/kit/module/log/level"
-	kitTypes "github.com/webnice/kit/types"
+	kitModuleCfgCli "github.com/webnice/kit/v3/module/cfg/cli"
+	kitModuleLog "github.com/webnice/kit/v3/module/log"
+	kitModuleLogLevel "github.com/webnice/kit/v3/module/log/level"
+	kitTypes "github.com/webnice/kit/v3/types"
 
 	"github.com/Masterminds/semver"
 )

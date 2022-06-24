@@ -8,7 +8,7 @@ import (
 	runtimeDebug "runtime/debug"
 	"strings"
 
-	kitTypes "github.com/webnice/kit/types"
+	kitTypes "github.com/webnice/kit/v3/types"
 )
 
 // Завершение приложения с кодом ошибки

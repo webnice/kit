@@ -7,8 +7,8 @@ import (
 	"os"
 	"strings"
 
-	"github.com/webnice/kit/module/dye/colorful"
-	"github.com/webnice/kit/module/dye/isatty"
+	"github.com/webnice/kit/v3/module/dye/colorful"
+	"github.com/webnice/kit/v3/module/dye/isatty"
 )
 
 func isTTY(fd uintptr) bool {

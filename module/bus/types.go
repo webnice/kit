@@ -11,8 +11,8 @@ import (
 	"context"
 	"reflect"
 
-	kitModulePdw "github.com/webnice/kit/module/pdw"
-	kitTypes "github.com/webnice/kit/types"
+	kitModulePdw "github.com/webnice/kit/v3/module/pdw"
+	kitTypes "github.com/webnice/kit/v3/types"
 )
 
 const (

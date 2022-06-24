@@ -9,10 +9,10 @@ import (
 
 	"github.com/webnice/debug"
 
-	kitModuleBus "github.com/webnice/kit/module/bus"
-	kitModuleLogLevel "github.com/webnice/kit/module/log/level"
-	kitModuleUuid "github.com/webnice/kit/module/uuid"
-	kitTypes "github.com/webnice/kit/types"
+	kitModuleBus "github.com/webnice/kit/v3/module/bus"
+	kitModuleLogLevel "github.com/webnice/kit/v3/module/log/level"
+	kitModuleUuid "github.com/webnice/kit/v3/module/uuid"
+	kitTypes "github.com/webnice/kit/v3/types"
 )
 
 // Get Функция возвращает интерфейс объекта пакета.

@@ -5,11 +5,11 @@ import (
 	"container/list"
 	"sync"
 
-	kitModuleBus "github.com/webnice/kit/module/bus"
-	kitModuleCfgCli "github.com/webnice/kit/module/cfg/cli"
-	kitModuleLog "github.com/webnice/kit/module/log"
-	kitModuleUuid "github.com/webnice/kit/module/uuid"
-	kitTypes "github.com/webnice/kit/types"
+	kitModuleBus "github.com/webnice/kit/v3/module/bus"
+	kitModuleCfgCli "github.com/webnice/kit/v3/module/cfg/cli"
+	kitModuleLog "github.com/webnice/kit/v3/module/log"
+	kitModuleUuid "github.com/webnice/kit/v3/module/uuid"
+	kitTypes "github.com/webnice/kit/v3/types"
 
 	"github.com/Masterminds/semver"
 )

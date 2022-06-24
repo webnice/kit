@@ -4,10 +4,10 @@ package cfg
 import (
 	"time"
 
-	kitModuleLog "github.com/webnice/kit/module/log"
-	kitModuleLogLevel "github.com/webnice/kit/module/log/level"
-	kitModuleTrace "github.com/webnice/kit/module/trace"
-	kitTypes "github.com/webnice/kit/types"
+	kitModuleLog "github.com/webnice/kit/v3/module/log"
+	kitModuleLogLevel "github.com/webnice/kit/v3/module/log/level"
+	kitModuleTrace "github.com/webnice/kit/v3/module/trace"
+	kitTypes "github.com/webnice/kit/v3/types"
 )
 
 // Получение объекта интерфейса kitTypes.Logger.

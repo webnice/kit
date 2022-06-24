@@ -8,8 +8,8 @@ import (
 	"strings"
 	"time"
 
-	kitModuleCfgCli "github.com/webnice/kit/module/cfg/cli"
-	kitTypes "github.com/webnice/kit/types"
+	kitModuleCfgCli "github.com/webnice/kit/v3/module/cfg/cli"
+	kitTypes "github.com/webnice/kit/v3/types"
 )
 
 // ComponentName Получение уникального имени пакета компоненты.

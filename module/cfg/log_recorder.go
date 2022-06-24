@@ -4,7 +4,7 @@ package cfg
 import (
 	"time"
 
-	kitTypes "github.com/webnice/kit/types"
+	kitTypes "github.com/webnice/kit/v3/types"
 )
 
 // Получение объекта интерфейса Recorder.
