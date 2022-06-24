@@ -6,8 +6,8 @@ import (
 	"io"
 	"mime/multipart"
 
-	"github.com/webnice/kit/module/mail/linelimit"
-	"github.com/webnice/kit/module/mail/qp"
+	"github.com/webnice/kit/v2/module/mail/linelimit"
+	"github.com/webnice/kit/v2/module/mail/qp"
 )
 
 // New interface

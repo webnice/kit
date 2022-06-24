@@ -6,8 +6,8 @@ import (
 	"sync"
 	"time"
 
-	"github.com/webnice/kit/module/mail/encode"
-	"github.com/webnice/kit/module/mail/message"
+	"github.com/webnice/kit/v2/module/mail/encode"
+	"github.com/webnice/kit/v2/module/mail/message"
 )
 
 var smtpDialTimeout = time.Second * 10

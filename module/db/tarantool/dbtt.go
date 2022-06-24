@@ -1,8 +1,8 @@
 package dbtarantool
 
 import (
-	"github.com/webnice/kit/module/db/tarantool/connector"
-	"github.com/webnice/kit/module/db/tarantool/tarantool"
+	"github.com/webnice/kit/v2/module/db/tarantool/connector"
+	"github.com/webnice/kit/v2/module/db/tarantool/tarantool"
 	log "github.com/webnice/lv2"
 )
 

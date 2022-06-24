@@ -1,7 +1,7 @@
 package dbclickhouse
 
 import (
-	"github.com/webnice/kit/module/db/clickhouse/connector"
+	"github.com/webnice/kit/v2/module/db/clickhouse/connector"
 	log "github.com/webnice/lv2"
 
 	"github.com/jmoiron/sqlx"

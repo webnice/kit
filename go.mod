@@ -1,4 +1,4 @@
-module github.com/webnice/kit
+module github.com/webnice/kit/v2
 
 go 1.18
 

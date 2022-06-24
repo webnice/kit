@@ -5,8 +5,8 @@ import (
 	"io"
 	"sync"
 
-	"github.com/webnice/kit/module/mail/encode"
-	"github.com/webnice/kit/module/mail/multipart"
+	"github.com/webnice/kit/v2/module/mail/encode"
+	"github.com/webnice/kit/v2/module/mail/multipart"
 )
 
 // Interface is an interface of message
