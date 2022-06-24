@@ -5,5 +5,5 @@
 
 #### Install
 ```bash
-go get -u github.com/webnice/kit/v1
+go get -u github.com/webnice/kit
 ```
