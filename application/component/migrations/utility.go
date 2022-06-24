@@ -8,7 +8,7 @@ package migrations
 //	//
 //	//"application/modules/launcher"
 //	//
-//	//"github.com/webnice/kit/modules/ch"
+//	//"github.com/webnice/kit/v3/modules/ch"
 //)
 
 // Поиск и проверка версии утилиты миграции.

@@ -4,9 +4,9 @@ package version
 import (
 	"fmt"
 
-	kitModuleCfg "github.com/webnice/kit/module/cfg"
-	kitModuleCfgReg "github.com/webnice/kit/module/cfg/reg"
-	kitTypes "github.com/webnice/kit/types"
+	kitModuleCfg "github.com/webnice/kit/v3/module/cfg"
+	kitModuleCfgReg "github.com/webnice/kit/v3/module/cfg/reg"
+	kitTypes "github.com/webnice/kit/v3/types"
 )
 
 // Структура объекта компоненты.

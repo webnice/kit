@@ -4,7 +4,7 @@ package application
 import (
 	"math"
 
-	kitTypes "github.com/webnice/kit/types"
+	kitTypes "github.com/webnice/kit/v3/types"
 )
 
 // Выполнение действий приложения на уровнях от 10 до 65534

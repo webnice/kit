@@ -5,9 +5,9 @@ import (
 	"bytes"
 	"fmt"
 
-	"github.com/webnice/kit/application/component/logger_console/tpl"
+	"github.com/webnice/kit/v3/application/component/logger_console/tpl"
 
-	kitModuleLog "github.com/webnice/kit/module/log"
+	kitModuleLog "github.com/webnice/kit/v3/module/log"
 )
 
 // Handler Обработчик сообщений лога.

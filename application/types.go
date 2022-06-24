@@ -1,7 +1,7 @@
 // Package application
 package application
 
-import kitModuleCfg "github.com/webnice/kit/module/cfg"
+import kitModuleCfg "github.com/webnice/kit/v3/module/cfg"
 
 const (
 	tplApplicationBegin    = "Приложение начало инициализацию."

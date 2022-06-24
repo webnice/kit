@@ -6,8 +6,8 @@ import (
 	"errors"
 	"runtime"
 
-	kitModuleCfg "github.com/webnice/kit/module/cfg"
-	kitTypes "github.com/webnice/kit/types"
+	kitModuleCfg "github.com/webnice/kit/v3/module/cfg"
+	kitTypes "github.com/webnice/kit/v3/types"
 )
 
 func init() { singleton = newApp().(*impl) }

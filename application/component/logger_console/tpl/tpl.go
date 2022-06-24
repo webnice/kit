@@ -6,7 +6,7 @@ import (
 	"strings"
 	"sync"
 
-	kitTypes "github.com/webnice/kit/types"
+	kitTypes "github.com/webnice/kit/v3/types"
 )
 
 // New Конструктор объекта сущности пакета, возвращается интерфейс пакета.

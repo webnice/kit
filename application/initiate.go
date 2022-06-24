@@ -4,8 +4,8 @@ package application
 import (
 	"context"
 
-	kitModuleTrace "github.com/webnice/kit/module/trace"
-	kitTypes "github.com/webnice/kit/types"
+	kitModuleTrace "github.com/webnice/kit/v3/module/trace"
+	kitTypes "github.com/webnice/kit/v3/types"
 )
 
 // Функция вызова функции Initiate() у компоненты с контролем длительности выполнения и прерыванием по таймауту

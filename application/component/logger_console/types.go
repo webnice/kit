@@ -4,9 +4,9 @@ package loggerconsole
 import (
 	"sync"
 
-	"github.com/webnice/kit/application/component/logger_console/tpl"
+	"github.com/webnice/kit/v3/application/component/logger_console/tpl"
 
-	kitModuleCfg "github.com/webnice/kit/module/cfg"
+	kitModuleCfg "github.com/webnice/kit/v3/module/cfg"
 )
 
 const (

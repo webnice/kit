@@ -5,8 +5,8 @@ import (
 	"math"
 	"regexp"
 
-	kitModuleTrace "github.com/webnice/kit/module/trace"
-	kitTypes "github.com/webnice/kit/types"
+	kitModuleTrace "github.com/webnice/kit/v3/module/trace"
+	kitTypes "github.com/webnice/kit/v3/types"
 )
 
 // Опрос зарегистрированных компонентов, получение настроек компонентов

@@ -2,8 +2,8 @@
 package daemon
 
 import (
-	kitModuleCfgReg "github.com/webnice/kit/module/cfg/reg"
-	kitTypes "github.com/webnice/kit/types"
+	kitModuleCfgReg "github.com/webnice/kit/v3/module/cfg/reg"
+	kitTypes "github.com/webnice/kit/v3/types"
 )
 
 // Структура объекта компоненты.

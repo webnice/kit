@@ -8,8 +8,8 @@ import (
 	"sync"
 	"text/template"
 
-	kitModuleDye "github.com/webnice/kit/module/dye"
-	kitModuleLog "github.com/webnice/kit/module/log"
+	kitModuleDye "github.com/webnice/kit/v3/module/dye"
+	kitModuleLog "github.com/webnice/kit/v3/module/log"
 )
 
 // Регулярное выражение для извлечения из шаблона всех тегов.

@@ -4,10 +4,10 @@ package interrupt
 import (
 	"os"
 
-	kitModuleCfg "github.com/webnice/kit/module/cfg"
-	kitModuleCfgReg "github.com/webnice/kit/module/cfg/reg"
-	kitModuleInterrupt "github.com/webnice/kit/module/interrupt"
-	kitTypes "github.com/webnice/kit/types"
+	kitModuleCfg "github.com/webnice/kit/v3/module/cfg"
+	kitModuleCfgReg "github.com/webnice/kit/v3/module/cfg/reg"
+	kitModuleInterrupt "github.com/webnice/kit/v3/module/interrupt"
+	kitTypes "github.com/webnice/kit/v3/types"
 )
 
 const (

@@ -9,7 +9,7 @@ import (
 	"runtime"
 	"strings"
 
-	"github.com/webnice/kit/application/component/configuration/osext"
+	"github.com/webnice/kit/v3/application/component/configuration/osext"
 )
 
 // Поиск пути и имени файла конфигурации.

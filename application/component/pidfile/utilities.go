@@ -10,7 +10,7 @@ import (
 	"strings"
 	"syscall"
 
-	kitTypes "github.com/webnice/kit/types"
+	kitTypes "github.com/webnice/kit/v3/types"
 )
 
 // IsProcessExist Проверка существования процесса по данным из PID файла.
