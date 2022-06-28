@@ -30,7 +30,7 @@ ${-spc-:1}           ${dye:back:Black:normal}${dye:set:Underline}${function}()${
 
 ${-spc-:1}${-spc-}
 
-${#: Ключи для примера: }${-spc-:1}${dye:text:#FF0955}${keys}`
+${#: Ключи: }${-spc-:1}${dye:text:#0087FF}${keys}`
 
 // Interface is an interface of package.
 type Interface interface {
