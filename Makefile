@@ -59,7 +59,6 @@ dep-dev: dep-init
 	@go get -u -v ./...
 	@go mod download
 	@go mod tidy
-	@go mod vendor
 	$(call PROJECT_DEPENDENCES_DEVELOPMENT)
 .PHONY: dep-dev
 

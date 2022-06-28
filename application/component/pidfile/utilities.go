@@ -59,7 +59,7 @@ func (pid *impl) IsProcessExist() (err kitTypes.ErrorWithCode) {
 		}
 		switch e = process.Signal(syscall.Signal(0)); e {
 		case syscall.ESRCH, os.ErrProcessDone:
-			// Процес завершён.
+			// Процесс завершён.
 		case nil, syscall.EPERM:
 			// Процесс есть или к нему нет доступа, что говорит о том что он есть.
 			exists = true

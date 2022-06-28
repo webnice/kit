@@ -183,7 +183,7 @@ func (essence *gist) configurationSetDefaultValue() (err error) {
 			dcRv           reflect.Value
 			dcRsf          reflect.StructField
 			dcV            reflect.Value
-			n              int
+			n, sn          int
 			ok, found      bool
 			envName        string
 			defaultValue   string
@@ -192,6 +192,7 @@ func (essence *gist) configurationSetDefaultValue() (err error) {
 			defaultValueRv reflect.Value
 			tcdi           kitTypes.ConfigurationDefaulter
 			objDefaultRv   reflect.Value
+			objSliceStruct reflect.Value
 		)
 
 		if dcRv, dcRt, err = reflectStructObject(dc); err != nil {
@@ -203,7 +204,9 @@ func (essence *gist) configurationSetDefaultValue() (err error) {
 			if !dcV.CanSet() || !dcRsf.IsExported() || dcRsf.Anonymous {
 				continue
 			}
-			if dcV.IsZero() {
+			switch {
+			// Простые типы со значением по умолчанию.
+			case dcV.IsZero():
 				found, ok = false, false
 				if envName, ok = dcRsf.Tag.Lookup(tagEnvName); ok && envName != "-" {
 					if defaultValue, ok = os.LookupEnv(envName); ok && defaultValue != "" {
@@ -232,7 +235,8 @@ func (essence *gist) configurationSetDefaultValue() (err error) {
 					err = essence.parent.Errors().ConfigurationSetDefaultValue(0, defaultValue, dcRsf.Name, err)
 					return
 				}
-			} else if dcV.CanAddr() && dcRsf.Type.Kind() == reflect.Struct {
+			// Обработка структуры.
+			case dcV.CanAddr() && dcRsf.Type.Kind() == reflect.Struct:
 				// Проверка на реализацию интерфейса types.ConfigurationDefaulter
 				switch tcdi, ok = dcV.Addr().Interface().(kitTypes.ConfigurationDefaulter); ok {
 				case true:
@@ -249,6 +253,16 @@ func (essence *gist) configurationSetDefaultValue() (err error) {
 					}
 				default:
 					csdv(dcV.Addr().Interface())
+				}
+			// Обработка среза.
+			case dcV.CanAddr() && dcRsf.Type.Kind() == reflect.Slice:
+				for sn = 0; sn < dcV.Len(); sn++ {
+					objSliceStruct = dcV.Index(sn)
+					// Интересует только адресуемая структура.
+					if !objSliceStruct.CanAddr() || objSliceStruct.Type().Kind() != reflect.Struct {
+						continue
+					}
+					csdv(objSliceStruct.Addr().Interface())
 				}
 			}
 		}
