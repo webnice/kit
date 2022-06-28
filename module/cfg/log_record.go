@@ -254,6 +254,16 @@ func (rec *record) Tracef(pattern string, args ...interface{}) {
 	rec.messageSend(kitModuleLogLevel.Trace, pattern, args...)
 }
 
+// MessageWithLevel Отправка сообщения в лог с указанием уровня логирования.
+func (rec *record) MessageWithLevel(level kitModuleLogLevel.Level, pattern string, args ...interface{}) {
+	kitModuleTrace.Short(rec.traceInfo, rec.stackBack)
+	// Присвоение времени записи.
+	if rec.timestamp.IsZero() {
+		rec.timestamp = time.Now().In(time.UTC)
+	}
+	rec.messageSend(level, pattern, args...)
+}
+
 // Единое место отправки сообщения с полученным стеком вызовов и уровнем логирования.
 func (rec *record) messageSend(lv kitModuleLogLevel.Level, pattern string, args ...interface{}) {
 	var (

@@ -4,6 +4,7 @@ package cfg
 import (
 	"time"
 
+	kitModuleLogLevel "github.com/webnice/kit/v3/module/log/level"
 	kitTypes "github.com/webnice/kit/v3/types"
 )
 
@@ -123,3 +124,8 @@ func (rer *recorder) Trace(ag ...interface{}) { newRec(rer).Trace(ag...) }
 
 // Tracef Уровень 8: уровень максимально подробной трассировки.
 func (rer *recorder) Tracef(pt string, ag ...interface{}) { newRec(rer).Tracef(pt, ag...) }
+
+// MessageWithLevel Отправка сообщения в лог с указанием уровня логирования.
+func (rer *recorder) MessageWithLevel(lv kitModuleLogLevel.Level, pt string, ag ...interface{}) {
+	newRec(rer).MessageWithLevel(lv, pt, ag...)
+}

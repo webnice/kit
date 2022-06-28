@@ -1,7 +1,11 @@
 // Package types
 package types
 
-import "time"
+import (
+	"time"
+
+	kitModuleLogLevel "github.com/webnice/kit/v3/module/log/level"
+)
 
 // Logger Интерфейс доступа к методам логирования.
 type Logger interface {
@@ -19,6 +23,11 @@ type Logger interface {
 	// * false - отменяет завершение приложения, указанное для уровня логирования по умолчанию, например,
 	//           для записи лога Fatal, можно отменить завершение приложения: log.Fatality(false).Fatal(...).
 	Fatality(fy bool) Logger
+
+	// Универсальна функция логирования.
+
+	// MessageWithLevel Отправка сообщения в лог с указанием уровня логирования.
+	MessageWithLevel(level kitModuleLogLevel.Level, pattern string, args ...interface{})
 
 	// Конечные функции
 
