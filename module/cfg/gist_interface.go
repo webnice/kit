@@ -180,7 +180,16 @@ type Essence interface {
 	// * default-value -- Значение поля по умолчанию, присваивается после чтения конфигурационного файла,
 	//                    а так же, публикуется в YAML файле, при создании примера конфигурации.
 	// * yaml ----------- Тег для библиотеки YAML, если указано значение "-", тогда поле пропускается.
-	ConfigurationRegistration(c interface{}, callbackFn func()) (err error)
+	ConfigurationRegistration(c interface{}, callback ...kitTypes.Callbacker) (err error)
+
+	// ConfigurationCallbackSubscribe Подписка функции обратного вызова на событие изменения данных сегмента
+	// конфигурации. Функция будет вызвана при изменении данных конфигурации, например при перезагрузке файла
+	// конфигурации или иных реализациях динамического изменения значений конфигурации.
+	ConfigurationCallbackSubscribe(c interface{}, callback kitTypes.Callbacker) (err error)
+
+	// ConfigurationCallbackUnsubscribe Отписка функции обратного вызова на событие изменения данных сегмента
+	// конфигурации.
+	ConfigurationCallbackUnsubscribe(c interface{}, callback kitTypes.Callbacker) (err error)
 
 	// ConfigurationLoad Загрузка конфигурационного файла.
 	ConfigurationLoad(buf *bytes.Buffer) (err error)

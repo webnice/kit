@@ -3,6 +3,7 @@ package cfg
 
 import (
 	"bytes"
+	"container/list"
 	"database/sql"
 	"fmt"
 	"os"
@@ -29,7 +30,7 @@ import (
 // * default-value -- Значение поля по умолчанию, присваивается после чтения конфигурационного файла,
 //                    а так же, публикуется в YAML файле, при создании примера конфигурации.
 // * yaml ----------- Тег для библиотеки YAML, если указано значение "-", тогда поле пропускается.
-func (essence *gist) ConfigurationRegistration(c interface{}, callbackFn func()) (err error) {
+func (essence *gist) ConfigurationRegistration(c interface{}, callback ...kitTypes.Callbacker) (err error) {
 	const (
 		tplDupName = "объект с типом %T, содержит поле с именем %q, которое совпадает с именем поля другого объекта" +
 			" конфигурации"
@@ -37,12 +38,12 @@ func (essence *gist) ConfigurationRegistration(c interface{}, callbackFn func())
 			" тега %q, из поля другого объекта конфигурации"
 	)
 	var (
-		item  *configurationItem
-		n     int
-		tsf   reflect.StructField
-		val   reflect.Value
-		value string
-		ok    bool
+		cfItem *configurationItem
+		n      int
+		tsf    reflect.StructField
+		val    reflect.Value
+		value  string
+		ok     bool
 	)
 
 	defer func() {
@@ -55,16 +56,16 @@ func (essence *gist) ConfigurationRegistration(c interface{}, callbackFn func())
 		err = essence.parent.Errors().ConfigurationApplicationProhibited(0, reflect.TypeOf(c).String())
 		return
 	}
-	// Создание объекта конфигурации. Проверка корректности объекта структуры конфигурации.
-	item = &configurationItem{Original: c, callbackFn: callbackFn}
-	if item.Value, item.Type, err = reflectStructObject(c); err != nil {
+	// Проверка корректности объекта структуры конфигурации.
+	cfItem = &configurationItem{Original: c, callback: list.New()}
+	if cfItem.Value, cfItem.Type, err = reflectStructObject(c); err != nil {
 		return
 	}
 	// Создание среза длинной равной количеству полей структуры конфигурации.
-	item.Fields = make([]reflect.StructField, 0, item.Type.NumField())
+	cfItem.Fields = make([]reflect.StructField, 0, cfItem.Type.NumField())
 	// Обход всех полей с проверкой и добавлением в срез.
-	for n = 0; n < item.Type.NumField(); n++ {
-		tsf, val = item.Type.Field(n), item.Value.Field(n)
+	for n = 0; n < cfItem.Type.NumField(); n++ {
+		tsf, val = cfItem.Type.Field(n), cfItem.Value.Field(n)
 		// Фильтрация по свойствам поля
 		if !val.CanSet() || !tsf.IsExported() || tsf.Anonymous {
 			continue
@@ -90,9 +91,130 @@ func (essence *gist) ConfigurationRegistration(c interface{}, callbackFn func())
 		// Удаление всех тегов, кроме используемых, лишние данные в памяти не нужны.
 		tsf.Tag = reflectCleanStructTag(tsf.Tag, tagYaml, tagDefaultValue, tagEnvName, tagDescription)
 		// Добавление в результирующий массив.
-		item.Fields = append(item.Fields, tsf)
+		cfItem.Fields = append(cfItem.Fields, tsf)
 	}
-	essence.parent.conf.Items = append(essence.parent.conf.Items, item)
+	essence.parent.conf.Items = append(essence.parent.conf.Items, cfItem)
+
+	// Подписка функций обратного вызова.
+	for n = range callback {
+		if err = essence.ConfigurationCallbackSubscribe(c, callback[n]); err != nil {
+			return
+		}
+	}
+
+	return
+}
+
+// ConfigurationCallbackSubscribe Подписка функции обратного вызова на событие изменения данных сегмента
+// конфигурации. Функция будет вызвана при изменении данных конфигурации, например при перезагрузке файла
+// конфигурации или иных реализациях динамического изменения значений конфигурации.
+func (essence *gist) ConfigurationCallbackSubscribe(c interface{}, callback kitTypes.Callbacker) (err error) {
+	var (
+		elm          *list.Element
+		rt           reflect.Type
+		n            int
+		cfItem       *configurationItem
+		cbItem       *callbackItem
+		found, ok    bool
+		funcFullName string
+	)
+
+	defer func() {
+		if e := recover(); e != nil {
+			err = Errors().ConfigurationApplicationPanic(0, e, runtimeDebug.Stack())
+		}
+	}()
+	// Проверка корректности объекта структуры конфигурации.
+	if _, rt, err = reflectStructObject(c); err != nil {
+		return
+	}
+	// Поиск зарегистрированной структуры конфигурации.
+	for n = range essence.parent.conf.Items {
+		if essence.parent.conf.Items[n].Type.String() == rt.String() {
+			cfItem = essence.parent.conf.Items[n]
+			break
+		}
+	}
+	if cfItem == nil {
+		err = essence.parent.Errors().ConfigurationObjectNotFound(0, rt.String())
+		return
+	}
+	// Проверка наличия подписки.
+	funcFullName = getFuncFullName(callback)
+	for elm = cfItem.callback.Front(); elm != nil; elm = elm.Next() {
+		if cbItem, ok = elm.Value.(*callbackItem); !ok {
+			continue
+		}
+		if cbItem.Name == funcFullName {
+			found = true
+		}
+	}
+	if found {
+		err = essence.parent.Errors().ConfigurationCallbackAlreadyRegistered(0, rt.String(), funcFullName)
+		return
+	}
+	// Подписка.
+	cbItem = &callbackItem{
+		Name: funcFullName,
+		Item: callback,
+	}
+	cfItem.callback.PushBack(cbItem)
+
+	return
+}
+
+// ConfigurationCallbackUnsubscribe Отписка функции обратного вызова на событие изменения данных сегмента
+// конфигурации.
+func (essence *gist) ConfigurationCallbackUnsubscribe(c interface{}, callback kitTypes.Callbacker) (err error) {
+	var (
+		elm          *list.Element
+		del          []*list.Element
+		rt           reflect.Type
+		n            int
+		cfItem       *configurationItem
+		cbItem       *callbackItem
+		ok           bool
+		funcFullName string
+	)
+
+	defer func() {
+		if e := recover(); e != nil {
+			err = Errors().ConfigurationApplicationPanic(0, e, runtimeDebug.Stack())
+		}
+	}()
+	// Проверка корректности объекта структуры конфигурации.
+	if _, rt, err = reflectStructObject(c); err != nil {
+		return
+	}
+	// Поиск зарегистрированной структуры конфигурации.
+	for n = range essence.parent.conf.Items {
+		if essence.parent.conf.Items[n].Type.String() == rt.String() {
+			cfItem = essence.parent.conf.Items[n]
+			break
+		}
+	}
+	if cfItem == nil {
+		err = essence.parent.Errors().ConfigurationObjectNotFound(0, rt.String())
+		return
+	}
+	// Поиск подписки.
+	funcFullName = getFuncFullName(callback)
+	for elm = cfItem.callback.Front(); elm != nil; elm = elm.Next() {
+		if cbItem, ok = elm.Value.(*callbackItem); !ok {
+			continue
+		}
+		if cbItem.Name == funcFullName {
+			del = append(del, elm)
+		}
+	}
+	if len(del) == 0 {
+		err = essence.parent.Errors().ConfigurationCallbackSubscriptionNotFound(0, rt.String(), funcFullName)
+		return
+	}
+	// Удаление подписки.
+	for n = range del {
+		cfItem.callback.Remove(del[n])
+	}
 
 	return
 }

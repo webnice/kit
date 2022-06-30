@@ -84,7 +84,7 @@ func (cfg *impl) initMainConfiguration() {
 		cfg.error = append(cfg.error, Errors().ConfigurationBootstrap(0, err))
 	}
 	// Регистрация объекта конфигурации для последующего чтения из файла.
-	if err = cfg.essence.ConfigurationRegistration(cfg.loadableConfiguration, nil); err != nil {
+	if err = cfg.essence.ConfigurationRegistration(cfg.loadableConfiguration); err != nil {
 		switch eto := err.(type) {
 		case Err:
 			cfg.error = append(cfg.error, eto)

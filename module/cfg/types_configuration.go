@@ -1,7 +1,12 @@
 // Package cfg
 package cfg
 
-import "reflect"
+import (
+	"container/list"
+	"reflect"
+
+	kitTypes "github.com/webnice/kit/v3/types"
+)
 
 // Структура регистра хранения объектов конфигурации.
 type mainConfiguration struct {
@@ -11,11 +16,17 @@ type mainConfiguration struct {
 
 // Структура регистра хранения одного объекта одной конфигурации.
 type configurationItem struct {
-	Original   interface{}           // Ссылка на оригинальный объект конфигурации
-	Fields     []reflect.StructField // Все найденные экспортируемые поля оригинальной структуры
-	Type       reflect.Type          // Тип reflect.Type структуры
-	Value      reflect.Value         // Тип reflect.Value оригинального объекта
-	callbackFn func()                // Функция обратного вызова, вызываемая при динамическом изменении конфигурации.
+	Original interface{}           // Ссылка на оригинальный объект конфигурации
+	Fields   []reflect.StructField // Все найденные экспортируемые поля оригинальной структуры
+	Type     reflect.Type          // Тип reflect.Type структуры
+	Value    reflect.Value         // Тип reflect.Value оригинального объекта
+	callback *list.List            // Подписчики обратного вызова *callbackItem.
+}
+
+// Структура хранения подписчиков на обратный вызов при динамическом изменении конфигурации.
+type callbackItem struct {
+	Name string              // Подписчик: пакет, объект.
+	Item kitTypes.Callbacker // Интерфейс функции подписчика на обратный вызов.
 }
 
 // IsName Проверка существования поля с указанным именем во всех уже добавленных объектах конфигурации.
