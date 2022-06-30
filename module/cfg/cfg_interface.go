@@ -2,12 +2,12 @@
 package cfg
 
 import (
-	"os/user"
-
 	kitModuleBus "github.com/webnice/kit/v3/module/bus"
 	kitModuleLogLevel "github.com/webnice/kit/v3/module/log/level"
 	kitModuleUuid "github.com/webnice/kit/v3/module/uuid"
 	kitTypes "github.com/webnice/kit/v3/types"
+	"os/user"
+	"reflect"
 )
 
 // Interface Интерфейс пакета.
@@ -118,8 +118,29 @@ type Interface interface {
 	// FileSocket Значение пути и имени сокет файла коммуникаций с приложением.
 	FileSocket() string
 
+	// КОНФИГУРАЦИЯ.
+
 	// ConfigurationUnionSprintf Печать объединённой конфигурации приложения в строку.
 	ConfigurationUnionSprintf() (ret string)
+
+	// ConfigurationByType Возвращает объект конфигурации соответствующий указанному типу объекта.
+	// Если объект конфигурации с указанным типом не регистрировался, будет возвращена ошибка.
+	ConfigurationByType(t reflect.Type) (ret interface{}, err error)
+
+	// ConfigurationByTypeName Возвращает объект конфигурации соответствующий указанному названию типа объекта.
+	// Если объект конфигурации с указанным типом не регистрировался, будет возвращена ошибка.
+	ConfigurationByTypeName(typeName string) (ret interface{}, err error)
+
+	// ConfigurationByObject Возвращает объект конфигурации соответствующий типу переданного объекта, сам переданный
+	// объект никак не изменяется, он служит только для определения типа данных.
+	// Если объект конфигурации с указанным типом не регистрировался, будет возвращена ошибка.
+	ConfigurationByObject(o interface{}) (ret interface{}, err error)
+
+	// ConfigurationCopyByObject Если существует конфигурация с типом данных идентичным переданному объекту,
+	// тогда данные конфигурации копируются в переданный объект.
+	// Если объект конфигурации с указанным типом не регистрировался, будет возвращена ошибка.
+	// Объект должен передаваться по адресу, иначе его заполнение не возможно и будет возвращена ошибка.
+	ConfigurationCopyByObject(o interface{}) (err error)
 
 	// ОШИБКИ
 

@@ -264,6 +264,9 @@ func (essence *gist) configurationSetDefaultValue() (err error) {
 					}
 					csdv(objSliceStruct.Addr().Interface())
 				}
+			default:
+				// TODO: Сделать обработку иного типа данных, если потребуется.
+				// debug.Dumper(dcV.CanAddr(), dcRsf.Type.Kind().String())
 			}
 		}
 	}

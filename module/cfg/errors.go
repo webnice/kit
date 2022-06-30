@@ -78,6 +78,12 @@ const (
 	eConfigurationSetDefault                                   // 054
 	eConfigurationSetDefaultValue                              // 055
 	eConfigurationSetDefaultPanic                              // 056
+	eConfigurationObjectNotFound                               // 057
+	eConfigurationObjectIsNotStructure                         // 058
+	eConfigurationObjectIsNil                                  // 059
+	eConfigurationObjectIsNotValid                             // 060
+	eConfigurationObjectIsNotAddress                           // 061
+	eConfigurationObjectCopy                                   // 062
 	//eCantCreateWorkers                                     //
 	//eCantStartWorkers                                      //
 	//eAllWorkersStopWithError                               //
@@ -145,6 +151,12 @@ const (
 	cConfigurationSetDefault                  = `Установка значений по умолчанию, для переменных конфигурации, прервана ошибкой: ` + "%s."
 	cConfigurationSetDefaultValue             = `Установка значения по умолчанию %q, для переменной конфигурации %q, прервана ошибкой: ` + "%s."
 	cConfigurationSetDefaultPanic             = `Непредвиденная ошибка, при установке значений по умолчанию, объекта конфигурации.` + "\nПаника: %v.\n%s"
+	cConfigurationObjectNotFound              = `Объект конфигурации с типом %q не найден.`
+	cConfigurationObjectIsNotStructure        = `Переданный объект %q не является структурой.`
+	cConfigurationObjectIsNil                 = `Переданный объект, является nil объектом.`
+	cConfigurationObjectIsNotValid            = `Объект конфигурации с типом %q не инициализирован.`
+	cConfigurationObjectIsNotAddress          = `Объект конфигурации с типом %q передан не корректно. Необходимо передать адрес объекта.`
+	cConfigurationObjectCopy                  = `Копирование объекта конфигурации я типом %q прервано ошибкой: ` + "%s."
 )
 
 // Константы указаны в объектах, адрес которых фиксирован всё время работы приложения.
@@ -210,6 +222,12 @@ var (
 	errConfigurationSetDefault                  = err{tpl: cConfigurationSetDefault, code: eConfigurationSetDefault}
 	errConfigurationSetDefaultValue             = err{tpl: cConfigurationSetDefaultValue, code: eConfigurationSetDefaultValue}
 	errConfigurationSetDefaultPanic             = err{tpl: cConfigurationSetDefaultPanic, code: eConfigurationSetDefaultPanic}
+	errConfigurationObjectNotFound              = err{tpl: cConfigurationObjectNotFound, code: eConfigurationObjectNotFound}
+	errConfigurationObjectIsNotStructure        = err{tpl: cConfigurationObjectIsNotStructure, code: eConfigurationObjectIsNotStructure}
+	errConfigurationObjectIsNil                 = err{tpl: cConfigurationObjectIsNil, code: eConfigurationObjectIsNil}
+	errConfigurationObjectIsNotValid            = err{tpl: cConfigurationObjectIsNotValid, code: eConfigurationObjectIsNotValid}
+	errConfigurationObjectIsNotAddress          = err{tpl: cConfigurationObjectIsNotAddress, code: eConfigurationObjectIsNotAddress}
+	errConfigurationObjectCopy                  = err{tpl: cConfigurationObjectCopy, code: eConfigurationObjectCopy}
 )
 
 // ERRORS: Реализация ошибок с возможностью сравнения ошибок между собой.
@@ -521,4 +539,34 @@ func (e *Error) ConfigurationSetDefaultValue(code uint8, value string, name stri
 // конфигурации. Паника: ...
 func (e *Error) ConfigurationSetDefaultPanic(code uint8, err interface{}, stack []byte) Err {
 	return newErr(&errConfigurationSetDefaultPanic, code, err, string(stack))
+}
+
+// ConfigurationObjectNotFound Объект конфигурации с типом ... не найден.
+func (e *Error) ConfigurationObjectNotFound(code uint8, typeName string) Err {
+	return newErr(&errConfigurationObjectNotFound, code, typeName)
+}
+
+// ConfigurationObjectIsNotStructure Переданный объект ... не является структурой.
+func (e *Error) ConfigurationObjectIsNotStructure(code uint8, typeName string) Err {
+	return newErr(&errConfigurationObjectIsNotStructure, code, typeName)
+}
+
+// ConfigurationObjectIsNil Переданный объект, является nil объектом.
+func (e *Error) ConfigurationObjectIsNil(code uint8) Err {
+	return newErr(&errConfigurationObjectIsNil, code)
+}
+
+// ConfigurationObjectIsNotValid Объект конфигурации с типом ... не инициализирован.
+func (e *Error) ConfigurationObjectIsNotValid(code uint8, typeName string) Err {
+	return newErr(&errConfigurationObjectIsNotValid, code, typeName)
+}
+
+// ConfigurationObjectIsNotAddress Объект конфигурации с типом ... передан не корректно. Необходимо передать адрес объекта.
+func (e *Error) ConfigurationObjectIsNotAddress(code uint8, typeName string) Err {
+	return newErr(&errConfigurationObjectIsNotAddress, code, typeName)
+}
+
+// ConfigurationObjectCopy Копирование объекта конфигурации я типом ... прервано ошибкой: ...
+func (e *Error) ConfigurationObjectCopy(code uint8, typeName string, err error) Err {
+	return newErr(&errConfigurationObjectCopy, code, typeName, err)
 }

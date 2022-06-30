@@ -3,8 +3,10 @@ package cfg
 
 import (
 	"fmt"
+	kitModuleCfgCpy "github.com/webnice/kit/v3/module/cfg/cpy"
 	"os"
 	"os/user"
+	"reflect"
 	"strings"
 
 	"github.com/webnice/debug"
@@ -185,5 +187,74 @@ func (cfg *impl) FileSocket() string { return cfg.bootstrapConfiguration.SocketF
 func (cfg *impl) ConfigurationUnionSprintf() (ret string) {
 	const structName = `*struct.UnionConfiguration`
 	ret = rexUnionStructureHeader.ReplaceAllString(debug.DumperString(cfg.conf.Union), structName)
+	return
+}
+
+// ConfigurationByType Возвращает объект конфигурации соответствующий указанному типу объекта.
+// Если объект конфигурации с указанным типом не регистрировался, будет возвращена ошибка.
+func (cfg *impl) ConfigurationByType(t reflect.Type) (interface{}, error) {
+	return cfg.ConfigurationByTypeName(t.String())
+}
+
+// ConfigurationByTypeName Возвращает объект конфигурации соответствующий указанному названию типа объекта.
+// Если объект конфигурации с указанным типом не регистрировался, будет возвращена ошибка.
+func (cfg *impl) ConfigurationByTypeName(typeName string) (ret interface{}, err error) {
+	var (
+		n     int
+		found bool
+	)
+
+	for n = range cfg.conf.Items {
+		if typeName == cfg.conf.Items[n].Type.String() {
+			ret, found = cfg.conf.Items[n].Original, true
+			break
+		}
+	}
+	if !found {
+		ret, err = nil, cfg.Errors().ConfigurationObjectNotFound(0, typeName)
+		return
+	}
+
+	return
+}
+
+// ConfigurationByObject Возвращает объект конфигурации соответствующий типу переданного объекта, сам переданный
+// объект никак не изменяется, он служит только для определения типа данных.
+// Если объект конфигурации с указанным типом не регистрировался, будет возвращена ошибка.
+func (cfg *impl) ConfigurationByObject(o interface{}) (ret interface{}, err error) {
+	var rt reflect.Type
+
+	if _, rt, err = reflectStructObject(o); err != nil {
+		return
+	}
+	ret, err = cfg.ConfigurationByType(rt)
+
+	return
+}
+
+// ConfigurationCopyByObject Если существует конфигурация с типом данных идентичным переданному объекту,
+// тогда данные конфигурации копируются в переданный объект.
+// Если объект конфигурации с указанным типом не регистрировался, будет возвращена ошибка.
+// Объект должен передаваться по адресу, иначе его заполнение не возможно и будет возвращена ошибка.
+func (cfg *impl) ConfigurationCopyByObject(o interface{}) (err error) {
+	var (
+		rt  reflect.Type
+		src interface{}
+	)
+
+	// Определение типа объекта.
+	if _, rt, err = reflectStructObject(o); err != nil {
+		return
+	}
+	// Получение объекта из конфигурации.
+	if src, err = cfg.ConfigurationByType(rt); err != nil {
+		return
+	}
+	// Копирование данных их объекта конфигурации в объект результата.
+	if err = kitModuleCfgCpy.All(o, src); err != nil {
+		err = cfg.Errors().ConfigurationObjectCopy(0, rt.String(), err)
+		return
+	}
+
 	return
 }

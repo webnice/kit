@@ -25,12 +25,6 @@ func indirectType(rt reflect.Type) reflect.Type {
 }
 
 func reflectObject(c interface{}) (crv reflect.Value, crt reflect.Type, err error) {
-	const (
-		tplErrorNil        = "в функцию RegistrationConfiguration() передан nil объект"
-		tplErrorNotValid   = "объект с типом %q не инициализирован"
-		tplErrorNotAddress = "объект с типом %q передан не корректно. Необходимо передать адрес объекта"
-	)
-
 	defer func() {
 		if e := recover(); e != nil {
 			err = Errors().ConfigurationApplicationPanic(0, e, runtimeDebug.Stack())
@@ -38,19 +32,19 @@ func reflectObject(c interface{}) (crv reflect.Value, crt reflect.Type, err erro
 	}()
 	// Проверка на nil.
 	if c == nil {
-		err = fmt.Errorf(tplErrorNil)
+		err = Errors().ConfigurationObjectIsNil(0)
 		return
 	}
 	crv = indirect(reflect.ValueOf(c))
 	// Проверка на не инициализированный объект равный nil.
 	if !crv.IsValid() {
-		err = fmt.Errorf(tplErrorNotValid, reflect.TypeOf(c).String())
+		err = Errors().ConfigurationObjectIsNotValid(0, reflect.TypeOf(c).String())
 		return
 	}
 	crt = indirectType(crv.Type())
 	// Проверка того что объект является адресом.
 	if !crv.CanAddr() {
-		err = fmt.Errorf(tplErrorNotAddress, crv.Type().String())
+		err = Errors().ConfigurationObjectIsNotAddress(0, crv.Type().String())
 		return
 	}
 
@@ -58,21 +52,19 @@ func reflectObject(c interface{}) (crv reflect.Value, crt reflect.Type, err erro
 }
 
 func reflectStructObject(c interface{}) (crv reflect.Value, crt reflect.Type, err error) {
-	const tplErrorNotStructure = "переданный объект %q не является структурой"
-
 	if crv, crt, err = reflectObject(c); err != nil {
 		return
 	}
 	// В качестве конфигураций ожидаются только структуры.
 	if crt.Kind() != reflect.Struct {
-		err = fmt.Errorf(tplErrorNotStructure, reflect.TypeOf(c).String())
+		err = Errors().ConfigurationObjectIsNotStructure(0, reflect.TypeOf(c).String())
 		return
 	}
 
 	return
 }
 
-// Удаление всех тегов, кроме перечисленных
+// Удаление всех тегов, кроме перечисленных.
 func reflectCleanStructTag(src reflect.StructTag, tags ...string) (ret reflect.StructTag) {
 	const tpl = ` %s:"%s"`
 	var (
