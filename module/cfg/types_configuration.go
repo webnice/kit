@@ -11,10 +11,11 @@ type mainConfiguration struct {
 
 // Структура регистра хранения одного объекта одной конфигурации.
 type configurationItem struct {
-	Original interface{}           // Ссылка на оригинальный объект конфигурации
-	Fields   []reflect.StructField // Все найденные экспортируемые поля оригинальной структуры
-	Type     reflect.Type          // Тип reflect.Type структуры
-	Value    reflect.Value         // Тип reflect.Value оригинального объекта
+	Original   interface{}           // Ссылка на оригинальный объект конфигурации
+	Fields     []reflect.StructField // Все найденные экспортируемые поля оригинальной структуры
+	Type       reflect.Type          // Тип reflect.Type структуры
+	Value      reflect.Value         // Тип reflect.Value оригинального объекта
+	callbackFn func()                // Функция обратного вызова, вызываемая при динамическом изменении конфигурации.
 }
 
 // IsName Проверка существования поля с указанным именем во всех уже добавленных объектах конфигурации.
