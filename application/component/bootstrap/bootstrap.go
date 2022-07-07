@@ -41,20 +41,20 @@ func (brp *impl) Preferences() kitTypes.ComponentPreferences {
 		cEnvironment   = `(?mi)application/component/environment$`
 		cInterrupt     = `(?mi)application/component/interrupt$`
 		cConfiguration = `(?mi)application/component/configuration$`
-		cLogging       = `(?mi)application/component/logging$`
-		cLoggerLogrus  = `(?mi)application/component/logger_logrus$`
+		cLogging       = `(?mi)application/component/logg.*`
+		cLoggerConsole = `(?mi)application/component/logger_console$`
 		cPidfile       = `(?mi)application/component/pidfile$`
-		cMigrations    = `(?mi)application/component/migrations$`
+		cMigration     = `(?mi)application/component/migration.*$`
 	)
 	return kitTypes.ComponentPreferences{
 		After: []string{
 			cEnvironment,
 			cConfiguration,
 			cLogging,
-			cLoggerLogrus,
+			cLoggerConsole,
 			cInterrupt,
 			cPidfile,
-			cMigrations,
+			cMigration,
 		},
 	}
 }
