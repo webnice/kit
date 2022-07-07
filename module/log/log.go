@@ -1,4 +1,4 @@
-// Package logger
+// Package log
 package log
 
 import (
@@ -6,7 +6,9 @@ import (
 	"fmt"
 	standardLog "log"
 	"os"
-	"sync"
+	"runtime"
+	"sync/atomic"
+	"time"
 
 	kitModuleBus "github.com/webnice/kit/v3/module/bus"
 	kitModuleLogLevel "github.com/webnice/kit/v3/module/log/level"
@@ -20,7 +22,7 @@ func New(out kitTypes.SyncWriter, bus kitModuleBus.Interface) Logger {
 	var log = &logger{
 		wr:          out,
 		bus:         bus,
-		wait:        new(sync.WaitGroup),
+		waitCounter: 0,
 		subscribers: list.New(),
 	}
 
@@ -90,7 +92,8 @@ func (log *logger) Message(msg *Message) {
 	if log.doEnd {
 		return
 	}
-	log.wait.Add(1)
+	atomic.AddInt64(&log.waitCounter, 1)
+	defer func() { atomic.AddInt64(&log.waitCounter, -1) }()
 	// Отправка сообщения в шину данных.
 	switch msg.Fatality {
 	// Сообщение с флагом фатальности всегда отправляется синхронно, для контролируемого завершения приложения сразу
@@ -112,7 +115,6 @@ func (log *logger) Message(msg *Message) {
 		os.Exit(int(eApplicationFatality))
 		return
 	}
-	log.wait.Done()
 }
 
 // FlushAndClose Очистка буферизированных каналов, ожидание окончания обработки всех накопленных в памяти сообщений,
@@ -123,7 +125,13 @@ func (log *logger) FlushAndClose() {
 	// Отключение приёма новых сообщений в лог.
 	log.doEnd = true
 	// Ожидание обработки всех принятых в обработку сообщений.
-	log.wait.Wait()
+	for {
+		if atomic.LoadInt64(&log.waitCounter) == 0 {
+			break
+		}
+		runtime.Gosched()
+		<-time.After(time.Millisecond * 10)
+	}
 	// Сброс буфера ввода/вывода.
 	_ = log.wr.Sync()
 	// Отписывание от шины данных.

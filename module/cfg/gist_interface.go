@@ -193,4 +193,9 @@ type Essence interface {
 
 	// ConfigurationLoad Загрузка конфигурационного файла.
 	ConfigurationLoad(buf *bytes.Buffer) (err error)
+
+	// AbsolutePathAndUpdate Функция преобразует относительный путь в абсолютный путь,
+	// проверяет равно ли новое значение старому, если значение изменилось, тогда обновляет значение в указанной
+	// переменной и возвращает результирующее значение.
+	AbsolutePathAndUpdate(dir *string) (ret string)
 }

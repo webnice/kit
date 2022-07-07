@@ -305,3 +305,10 @@ func (essence *gist) LogLevel(ll kitModuleLogLevel.Level) Essence {
 	essence.parent.bootstrapConfiguration.LogLevel = ll
 	return essence
 }
+
+// AbsolutePathAndUpdate Функция преобразует относительный путь в абсолютный путь,
+// проверяет равно ли новое значение старому, если значение изменилось, тогда обновляет значение в указанной
+// переменной и возвращает результирующее значение.
+func (essence *gist) AbsolutePathAndUpdate(dir *string) (ret string) {
+	return essence.parent.AbsolutePathAndUpdate(dir)
+}

@@ -1,4 +1,4 @@
-// Package logger
+// Package log
 package log
 
 /*
@@ -81,7 +81,7 @@ type Logger interface {
 type logger struct {
 	debug             bool                   // Флаг отладки приложения.
 	wr                kitTypes.SyncWriter    // Интерфейс вывода всех возможных сообщений на печать.
-	wait              *sync.WaitGroup        // Обеспечение обработки всех поступивших сообщений в лог.
+	waitCounter       int64                  // Обеспечение обработки всех поступивших сообщений в лог.
 	originalLogWriter io.Writer              // Оригинальный писатель логов до перехвата сообщений стандартного лога.
 	messagePool       *sync.Pool             // Бассейн объектов сообщений лога.
 	doEnd             bool                   // Флаг отключения логирования, когда установлен в "истина", прекращается приём новых сообщений лога.
