@@ -2,6 +2,8 @@
 package migration_sql
 
 import (
+	"strings"
+
 	kitModuleCfg "github.com/webnice/kit/v3/module/cfg"
 	kitModuleCfgReg "github.com/webnice/kit/v3/module/cfg/reg"
 	kitModuleDbSql "github.com/webnice/kit/v3/module/db/sql"
@@ -72,6 +74,9 @@ func (m8s *impl) Initiate() (err error) {
 		c   *kitTypesDb.DatabaseSqlConfiguration
 	)
 
+	if m8s.isSkip() {
+		return
+	}
 	// Загрузка конфигурации базы данных, сохранённой в конфигурации приложения.
 	if elm, err = m8s.cfg.ConfigurationByObject(m8s.databaseSql); err != nil {
 		return
@@ -90,6 +95,9 @@ func (m8s *impl) Initiate() (err error) {
 
 // Do Выполнение компонента приложения.
 func (m8s *impl) Do() (levelDone bool, levelExit bool, err error) {
+	if m8s.isSkip() {
+		return
+	}
 	if err = kitModuleDbSql.Get().MigrationUp(); err != nil {
 		levelDone, levelExit = true, true
 	}
@@ -99,3 +107,17 @@ func (m8s *impl) Do() (levelDone bool, levelExit bool, err error) {
 
 // Finalize Функция вызывается перед завершением компонента и приложения в целом.
 func (m8s *impl) Finalize() (err error) { return }
+
+func (m8s *impl) isSkip() (ret bool) {
+	const cmdVersion, cmdConfig = `version`, `config`
+
+	// Для стандартной команды версии приложения миграцию не запускаем.
+	switch {
+	case m8s.cfg.Command() == cmdVersion:
+		ret = true
+	case strings.HasPrefix(m8s.cfg.Command(), cmdConfig):
+		ret = true
+	}
+
+	return
+}
