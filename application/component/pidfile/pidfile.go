@@ -4,6 +4,7 @@ package pidfile
 import (
 	"fmt"
 	"os"
+	"strings"
 
 	kitModuleCfg "github.com/webnice/kit/v3/module/cfg"
 	kitModuleCfgReg "github.com/webnice/kit/v3/module/cfg/reg"
@@ -69,6 +70,9 @@ func (pid *impl) Initiate() (err error) {
 
 // Do Выполнение компонента приложения.
 func (pid *impl) Do() (levelDone bool, levelExit bool, err error) {
+	if pid.isSkip() {
+		return
+	}
 	if pid.pfnm = pid.cfg.FilePid(); pid.pfnm == "" {
 		return
 	}
@@ -112,6 +116,9 @@ func (pid *impl) Do() (levelDone bool, levelExit bool, err error) {
 func (pid *impl) Finalize() (err error) {
 	var isRm bool
 
+	if pid.isSkip() {
+		return
+	}
 	// Снятие блокировки с файла
 	if pid.lock != nil && pid.lock.IsLocked() {
 		if err = pid.lock.Unlock(); err != nil {
@@ -143,6 +150,20 @@ func (pid *impl) Finalize() (err error) {
 		default:
 			pid.log().Info(tplPidEnd)
 		}
+	}
+
+	return
+}
+
+func (pid *impl) isSkip() (ret bool) {
+	const cmdVersion, cmdConfig = `version`, `config`
+
+	// Для стандартной команды версии приложения миграцию не запускаем.
+	switch {
+	case pid.cfg.Command() == cmdVersion:
+		ret = true
+	case strings.HasPrefix(pid.cfg.Command(), cmdConfig):
+		ret = true
 	}
 
 	return
