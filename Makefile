@@ -65,7 +65,7 @@ dep-dev: dep-init
 ## Кодогенерация (run only during development).
 ## All generating files are included in a .gogenerate file.
 gen: dep-init
-	@for PKGNAME in $(GOGENERATE); do GO111MODULE="off" GOPATH="$(DIR)" DB2STRUCT_DRV="$(GOOSE_DRV_MYSQL)" DB2STRUCT_DSN="$(GOOSE_DSN_MYSQL)" go generate $${PKGNAME}; done
+	@for PKGNAME in $(GOGENERATE); do go generate $${PKGNAME}; done
 .PHONY: gen
 
 ## Project building for environment architecture.
@@ -102,61 +102,6 @@ v:
 ## RPM build openSUSE linux version.
 RPMBUILD_OS ?= $(RPMBUILD_OS:leap)
 RPMBUILD_OS ?= $(RPMBUILD_OS:tumbleweed)
-## Creating RPM package.
-# rpm:
-# 	## Prepare for creating RPM package.
-# 	@mkdir -p ${DIR}/rpmbuild/{BUILD,BUILDROOT,RPMS,SOURCES,SPECS,SRPMS}; true
-# 	## Copying the content needed to build the RPM package
-# 	## File descriptions are contained in the .rpm file
-# 	@for item in $(PROJECT_RPM_BUILD_SOURCE); do\
-# 		SRC=`echo $${item} | awk -F':' '{print $$1}'`; \
-# 		DST=`echo $${item} | awk -F':' '{print $$2}'`; \
-# 		cp -v ${DIR}/$${SRC} ${DIR}/rpmbuild/$${DST}; \
-# 	done
-# 	## Execution of data preparation commands for build an RPM package.
-# 	## Command descriptions are contained in the .rpm file.
-# 	$(call PROJECT_RPM_BUILD)
-# 	## Updates SPEC changelog section, from git log information.
-# 	@if command -v "changelogmaker"; then \
-# 		mv ${DIR}/rpmbuild/SPECS/${APP}.spec ${DIR}/rpmbuild/SPECS/src.spec; \
-# 		cd ${DIR}; changelogmaker -s ${DIR}/rpmbuild/SPECS/src.spec > ${DIR}/rpmbuild/SPECS/${APP}.spec; \
-# 	fi
-# 	## Build the RPM package.
-# 	@RPMBUILD_OS="${RPMBUILD_OS}" rpmbuild \
-# 	  --target x86_64 \
-# 		--define "_topdir ${DIR}/rpmbuild" \
-# 	  	--define "_app_version_number $(VERN01)" \
-# 	  	--define "_app_version_build $(VERB01)" \
-# 	  	-bb ${DIR}/rpmbuild/SPECS/${APP}.spec
-# .PHONY: rpm
-
-## Creating RPM package for i386 architecture.
-# rpm-i386:
-# 	## Prepare for creating RPM package.
-# 	@mkdir -p ${DIR}/rpmbuild/{BUILD,BUILDROOT,RPMS,SOURCES,SPECS,SRPMS}; true
-# 	## Copying the content needed to build the RPM package.
-# 	## File descriptions are contained in the .rpm file.
-# 	@for item in $(PROJECT_RPM_BUILD_SOURCE_I386); do\
-# 		SRC=`echo $${item} | awk -F':' '{print $$1}'`; \
-# 		DST=`echo $${item} | awk -F':' '{print $$2}'`; \
-# 		cp -v ${DIR}/$${SRC} ${DIR}/rpmbuild/$${DST}; \
-# 	done
-# 	## Execution of data preparation commands for build an RPM package.
-# 	## Command descriptions are contained in the .rpm file.
-# 	$(call PROJECT_RPM_BUILD_I386)
-# 	## Updates SPEC changelog section, from git log information.
-# 	@if command -v "changelogmaker"; then \
-# 		mv ${DIR}/rpmbuild/SPECS/${APP}.spec ${DIR}/rpmbuild/SPECS/src.spec; \
-# 		cd ${DIR}; changelogmaker -s ${DIR}/rpmbuild/SPECS/src.spec > ${DIR}/rpmbuild/SPECS/${APP}.spec; \
-# 	fi
-# 	## Build the RPM package.
-# 	@RPMBUILD_OS="${RPMBUILD_OS}" rpmbuild \
-# 	  --target i386 \
-# 		--define "_topdir ${DIR}/rpmbuild" \
-# 	  	--define "_app_version_number $(VERN01)" \
-# 	  	--define "_app_version_build $(VERB01)" \
-# 	  	-bb ${DIR}/rpmbuild/SPECS/${APP}.spec
-# .PHONY: rpm-i386
 
 ## Migration tools for all databases.
 ## Please see files .env and .env_example, for setup access to databases.
