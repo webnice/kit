@@ -22,6 +22,11 @@ const (
 	dsnCharsetTpl       = `&charset=%s`
 )
 
+const (
+	keyContextLogLevel = `log_level`
+	keyLogSilent       = `silent`
+)
+
 var (
 	singleton      *impl
 	supportDrivers = []string{driverMySQL, driverPostgreSQL, driverSqlite}

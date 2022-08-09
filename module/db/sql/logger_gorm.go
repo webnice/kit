@@ -22,19 +22,24 @@ func (mys *impl) Warn(_ context.Context, s string, i ...interface{}) { mys.log()
 
 func (mys *impl) Error(_ context.Context, s string, i ...interface{}) { mys.log().Errorf(s, i...) }
 
-func (mys *impl) Trace(_ context.Context, begin time.Time, fc func() (sql string, rowsAffected int64), err error) {
+func (mys *impl) Trace(ctx context.Context, begin time.Time, fc func() (sql string, rowsAffected int64), err error) {
 	const (
 		keyQuery, keySql               = `query`, `sql`
 		keyDriver, keyElapsed, keyRows = `driver`, `elapsed`, `rows`
 		tplTracef, tplErrorf           = `sql:"%s"`, `sql:"%s", ошибка: %s`
 	)
 	var (
-		elapsed time.Duration
-		sql     string
-		rows    int64
-		keys    kitTypes.LoggerKey
+		logLevel string
+		elapsed  time.Duration
+		sql      string
+		rows     int64
+		keys     kitTypes.LoggerKey
+		ok       bool
 	)
 
+	if logLevel, ok = ctx.Value(keyContextLogLevel).(string); ok && logLevel == keyLogSilent {
+		return
+	}
 	elapsed = time.Since(begin)
 	sql, rows = fc()
 	keys = kitTypes.LoggerKey{

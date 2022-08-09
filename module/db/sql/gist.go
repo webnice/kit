@@ -2,6 +2,8 @@
 package sql
 
 import (
+	"context"
+
 	"github.com/jmoiron/sqlx"
 	"gorm.io/gorm"
 )
@@ -11,6 +13,17 @@ func (db *Implementation) Gist() Interface { return db.getParent() }
 
 // Gorm Возвращается настроенный и готовый к работе объект ORM gorm.io/gorm.
 func (db *Implementation) Gorm() *gorm.DB { return db.getParent().GormDB() }
+
+// GormSilent Возвращается настроенный и готовый к работе объект ORM gorm.io/gorm с отключённым через контекст
+// логированием запросов.
+func (db *Implementation) GormSilent() (ret *gorm.DB) {
+	ret = db.getParent().GormDB().
+		Session(&gorm.Session{
+			Context: context.WithValue(context.Background(), keyContextLogLevel, keyLogSilent),
+		})
+
+	return
+}
 
 // Sqlx Настроенный и готовый к работе объект обёртки над соединением с БД github.com/jmoiron/sqlx.
 func (db *Implementation) Sqlx() *sqlx.DB { return db.getParent().SqlxDB() }

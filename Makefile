@@ -52,7 +52,7 @@ dep: dep-init
 	@go mod download
 	@go mod tidy
 	@go mod vendor
-	@rm -rf ${DIR}/vendor/self; cd ${DIR}/vendor; ln -s ${DIR} self; true
+	@# rm -rf ${DIR}/vendor/self; cd ${DIR}/vendor; #ln -s ${DIR} self; #true
 	$(call PROJECT_DEPENDENCES)
 .PHONY: dep
 dep-dev: dep-init
