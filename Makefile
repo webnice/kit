@@ -15,6 +15,7 @@ include $(DIR)/.prj.mk
 endif
 
 APP                 ?= $(shell basename $(DIR))
+APP_PACKAGE         ?= $(shell cat go.mod | grep -E '^module\s+(.*)' | awk -F ' ' '{ print $$2 }')
 GOPATH              := $(GOPATH)
 DATE                := $(shell date -u +%Y%m%d.%H%M%S.%Z)
 LDFLAGS              = -X main.build=$(DATE) $(PROJECT_LDFLAGS:'')
@@ -44,17 +45,22 @@ dep: dep-init
 	@for item in $(LOCALPACKAGES); do PKGNAME=`echo $${item} | awk -F'=' '{print $$1}'`; REPLACE=`echo $${item} | awk -F'=' '{print $$2}'`; \
 		go mod edit -dropreplace $${PKGNAME}; \
 	done
+	@go mod edit -dropreplace self
+	@go mod edit -replace self=${DIR}
 	@go clean -cache -modcache
-	@go get -u -v ./...
+	@go get -u ./...
 	@go mod download
 	@go mod tidy
 	@go mod vendor
+	@rm -rf ${DIR}/vendor/self; cd ${DIR}/vendor; ln -s ${DIR} self; true
 	$(call PROJECT_DEPENDENCES)
 .PHONY: dep
 dep-dev: dep-init
 	@for item in $(LOCALPACKAGES); do PKGNAME=`echo $${item} | awk -F'=' '{print $$1}'`; REPLACE=`echo $${item} | awk -F'=' '{print $$2}'`; \
 		go mod edit -replace $${PKGNAME}=$${REPLACE}; \
 	done
+	@go mod edit -dropreplace self
+	@go mod edit -replace self=${DIR}
 	@go clean -cache -modcache
 	@go get -u -v ./...
 	@go mod download
@@ -65,7 +71,7 @@ dep-dev: dep-init
 ## Кодогенерация (run only during development).
 ## All generating files are included in a .gogenerate file.
 gen: dep-init
-	@for PKGNAME in $(GOGENERATE); do go generate $${PKGNAME}; done
+	@for PKGNAME in $(GOGENERATE); do DB2STRUCT_DRV='$(MIGRATION_DRV_MYSQL)' DB2STRUCT_DSN='$(MIGRATION_DSN_MYSQL)' go generate -v "${APP_PACKAGE}/$${PKGNAME}"; done
 .PHONY: gen
 
 ## Project building for environment architecture.
@@ -102,27 +108,54 @@ v:
 ## RPM build openSUSE linux version.
 RPMBUILD_OS ?= $(RPMBUILD_OS:leap)
 RPMBUILD_OS ?= $(RPMBUILD_OS:tumbleweed)
+## Создание RPM пакета.
+rpm:
+	@## Подготовка папок для утилиты создания RPM пакета.
+	@mkdir -p ${DIR}/rpmbuild/{BUILD,BUILDROOT,RPMS,SOURCES,SPECS,SRPMS}; true
+	@## Copying the content needed to build the RPM package
+	@## File descriptions are contained in the .rpm file
+	@for item in $(PROJECT_RPM_BUILD_SOURCE); do\
+		SRC=`echo $${item} | awk -F':' '{print $$1}'`; \
+		DST=`echo $${item} | awk -F':' '{print $$2}'`; \
+		cp -v ${DIR}/$${SRC} ${DIR}/rpmbuild/$${DST}; \
+	done
+	@## Execution of data preparation commands for build an RPM package.
+	@## Command descriptions are contained in the .rpm file.
+	$(call PROJECT_RPM_BUILD)
+	@## Updates SPEC changelog section, from git log information.
+	@if command -v "changelogmaker"; then \
+		mv ${DIR}/rpmbuild/SPECS/${APP}.spec ${DIR}/rpmbuild/SPECS/src.spec; \
+		cd ${DIR}; changelogmaker -s ${DIR}/rpmbuild/SPECS/src.spec > ${DIR}/rpmbuild/SPECS/${APP}.spec; \
+	fi
+	@## Build the RPM package.
+	@RPMBUILD_OS="${RPMBUILD_OS}" rpmbuild \
+	  --target x86_64 \
+		--define "_topdir ${DIR}/rpmbuild" \
+	  	--define "_app_version_number $(VERN01)" \
+	  	--define "_app_version_build $(VERB01)" \
+	  	-bb ${DIR}/rpmbuild/SPECS/${APP}.spec
+.PHONY: rpm
 
 ## Migration tools for all databases.
-## Please see files .env and .env_example, for setup access to databases.
+## Please see files .env.mk and .env_example.mk, for setup access to databases.
 ####################################
 COMMANDS  = up create down status redo version
 MTARGETS := $(shell \
 for cmd in $(COMMANDS); do \
-	for drv in $(MIGRATIONS); do \
+	for drv in $(MIGRATION_DRIVER); do \
 		echo "m-$${drv}-$${cmd}"; \
 	done; \
 done)
 ## Migration tools create directory.
 migration-mkdir:
-	@for dir in $$(echo $(MIGRATIONS)); do \
-		mkdir -p "$(DIR)/migrations/$${dir}"; true; \
+	@for dir in $$(echo $(MIGRATION_DRIVER)); do \
+		mkdir -p "$(DIR)/migration/$${dir}"; true; \
 	done
 .PHONY: migration-mkdir
 ## Migration tools gets data from env.
-MIGRATION_DIR  = ${$(shell echo $(shell echo "${@}" | sed -e 's/^m-\(.*\)-\(.*\)$$/\1/') | awk '{print "GOOSE_DIR_"toupper($$0)}')}
-MIGRATION_DRV  = ${$(shell echo $(shell echo "${@}" | sed -e 's/^m-\(.*\)-\(.*\)$$/\1/') | awk '{print "GOOSE_DRV_"toupper($$0)}')}
-MIGRATION_DSN  = ${$(shell echo $(shell echo "${@}" | sed -e 's/^m-\(.*\)-\(.*\)$$/\1/') | awk '{print "GOOSE_DSN_"toupper($$0)}')}
+MIGRATION_DIR  = ${$(shell echo $(shell echo "${@}" | sed -e 's/^m-\(.*\)-\(.*\)$$/\1/') | awk '{print "MIGRATION_DIR_"toupper($$0)}')}
+MIGRATION_DRV  = ${$(shell echo $(shell echo "${@}" | sed -e 's/^m-\(.*\)-\(.*\)$$/\1/') | awk '{print "MIGRATION_DRV_"toupper($$0)}')}
+MIGRATION_DSN  = ${$(shell echo $(shell echo "${@}" | sed -e 's/^m-\(.*\)-\(.*\)$$/\1/') | awk '{print "MIGRATION_DSN_"toupper($$0)}')}
 MIGRATION_CMD  = $(shell echo $(shell echo "${@}" | sed -e 's/^m-\(.*\)-\(.*\)$$/\2/'))
 MIGRATION_TMP := $(shell mktemp)
 ## Migration tools targets.
@@ -134,9 +167,9 @@ $(MTARGETS): migration-mkdir
 		echo "$${MGRNAME}" > "$(MIGRATION_TMP)"; \
 	fi
 	@if ([ ! "`cat $(MIGRATION_TMP)`" = "" ]) && ([ "$(MIGRATION_CMD)" == "create" ]); then\
-		GOOSE_DIR="$(MIGRATION_DIR)" GOOSE_DRV="$(MIGRATION_DRV)" GOOSE_DSN="$(MIGRATION_DSN)" gsmigrate $(MIGRATION_CMD) "`cat $(MIGRATION_TMP)`"; \
+		clear; GOOSE_DIR='$(MIGRATION_DIR)' GOOSE_DRV='$(MIGRATION_DRV)' GOOSE_DSN='$(MIGRATION_DSN)' gsmigrate '$(MIGRATION_CMD)' "`cat $(MIGRATION_TMP)`"; \
 	else \
-		GOOSE_DIR="$(MIGRATION_DIR)" GOOSE_DRV="$(MIGRATION_DRV)" GOOSE_DSN="$(MIGRATION_DSN)" gsmigrate $(MIGRATION_CMD); \
+		clear; GOOSE_DIR='$(MIGRATION_DIR)' GOOSE_DRV='$(MIGRATION_DRV)' GOOSE_DSN='$(MIGRATION_DSN)' gsmigrate '$(MIGRATION_CMD)'; \
 	fi
 	@if [ -f "$(MIGRATION_TMP)" ]; then rm "$(MIGRATION_TMP)"; fi
 .PHONY: migration-commands $(MTARGETS)
@@ -166,14 +199,9 @@ $(MTARGETS): migration-mkdir
 # 	@for PACKET in $(BENCHPACKETS); do GOPATH=${GOPATH} go test -race -bench=. -benchmem $$PACKET; done
 # .PHONY: bench
 
-## Code quality testing.
-# lint:
-# 	$(call PROJECT_LINTER)
-# .PHONY: lint
-
 ## Cleaning console screen.
 clear:
-	clear
+	@clear
 .PHONY: clear
 
 ## Clearing project temporary files.
