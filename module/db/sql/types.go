@@ -2,6 +2,7 @@
 package sql
 
 import (
+	"context"
 	"database/sql"
 	"sync"
 
@@ -79,4 +80,9 @@ type impl struct {
 // Implementation Встраиваемая структура в модель базы данных, для лёгкого подключения "по требованию" к базе данных.
 type Implementation struct {
 	parent Interface // Временная копия родительского объекта подключения к базе данных.
+}
+
+// Option Опциональные настройки работы библиотеки.
+type Option struct {
+	ctx context.Context // Контекст со значениями опциональных настроек.
 }

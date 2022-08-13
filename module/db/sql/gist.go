@@ -12,15 +12,15 @@ import (
 func (db *Implementation) Gist() Interface { return db.getParent() }
 
 // Gorm Возвращается настроенный и готовый к работе объект ORM gorm.io/gorm.
-func (db *Implementation) Gorm() *gorm.DB { return db.getParent().GormDB() }
+func (db *Implementation) Gorm(opts ...*Option) (ret *gorm.DB) {
+	var n int
 
-// GormSilent Возвращается настроенный и готовый к работе объект ORM gorm.io/gorm с отключённым через контекст
-// логированием запросов.
-func (db *Implementation) GormSilent() (ret *gorm.DB) {
-	ret = db.getParent().GormDB().
-		Session(&gorm.Session{
-			Context: context.WithValue(context.Background(), keyContextLogLevel, keyLogSilent),
-		})
+	ret = db.getParent().GormDB()
+	for n = range opts {
+		if opts[n] != nil && opts[n].ctx != nil {
+			ret = ret.Session(&gorm.Session{Context: opts[n].ctx})
+		}
+	}
 
 	return
 }
@@ -36,4 +36,9 @@ func (db *Implementation) getParent() Interface {
 	db.parent = Get()
 
 	return db.parent
+}
+
+// OptionSilent Полное отключение логирования запросов к базе данных.
+func (db *Implementation) OptionSilent() *Option {
+	return &Option{ctx: context.WithValue(context.Background(), keyContextLogLevel, keyLogSilent)}
 }
