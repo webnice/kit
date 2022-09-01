@@ -6,23 +6,63 @@ import (
 	"time"
 
 	kitModuleDye "github.com/webnice/kit/v3/module/dye"
+	kmll "github.com/webnice/kit/v3/module/log/level"
 	kitTypes "github.com/webnice/kit/v3/types"
 
 	gormLogger "gorm.io/gorm/logger"
 )
 
-func (mys *impl) LogMode(l gormLogger.LogLevel) gormLogger.Interface {
-	mys.log().Noticef("gorm уровень логирования: %d", int(l))
-	return mys
+// NewLoggerGorm Создание объекта с интерфейсом gorm.logger.Interface.
+func NewLoggerGorm(parent *impl) gormLogger.Interface {
+	var lgm = &logGorm{
+		parent:   parent,
+		Loglevel: parent.cfg.Loglevel,
+	}
+
+	return lgm
 }
 
-func (mys *impl) Info(_ context.Context, s string, i ...interface{}) { mys.log().Infof(s, i...) }
+// LogMode Переключение уровня логирования из ОРМ библиотеки.
+func (lgm *logGorm) LogMode(l gormLogger.LogLevel) gormLogger.Interface {
+	switch l {
+	case gormLogger.Silent:
+		lgm.Loglevel = kmll.Off
+	case gormLogger.Error:
+		lgm.Loglevel = kmll.Error
+	case gormLogger.Warn:
+		lgm.Loglevel = kmll.Warning
+	case gormLogger.Info:
+		lgm.Loglevel = kmll.Info
+	default:
+		lgm.parent.log().
+			Errorf("получен не поддерживаемый уровень логирования: %d", int(l))
+	}
 
-func (mys *impl) Warn(_ context.Context, s string, i ...interface{}) { mys.log().Warningf(s, i...) }
+	return lgm
+}
 
-func (mys *impl) Error(_ context.Context, s string, i ...interface{}) { mys.log().Errorf(s, i...) }
+// Info Все без исключения запросы к базе данных.
+func (lgm *logGorm) Info(_ context.Context, s string, i ...interface{}) {
+	lgm.parent.log().Infof(s, i...)
+}
 
-func (mys *impl) Trace(ctx context.Context, begin time.Time, fc func() (sql string, rowsAffected int64), err error) {
+// Warn Запросы с ошибками, а так же требующие повышенного внимания, но не являющиеся ошибкой.
+func (lgm *logGorm) Warn(_ context.Context, s string, i ...interface{}) {
+	lgm.parent.log().Warningf(s, i...)
+}
+
+// Error Запросы, выполнение которых завершилось ошибкой.
+func (lgm *logGorm) Error(_ context.Context, s string, i ...interface{}) {
+	lgm.parent.log().Errorf(s, i...)
+}
+
+// Trace Трассировка запросов к базе данных.
+func (lgm *logGorm) Trace(
+	ctx context.Context,
+	begin time.Time,
+	fc func() (sql string, rowsAffected int64),
+	err error,
+) {
 	const (
 		keyQuery, keySql               = `query`, `sql`
 		keyDriver, keyElapsed, keyRows = `driver`, `elapsed`, `rows`
@@ -35,8 +75,10 @@ func (mys *impl) Trace(ctx context.Context, begin time.Time, fc func() (sql stri
 		rows     int64
 		keys     kitTypes.LoggerKey
 		ok       bool
+		msgFn    func(error, string)
 	)
 
+	// Отключение логирования из контекста.
 	if logLevel, ok = ctx.Value(keyContextLogLevel).(string); ok && logLevel == keyLogSilent {
 		return
 	}
@@ -44,21 +86,39 @@ func (mys *impl) Trace(ctx context.Context, begin time.Time, fc func() (sql stri
 	sql, rows = fc()
 	keys = kitTypes.LoggerKey{
 		keyQuery:   keySql,
-		keyDriver:  mys.cfg.Driver,
+		keyDriver:  lgm.parent.cfg.Driver,
 		keyElapsed: elapsed,
 		keyRows:    rows,
 	}
-	switch err {
-	case nil:
-		mys.log().Key(keys).Tracef(
+	msgFn = func(e error, color string) {
+		if err == nil {
+			return
+		}
+		//lgm.parent.log().Key(keys).Tracef(
+		//	tplTracef,
+		//	color+sql+kitModuleDye.New().Normal().Done().String(),
+		//)
+		lgm.parent.log().Key(keys).Errorf(
+			tplErrorf,
+			kitModuleDye.New().Yellow().Done().String()+sql+kitModuleDye.New().Reset().Done().String(),
+			color+e.Error()+kitModuleDye.New().Reset().Done().String(),
+		)
+	}
+	switch lgm.Loglevel {
+	case kmll.Off:
+		return
+	case kmll.Error:
+		msgFn(err, kitModuleDye.New().Red().Done().String())
+	case kmll.Warning:
+		msgFn(err, kitModuleDye.New().Magenta().Done().String())
+	case kmll.Info:
+		lgm.parent.log().Key(keys).Tracef(
 			tplTracef,
 			kitModuleDye.New().Yellow().Done().String()+sql+kitModuleDye.New().Normal().Done().String(),
 		)
 	default:
-		mys.log().Key(keys).Errorf(
-			tplErrorf,
-			kitModuleDye.New().Yellow().Done().String()+sql+kitModuleDye.New().Reset().Done().String(),
-			kitModuleDye.New().Red().Done().String()+err.Error()+kitModuleDye.New().Reset().Done().String(),
-		)
+		//lgm.parent.log().
+		//	Errorf("не поддерживаемый уровень логирования %q", lgm.Loglevel.String())
+		return
 	}
 }

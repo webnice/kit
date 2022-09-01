@@ -185,7 +185,7 @@ func (mys *impl) GormDB() (ret *gorm.DB) {
 			DisableAutomaticPing:   mys.cfg.DisableAutomaticPing,
 			PrepareStmt:            mys.cfg.PrepareStmt,
 			CreateBatchSize:        mys.cfg.CreateBatchSize,
-			Logger:                 mys,
+			Logger:                 NewLoggerGorm(mys),
 		})
 	case driverPostgreSQL:
 		ret, mys.error = gorm.Open(postgres.New(postgres.Config{
@@ -198,7 +198,7 @@ func (mys *impl) GormDB() (ret *gorm.DB) {
 			DisableAutomaticPing:   mys.cfg.DisableAutomaticPing,
 			PrepareStmt:            mys.cfg.PrepareStmt,
 			CreateBatchSize:        mys.cfg.CreateBatchSize,
-			Logger:                 mys,
+			Logger:                 NewLoggerGorm(mys),
 		})
 	case driverSqlite:
 		ret, mys.error = gorm.Open(sqlite.Open(mys.dsn), &gorm.Config{
@@ -206,7 +206,7 @@ func (mys *impl) GormDB() (ret *gorm.DB) {
 			DisableAutomaticPing:   mys.cfg.DisableAutomaticPing,
 			PrepareStmt:            mys.cfg.PrepareStmt,
 			CreateBatchSize:        mys.cfg.CreateBatchSize,
-			Logger:                 mys,
+			Logger:                 NewLoggerGorm(mys),
 		})
 	default:
 		mys.error = mys.Errors().DriverUnImplemented(0, mys.cfg.Driver)

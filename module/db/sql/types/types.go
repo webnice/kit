@@ -1,7 +1,11 @@
 // Package types
 package types
 
-import "time"
+import (
+	"time"
+
+	kmll "github.com/webnice/kit/v3/module/log/level"
+)
 
 // Configuration SQL database configuration structure.
 type Configuration struct {
@@ -63,8 +67,12 @@ type Configuration struct {
 
 	// Логирование запросов.
 
-	// TODO: Сделать отдельное детальное и удобное для анализа, логирование запросов к базе данных, но потом...
-
 	// Loglevel Уровень логирования SQL запросов.
-	//Loglevel kmll.Level `yaml:"Loglevel"                                            default-value:"notice"`
+	// Драйвером базы данных и ОРМ используется ограниченное количество уровней логирования, все остальные уровни
+	// логирования игнорируются. Активные уровни перечислены ниже:
+	// error   - Запросы, выполнение которых завершилось ошибкой.
+	// warning - Запросы с ошибками, а так же требующие повышенного внимания, но не являющиеся ошибкой.
+	// info    - Все без исключения запросы к базе данных.
+	// Значением по умолчанию является off - всё логирование отключено.
+	Loglevel kmll.Level `yaml:"Loglevel"                                            default-value:"off"`
 }

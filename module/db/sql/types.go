@@ -7,6 +7,7 @@ import (
 	"sync"
 
 	kitModuleDbSqlTypes "github.com/webnice/kit/v3/module/db/sql/types"
+	kmll "github.com/webnice/kit/v3/module/log/level"
 	kitTypesDb "github.com/webnice/kit/v3/types/db"
 
 	"github.com/jmoiron/sqlx"
@@ -85,4 +86,11 @@ type Implementation struct {
 // Option Опциональные настройки работы библиотеки.
 type Option struct {
 	ctx context.Context // Контекст со значениями опциональных настроек.
+}
+
+// Объект сессии Gorm с настройками логирования и возможностью переопределения в пределах сессии уровня
+// логирования.
+type logGorm struct {
+	parent   *impl
+	Loglevel kmll.Level
 }
