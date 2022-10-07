@@ -17,7 +17,7 @@ import (
 	// Драйверы базы данных.
 	"gorm.io/driver/mysql"
 	"gorm.io/driver/postgres"
-	"gorm.io/driver/sqlite"
+	//"gorm.io/driver/sqlite"
 )
 
 // Get Возвращается интерфейс для работы с базой данных.
