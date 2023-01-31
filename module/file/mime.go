@@ -747,6 +747,7 @@ const (
 	mimeApplicationVndZul                                                    = "application/vnd.zul"
 	mimeApplicationVndZzazzDeckXml                                           = "application/vnd.zzazz.deck+xml"
 	mimeApplicationVoicexmlXml                                               = "application/voicexml+xml"
+	mimeApplicationWasm                                                      = "application/wasm"
 	mimeApplicationWidget                                                    = "application/widget"
 	mimeApplicationWinhlp                                                    = "application/winhlp"
 	mimeApplicationWita                                                      = "application/wita"
@@ -893,7 +894,6 @@ const (
 	mimeApplicationXMie                                                      = "application/x-mie"
 	mimeApplicationXMif                                                      = "application/x-mif"
 	mimeApplicationXMobipocketEbook                                          = "application/x-mobipocket-ebook"
-	mimeApplicationXMpegurl                                                  = "application/x-mpegurl"
 	mimeApplicationXMps                                                      = "application/x-mps"
 	mimeApplicationXMsApplication                                            = "application/x-ms-application"
 	mimeApplicationXMsDosExecutable                                          = "application/x-ms-dos-executable"
@@ -1070,7 +1070,6 @@ const (
 	mimeAudioMelp600                                                         = "audio/melp600"
 	mimeAudioMidi                                                            = "audio/midi"
 	mimeAudioMp4                                                             = "audio/mp4"
-	mimeAudioMp4aLatm                                                        = "audio/mp4a-latm"
 	mimeAudioMpa                                                             = "audio/mpa"
 	mimeAudioMpeg                                                            = "audio/mpeg"
 	mimeAudioOgg                                                             = "audio/ogg"
@@ -1171,6 +1170,7 @@ const (
 	mimeImageAces                                                            = "image/aces"
 	mimeImageAvci                                                            = "image/avci"
 	mimeImageAvcs                                                            = "image/avcs"
+	mimeImageAvif                                                            = "image/avif"
 	mimeImageBmp                                                             = "image/bmp"
 	mimeImageCgm                                                             = "image/cgm"
 	mimeImageEmf                                                             = "image/emf"
@@ -1190,7 +1190,6 @@ const (
 	mimeImageJpx                                                             = "image/jpx"
 	mimeImageKtx                                                             = "image/ktx"
 	mimeImageNaplps                                                          = "image/naplps"
-	mimeImagePict                                                            = "image/pict"
 	mimeImagePng                                                             = "image/png"
 	mimeImagePrsBtif                                                         = "image/prs.btif"
 	mimeImagePrsPti                                                          = "image/prs.pti"
@@ -1248,7 +1247,6 @@ const (
 	mimeImageXJng                                                            = "image/x-jng"
 	mimeImageXLwo                                                            = "image/x-lwo"
 	mimeImageXLws                                                            = "image/x-lws"
-	mimeImageXMacpaint                                                       = "image/x-macpaint"
 	mimeImageXMrsidImage                                                     = "image/x-mrsid-image"
 	mimeImageXMsBmp                                                          = "image/x-ms-bmp"
 	mimeImageXMsod                                                           = "image/x-msod"
@@ -1260,7 +1258,6 @@ const (
 	mimeImageXPortableGraymap                                                = "image/x-portable-graymap"
 	mimeImageXPortablePixmap                                                 = "image/x-portable-pixmap"
 	mimeImageXPsd                                                            = "image/x-psd"
-	mimeImageXQuicktime                                                      = "image/x-quicktime"
 	mimeImageXRgb                                                            = "image/x-rgb"
 	mimeImageXSgi                                                            = "image/x-sgi"
 	mimeImageXSunRaster                                                      = "image/x-sun-raster"
@@ -1317,6 +1314,7 @@ const (
 	mimeTextExample                                                          = "text/example"
 	mimeTextFwdred                                                           = "text/fwdred"
 	mimeTextHtml                                                             = "text/html"
+	mimeTextJavascript                                                       = "text/javascript"
 	mimeTextMarkdown                                                         = "text/markdown"
 	mimeTextMathml                                                           = "text/mathml"
 	mimeTextMizar                                                            = "text/mizar"
@@ -1499,7 +1497,6 @@ const (
 	mimeVideoVp8                                                             = "video/vp8"
 	mimeVideoWebm                                                            = "video/webm"
 	mimeVideoX3gpp2                                                          = "video/x-3gpp2"
-	mimeVideoXDv                                                             = "video/x-dv"
 	mimeVideoXF4v                                                            = "video/x-f4v"
 	mimeVideoXFli                                                            = "video/x-fli"
 	mimeVideoXFlic                                                           = "video/x-flic"
@@ -2264,6 +2261,7 @@ var mimeTypeExtension = map[string]string{
 	mimeApplicationVndZul:                                                    "vnd.zul",
 	mimeApplicationVndZzazzDeckXml:                                           "zaz",
 	mimeApplicationVoicexmlXml:                                               "vxml",
+	mimeApplicationWasm:                                                      "wasm",
 	mimeApplicationWidget:                                                    "widget",
 	mimeApplicationWinhlp:                                                    "hlp",
 	mimeApplicationWita:                                                      "wita",
@@ -2353,7 +2351,7 @@ var mimeTypeExtension = map[string]string{
 	mimeApplicationXGameboyRom:                                               "gb",
 	mimeApplicationXGcaCompressed:                                            "gca",
 	mimeApplicationXGdeskletsDisplay:                                         "display",
-	mimeApplicationXGenesisRom:                                               "smd",
+	mimeApplicationXGenesisRom:                                               "md",
 	mimeApplicationXGettextTranslation:                                       "gmo",
 	mimeApplicationXGlabels:                                                  "glabels",
 	mimeApplicationXGlade:                                                    "glade",
@@ -2410,7 +2408,6 @@ var mimeTypeExtension = map[string]string{
 	mimeApplicationXMie:                                                      "mie",
 	mimeApplicationXMif:                                                      "mif",
 	mimeApplicationXMobipocketEbook:                                          "mobi",
-	mimeApplicationXMpegurl:                                                  "m3u8",
 	mimeApplicationXMps:                                                      "mps",
 	mimeApplicationXMsApplication:                                            "application",
 	mimeApplicationXMsDosExecutable:                                          "exe",
@@ -2587,7 +2584,6 @@ var mimeTypeExtension = map[string]string{
 	mimeAudioMelp600:                                                         "melp600",
 	mimeAudioMidi:                                                            "mid",
 	mimeAudioMp4:                                                             "mp4",
-	mimeAudioMp4aLatm:                                                        "m4p",
 	mimeAudioMpa:                                                             "mpa",
 	mimeAudioMpeg:                                                            "mp3",
 	mimeAudioOgg:                                                             "ogg",
@@ -2688,6 +2684,7 @@ var mimeTypeExtension = map[string]string{
 	mimeImageAces:                                                            "aces",
 	mimeImageAvci:                                                            "avci",
 	mimeImageAvcs:                                                            "avcs",
+	mimeImageAvif:                                                            "avif",
 	mimeImageBmp:                                                             "bmp",
 	mimeImageCgm:                                                             "cgm",
 	mimeImageEmf:                                                             "emf",
@@ -2707,7 +2704,6 @@ var mimeTypeExtension = map[string]string{
 	mimeImageJpx:                                                             "jpx",
 	mimeImageKtx:                                                             "ktx",
 	mimeImageNaplps:                                                          "naplps",
-	mimeImagePict:                                                            "pct",
 	mimeImagePng:                                                             "png",
 	mimeImagePrsBtif:                                                         "prs.btif",
 	mimeImagePrsPti:                                                          "prs.pti",
@@ -2765,7 +2761,6 @@ var mimeTypeExtension = map[string]string{
 	mimeImageXJng:                                                            "jng",
 	mimeImageXLwo:                                                            "lwob",
 	mimeImageXLws:                                                            "lws",
-	mimeImageXMacpaint:                                                       "mac",
 	mimeImageXMrsidImage:                                                     "sid",
 	mimeImageXMsBmp:                                                          "bmp",
 	mimeImageXMsod:                                                           "msod",
@@ -2777,7 +2772,6 @@ var mimeTypeExtension = map[string]string{
 	mimeImageXPortableGraymap:                                                "pgm",
 	mimeImageXPortablePixmap:                                                 "ppm",
 	mimeImageXPsd:                                                            "psd",
-	mimeImageXQuicktime:                                                      "qti",
 	mimeImageXRgb:                                                            "rgb",
 	mimeImageXSgi:                                                            "sgi",
 	mimeImageXSunRaster:                                                      "sun",
@@ -2834,7 +2828,8 @@ var mimeTypeExtension = map[string]string{
 	mimeTextExample:                                                          "example",
 	mimeTextFwdred:                                                           "fwdred",
 	mimeTextHtml:                                                             "html",
-	mimeTextMarkdown:                                                         "markdown",
+	mimeTextJavascript:                                                       "mjs",
+	mimeTextMarkdown:                                                         "md",
 	mimeTextMathml:                                                           "mml",
 	mimeTextMizar:                                                            "mizar",
 	mimeTextN3:                                                               "n3",
@@ -3016,7 +3011,6 @@ var mimeTypeExtension = map[string]string{
 	mimeVideoVp8:                                                             "vp8",
 	mimeVideoWebm:                                                            "webm",
 	mimeVideoX3gpp2:                                                          "3g2",
-	mimeVideoXDv:                                                             "dif",
 	mimeVideoXF4v:                                                            "f4v",
 	mimeVideoXFli:                                                            "fli",
 	mimeVideoXFlic:                                                           "flc",
