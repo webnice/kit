@@ -2829,7 +2829,7 @@ var mimeTypeExtension = map[string]string{
 	mimeTextFwdred:                                                           "fwdred",
 	mimeTextHtml:                                                             "html",
 	mimeTextJavascript:                                                       "mjs",
-	mimeTextMarkdown:                                                         "md",
+	mimeTextMarkdown:                                                         "markdown",
 	mimeTextMathml:                                                           "mml",
 	mimeTextMizar:                                                            "mizar",
 	mimeTextN3:                                                               "n3",
