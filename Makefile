@@ -1,5 +1,5 @@
 ## Project tooling makefile.
-## Version: 12.05.2022.
+## Version: 03.04.2023.
 
 ## Вычисление текущей директории проекта.
 export DIR   := $(strip $(shell dirname $(realpath $(lastword $(MAKEFILE_LIST)))))
@@ -23,6 +23,7 @@ GOGENERATE           = $(shell if [ -f .gogenerate ]; then cat .gogenerate; fi)
 TESTPACKETS          = $(shell if [ -f .testpackages ]; then cat .testpackages; fi)
 BENCHPACKETS         = $(shell if [ -f .benchpackages ]; then cat .benchpackages; fi)
 LOCALPACKAGES        = $(shell if [ -f .localpackages ]; then cat .localpackages; fi)
+PACKAGES_LOCK_VER    = $(shell if [ -f .packages_lock_version ]; then cat .packages_lock_version; fi)
 
 BIN01               := $(DIR)/bin/$(APP)
 BINVERSION          := $(shell ${BIN01} version 2>/dev/null; true)
@@ -36,22 +37,30 @@ PROJECT_CGO_ENABLED ?= $(PROJECT_CGO_ENABLED:0)
 ## Сценарий по умолчанию - отображение доступных команд.
 default: help
 
-## Загрузка зависимостей.
+## Обновление и загрузка зависимостей.
 dep-init:
 	@rm -rf ${DIR}/vendor 2>/dev/null; true
 	$(call PROJECT_FOLDERS)
 .PHONY: dep-init
+update: upd
+upd:
+	@go clean -cache -modcache
+	@go get -u ./...
+	@for item in $(PACKAGES_LOCK_VER); do \
+	  go get -u "$${item}"; \
+		true; \
+	done
+.PHONY: upd
+.PHONY: update
 dep: dep-init
 	@for item in $(LOCALPACKAGES); do PKGNAME=`echo $${item} | awk -F'=' '{print $$1}'`; REPLACE=`echo $${item} | awk -F'=' '{print $$2}'`; \
 		go mod edit -dropreplace $${PKGNAME}; \
 	done
 	@go mod edit -dropreplace self
 	@go mod edit -replace self=${DIR}
-	@go clean -cache -modcache
-	@go get -u ./...
 	@go mod download
 	@go mod tidy
-	@go mod vendor
+	@# go mod vendor
 	@# rm -rf ${DIR}/vendor/self; cd ${DIR}/vendor; #ln -s ${DIR} self; #true
 	$(call PROJECT_DEPENDENCES)
 .PHONY: dep
@@ -61,8 +70,6 @@ dep-dev: dep-init
 	done
 	@go mod edit -dropreplace self
 	@go mod edit -replace self=${DIR}
-	@go clean -cache -modcache
-	@go get -u -v ./...
 	@go mod download
 	@go mod tidy
 	$(call PROJECT_DEPENDENCES_DEVELOPMENT)
@@ -129,11 +136,11 @@ rpm:
 	fi
 	@## Build the RPM package.
 	@RPMBUILD_OS="${RPMBUILD_OS}" rpmbuild \
-	  --target x86_64 \
+		--target x86_64 \
 		--define "_topdir ${DIR}/rpmbuild" \
-	  	--define "_app_version_number $(VERN01)" \
-	  	--define "_app_version_build $(VERB01)" \
-	  	-bb ${DIR}/rpmbuild/SPECS/${APP}.spec
+		--define "_app_version_number $(VERN01)" \
+		--define "_app_version_build $(VERB01)" \
+		-bb ${DIR}/rpmbuild/SPECS/${APP}.spec
 .PHONY: rpm
 
 ## Migration tools for all databases.
@@ -204,7 +211,7 @@ clear:
 	@clear
 .PHONY: clear
 
-## Clearing project temporary files.
+## Очистка временных файлов и директорий проекта.
 clean:
 	@go clean -cache -modcache
 	@chown -R `whoami` ${DIR}/pkg/; true
@@ -218,10 +225,11 @@ clean:
 	@export DIR=
 .PHONY: clean
 
-## Help for main targets.
+## Помощь по командам.
 help:
 	@echo "Usage: make [target]"
 	@echo "  target is:"
+	@echo "    upd или update       - Обновление всех зависимостей до последних версий."
 	@echo "    dep                  - Загрузка и обновление зависимостей проекта."
 	@echo "    dep-dev              - Загрузка и обновление зависимостей проекта для среды разработки."
 	@#echo "    gen                  - Кодогенерация с использованием go generate."

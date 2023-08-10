@@ -71,6 +71,12 @@ type UUID interface {
 
 	// UnmarshalText Реализация интерфейса encoding.TextUnmarshaler
 	UnmarshalText(text []byte) (err error)
+
+	// UnmarshalJSON Реализация интерфейса json.Unmarshaler.
+	UnmarshalJSON(b []byte) (err error)
+
+	// MarshalJSON Реализация интерфейса json.Marshaler.
+	MarshalJSON() (ret []byte, err error)
 }
 
 // Объект сущности, интерфейс Interface
