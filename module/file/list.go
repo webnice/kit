@@ -2,7 +2,6 @@
 package file
 
 import (
-	"io/ioutil"
 	"os"
 	"path"
 )
@@ -19,23 +18,25 @@ func (fl *impl) RecursiveFileList(folderPath string) (ret []string, err error) {
 func (fl *impl) recursiveFileListLoop(baseFolderPath, currentFolderPath string) (ret []string, err error) {
 	var (
 		pf  string
-		fis []os.FileInfo
+		deo []os.DirEntry
 		n   int
+		tmp []string
 	)
 
 	pf = path.Join(baseFolderPath, currentFolderPath)
-	if fis, err = ioutil.ReadDir(pf); err != nil {
+	if deo, err = os.ReadDir(pf); err != nil {
 		return
 	}
-	for n = range fis {
+	for n = range deo {
 		switch {
-		case fis[n].IsDir():
-			ret, err = fl.recursiveFileListLoop(baseFolderPath, path.Join(currentFolderPath, fis[n].Name()))
+		case deo[n].IsDir():
+			tmp, err = fl.recursiveFileListLoop(baseFolderPath, path.Join(currentFolderPath, deo[n].Name()))
 			if err != nil {
 				return
 			}
-		case !fis[n].IsDir():
-			ret = append(ret, path.Join(currentFolderPath, fis[n].Name()))
+			ret = append(ret, tmp...)
+		case !deo[n].IsDir():
+			ret = append(ret, path.Join(currentFolderPath, deo[n].Name()))
 		}
 	}
 
