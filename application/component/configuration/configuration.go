@@ -127,12 +127,12 @@ func (ccf *impl) Initiate() (err error) {
 // Do Выполнение компонента приложения.
 func (ccf *impl) Do() (levelDone bool, levelExit bool, err error) {
 	var (
-		wd  string
+		tmp string
 		cmd []string
 	)
 
 	// Переход в рабочую директорию приложения.
-	if wd = ccf.cfg.DirectoryWorking(); wd != "" {
+	if tmp = ccf.cfg.DirectoryWorking(); tmp != "" {
 		if err = ccf.cfg.DirectoryWorkingChdir(); err != nil {
 			err = ccf.cfg.Errors().CantChangeWorkDirectory(0, err)
 			return
@@ -153,7 +153,9 @@ func (ccf *impl) Do() (levelDone bool, levelExit bool, err error) {
 	}
 	// В режиме отладки, печать конфигурационного файла в лог приложения.
 	if ccf.debug() && !levelExit {
-		ccf.log().Debug(ccf.cfg.ConfigurationUnionSprintf())
+		if tmp = ccf.cfg.ConfigurationUnionSprintf(); tmp != "" {
+			ccf.log().Debug(tmp)
+		}
 	}
 
 	return

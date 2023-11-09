@@ -1,7 +1,7 @@
 // Package cpy
 package cpy
 
-// Gist Доступ к внутренним функциям
+// Gist Интерфейс к служебным методам.
 func Gist() *impl { return singleton }
 
 // All Copy everything from one to another

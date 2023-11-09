@@ -30,6 +30,25 @@ func oneSpace(template string, args ...interface{}) (ret string) {
 		rex *regexp.Regexp
 	)
 
-	rex = regexp.MustCompile(`\ +`)
+	rex = regexp.MustCompile(` +`)
 	return rex.ReplaceAllString(fmt.Sprintf(template, args...), " ")
+}
+
+// Очистка среза цитированных строк от повторяющихся и пустых строк значений.
+func uniqueQuotedNotEmpty(src []string) (ret []string) {
+	var (
+		tmp map[string]bool
+		ok  bool
+		n   int
+	)
+
+	tmp, ret = make(map[string]bool), make([]string, 0, len(src))
+	for n = range src {
+		if _, ok = tmp[src[n]]; ok || src[n] == "" || src[n] == `""` {
+			continue
+		}
+		tmp[src[n]], ret = true, append(ret, src[n])
+	}
+
+	return
 }

@@ -110,7 +110,7 @@ func (c *Context) Bind(args ...interface{}) {
 //
 // This will typically have to be called like so:
 //
-//    BindTo(impl, (*MyInterface)(nil))
+//	BindTo(impl, (*MyInterface)(nil))
 func (c *Context) BindTo(impl, iface interface{}) {
 	c.bindings.addTo(impl, iface)
 }
@@ -242,7 +242,7 @@ func (c *Context) Validate() error { // nolint: gocyclo
 		node = c.Model.Node
 	}
 
-	// Find deepest positional argument so we can check if all required positionals have been provided.
+	// Find the deepest positional argument, so we can check if all required positionals have been provided.
 	positionals := 0
 	for _, path := range c.Path {
 		if path.Positional != nil {
@@ -335,7 +335,8 @@ func (c *Context) Reset() error {
 }
 
 func (c *Context) endParsing() {
-	args := []string{}
+	var args []string
+
 	for {
 		token := c.scan.Pop()
 		if token.Type == EOLToken {
@@ -436,7 +437,7 @@ func (c *Context) trace(node *Node) (err error) {
 			return Errors().UnexpectedFlagArgument(token.Value)
 
 		case PositionalArgumentToken:
-			candidates := []string{}
+			var candidates []string
 
 			// Ensure we've consumed all positional arguments.
 			if positional < len(node.Positional) {
@@ -458,7 +459,7 @@ func (c *Context) trace(node *Node) (err error) {
 			}
 
 			// Assign token value to a branch name if tagged as an alias
-			// An alias will be ignored in the case of an existing command
+			// will be ignored in the case of an existing command
 			cmds := make(map[string]bool)
 			for _, branch := range node.Children {
 				if branch.Type == CommandNode {
@@ -550,7 +551,7 @@ func (c *Context) Resolve() error {
 		return nil
 	}
 
-	inserted := []*Path{}
+	var inserted []*Path
 	for _, path := range c.Path {
 		for _, flag := range path.Flags {
 			// Flag has already been set on the command-line.
@@ -593,9 +594,11 @@ func (c *Context) Resolve() error {
 
 // Combine application-level resolvers and context resolvers.
 func (c *Context) combineResolvers() []Resolver {
-	resolvers := []Resolver{}
+	var resolvers = []Resolver{}
+
 	resolvers = append(resolvers, c.Kong.resolvers...)
 	resolvers = append(resolvers, c.resolvers...)
+
 	return resolvers
 }
 
@@ -641,7 +644,7 @@ func (c *Context) ApplyDefaults() error {
 
 // Apply traced context to the target grammar.
 func (c *Context) Apply() (string, error) {
-	path := []string{}
+	var path []string
 
 	for _, trace := range c.Path {
 		var value *Value
@@ -862,7 +865,7 @@ func checkErrorOfMissingChildren(missing []string) (err error) {
 	case 1:
 		err = Errors().Expected(missing[0])
 	default:
-		err = Errors().ExpectedOneOf(strings.Join(missing, delimiterCommaSpace))
+		err = Errors().ExpectedOneOf(strings.Join(uniqueQuotedNotEmpty(missing), delimiterCommaSpace))
 	}
 
 	return

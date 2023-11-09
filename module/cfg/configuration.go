@@ -19,18 +19,24 @@ import (
 // ConfigurationRegistration Регистрация объекта конфигурации, являющегося частью общей конфигурации приложения.
 // Регистрация доступна только на уровне работы приложения 0.
 // Объект конфигурации должен передаваться в качестве адреса.
-// Поля объекта конфигурации должны состоять из простых или сериализуемых типов данных и быть экспортируемыми.
-// Поля объекта должны содержать теги.
+// Поля объекта конфигурации должны состоять из простых и/или сериализуемых типов данных и быть экспортируемыми.
+// Поля объекта могут содержать теги, которые определяют внедрение конфигурации в конфигурацию приложения.
 // Вместе с объектом конфигурации можно передать функцию обратного вызова, она будет вызвана при изменении данных
 // конфигурации, например при перезагрузке файла конфигурации или иных реализациях динамического изменения
 // значений конфигурации.
+// Теги:
 //   - description ---- Описание поля, публикуется в YAML файле, при создании примера конфигурации,
 //     подробности в компоненте "configuration".
 //     Если указано значение "-", тогда описание не публикуется.
 //   - default-value -- Значение поля по умолчанию, присваивается после чтения конфигурационного файла,
 //     а так же, публикуется в YAML файле, при создании примера конфигурации.
 //   - yaml ----------- Тег для библиотеки YAML, если указано значение "-", тогда поле пропускается.
-func (essence *gist) ConfigurationRegistration(c interface{}, callback ...kitTypes.Callbacker) (err error) {
+//
+// Возвращаемый результат:
+//   - "Истина" - в случае успешного внедрения конфигурации в конфигурацию приложения;
+//   - "Ложь"   - в случае возникновения ошибки при внедрении конфигурации. Сама ошибка публикуется в список ошибок
+//     приложения.
+func (essence *gist) ConfigurationRegistration(c interface{}, callback ...kitTypes.Callbacker) (isOk bool) {
 	const (
 		tplDupName = "объект с типом %T, содержит поле с именем %q, которое совпадает с именем поля другого объекта" +
 			" конфигурации"
@@ -38,6 +44,7 @@ func (essence *gist) ConfigurationRegistration(c interface{}, callback ...kitTyp
 			" тега %q, из поля другого объекта конфигурации"
 	)
 	var (
+		err    error
 		cfItem *configurationItem
 		n      int
 		tsf    reflect.StructField
@@ -48,17 +55,24 @@ func (essence *gist) ConfigurationRegistration(c interface{}, callback ...kitTyp
 
 	defer func() {
 		if e := recover(); e != nil {
-			err = Errors().ConfigurationApplicationPanic(0, e, runtimeDebug.Stack())
+			essence.ErrorAppend(
+				Errors().ConfigurationApplicationPanic(0, e, runtimeDebug.Stack()),
+			)
 		}
 	}()
 	// Проверка уровня работы приложения.
 	if essence.parent.runLevel > 0 {
-		err = essence.parent.Errors().ConfigurationApplicationProhibited(0, reflect.TypeOf(c).String())
+		essence.ErrorAppend(
+			essence.parent.Errors().ConfigurationApplicationProhibited(0, reflect.TypeOf(c).String()),
+		)
 		return
 	}
 	// Проверка корректности объекта структуры конфигурации.
 	cfItem = &configurationItem{Original: c, callback: list.New()}
 	if cfItem.Value, cfItem.Type, err = reflectStructObject(c); err != nil {
+		essence.ErrorAppend(
+			essence.parent.Errors().ConfigurationApplicationObject(0, err),
+		)
 		return
 	}
 	// Создание среза длинной равной количеству полей структуры конфигурации.
@@ -72,7 +86,9 @@ func (essence *gist) ConfigurationRegistration(c interface{}, callback ...kitTyp
 		}
 		// Проверка наличия поля с тем же именем в уже добавленных структурах конфигураций.
 		if essence.parent.conf.IsName(tsf.Name) {
-			err = fmt.Errorf(tplDupName, c, tsf.Name)
+			essence.ErrorAppend(
+				essence.parent.Errors().ConfigurationApplicationObject(0, fmt.Errorf(tplDupName, c, tsf.Name)),
+			)
 			return
 		}
 		// Проверка тега yaml.
@@ -84,7 +100,12 @@ func (essence *gist) ConfigurationRegistration(c interface{}, callback ...kitTyp
 			// Проверка наличия тега с тем же синонимом в уже добавленных полях всех добавленных объектов конфигураций,
 			// иначе, при загрузке YAML файла, библиотека yaml упадёт в панику, на повторяющемся теге.
 			if essence.parent.conf.IsTagValue(tagYaml, value) {
-				err = fmt.Errorf(tplDupTag, c, tagYaml, value, tagYaml)
+				essence.ErrorAppend(
+					essence.parent.Errors().ConfigurationApplicationObject(
+						0,
+						fmt.Errorf(tplDupTag, c, tagYaml, value, tagYaml),
+					),
+				)
 				return
 			}
 		}
@@ -94,13 +115,16 @@ func (essence *gist) ConfigurationRegistration(c interface{}, callback ...kitTyp
 		cfItem.Fields = append(cfItem.Fields, tsf)
 	}
 	essence.parent.conf.Items = append(essence.parent.conf.Items, cfItem)
-
 	// Подписка функций обратного вызова.
 	for n = range callback {
 		if err = essence.ConfigurationCallbackSubscribe(c, callback[n]); err != nil {
+			essence.ErrorAppend(
+				essence.parent.Errors().ConfigurationApplicationObject(0, err),
+			)
 			return
 		}
 	}
+	isOk = true
 
 	return
 }

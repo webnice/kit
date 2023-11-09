@@ -75,7 +75,7 @@ func (env *impl) Initiate() (err error) {
 	}
 	runtime.GOMAXPROCS(maxCpu)
 	// Инициализация генератора случайных чисел.
-	rand.Seed(time.Now().UnixNano())
+	_ = rand.NewSource(time.Now().UnixNano())
 	// Инициализация контекста.
 	env.Ctx, env.Cfn = context.WithCancel(context.Background())
 

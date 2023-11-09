@@ -27,7 +27,10 @@ func newComponent() kitTypes.Component {
 		databaseSql: new(kitTypesDb.DatabaseSqlConfiguration),
 	}
 
-	m8s.registrationConfigurationError(m8s.cfg.Gist().ConfigurationRegistration(m8s.databaseSql))
+	// Регистрация конфигурации.
+	if !m8s.cfg.Gist().ConfigurationRegistration(m8s.databaseSql) {
+		m8s.cfg.Log().Error("ошибка регистрации конфигурации")
+	}
 
 	return m8s
 }

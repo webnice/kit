@@ -34,7 +34,9 @@ func (mys *impl) MigrationUp() (err error) {
 	mys.connectMux.RLock()
 	mys.connectMux.RUnlock()
 	// Отключение таймаута на время применения миграций.
-	mys.connect.SetConnMaxLifetime(0)
+	if mys.connect != nil {
+		mys.connect.SetConnMaxLifetime(0)
+	}
 	defer func() { mys.connect.SetConnMaxLifetime(mys.cfg.MaxLifetimeConn) }()
 	// Настройка диалекта библиотеки применения миграций.
 	if err = goose.SetDialect(mys.cfg.Driver); err != nil {
