@@ -1,4 +1,3 @@
-// Package lock
 package lock
 
 import "syscall"

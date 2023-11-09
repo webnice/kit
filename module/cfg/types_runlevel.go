@@ -1,4 +1,3 @@
-// Package cfg
 package cfg
 
 // RunlevelSubscriberFn Тип функции для подписки на события изменения уровня работы приложения

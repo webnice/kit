@@ -1,4 +1,3 @@
-// Package cfg
 package cfg
 
 import (
@@ -9,11 +8,12 @@ import (
 	"sync"
 	"time"
 
-	kitModuleBus "github.com/webnice/kit/v3/module/bus"
-	kitModuleCfgCli "github.com/webnice/kit/v3/module/cfg/cli"
-	kitModuleLog "github.com/webnice/kit/v3/module/log"
-	kitModuleUuid "github.com/webnice/kit/v3/module/uuid"
-	kitTypes "github.com/webnice/kit/v3/types"
+	kitModuleBus "github.com/webnice/kit/v4/module/bus"
+	kitModuleCfgCli "github.com/webnice/kit/v4/module/cfg/cli"
+	kitModuleLog "github.com/webnice/kit/v4/module/log"
+	kitModuleServer "github.com/webnice/kit/v4/module/server"
+	kitModuleUuid "github.com/webnice/kit/v4/module/uuid"
+	kitTypes "github.com/webnice/kit/v4/types"
 
 	"github.com/Masterminds/semver"
 )
@@ -58,6 +58,7 @@ type impl struct {
 	logger  kitModuleLog.Logger       // Объект интерфейса Logger.
 	uuid    kitModuleUuid.Interface   // Объект интерфейса UUID.
 	cli     kitModuleCfgCli.Interface // Объект интерфейса CLI.
+	srv     kitModuleServer.Interface // Объект интерфейса Server.
 }
 
 // Объект сути сущности, интерфейс Essence.

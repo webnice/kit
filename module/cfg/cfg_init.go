@@ -1,15 +1,15 @@
-// Package cfg
 package cfg
 
 import (
 	"container/list"
 	"sync"
 
-	kitModuleBus "github.com/webnice/kit/v3/module/bus"
-	kitModuleCfgCli "github.com/webnice/kit/v3/module/cfg/cli"
-	kitModuleLog "github.com/webnice/kit/v3/module/log"
-	kitModuleUuid "github.com/webnice/kit/v3/module/uuid"
-	kitTypes "github.com/webnice/kit/v3/types"
+	kitModuleBus "github.com/webnice/kit/v4/module/bus"
+	kitModuleCfgCli "github.com/webnice/kit/v4/module/cfg/cli"
+	kitModuleLog "github.com/webnice/kit/v4/module/log"
+	kitModuleServer "github.com/webnice/kit/v4/module/server"
+	kitModuleUuid "github.com/webnice/kit/v4/module/uuid"
+	kitTypes "github.com/webnice/kit/v4/types"
 
 	"github.com/Masterminds/semver"
 )
@@ -51,6 +51,8 @@ func init() {
 	singleton.initMainConfiguration()
 	// Управление переключением уровней работы приложения.
 	singleton.runLevelChangeChan, singleton.runLevelSubscribers = runlevelChangeFuncNew(), list.New()
+	// Интерфейс сервера.
+	singleton.srv = kitModuleServer.New(singleton.rec)
 }
 
 // Основная часть конфигурации приложения, интерфейс работы с командной строкой и переменными окружения.
@@ -84,14 +86,7 @@ func (cfg *impl) initMainConfiguration() {
 		cfg.error = append(cfg.error, Errors().ConfigurationBootstrap(0, err))
 	}
 	// Регистрация объекта конфигурации для последующего чтения из файла.
-	if err = cfg.essence.ConfigurationRegistration(cfg.loadableConfiguration); err != nil {
-		switch eto := err.(type) {
-		case Err:
-			cfg.error = append(cfg.error, eto)
-		default:
-			cfg.error = append(cfg.error, Errors().ConfigurationApplicationObject(0, err))
-		}
-	}
+	cfg.essence.ConfigurationRegistration(cfg.loadableConfiguration)
 }
 
 // Возврат списка групп команд, который сформируется при регистрации компонентов.

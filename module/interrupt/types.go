@@ -1,4 +1,3 @@
-// Package interrupt
 package interrupt
 
 import (

@@ -1,4 +1,3 @@
-// Package uuid
 package uuid
 
 import "os"

@@ -1,10 +1,9 @@
-// Package types
 package types
 
 import (
 	"time"
 
-	kitModuleLogLevel "github.com/webnice/kit/v3/module/log/level"
+	kitModuleLogLevel "github.com/webnice/kit/v4/module/log/level"
 )
 
 // Logger Интерфейс доступа к методам логирования.

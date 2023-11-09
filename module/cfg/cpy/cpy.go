@@ -1,4 +1,3 @@
-// Package cpy
 package cpy
 
 import (
@@ -9,11 +8,8 @@ import (
 	"strings"
 )
 
-// impl is an implementation of package
-type impl struct{}
-
 // Copy everything
-func (cpy *impl) Copy(toObj interface{}, fromObj interface{}, selected []string, omit []string, filter FilterFn) (err error) {
+func (cpy *Cpy) Copy(toObj interface{}, fromObj interface{}, selected []string, omit []string, filter FilterFn) (err error) {
 	var (
 		from, to, src, dst, key reflect.Value
 		fromT, toT              reflect.Type
@@ -92,7 +88,7 @@ func (cpy *impl) Copy(toObj interface{}, fromObj interface{}, selected []string,
 }
 
 // IsSkip Return true for skip field
-func (cpy *impl) IsSkip(selected []string, omit []string, srcName string, dstName string) (ret bool) {
+func (cpy *Cpy) IsSkip(selected []string, omit []string, srcName string, dstName string) (ret bool) {
 	var i int
 
 	// Only selected fields
@@ -118,7 +114,7 @@ func (cpy *impl) IsSkip(selected []string, omit []string, srcName string, dstNam
 }
 
 // CopyFromField Copy from field to field or method
-func (cpy *impl) CopyFromField(
+func (cpy *Cpy) CopyFromField(
 	_ reflect.Type,
 	fromT reflect.Type,
 	dst reflect.Value,
@@ -153,7 +149,7 @@ func (cpy *impl) CopyFromField(
 }
 
 // CopyFromMethod Copy from method to field
-func (cpy *impl) CopyFromMethod(
+func (cpy *Cpy) CopyFromMethod(
 	toT reflect.Type,
 	_ reflect.Type,
 	dst reflect.Value,
@@ -190,7 +186,7 @@ func (cpy *impl) CopyFromMethod(
 }
 
 // SetToFieldOrMethod Set value to field or method
-func (cpy *impl) SetToFieldOrMethod(
+func (cpy *Cpy) SetToFieldOrMethod(
 	dst reflect.Value,
 	dstName string,
 	from reflect.Value,
@@ -254,7 +250,7 @@ func (cpy *impl) SetToFieldOrMethod(
 }
 
 // Indirect value get
-func (cpy *impl) Indirect(rv reflect.Value) reflect.Value {
+func (cpy *Cpy) Indirect(rv reflect.Value) reflect.Value {
 	for rv.Kind() == reflect.Ptr {
 		rv = rv.Elem()
 	}
@@ -263,7 +259,7 @@ func (cpy *impl) Indirect(rv reflect.Value) reflect.Value {
 }
 
 // IndirectType Indirect type get
-func (cpy *impl) IndirectType(reflectType reflect.Type) reflect.Type {
+func (cpy *Cpy) IndirectType(reflectType reflect.Type) reflect.Type {
 	for reflectType.Kind() == reflect.Ptr || reflectType.Kind() == reflect.Slice {
 		reflectType = reflectType.Elem()
 	}
@@ -272,7 +268,7 @@ func (cpy *impl) IndirectType(reflectType reflect.Type) reflect.Type {
 }
 
 // Check if input objects is correct
-func (cpy *impl) Check(to reflect.Value, from reflect.Value) (isSlice bool, size int, err error) {
+func (cpy *Cpy) Check(to reflect.Value, from reflect.Value) (isSlice bool, size int, err error) {
 	if !from.IsValid() {
 		err = cpy.ErrCopyFromObjectInvalid()
 	}
@@ -294,7 +290,7 @@ func (cpy *impl) Check(to reflect.Value, from reflect.Value) (isSlice bool, size
 }
 
 // Set value
-func (cpy *impl) Set(to reflect.Value, from reflect.Value) (ok bool, err error) {
+func (cpy *Cpy) Set(to reflect.Value, from reflect.Value) (ok bool, err error) {
 	var scanner sql.Scanner
 
 	if from.IsValid() {
@@ -321,7 +317,7 @@ func (cpy *impl) Set(to reflect.Value, from reflect.Value) (ok bool, err error) 
 }
 
 // Fields to StructField
-func (cpy *impl) Fields(rt reflect.Type) (ret []reflect.StructField) {
+func (cpy *Cpy) Fields(rt reflect.Type) (ret []reflect.StructField) {
 	var (
 		i int
 		v reflect.StructField
@@ -342,7 +338,7 @@ func (cpy *impl) Fields(rt reflect.Type) (ret []reflect.StructField) {
 }
 
 // FieldReplaceName Get field name from tag
-func (cpy *impl) FieldReplaceName(field reflect.StructField, name string) (ret string) {
+func (cpy *Cpy) FieldReplaceName(field reflect.StructField, name string) (ret string) {
 	var (
 		tag         string
 		params, tmp []string

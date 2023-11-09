@@ -1,7 +1,6 @@
 //go:build darwin || dragonfly || freebsd || linux || netbsd || openbsd
 // +build darwin dragonfly freebsd linux netbsd openbsd
 
-// Package dye
 package dye
 
 import "golang.org/x/sys/unix"

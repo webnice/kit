@@ -1,4 +1,3 @@
-// Package cfg
 package cfg
 
 import (

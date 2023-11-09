@@ -1,4 +1,3 @@
-// Package cli
 package cli
 
 import (
@@ -6,8 +5,8 @@ import (
 	"reflect"
 	"strings"
 
-	kitModuleCfgCliKong "github.com/webnice/kit/v3/module/cfg/cli/kong"
-	kitTypes "github.com/webnice/kit/v3/types"
+	kitModuleCfgCliKong "github.com/webnice/kit/v4/module/cfg/cli/kong"
+	kitTypes "github.com/webnice/kit/v4/types"
 )
 
 // KongBuildOption Подготовка опций.

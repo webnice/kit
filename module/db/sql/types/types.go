@@ -1,10 +1,9 @@
-// Package types
 package types
 
 import (
 	"time"
 
-	kmll "github.com/webnice/kit/v3/module/log/level"
+	kmll "github.com/webnice/kit/v4/module/log/level"
 )
 
 // Configuration SQL database configuration structure.

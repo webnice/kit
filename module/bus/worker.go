@@ -1,12 +1,11 @@
-// Package bus
 package bus
 
 import (
 	"log"
 	"runtime"
 
-	kitModulePdw "github.com/webnice/kit/v3/module/pdw"
-	kitModuleTrace "github.com/webnice/kit/v3/module/trace"
+	kitModulePdw "github.com/webnice/kit/v4/module/pdw"
+	kitModuleTrace "github.com/webnice/kit/v4/module/trace"
 )
 
 // Обработчик входящих объектов канала шины данных.

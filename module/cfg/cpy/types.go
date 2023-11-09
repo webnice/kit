@@ -1,10 +1,12 @@
-// Package cpy
 package cpy
 
 const tagName = `cpy`
 
-var singleton = &impl{}
+var singleton = &Cpy{}
 
-// FilterFn Data Filtering Function.
-// Return true for skip data
+// FilterFn Тип функции фильтрации.
+// Вернётся "истина", для пропуска данных.
 type FilterFn func(key interface{}, object interface{}) (skip bool)
+
+// Cpy Объект сущности пакета.
+type Cpy struct{}

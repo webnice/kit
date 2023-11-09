@@ -1,6 +1,3 @@
-// nolint: lll
-
-// Package log
 package log
 
 // Обычные ошибки

@@ -1,12 +1,11 @@
-// Package bus
 package bus
 
 import (
 	"context"
 	"time"
 
-	kitModulePdw "github.com/webnice/kit/v3/module/pdw"
-	kitTypes "github.com/webnice/kit/v3/types"
+	kitModulePdw "github.com/webnice/kit/v4/module/pdw"
+	kitTypes "github.com/webnice/kit/v4/types"
 )
 
 // Interface Интерфейс объекта сущности.
@@ -59,12 +58,12 @@ type Interface interface {
 	// - тип данных является пустым интерфейсом или nil.
 	PublishAsync(data interface{}) (err error)
 
-	// Gist Интерфейс к публичным служебным методам.
+	// Gist Интерфейс к служебным методам.
 	Gist() Essence
 
 	// ОШИБКИ
 
-	// Errors Все ошибки известного состояния, которые может вернуть приложение или функция.
+	// Errors Справочник ошибок.
 	Errors() *Error
 }
 

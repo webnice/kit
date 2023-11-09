@@ -1,4 +1,3 @@
-// Package sql
 package sql
 
 import (
@@ -6,9 +5,9 @@ import (
 	"database/sql"
 	"sync"
 
-	kitModuleDbSqlTypes "github.com/webnice/kit/v3/module/db/sql/types"
-	kmll "github.com/webnice/kit/v3/module/log/level"
-	kitTypesDb "github.com/webnice/kit/v3/types/db"
+	kitModuleDbSqlTypes "github.com/webnice/kit/v4/module/db/sql/types"
+	kmll "github.com/webnice/kit/v4/module/log/level"
+	kitTypesDb "github.com/webnice/kit/v4/types/db"
 
 	"github.com/jmoiron/sqlx"
 	"gorm.io/gorm"

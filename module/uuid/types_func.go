@@ -1,4 +1,3 @@
-// Package uuid
 package uuid
 
 // String Строковое представление названия версии

@@ -1,4 +1,3 @@
-// Package utility
 package utility
 
 // SliceUnique Удаление дублей из среза простых типов данных.

@@ -1,20 +1,19 @@
-// Package cfg
 package cfg
 
 import (
 	"fmt"
-	kitModuleCfgCpy "github.com/webnice/kit/v3/module/cfg/cpy"
 	"os"
 	"os/user"
 	"reflect"
 	"strings"
 
 	"github.com/webnice/debug"
-
-	kitModuleBus "github.com/webnice/kit/v3/module/bus"
-	kitModuleLogLevel "github.com/webnice/kit/v3/module/log/level"
-	kitModuleUuid "github.com/webnice/kit/v3/module/uuid"
-	kitTypes "github.com/webnice/kit/v3/types"
+	kitModuleBus "github.com/webnice/kit/v4/module/bus"
+	kitModuleCfgCpy "github.com/webnice/kit/v4/module/cfg/cpy"
+	kitModuleLogLevel "github.com/webnice/kit/v4/module/log/level"
+	kitModuleServer "github.com/webnice/kit/v4/module/server"
+	kitModuleUuid "github.com/webnice/kit/v4/module/uuid"
+	kitTypes "github.com/webnice/kit/v4/types"
 )
 
 // Get Функция возвращает интерфейс объекта пакета.
@@ -40,7 +39,7 @@ func RegistrationMain(fn kitTypes.MainFn) Interface {
 // Bus Интерфейс шины данных приложения.
 func (cfg *impl) Bus() kitModuleBus.Interface { return cfg.bus }
 
-// Gist Интерфейс к служебным методам конфигурации приложения.
+// Gist Интерфейс к служебным методам.
 func (cfg *impl) Gist() Essence { return cfg.essence }
 
 // Version Интерфейс к методам получения версии приложения.
@@ -51,6 +50,9 @@ func (cfg *impl) UUID() kitModuleUuid.Interface { return cfg.uuid }
 
 // RawWriter Интерфейс вывода потоковых сообщений.
 func (cfg *impl) RawWriter() kitTypes.SyncWriter { return cfg.rawWriter }
+
+// WebServer Интерфейс менеджера управления WEB сервером.
+func (cfg *impl) WebServer() kitModuleServer.Interface { return cfg.srv }
 
 // Log Интерфейс к методам логирования.
 func (cfg *impl) Log() kitTypes.Logger { return cfg.rec }
@@ -94,7 +96,7 @@ func (cfg *impl) ForkWorker() *kitTypes.BootstrapConfigurationForkWorker {
 // IsForkWorker Возвращает истину для режима запуска приложения в качестве подчинённого процесса основного приложения.
 func (cfg *impl) IsForkWorker() (ret bool) { return cfg.isForkWorker }
 
-// Errors Все ошибки известного состояния, которые может вернуть приложение или функция.
+// Errors Справочник ошибок.
 func (cfg *impl) Errors() *Error { return Errors() }
 
 // Targetlevel Возвращает текущее значение целевого уровня работы приложения.
@@ -186,7 +188,11 @@ func (cfg *impl) FileSocket() string { return cfg.bootstrapConfiguration.SocketF
 // ConfigurationUnionSprintf Печать объединённой конфигурации приложения в строку.
 func (cfg *impl) ConfigurationUnionSprintf() (ret string) {
 	const structName = `*struct.UnionConfiguration`
-	ret = rexUnionStructureHeader.ReplaceAllString(debug.DumperString(cfg.conf.Union), structName)
+
+	if cfg.conf != nil && cfg.conf.Union != nil {
+		ret = rexUnionStructureHeader.ReplaceAllString(debug.DumperString(cfg.conf.Union), structName)
+	}
+
 	return
 }
 

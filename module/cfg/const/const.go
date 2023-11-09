@@ -1,4 +1,3 @@
-// Package _const
 package _const
 
 const (

@@ -1,4 +1,3 @@
-// Package types
 package types
 
 // ConfigurationDefaulter Интерфейс предназначен для заполнения структуры конфигурации значениями по умолчанию.

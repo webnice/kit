@@ -1,4 +1,3 @@
-// Package file
 package file
 
 //go:generate go run mime_generate.go

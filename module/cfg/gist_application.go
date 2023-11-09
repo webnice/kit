@@ -1,4 +1,3 @@
-// Package cfg
 package cfg
 
 import (
@@ -8,7 +7,7 @@ import (
 	runtimeDebug "runtime/debug"
 	"strings"
 
-	kitTypes "github.com/webnice/kit/v3/types"
+	kitTypes "github.com/webnice/kit/v4/types"
 )
 
 // Завершение приложения с кодом ошибки

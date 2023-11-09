@@ -67,13 +67,13 @@ How?
 Installing the library is as easy as
 
 ```bash
-$ go get github.com/webnice/kit/v3/module/dye/colorful
+$ go get github.com/webnice/kit/v4/module/dye/colorful
 ```
 
 The package can then be used through an
 
 ```go
-import "github.com/webnice/kit/v3/module/dye/colorful"
+import "github.com/webnice/kit/v4/module/dye/colorful"
 ```
 
 ### Basic usage
@@ -147,7 +147,7 @@ and bottom two colors in RGB, CIE-L\*a\*b\* and CIE-L\*u\*v\* space. You can fin
 package main
 
 import "fmt"
-import "github.com/webnice/kit/v3/module/dye/colorful"
+import "github.com/webnice/kit/v4/module/dye/colorful"
 
 func main() {
 	c1a := colorful.Color{150.0 / 255.0, 10.0 / 255.0, 150.0 / 255.0}
@@ -222,7 +222,7 @@ The following is the code creating the above three images; it can be found in `d
 package main
 
 import "fmt"
-import "github.com/webnice/kit/v3/module/dye/colorful"
+import "github.com/webnice/kit/v4/module/dye/colorful"
 import "image"
 import "image/draw"
 import "image/png"

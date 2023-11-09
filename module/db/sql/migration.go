@@ -1,10 +1,9 @@
-// Package sql
 package sql
 
 import (
 	"math"
 
-	//kitModuleCfg "github.com/webnice/kit/v3/module/cfg"
+	//kitModuleCfg "github.com/webnice/kit/v4/module/cfg"
 	"github.com/webnice/migrate/goose"
 
 	// Обязательно наличие зарегистрированных драйверов баз данных.

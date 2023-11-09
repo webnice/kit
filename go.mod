@@ -1,4 +1,4 @@
-module github.com/webnice/kit/v3
+module github.com/webnice/kit/v4
 
 go 1.19
 

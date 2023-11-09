@@ -1,11 +1,10 @@
-// Package trace
 package trace
 
 import (
 	"runtime"
 	"strings"
 
-	kitTypes "github.com/webnice/kit/v3/types"
+	kitTypes "github.com/webnice/kit/v4/types"
 )
 
 // Short Получение информации о текущем вызове и коротком стеке вызовов активной горутины

@@ -1,13 +1,12 @@
-// Package cfg
 package cfg
 
 import (
 	"time"
 
-	kitModuleLog "github.com/webnice/kit/v3/module/log"
-	kitModuleLogLevel "github.com/webnice/kit/v3/module/log/level"
-	kitModuleTrace "github.com/webnice/kit/v3/module/trace"
-	kitTypes "github.com/webnice/kit/v3/types"
+	kitModuleLog "github.com/webnice/kit/v4/module/log"
+	kitModuleLogLevel "github.com/webnice/kit/v4/module/log/level"
+	kitModuleTrace "github.com/webnice/kit/v4/module/trace"
+	kitTypes "github.com/webnice/kit/v4/types"
 )
 
 // Получение объекта интерфейса kitTypes.Logger.
@@ -57,9 +56,9 @@ func (rec *record) Time(timestamp time.Time) kitTypes.Logger {
 
 // Fatality Изменение режима фатальности по умолчанию для записи лога.
 // Допустимые значения:
-// * true  - после вывода записи в лог, приложение получает сигнал немедленного завершения.
-// * false - отменяет завершение приложения, указанное для уровня логирования по умолчанию, например,
-//           для записи лога Fatal, можно отменить завершение приложения: log.Fatality(false).Fatal(...).
+//   - true  - после вывода записи в лог, приложение получает сигнал немедленного завершения.
+//   - false - отменяет завершение приложения, указанное для уровня логирования по умолчанию, например,
+//     для записи лога Fatal, можно отменить завершение приложения: log.Fatality(false).Fatal(...).
 func (rec *record) Fatality(fy bool) kitTypes.Logger { rec.fatality = &fy; return rec }
 
 // Fatal Уровень 0: уровень предсмертных сообщений - система не стабильна, продолжение работы невозможно.

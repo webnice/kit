@@ -1,7 +1,6 @@
 //go:build aix
 // +build aix
 
-// Package lock
 package lock
 
 import (

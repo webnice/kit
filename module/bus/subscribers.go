@@ -1,4 +1,3 @@
-// Package bus
 package bus
 
 import (

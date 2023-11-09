@@ -1,4 +1,3 @@
-// Package level
 package level
 
 import (

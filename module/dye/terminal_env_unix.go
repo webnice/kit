@@ -1,7 +1,6 @@
 //go:build darwin || dragonfly || freebsd || linux || netbsd || openbsd || solaris
 // +build darwin dragonfly freebsd linux netbsd openbsd solaris
 
-// Package dye
 package dye
 
 import (
@@ -157,8 +156,8 @@ func readNextByte(f *os.File) (ret byte, err error) {
 }
 
 // Читает либо ответ OSC, либо ответ позиции курсора:
-//  * OSC ответ: "\x1b]11;rgb:1111/1111/1111\x1b\\"
-//  * Ответ позиции курсора: "\x1b[42;1R"
+//   - OSC ответ: "\x1b]11;rgb:1111/1111/1111\x1b\\"
+//   - Ответ позиции курсора: "\x1b[42;1R"
 func readNextResponse(fd *os.File) (response string, isOSC bool, err error) {
 	const (
 		squareBracketOpen, squareBracketClose = '[', ']'

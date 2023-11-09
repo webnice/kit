@@ -1,4 +1,3 @@
-// Package pdw
 package pdw
 
 /*

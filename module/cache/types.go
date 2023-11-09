@@ -1,2 +1,1 @@
-// Package cache
 package cache

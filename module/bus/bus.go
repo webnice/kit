@@ -1,4 +1,3 @@
-// Package bus
 package bus
 
 import (
@@ -7,16 +6,20 @@ import (
 	"runtime"
 	"time"
 
-	kitModulePdw "github.com/webnice/kit/v3/module/pdw"
-	kitModuleTrace "github.com/webnice/kit/v3/module/trace"
-	kitTypes "github.com/webnice/kit/v3/types"
+	kitModulePdw "github.com/webnice/kit/v4/module/pdw"
+	kitModuleTrace "github.com/webnice/kit/v4/module/trace"
+	kitTypes "github.com/webnice/kit/v4/types"
 )
 
 // New Конструктор объекта пакета, возвращает интерфейс Interface.
 // bufferLength - Размер буфера шины данных, если указано 0 или отрицательное число, используется размер по умолчанию,
-//                равный 1000000 сообщений.
+//
+//	равный 1000000 сообщений.
+//
 // workerCount  - Количество запускаемых обработчиков сообщений шины данных. Если указано 0 или отрицательное число,
-//                используется значение по умолчанию, равное 1000 обработчиков.
+//
+//	используется значение по умолчанию, равное 1000 обработчиков.
+//
 // isDebug      - Флаг отладки.
 func New(bufferLength int, workerCount int, isDebug bool) Interface {
 	var (
@@ -55,10 +58,10 @@ func destructorSafeCloseDatabusBus(c chan kitModulePdw.Data) {
 	close(c)
 }
 
-// Gist Интерфейс к публичным служебным методам.
+// Gist Интерфейс к служебным методам.
 func (bus *impl) Gist() Essence { return bus.essence }
 
-// Errors Все ошибки известного состояния, которые может вернуть приложение или функция.
+// Errors Справочник ошибок.
 func (bus *impl) Errors() *Error { return Errors() }
 
 // Subscribe Регистрация потребителя данных.

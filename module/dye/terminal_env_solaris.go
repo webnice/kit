@@ -1,7 +1,6 @@
 //go:build solaris || illumos
 // +build solaris illumos
 
-// Package dye
 package dye
 
 import "golang.org/x/sys/unix"

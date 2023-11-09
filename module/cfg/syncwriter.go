@@ -1,10 +1,9 @@
-// Package cfg
 package cfg
 
 import (
 	"os"
 
-	kitTypes "github.com/webnice/kit/v3/types"
+	kitTypes "github.com/webnice/kit/v4/types"
 )
 
 // Конструктор объекта syncWriter реализующий интерфейс kitTypes.SyncWriter.

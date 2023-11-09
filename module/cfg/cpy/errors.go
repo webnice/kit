@@ -1,4 +1,3 @@
-// Package cpy
 package cpy
 
 import "fmt"
@@ -10,10 +9,10 @@ var (
 )
 
 // ErrCopyToObjectUnaddressable Error: Copy to object is unaddressable
-func (cpy *impl) ErrCopyToObjectUnaddressable() error { return errCopyToObjectUnaddressable }
+func (cpy *Cpy) ErrCopyToObjectUnaddressable() error { return errCopyToObjectUnaddressable }
 
 // ErrCopyFromObjectInvalid Error: Copy from object is invalid
-func (cpy *impl) ErrCopyFromObjectInvalid() error { return errCopyFromObjectInvalid }
+func (cpy *Cpy) ErrCopyFromObjectInvalid() error { return errCopyFromObjectInvalid }
 
 // ErrTypeMapNotEqual Error: Type of map is not equal
-func (cpy *impl) ErrTypeMapNotEqual() error { return errTypeMapNotEqual }
+func (cpy *Cpy) ErrTypeMapNotEqual() error { return errTypeMapNotEqual }

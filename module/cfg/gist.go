@@ -1,14 +1,13 @@
-// Package cfg
 package cfg
 
 import (
 	"math"
 	"strings"
 
-	kitModuleCfgCli "github.com/webnice/kit/v3/module/cfg/cli"
-	kitModuleLog "github.com/webnice/kit/v3/module/log"
-	kitModuleLogLevel "github.com/webnice/kit/v3/module/log/level"
-	kitTypes "github.com/webnice/kit/v3/types"
+	kitModuleCfgCli "github.com/webnice/kit/v4/module/cfg/cli"
+	kitModuleLog "github.com/webnice/kit/v4/module/log"
+	kitModuleLogLevel "github.com/webnice/kit/v4/module/log/level"
+	kitTypes "github.com/webnice/kit/v4/types"
 
 	"github.com/Masterminds/semver"
 )
@@ -77,6 +76,7 @@ func (essence *gist) Debug(debug bool) Essence {
 	essence.parent.bootstrapConfiguration.ApplicationDebug = debug
 	essence.parent.logger.Debug(debug)
 	essence.parent.bus.Gist().Debug(debug)
+	essence.parent.srv.Gist().Debug(debug)
 	return essence
 }
 

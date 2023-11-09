@@ -1,4 +1,3 @@
-// Package sql
 package sql
 
 import (
@@ -6,9 +5,9 @@ import (
 	"runtime"
 	"sync"
 
-	kitModuleCfg "github.com/webnice/kit/v3/module/cfg"
-	kitTypes "github.com/webnice/kit/v3/types"
-	kitTypesDb "github.com/webnice/kit/v3/types/db"
+	kitModuleCfg "github.com/webnice/kit/v4/module/cfg"
+	kitTypes "github.com/webnice/kit/v4/types"
+	kitTypesDb "github.com/webnice/kit/v4/types/db"
 
 	// Библиотеки работы с базой данных.
 	"github.com/jmoiron/sqlx"

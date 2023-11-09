@@ -1,7 +1,6 @@
-// Package repr
-//
 // Some values (such as pointers to basic types) can not be represented directly in
 // Go. These values will be output as `&<value>`. eg. `&23`
+
 package repr
 
 import (

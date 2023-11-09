@@ -1,4 +1,3 @@
-// Package dye
 package dye
 
 import (

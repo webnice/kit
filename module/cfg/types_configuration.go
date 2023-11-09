@@ -1,11 +1,10 @@
-// Package cfg
 package cfg
 
 import (
 	"container/list"
 	"reflect"
 
-	kitTypes "github.com/webnice/kit/v3/types"
+	kitTypes "github.com/webnice/kit/v4/types"
 )
 
 // Структура регистра хранения объектов конфигурации.

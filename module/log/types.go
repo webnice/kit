@@ -1,4 +1,3 @@
-// Package log
 package log
 
 /*
@@ -18,9 +17,9 @@ import (
 	"regexp"
 	"sync"
 
-	kitModuleBus "github.com/webnice/kit/v3/module/bus"
-	kitModuleLogLevel "github.com/webnice/kit/v3/module/log/level"
-	kitTypes "github.com/webnice/kit/v3/types"
+	kitModuleBus "github.com/webnice/kit/v4/module/bus"
+	kitModuleLogLevel "github.com/webnice/kit/v4/module/log/level"
+	kitTypes "github.com/webnice/kit/v4/types"
 )
 
 const eApplicationFatality uint8 = 252 // 252 - приложение завершилось из-за печати в лог сообщения с уровнем Fatal.

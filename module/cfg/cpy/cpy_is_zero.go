@@ -1,4 +1,3 @@
-// Package cpy
 package cpy
 
 import (
@@ -9,7 +8,7 @@ import (
 )
 
 // CopyToIsZero Копирование значений только если значение в объекте назначения пустое.
-func (cpy *impl) CopyToIsZero(toRv reflect.Value, fromRv reflect.Value) (err error) {
+func (cpy *Cpy) CopyToIsZero(toRv reflect.Value, fromRv reflect.Value) (err error) {
 	var (
 		to        reflect.Value
 		from      reflect.Value
@@ -37,7 +36,7 @@ func (cpy *impl) CopyToIsZero(toRv reflect.Value, fromRv reflect.Value) (err err
 }
 
 // SetToFieldIsZero Копирование одного поля по имени, только если значение в объекте назначения пустое.
-func (cpy *impl) SetToFieldIsZero(toRv reflect.Value, toName string, fromV reflect.Value) (err error) {
+func (cpy *Cpy) SetToFieldIsZero(toRv reflect.Value, toName string, fromV reflect.Value) (err error) {
 	var (
 		toV, toM reflect.Value
 		values   []reflect.Value
@@ -72,7 +71,7 @@ func (cpy *impl) SetToFieldIsZero(toRv reflect.Value, toName string, fromV refle
 }
 
 // SetToIsZero Установка значения только если значение получателя является пустым значением.
-func (cpy *impl) SetToIsZero(to reflect.Value, from reflect.Value) (ok bool, err error) {
+func (cpy *Cpy) SetToIsZero(to reflect.Value, from reflect.Value) (ok bool, err error) {
 	var scanner sql.Scanner
 
 	if !from.IsValid() {

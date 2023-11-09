@@ -1,4 +1,3 @@
-// Package cache
 package cache
 
 import (

@@ -1,4 +1,3 @@
-// Package log
 package log
 
 import (
@@ -6,7 +5,7 @@ import (
 	"fmt"
 	"runtime"
 
-	kitModuleTrace "github.com/webnice/kit/v3/module/trace"
+	kitModuleTrace "github.com/webnice/kit/v4/module/trace"
 )
 
 // Consumer Интерфейс types.Databuser.

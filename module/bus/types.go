@@ -1,4 +1,3 @@
-// Package bus
 package bus
 
 /*
@@ -11,8 +10,8 @@ import (
 	"context"
 	"reflect"
 
-	kitModulePdw "github.com/webnice/kit/v3/module/pdw"
-	kitTypes "github.com/webnice/kit/v3/types"
+	kitModulePdw "github.com/webnice/kit/v4/module/pdw"
+	kitTypes "github.com/webnice/kit/v4/types"
 )
 
 const (

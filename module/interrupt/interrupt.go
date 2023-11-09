@@ -1,4 +1,3 @@
-// Package interrupt
 package interrupt
 
 import (
@@ -8,8 +7,8 @@ import (
 	runtimeDebug "runtime/debug"
 	"syscall"
 
-	kitModuleCfg "github.com/webnice/kit/v3/module/cfg"
-	kitTypes "github.com/webnice/kit/v3/types"
+	kitModuleCfg "github.com/webnice/kit/v4/module/cfg"
+	kitTypes "github.com/webnice/kit/v4/types"
 )
 
 // New Создание объекта и возвращение интерфейса.

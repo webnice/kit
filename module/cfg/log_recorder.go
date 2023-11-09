@@ -1,11 +1,10 @@
-// Package cfg
 package cfg
 
 import (
 	"time"
 
-	kitModuleLogLevel "github.com/webnice/kit/v3/module/log/level"
-	kitTypes "github.com/webnice/kit/v3/types"
+	kitModuleLogLevel "github.com/webnice/kit/v4/module/log/level"
+	kitTypes "github.com/webnice/kit/v4/types"
 )
 
 // Получение объекта интерфейса Recorder.
@@ -57,9 +56,9 @@ func (rer *recorder) Time(timestamp time.Time) kitTypes.Logger {
 
 // Fatality Изменение режима фатальности по умолчанию для записи лога.
 // Допустимые значения:
-// * true  - после вывода записи в лог, приложение получает сигнал немедленного завершения.
-// * false - отменяет завершение приложения, указанное для уровня логирования по умолчанию, например,
-//           для записи лога Fatal, можно отменить завершение приложения: log.Fatality(false).Fatal(...).
+//   - true  - после вывода записи в лог, приложение получает сигнал немедленного завершения.
+//   - false - отменяет завершение приложения, указанное для уровня логирования по умолчанию, например,
+//     для записи лога Fatal, можно отменить завершение приложения: log.Fatality(false).Fatal(...).
 func (rer *recorder) Fatality(fy bool) kitTypes.Logger {
 	var rec *record
 

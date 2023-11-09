@@ -1,4 +1,3 @@
-// Package cfg
 package cfg
 
 import (
@@ -8,8 +7,8 @@ import (
 	"strings"
 	"time"
 
-	kitModuleCfgCli "github.com/webnice/kit/v3/module/cfg/cli"
-	kitTypes "github.com/webnice/kit/v3/types"
+	kitModuleCfgCli "github.com/webnice/kit/v4/module/cfg/cli"
+	kitTypes "github.com/webnice/kit/v4/types"
 )
 
 // ComponentName Получение уникального имени пакета компоненты.

@@ -1,8 +1,7 @@
-// Package cpy
 package cpy
 
 // Gist Интерфейс к служебным методам.
-func Gist() *impl { return singleton }
+func Gist() *Cpy { return singleton }
 
 // All Copy everything from one to another
 func All(toObj interface{}, fromObj interface{}) error {

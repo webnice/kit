@@ -1,4 +1,3 @@
-// Package file
 package file
 
 import (

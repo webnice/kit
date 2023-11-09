@@ -1,11 +1,10 @@
-// Package trace
 package trace
 
 import (
 	"strings"
 	"testing"
 
-	kitTypes "github.com/webnice/kit/v3/types"
+	kitTypes "github.com/webnice/kit/v4/types"
 )
 
 func TestShort(t *testing.T) {

@@ -1,4 +1,3 @@
-// Package types
 package types
 
 // MainFn Функция-точка запуска и завершения приложения.

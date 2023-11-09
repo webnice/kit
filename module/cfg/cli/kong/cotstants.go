@@ -1,4 +1,3 @@
-// Package kong
 package kong
 
 const (

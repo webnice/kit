@@ -4,5 +4,5 @@
 ## Подключение пакета
 
 ```bash
-  go get github.com/webnice/kit/v3
+  go get github.com/webnice/kit/v4
 ```

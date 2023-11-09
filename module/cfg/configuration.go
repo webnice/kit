@@ -1,4 +1,3 @@
-// Package cfg
 package cfg
 
 import (
@@ -10,8 +9,8 @@ import (
 	"reflect"
 	runtimeDebug "runtime/debug"
 
-	kitModuleCfgCpy "github.com/webnice/kit/v3/module/cfg/cpy"
-	kitTypes "github.com/webnice/kit/v3/types"
+	kitModuleCfgCpy "github.com/webnice/kit/v4/module/cfg/cpy"
+	kitTypes "github.com/webnice/kit/v4/types"
 
 	"gopkg.in/yaml.v3"
 )

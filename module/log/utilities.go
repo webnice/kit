@@ -1,4 +1,3 @@
-// Package log
 package log
 
 import (
@@ -6,7 +5,7 @@ import (
 	"runtime"
 	"strings"
 
-	kitModuleLogLevel "github.com/webnice/kit/v3/module/log/level"
+	kitModuleLogLevel "github.com/webnice/kit/v4/module/log/level"
 )
 
 // Попытка определить уровень лога по имени функции.

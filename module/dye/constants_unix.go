@@ -3,7 +3,6 @@
 // +build !solaris
 // +build !illumos
 
-// Package dye
 package dye
 
 import "golang.org/x/sys/unix"

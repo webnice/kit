@@ -1,4 +1,3 @@
-// Package trace
 package trace
 
 import "runtime"

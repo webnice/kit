@@ -1,4 +1,3 @@
-// Package log
 package log
 
 import (
@@ -7,7 +6,7 @@ import (
 	"sync"
 	"time"
 
-	kitTypes "github.com/webnice/kit/v3/types"
+	kitTypes "github.com/webnice/kit/v4/types"
 )
 
 // Инициализация бассейна объектов.

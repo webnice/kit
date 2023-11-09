@@ -1,4 +1,3 @@
-// Package cli
 package cli
 
 // RegisterCommand Регистрации динамических команд приложения.

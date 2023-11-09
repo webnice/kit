@@ -1,13 +1,14 @@
-// Package cfg
 package cfg
 
 import (
-	kitModuleBus "github.com/webnice/kit/v3/module/bus"
-	kitModuleLogLevel "github.com/webnice/kit/v3/module/log/level"
-	kitModuleUuid "github.com/webnice/kit/v3/module/uuid"
-	kitTypes "github.com/webnice/kit/v3/types"
 	"os/user"
 	"reflect"
+
+	kitModuleBus "github.com/webnice/kit/v4/module/bus"
+	kitModuleLogLevel "github.com/webnice/kit/v4/module/log/level"
+	kitModuleServer "github.com/webnice/kit/v4/module/server"
+	kitModuleUuid "github.com/webnice/kit/v4/module/uuid"
+	kitTypes "github.com/webnice/kit/v4/types"
 )
 
 // Interface Интерфейс пакета.
@@ -28,6 +29,9 @@ type Interface interface {
 
 	// RawWriter Интерфейс вывода потоковых сообщений.
 	RawWriter() kitTypes.SyncWriter
+
+	// WebServer Интерфейс менеджера управления WEB сервером.
+	WebServer() kitModuleServer.Interface
 
 	// МЕНЕДЖЕР ЛОГИРОВАНИЯ.
 
@@ -144,6 +148,6 @@ type Interface interface {
 
 	// ОШИБКИ
 
-	// Errors Все ошибки известного состояния, которые может вернуть приложение или функция.
+	// Errors Справочник ошибок.
 	Errors() *Error
 }

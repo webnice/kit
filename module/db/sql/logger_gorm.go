@@ -1,13 +1,12 @@
-// Package sql
 package sql
 
 import (
 	"context"
 	"time"
 
-	kitModuleDye "github.com/webnice/kit/v3/module/dye"
-	kmll "github.com/webnice/kit/v3/module/log/level"
-	kitTypes "github.com/webnice/kit/v3/types"
+	kitModuleDye "github.com/webnice/kit/v4/module/dye"
+	kmll "github.com/webnice/kit/v4/module/log/level"
+	kitTypes "github.com/webnice/kit/v4/types"
 
 	gormLogger "gorm.io/gorm/logger"
 )

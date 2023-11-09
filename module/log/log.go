@@ -1,4 +1,3 @@
-// Package log
 package log
 
 import (
@@ -10,9 +9,9 @@ import (
 	"sync/atomic"
 	"time"
 
-	kitModuleBus "github.com/webnice/kit/v3/module/bus"
-	kitModuleLogLevel "github.com/webnice/kit/v3/module/log/level"
-	kitTypes "github.com/webnice/kit/v3/types"
+	kitModuleBus "github.com/webnice/kit/v4/module/bus"
+	kitModuleLogLevel "github.com/webnice/kit/v4/module/log/level"
+	kitTypes "github.com/webnice/kit/v4/types"
 )
 
 // New Конструктор объекта интерфейса Logger.

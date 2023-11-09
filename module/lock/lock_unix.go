@@ -1,7 +1,6 @@
 //go:build !aix && !windows
 // +build !aix,!windows
 
-// Package lock
 package lock
 
 import (

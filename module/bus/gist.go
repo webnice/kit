@@ -1,4 +1,3 @@
-// Package bus
 package bus
 
 import (
@@ -6,7 +5,7 @@ import (
 	"runtime"
 	"sync/atomic"
 
-	kitModulePdw "github.com/webnice/kit/v3/module/pdw"
+	kitModulePdw "github.com/webnice/kit/v4/module/pdw"
 )
 
 // Создание объекта и возвращение интерфейса Essence.

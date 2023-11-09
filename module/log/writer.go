@@ -1,12 +1,11 @@
-// Package log
 package log
 
 import (
 	"sync/atomic"
 	"time"
 
-	kitModuleLogLevel "github.com/webnice/kit/v3/module/log/level"
-	kitModuleTrace "github.com/webnice/kit/v3/module/trace"
+	kitModuleLogLevel "github.com/webnice/kit/v4/module/log/level"
+	kitModuleTrace "github.com/webnice/kit/v4/module/trace"
 )
 
 // Write Реализация интерфейса io.Writer.
