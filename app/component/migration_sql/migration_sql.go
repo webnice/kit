@@ -53,13 +53,13 @@ func (m8s *impl) registrationConfigurationError(err error) {
 // Preferences Функция возвращает настройки компоненты.
 func (m8s *impl) Preferences() kitTypes.ComponentPreferences {
 	const (
-		cEnvironment   = `(?mi)application/component/environment$`
-		cInterrupt     = `(?mi)application/component/interrupt$`
-		cConfiguration = `(?mi)application/component/configuration$`
-		cLogging       = `(?mi)application/component/logg.*`
-		cLoggerConsole = `(?mi)application/component/logger_console$`
-		cPidfile       = `(?mi)application/component/pidfile$`
-		cBootstrap     = `(?mi)application/component/bootstrap$`
+		cEnvironment   = `(?mi)app/component/environment$`
+		cInterrupt     = `(?mi)app/component/interrupt$`
+		cConfiguration = `(?mi)app/component/configuration$`
+		cLogging       = `(?mi)app/component/logg.*`
+		cLoggerConsole = `(?mi)app/component/logger_console$`
+		cPidfile       = `(?mi)app/component/pidfile$`
+		cBootstrap     = `(?mi)app/component/bootstrap$`
 	)
 	return kitTypes.ComponentPreferences{
 		After:   []string{cConfiguration, cLoggerConsole, cLogging, cPidfile, cInterrupt, cEnvironment},

@@ -21,7 +21,7 @@ func newComponent() kitTypes.Component { return new(impl) }
 // Preferences Функция возвращает настройки компоненты.
 func (ver *impl) Preferences() kitTypes.ComponentPreferences {
 	const (
-		cBootstrap = `(?mi)application/component/bootstrap$`
+		cBootstrap = `(?mi)app/component/bootstrap$`
 	)
 	return kitTypes.ComponentPreferences{
 		After:    []string{cBootstrap},

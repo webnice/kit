@@ -1,4 +1,4 @@
-# WEB NICE tooling
+# WEB NICE комплект
 ---
 
 ## Подключение пакета

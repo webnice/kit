@@ -32,8 +32,8 @@ import (
 //   - yaml ----------- Тег для библиотеки YAML, если указано значение "-", тогда поле пропускается.
 //
 // Возвращаемый результат:
-//   - "Истина" - в случае успешного внедрения конфигурации в конфигурацию приложения;
-//   - "Ложь"   - в случае возникновения ошибки при внедрении конфигурации. Сама ошибка публикуется в список ошибок
+//   - истина - в случае успешного внедрения конфигурации в конфигурацию приложения;
+//   - ложь   - в случае возникновения ошибки при внедрении конфигурации. Сама ошибка публикуется в список ошибок
 //     приложения.
 func (essence *gist) ConfigurationRegistration(c interface{}, callback ...kitTypes.Callbacker) (isOk bool) {
 	const (
@@ -52,6 +52,7 @@ func (essence *gist) ConfigurationRegistration(c interface{}, callback ...kitTyp
 		ok     bool
 	)
 
+	// Функции обратного вызова могут паниковать.
 	defer func() {
 		if e := recover(); e != nil {
 			essence.ErrorAppend(
@@ -113,7 +114,7 @@ func (essence *gist) ConfigurationRegistration(c interface{}, callback ...kitTyp
 		// Добавление в результирующий массив.
 		cfItem.Fields = append(cfItem.Fields, tsf)
 	}
-	essence.parent.conf.Items = append(essence.parent.conf.Items, cfItem)
+	essence.parent.conf.Items, isOk = append(essence.parent.conf.Items, cfItem), true
 	// Подписка функций обратного вызова.
 	for n = range callback {
 		if err = essence.ConfigurationCallbackSubscribe(c, callback[n]); err != nil {
@@ -123,7 +124,6 @@ func (essence *gist) ConfigurationRegistration(c interface{}, callback ...kitTyp
 			return
 		}
 	}
-	isOk = true
 
 	return
 }

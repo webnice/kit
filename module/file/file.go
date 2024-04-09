@@ -1,31 +1,17 @@
 package file
 
-//go:generate go run mime_generate.go
-//go:generate gofmt -w mime.go
-
 import (
-	stdMime "mime"
 	"os"
 	"strings"
-)
 
-// Добавление всех mime types
-func init() { mimeAddAll() }
+	// Регистрация расширенных типов MIME для файлов.
+	_ "github.com/webnice/dic"
+)
 
 // New creates new object and return Interface
 func New() Interface {
 	var obj = new(impl)
 	return obj
-}
-
-// Добавление всех mime types
-func mimeAddAll() {
-	const prefix = `.`
-	var mt string
-
-	for mt = range mimeTypeExtension {
-		_ = stdMime.AddExtensionType(prefix+mimeTypeExtension[mt], mt)
-	}
 }
 
 // GetFilename Выделение из полного пути к файлу, имени файла.

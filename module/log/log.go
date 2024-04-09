@@ -93,6 +93,11 @@ func (log *logger) Message(msg *Message) {
 	}
 	atomic.AddInt64(&log.waitCounter, 1)
 	defer func() { atomic.AddInt64(&log.waitCounter, -1) }()
+	// Если в шине данных отсутствует потребитель сообщений, вывод сообщения через обработчик по умолчанию.
+	if !log.bus.IsSubscriber(msg) {
+		log.defaultLogHandler(msg)
+		return
+	}
 	// Отправка сообщения в шину данных.
 	switch msg.Fatality {
 	// Сообщение с флагом фатальности всегда отправляется синхронно, для контролируемого завершения приложения сразу
@@ -152,8 +157,8 @@ func (log *logger) fatalityErrorPrintStderr(errs []error) {
 
 // HandlerSubscribe Регистрация обработчика сообщений лога с указанием интервала уровней сообщения лога,
 // которые будут передаваться подписчику.
-// min - Минимальный уровень сообщений лога, включительно.
-// max - Максимальный уровень сообщений лога, включительно.
+// Min - Минимальный уровень сообщений лога, включительно.
+// Max - Максимальный уровень сообщений лога, включительно.
 // В режиме отладки приложения, фильтрация по уровню сообщений лога не применяется.
 func (log *logger) HandlerSubscribe(handler Handler, min, max kitModuleLogLevel.Level) (err error) {
 	var (

@@ -20,12 +20,12 @@ func (fl *impl) cleanEmptyFolderRecursive(pt string, level int64) (err error) {
 	)
 
 	if fi, err = ioutil.ReadDir(pt); err != nil {
-		err = fmt.Errorf("чтение директории %q прервано ошибкой: %w", pt, err)
+		err = fmt.Errorf("чтение директории %q прервано ошибкой: %s", pt, err)
 		return
 	}
 	if len(fi) == 0 && level > 0 {
 		if err = os.Remove(pt); err != nil {
-			err = fmt.Errorf("удаление директории %q прервано ошибкой: %w", pt, err)
+			err = fmt.Errorf("удаление директории %q прервано ошибкой: %s", pt, err)
 		}
 		return
 	}

@@ -37,13 +37,13 @@ func (brp *impl) log() kitTypes.Logger { return brp.cfg.Log() }
 // Preferences Функция возвращает настройки компоненты.
 func (brp *impl) Preferences() kitTypes.ComponentPreferences {
 	const (
-		cEnvironment   = `(?mi)application/component/environment$`
-		cInterrupt     = `(?mi)application/component/interrupt$`
-		cConfiguration = `(?mi)application/component/configuration$`
-		cLogging       = `(?mi)application/component/logg.*`
-		cLoggerConsole = `(?mi)application/component/logger_console$`
-		cPidfile       = `(?mi)application/component/pidfile$`
-		cMigration     = `(?mi)application/component/migration.*$`
+		cEnvironment   = `(?mi)app/component/environment$`
+		cInterrupt     = `(?mi)app/component/interrupt$`
+		cConfiguration = `(?mi)app/component/configuration$`
+		cLogging       = `(?mi)app/component/logg.*`
+		cLoggerConsole = `(?mi)app/component/logger_console$`
+		cPidfile       = `(?mi)app/component/pidfile$`
+		cMigration     = `(?mi)app/component/migration.*$`
 	)
 	return kitTypes.ComponentPreferences{
 		After: []string{

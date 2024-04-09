@@ -43,7 +43,7 @@ func (lgc *impl) wr() kitTypes.SyncWriter { return lgc.cfg.RawWriter() }
 
 // Preferences Функция возвращает настройки компоненты.
 func (lgc *impl) Preferences() kitTypes.ComponentPreferences {
-	const cConfiguration = `(?mi)application/component/configuration$`
+	const cConfiguration = `(?mi)app/component/configuration$`
 	return kitTypes.ComponentPreferences{
 		After: []string{cConfiguration},
 	}

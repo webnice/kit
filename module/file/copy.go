@@ -18,17 +18,17 @@ func (fl *impl) Copy(dst string, src string) (size int64, err error) {
 	)
 
 	if inp, err = os.Open(src); err != nil {
-		err = fmt.Errorf("открытие файла %q прервано ошибкой: %w", src, err)
+		err = fmt.Errorf("открытие файла %q прервано ошибкой: %s", src, err)
 		return
 	}
 	defer func() { _ = inp.Close() }()
 	if out, err = os.OpenFile(dst, os.O_CREATE|os.O_TRUNC|os.O_WRONLY, defaultFileMode); err != nil {
-		err = fmt.Errorf("создание файла %q прервано ошибкой: %w", dst, err)
+		err = fmt.Errorf("создание файла %q прервано ошибкой: %s", dst, err)
 		return
 	}
 	defer func() { _ = out.Sync(); _ = out.Close() }()
 	if size, err = io.Copy(out, inp); err != nil {
-		err = fmt.Errorf("копирование данных из файла %q в файл %q завершилось ошибкой: %w", dst, src, err)
+		err = fmt.Errorf("копирование данных из файла %q в файл %q завершилось ошибкой: %s", dst, src, err)
 		return
 	}
 
@@ -60,7 +60,7 @@ func (fl *impl) CopyWithSha512Sum(dst io.Writer, src io.Reader) (written int64, 
 		}
 		if nr, er = src.Read(buf); nr > 0 {
 			if _, err = sha.Write(buf[0:nr]); err != nil {
-				err = fmt.Errorf("вычисление контрольной суммы sha-512 прервано ошибкой: %w", err)
+				err = fmt.Errorf("вычисление контрольной суммы sha-512 прервано ошибкой: %s", err)
 				return
 			}
 			if nw, ew = dst.Write(buf[0:nr]); nw > 0 {
@@ -80,7 +80,7 @@ func (fl *impl) CopyWithSha512Sum(dst io.Writer, src io.Reader) (written int64, 
 		case io.EOF:
 			end, er = true, nil
 		default:
-			end, err = true, fmt.Errorf("чтение данных прервано ошибкой: %w", er)
+			end, err = true, fmt.Errorf("чтение данных прервано ошибкой: %s", er)
 		}
 	}
 	sha512sum = hex.EncodeToString(sha.Sum(nil))

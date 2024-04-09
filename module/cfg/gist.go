@@ -77,6 +77,7 @@ func (essence *gist) Debug(debug bool) Essence {
 	essence.parent.logger.Debug(debug)
 	essence.parent.bus.Gist().Debug(debug)
 	essence.parent.srv.Gist().Debug(debug)
+
 	return essence
 }
 

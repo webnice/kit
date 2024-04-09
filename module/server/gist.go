@@ -1,37 +1,85 @@
 package server
 
 import (
+	"reflect"
+
 	kitModuleUuid "github.com/webnice/kit/v4/module/uuid"
 	kitTypesServer "github.com/webnice/kit/v4/types/server"
 )
 
 // Создание объекта и возвращение интерфейса Essence.
-func newEssence(parent *impl) *gist {
-	var essence = &gist{parent: parent}
-	return essence
+func newEssence(parent *impl[master]) *gist[master] {
+	var ece = &gist[master]{p: parent}
+
+	return ece
 }
 
 // Debug Присвоение нового значения режима отладки.
-func (essence *gist) Debug(debug bool) Essence { essence.parent.debug = debug; return essence }
+func (ece *gist[T]) Debug(debug bool) Essence { ece.p.debug = debug; return ece }
 
-// ConfigurationWeb Добавление конфигурации веб сервера. Функцию можно вызывать многократно, для добавления
-// нескольких веб серверов. Серверы не должны пересекаться по занимаемому IP и порту или другим монопольно
-// занимаемым ресурсам.
-// Возвращается UUID идентификатор добавленного веб сервера.
-func (essence *gist) ConfigurationWeb(cfg *kitTypesServer.WebServerConfiguration) (ret string) {
+// Удаление конфигурации сервера. В качестве идентификатора, передаётся UUID сервера,
+// полученный при добавлении конфигурации (Свойство ID структуры сервера).
+// Нельзя удалять запущенный сервер, функция вернёт ошибку.
+func (ece *gist[T]) deleteById(t kitTypesServer.Type, IDs ...string) (err error) {
 	var (
-		item *server
-		uuid kitModuleUuid.Interface
+		uus     []kitModuleUuid.UUID
+		n, s    int
+		found   bool
+		servers []*server[master]
 	)
 
-	uuid = kitModuleUuid.Get()
-	item = &server{
-		ID:   uuid.V4(),
-		Cfg:  cfg,
-		Type: serverWeb,
+	// Парсинг UUID идентификаторов.
+	if uus, err = ece.p.parseIDsToObject(IDs...); err != nil {
+		return
 	}
-	essence.parent.servers = append(essence.parent.servers, item)
-	ret = item.ID.String()
+	// Проверка выполняются ли процессы серверов с указанными UUID идентификаторами.
+	switch t {
+	case kitTypesServer.TWeb:
+		err = ece.p.sWeb.isRun(uus)
+	case kitTypesServer.TGrpc:
+		err = ece.p.sGrpc.isRun(uus)
+	case kitTypesServer.TTcp:
+		err = ece.p.sTcp.isRun(uus)
+	default:
+		err = ece.p.Errors().TypeNotImplemented(reflect.TypeOf(t).String())
+	}
+	if err != nil {
+		return
+	}
+	ece.p.serverLock.Lock()
+	defer ece.p.serverLock.Unlock()
+	// Проверка наличия конфигураций серверов для удаления.
+	for n = range uus {
+		found = false
+		for s = range ece.p.server[t] {
+			if ece.p.server[t][s].s.ID.Equal(uus[n]) {
+				found = true
+				break
+			}
+		}
+		if !found {
+			err = ece.p.Errors().ServerWithUuidNotFound(IDs[n])
+			return
+		}
+	}
+	// Удаление конфигураций.
+	servers = make([]*server[master], 0, len(ece.p.server[t]))
+	for s = range ece.p.server[t] {
+		found = false
+		for n = range uus {
+			if ece.p.server[t][s].s.ID.Equal(uus[n]) {
+				found = true
+				break
+			}
+		}
+		if found {
+			continue
+		}
+		servers = append(servers, ece.p.server[t][s])
+	}
+	// Обновление среза.
+	ece.p.server[t] = make([]*server[master], 0, len(servers))
+	ece.p.server[t] = append(ece.p.server[t], servers...)
 
 	return
 }

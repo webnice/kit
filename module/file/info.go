@@ -26,11 +26,11 @@ func (fl *impl) GetInfoSha512(filename string) (inf *InfoSha512, err error) {
 	defer func() { _ = fh.Close() }()
 	s512 = sha512.New()
 	if inf.Size, err = io.Copy(s512, fh); err != nil {
-		err = fmt.Errorf("чтение файла %q прервано ошибкой: %w", filename, err)
+		err = fmt.Errorf("чтение файла %q прервано ошибкой: %s", filename, err)
 		return
 	}
 	if fi, err = fh.Stat(); err != nil {
-		err = fmt.Errorf("получение атрибутов файла %q прервано ошибкой: %w", filename, err)
+		err = fmt.Errorf("получение атрибутов файла %q прервано ошибкой: %s", filename, err)
 		return
 	}
 	if inf.Size != fi.Size() {

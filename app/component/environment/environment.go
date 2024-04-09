@@ -48,7 +48,7 @@ func (env *impl) Preferences() kitTypes.ComponentPreferences {
 		cmdDescription = "Максимальное количество используемых CPU, если указано 0, тогда все доступные CPU."
 		cmdEnvironment = "APPLICATION_MAX_CPU_USAGE"
 		cmdPlaceholder = "0"
-		cConfiguration = `(?mi)application/component/configuration$`
+		cConfiguration = `(?mi)app/component/configuration$`
 	)
 	return kitTypes.ComponentPreferences{
 		Before: []string{cConfiguration},

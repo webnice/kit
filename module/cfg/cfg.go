@@ -51,8 +51,8 @@ func (cfg *impl) UUID() kitModuleUuid.Interface { return cfg.uuid }
 // RawWriter Интерфейс вывода потоковых сообщений.
 func (cfg *impl) RawWriter() kitTypes.SyncWriter { return cfg.rawWriter }
 
-// WebServer Интерфейс менеджера управления WEB сервером.
-func (cfg *impl) WebServer() kitModuleServer.Interface { return cfg.srv }
+// Server Интерфейс менеджера управления сервером.
+func (cfg *impl) Server() kitModuleServer.Interface { return cfg.srv }
 
 // Log Интерфейс к методам логирования.
 func (cfg *impl) Log() kitTypes.Logger { return cfg.rec }

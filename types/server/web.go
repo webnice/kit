@@ -1,9 +1,9 @@
 package server
 
-import "github.com/webnice/web/v2"
+import "github.com/webnice/web/v4"
 
-// WebServerConfiguration Структура конфигурации WEB сервера.
-type WebServerConfiguration struct {
+// WebConfiguration Структура конфигурации WEB сервера.
+type WebConfiguration struct {
 	// Server Конфигурация WEB сервера.
 	Server web.Configuration `yaml:"Server"`
 
@@ -17,7 +17,7 @@ type WebServerConfiguration struct {
 	Pages string `yaml:"Pages"`
 }
 
-// WebServers Конфигурация группы веб серверов.
+// WebServers Структура конфигурации группы веб серверов.
 type WebServers struct {
-	WebServers []WebServerConfiguration `yaml:"WEBServers"`
+	WebServers []WebConfiguration `yaml:"WEBServers"`
 }

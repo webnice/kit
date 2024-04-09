@@ -4,14 +4,16 @@ go 1.19
 
 require (
 	github.com/Masterminds/semver v1.5.0
+	github.com/go-chi/chi/v5 v5.0.10
 	github.com/go-sql-driver/mysql v1.7.1
 	github.com/jackc/pgx/v4 v4.18.1
 	github.com/jmoiron/sqlx v1.3.5
 	github.com/mattn/go-sqlite3 v1.14.17
 	github.com/webnice/debug v1.0.0
+	github.com/webnice/dic v1.0.0
 	github.com/webnice/migrate v1.0.2
-	github.com/webnice/web/v2 v2.0.3
-	golang.org/x/sys v0.10.0
+	github.com/webnice/web/v4 v4.0.0-00010101000000-000000000000
+	golang.org/x/sys v0.14.0
 	gopkg.in/yaml.v3 v3.0.1
 	gorm.io/driver/mysql v1.5.1
 	gorm.io/driver/postgres v1.5.2
@@ -30,8 +32,12 @@ require (
 	github.com/jinzhu/inflection v1.0.0 // indirect
 	github.com/jinzhu/now v1.1.5 // indirect
 	github.com/rogpeppe/go-internal v1.11.0 // indirect
-	golang.org/x/crypto v0.11.0 // indirect
-	golang.org/x/text v0.11.0 // indirect
+	github.com/stretchr/testify v1.8.4 // indirect
+	github.com/webnice/net v1.1.2 // indirect
+	golang.org/x/crypto v0.15.0 // indirect
+	golang.org/x/text v0.14.0 // indirect
 )
 
 replace self => /Users/kallisto/Projects/lib/github.com/webnice/kit
+
+replace github.com/webnice/web/v4 => /Users/kallisto/Projects/lib/github.com/webnice/web

@@ -30,8 +30,8 @@ type Interface interface {
 	// RawWriter Интерфейс вывода потоковых сообщений.
 	RawWriter() kitTypes.SyncWriter
 
-	// WebServer Интерфейс менеджера управления WEB сервером.
-	WebServer() kitModuleServer.Interface
+	// Server Интерфейс менеджера управления сервером.
+	Server() kitModuleServer.Interface
 
 	// МЕНЕДЖЕР ЛОГИРОВАНИЯ.
 
