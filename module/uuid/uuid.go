@@ -9,7 +9,7 @@ import (
 
 func init() { singleton = newUUID() }
 
-// Get Функция возвращает интерфейс объекта пакета
+// Get Функция возвращает интерфейс объекта пакета.
 func Get() Interface { return singleton }
 
 func newUUID() *impl {
@@ -20,11 +20,11 @@ func newUUID() *impl {
 	}
 }
 
-// Bytes Возвращает срез байт
-func (u uuid) Bytes() []byte { return u.data[:] }
+// Bytes Возвращает срез байт.
+func (u *uuid) Bytes() []byte { return u.data[:] }
 
-// Version Возвращает версию алгоритма используемого при генерации UUID
-func (u uuid) Version() (ret VersionType) {
+// Version Возвращает версию алгоритма используемого при генерации UUID.
+func (u *uuid) Version() (ret VersionType) {
 	switch u.data[6] >> 4 {
 	case Version.V1.value:
 		ret = Version.V1
@@ -43,8 +43,8 @@ func (u uuid) Version() (ret VersionType) {
 	return
 }
 
-// Variant Возвращает версию варианта макета
-func (u uuid) Variant() (ret VariantType) {
+// Variant Возвращает версию варианта макета.
+func (u *uuid) Variant() (ret VariantType) {
 	switch {
 	case (u.data[8] >> 7) == 0x00:
 		ret = Variant.NCS
@@ -61,8 +61,8 @@ func (u uuid) Variant() (ret VariantType) {
 	return
 }
 
-// String Возвращает каноническое строковое представление UUID: xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
-func (u uuid) String() (ret string) {
+// String Возвращает каноническое строковое представление UUID: xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx.
+func (u *uuid) String() (ret string) {
 	var (
 		buf       []byte
 		separator = byte('-')
@@ -83,13 +83,13 @@ func (u uuid) String() (ret string) {
 	return
 }
 
-// Equal Сравнение UUID. Возвращает истину, если переданный UUID эквивалентен UUID объекта. Иначе возвращается ложь
-func (u uuid) Equal(uu UUID) bool { return bytes.Equal(u.data[:], uu.(*uuid).data[:]) }
+// Equal Сравнение UUID. Возвращает истину, если переданный UUID эквивалентен UUID объекта. Иначе возвращается ложь.
+func (u *uuid) Equal(uu UUID) bool { return bytes.Equal(u.data[:], uu.(*uuid).data[:]) }
 
-// SetVersion Устанавливает бит версии UUID
+// SetVersion Устанавливает бит версии UUID.
 func (u *uuid) SetVersion(v VersionType) { u.data[6] = (u.data[6] & 0x0f) | (v.value << 4) }
 
-// SetVariant Устанавливает бит варианта макета UUID
+// SetVariant Устанавливает бит варианта макета UUID.
 func (u *uuid) SetVariant(v VariantType) {
 	switch v {
 	case Variant.NCS:

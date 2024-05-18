@@ -10,10 +10,16 @@ import (
 // выделяемым ресурсам.
 // Возвращается объект добавленного веб сервера.
 func (ece *gist[T]) WebAdd(cfg *kitTypesServer.WebConfiguration) (ret *kitTypesServer.Server) {
-	var ok bool
+	var (
+		id kitModuleUuid.UUID
+		ok bool
+	)
 
+	if id = kitModuleUuid.Get().V4(); cfg.Server.ID != "" {
+		id = kitModuleUuid.Get().FromString(cfg.Server.ID)
+	}
 	ret = &kitTypesServer.Server{
-		ID:   kitModuleUuid.Get().V4(),
+		ID:   id,
 		Type: kitTypesServer.TWeb,
 		Web:  cfg,
 	}

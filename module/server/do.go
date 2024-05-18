@@ -10,7 +10,7 @@ import (
 	"github.com/webnice/debug"
 	"github.com/webnice/dic"
 	kitTypesServer "github.com/webnice/kit/v4/types/server"
-	"github.com/webnice/web/v4"
+	"github.com/webnice/web/v3"
 
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
@@ -75,7 +75,7 @@ func (srv *server[T]) doWeb(onStart chan<- error) {
 		return
 	}
 	if srv.err = wsv.
-		Serve(srv.l).
+		ServeWithId(srv.l, srv.s.Web.Server.ID).
 		Error(); srv.err != nil {
 
 		srv.p.log().Error(srv.err)
@@ -83,6 +83,9 @@ func (srv *server[T]) doWeb(onStart chan<- error) {
 		onStart <- srv.err
 		return
 	}
+
+	srv.p.log().Noticef("Запущен WEB сервер ID: %q", wsv.ID())
+
 	// Отпускаем родительский процесс, ожидавший всё это время запуск сервера.
 	onStart <- nil
 	// Ожидание завершения работы сервера.

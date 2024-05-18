@@ -7,7 +7,7 @@ import (
 	"fmt"
 )
 
-// FromBytes Конвертация среза байт в UUID, в случае ошибки, возвращается константа NULL
+// FromBytes Конвертация среза байт в UUID, в случае ошибки, возвращается константа NULL.
 func (ui *impl) FromBytes(input []byte) (ret UUID) {
 	var (
 		u   *uuid
@@ -24,7 +24,7 @@ func (ui *impl) FromBytes(input []byte) (ret UUID) {
 	return
 }
 
-// FromString Конвертация строки в UUID, в случае ошибки, возвращается константа NULL
+// FromString Конвертация строки в UUID, в случае ошибки, возвращается константа NULL.
 func (ui *impl) FromString(input string) (ret UUID) {
 	var (
 		u   *uuid
@@ -41,10 +41,10 @@ func (ui *impl) FromString(input string) (ret UUID) {
 	return
 }
 
-// MarshalBinary Реализация интерфейса encoding.BinaryMarshaler
-func (u uuid) MarshalBinary() (data []byte, err error) { data = u.Bytes(); return }
+// MarshalBinary Реализация интерфейса encoding.BinaryMarshaler.
+func (u *uuid) MarshalBinary() (data []byte, err error) { data = u.Bytes(); return }
 
-// UnmarshalBinary Реализация интерфейса encoding.BinaryUnmarshaler
+// UnmarshalBinary Реализация интерфейса encoding.BinaryUnmarshaler.
 func (u *uuid) UnmarshalBinary(data []byte) (err error) {
 	const lengthError = `uuid должен быть длинной 16 байт`
 
@@ -57,10 +57,10 @@ func (u *uuid) UnmarshalBinary(data []byte) (err error) {
 	return
 }
 
-// MarshalText Реализация интерфейса encoding.TextMarshaler
-func (u uuid) MarshalText() (text []byte, err error) { text = []byte(u.String()); return }
+// MarshalText Реализация интерфейса encoding.TextMarshaler.
+func (u *uuid) MarshalText() (text []byte, err error) { text = []byte(u.String()); return }
 
-// UnmarshalText Реализация интерфейса encoding.TextUnmarshaler
+// UnmarshalText Реализация интерфейса encoding.TextUnmarshaler.
 // Поддерживаются форматы:
 //
 //	"6ba7b810-9dad-11d1-80b4-00c04fd430c8",
@@ -104,9 +104,9 @@ func (u *uuid) UnmarshalText(text []byte) (err error) {
 func (u *uuid) UnmarshalJSON(b []byte) error { return u.UnmarshalText(b) }
 
 // MarshalJSON Реализация интерфейса json.Marshaler.
-func (u uuid) MarshalJSON() ([]byte, error) { return u.MarshalText() }
+func (u *uuid) MarshalJSON() ([]byte, error) { return u.MarshalText() }
 
-// Декодирование UUID из формата: "6ba7b810-9dad-11d1-80b4-00c04fd430c8"
+// Декодирование UUID из формата: "6ba7b810-9dad-11d1-80b4-00c04fd430c8".
 func (u *uuid) decodeCanonical(t []byte) (err error) {
 	const formatError = `не верный формат UUID`
 	var (
@@ -149,7 +149,7 @@ func (u *uuid) decodeHashLike(t []byte) (err error) {
 	return
 }
 
-// Декодирование UUID из формата: "{6ba7b810-9dad-11d1-80b4-00c04fd430c8}" или "{6ba7b8109dad11d180b400c04fd430c8}"
+// Декодирование UUID из формата: "{6ba7b810-9dad-11d1-80b4-00c04fd430c8}" или "{6ba7b8109dad11d180b400c04fd430c8}".
 func (u *uuid) decodeBraced(t []byte) (err error) {
 	const formatError = `не верный формат UUID`
 	var (
@@ -165,7 +165,7 @@ func (u *uuid) decodeBraced(t []byte) (err error) {
 	return
 }
 
-// Декодирование UUID из формата: "6ba7b810-9dad-11d1-80b4-00c04fd430c8" или "6ba7b8109dad11d180b400c04fd430c8"
+// Декодирование UUID из формата: "6ba7b810-9dad-11d1-80b4-00c04fd430c8" или "6ba7b8109dad11d180b400c04fd430c8".
 func (u *uuid) decodePlain(t []byte) (err error) {
 	const formatError = `не верный формат UUID`
 
@@ -182,7 +182,7 @@ func (u *uuid) decodePlain(t []byte) (err error) {
 }
 
 // Декодирование UUID из формата: "urn:uuid:6ba7b810-9dad-11d1-80b4-00c04fd430c8" или
-// "urn:uuid:6ba7b8109dad11d180b400c04fd430c8"
+// "urn:uuid:6ba7b8109dad11d180b400c04fd430c8".
 func (u *uuid) decodeURN(t []byte) (err error) {
 	const formatError = `не верный формат UUID`
 	var (

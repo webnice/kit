@@ -1,13 +1,14 @@
 package uuid
 
 import (
+	"io"
+
 	"crypto/md5"
 	"crypto/sha1"
 	"encoding/binary"
-	"io"
 )
 
-// V1 Создание UUID версии 1 основанной на текущем времени и MAC адресе
+// V1 Создание UUID версии 1 основанной на текущем времени и MAC адресе.
 func (ui *impl) V1() (ret UUID, err error) {
 	var (
 		timeNow      uint64
@@ -36,7 +37,7 @@ func (ui *impl) V1() (ret UUID, err error) {
 	return
 }
 
-// V2 Создание UUID версии 2 основанной на POSIX UID/GID идентификаторах пользователя и группы соответственно
+// V2 Создание UUID версии 2 основанной на POSIX UID/GID идентификаторах пользователя и группы соответственно.
 func (ui *impl) V2(domain DomainType) (ret UUID, err error) {
 	var u *uuid
 
@@ -59,7 +60,7 @@ func (ui *impl) V2(domain DomainType) (ret UUID, err error) {
 	return
 }
 
-// V3 Создание UUID версии 3 основанной на MD5 алгоритме, пространстве имён и переданном названии
+// V3 Создание UUID версии 3 основанной на MD5 алгоритме, пространстве имён и переданном названии.
 func (ui *impl) V3(namespace NamespaceType, name string) (ret UUID) {
 	var u *uuid
 
@@ -71,7 +72,7 @@ func (ui *impl) V3(namespace NamespaceType, name string) (ret UUID) {
 	return
 }
 
-// V4 Создание UUID версии 4 основанной на генераторе случайных чисел
+// V4 Создание UUID версии 4 основанной на генераторе случайных чисел.
 func (ui *impl) V4() (ret UUID) {
 	var (
 		u   *uuid
@@ -90,7 +91,7 @@ func (ui *impl) V4() (ret UUID) {
 	return
 }
 
-// V5 Создание UUID версии 5 основанной на SHA-1 хэшировании от пространства имён и названия
+// V5 Создание UUID версии 5 основанной на SHA-1 хэшировании от пространства имён и названия.
 func (ui *impl) V5(namespace NamespaceType, name string) (ret UUID) {
 	var u *uuid
 
@@ -102,7 +103,7 @@ func (ui *impl) V5(namespace NamespaceType, name string) (ret UUID) {
 	return
 }
 
-// V6 Создание UUID версии 6
+// V6 Создание UUID версии 6.
 func (ui *impl) V6() (ret UUID) {
 	var (
 		err         error
@@ -129,7 +130,7 @@ func (ui *impl) V6() (ret UUID) {
 	binary.BigEndian.PutUint32(u.data[0:], timeHigh)
 	binary.BigEndian.PutUint16(u.data[4:], timeMid)
 	binary.BigEndian.PutUint16(u.data[6:], timeLow)
-	binary.BigEndian.PutUint16(u.data[8:], clockSeq|0x8000) // concat UUID variant
+	binary.BigEndian.PutUint16(u.data[8:], clockSeq|0x8000) // concat UUID variant.
 	buf = make([]byte, 6)
 	if _, err = io.ReadFull(ui.rand, buf); err != nil {
 		ret = NULL

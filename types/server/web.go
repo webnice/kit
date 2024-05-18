@@ -1,6 +1,6 @@
 package server
 
-import "github.com/webnice/web/v4"
+import "github.com/webnice/web/v3"
 
 // WebConfiguration Структура конфигурации WEB сервера.
 type WebConfiguration struct {

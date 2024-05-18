@@ -12,7 +12,7 @@ require (
 	github.com/webnice/debug v1.0.0
 	github.com/webnice/dic v1.0.0
 	github.com/webnice/migrate v1.0.2
-	github.com/webnice/web/v4 v4.0.0-00010101000000-000000000000
+	github.com/webnice/web/v3 v3.0.0-00010101000000-000000000000
 	golang.org/x/sys v0.14.0
 	gopkg.in/yaml.v3 v3.0.1
 	gorm.io/driver/mysql v1.5.1
@@ -21,6 +21,7 @@ require (
 )
 
 require (
+	github.com/google/uuid v1.6.0 // indirect
 	github.com/jackc/chunkreader/v2 v2.0.1 // indirect
 	github.com/jackc/pgconn v1.14.1 // indirect
 	github.com/jackc/pgio v1.0.0 // indirect
@@ -33,11 +34,11 @@ require (
 	github.com/jinzhu/now v1.1.5 // indirect
 	github.com/rogpeppe/go-internal v1.11.0 // indirect
 	github.com/stretchr/testify v1.8.4 // indirect
-	github.com/webnice/net v1.1.2 // indirect
+	github.com/webnice/net v1.1.4 // indirect
 	golang.org/x/crypto v0.15.0 // indirect
 	golang.org/x/text v0.14.0 // indirect
 )
 
 replace self => /Users/kallisto/Projects/lib/github.com/webnice/kit
 
-replace github.com/webnice/web/v4 => /Users/kallisto/Projects/lib/github.com/webnice/web
+replace github.com/webnice/web/v3 => /Users/kallisto/Projects/lib/github.com/webnice/web
