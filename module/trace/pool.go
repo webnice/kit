@@ -16,7 +16,7 @@ func getBuffer() *buffer { return bufferPool.Get().(*buffer) }
 func putBuffer(buf *buffer) { bufferClean(buf); bufferPool.Put(buf) }
 
 // Конструктор объектов бассейна
-func bufferNew() interface{} {
+func bufferNew() any {
 	var buf = &buffer{
 		Byte64k:     make([]byte, 0, defaultBufferLength),  // cap=64 килобайта
 		SliceString: make([]string, 0, defaultSliceLength), // cap=16 строк

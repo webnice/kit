@@ -10,7 +10,7 @@ type (
 	err struct {
 		tpl    string        // Шаблон ошибки.
 		code   uint8         // Код ошибки.
-		args   []interface{} // Иные аргументы ошибки.
+		args   []any         // Иные аргументы ошибки.
 		anchor error         // Константа ошибки с фиксированным адресом.
 		errFn  func() string // Функция интерфейса error.
 	}
@@ -36,7 +36,7 @@ func (err err) Error() string { return err.errFn() }
 func Errors() *Error { return errSingleton }
 
 // Конструктор объекта ошибки.
-func newErr(obj *err, code uint8, arg ...interface{}) Err {
+func newErr(obj *err, code uint8, arg ...any) Err {
 	if code == 0 {
 		code = obj.code // Если код ошибки не изменён, используется код ошибки из шаблона.
 	}

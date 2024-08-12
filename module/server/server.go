@@ -1,7 +1,7 @@
 package server
 
 import (
-	"sync"
+	"fmt"
 
 	kitTypes "github.com/webnice/kit/v4/types"
 	kitTypesServer "github.com/webnice/kit/v4/types/server"
@@ -9,63 +9,88 @@ import (
 
 // New Конструктор объекта сущности пакета, возвращается интерфейс пакета.
 func New(l kitTypes.Logger) Interface {
-	var sri = &impl[master]{
-		logger:     l,
-		sWeb:       new(implIServer[kitTypesServer.Web]),
-		sGrpc:      new(implIServer[kitTypesServer.Grpc]),
-		sTcp:       new(implIServer[kitTypesServer.Tcp]),
-		sUdp:       new(implIServer[kitTypesServer.Udp]),
-		serverLock: new(sync.RWMutex),
-		server:     make(map[kitTypesServer.Type][]*server[master]),
+	var sri = &impl{
+		logger: l,
 	}
 	sri.gist = newEssence(sri)
-	sri.sWeb.p, sri.sGrpc.p, sri.sTcp.p = sri, sri, sri
+	sri.serverWeb = newWeb(sri)
 
 	return sri
 }
 
 // Ссылка на менеджер логирования.
-func (sio *impl[T]) log() kitTypes.Logger { return sio.logger }
+func (sri *impl) log() kitTypes.Logger { return sri.logger }
 
 // Errors Справочник ошибок.
-func (sio *impl[T]) Errors() *Error { return Errors() }
+func (sri *impl) Errors() *Error { return Errors() }
 
-// Gist Интерфейс к служебным методам.
-func (sio *impl[T]) Gist() Essence { return sio.gist }
+// Gist Интерфейс служебных методов.
+func (sri *impl) Gist() Essence { return sri.gist }
 
 // Web Интерфейс веб сервера.
-func (sio *impl[T]) Web() kitTypesServer.IServer[kitTypesServer.Web] { return sio.sWeb }
+func (sri *impl) Web() InterfaceWeb { return sri.serverWeb }
 
 // Grpc Интерфейс GRPC сервера.
-func (sio *impl[T]) Grpc() kitTypesServer.IServer[kitTypesServer.Grpc] { return sio.sGrpc }
+//func (sri *impl) Grpc() InterfaceGrpc { return sri.serverGrpc }
 
-// Tcp Интерфейс TCP/IP сервера.
-func (sio *impl[T]) Tcp() kitTypesServer.IServer[kitTypesServer.Tcp] { return sio.sTcp }
+// Tcp Интерфейс TCP сервера.
+//func (sri *impl) Tcp() InterfaceTcp { return sri.serverTcp }
 
 // Udp Интерфейс UDP сервера.
-func (sio *impl[T]) Udp() kitTypesServer.IServer[kitTypesServer.Udp] { return sio.sUdp }
+//func (sri *impl) Udp() InterfaceUdp { return sri.serverUdp }
 
 // Start Запуск всех зарегистрированных серверов.
-// Если не зарегистрирован ни один сервер, функция возвращает ошибку.
-func (sio *impl[T]) Start() (err error) {
-	// Сервер GRPC соединений.
-	if err = sio.sGrpc.
-		Start(); err != nil {
+func (sri *impl) Start() (err error) {
+	var (
+		serverAdded    uint64
+		serverLaunched uint64
+		n              int
+	)
+
+	// Подготовка зарегистрированных ресурсов веб сервера.
+	if err = sri.serverWeb.
+		Prepare(); err != nil {
+		err = fmt.Errorf("подготовка ресурсов сервера прервана ошибкой: %s", err)
 		return
 	}
-	// Сервер ВЕБ или REST соединений.
-	if err = sio.sWeb.
-		Start(); err != nil {
-		return
+	// Подготовка зарегистрированных ресурсов GRPC сервера(ов).
+	//if err = sri.serverGrpc.
+	//	Prepare(); err != nil {
+	//	err = fmt.Errorf("подготовка ресурсов сервера прервана ошибкой: %s", err)
+	//	return
+	//}
+	// Подготовка зарегистрированных ресурсов TCP сервера(ов).
+	//if err = sri.serverTcp.
+	//	Prepare(); err != nil {
+	//	err = fmt.Errorf("подготовка ресурсов сервера прервана ошибкой: %s", err)
+	//	return
+	//}
+	// Подготовка зарегистрированных ресурсов UDP сервера(ов).
+	//if err = sri.serverUdp.
+	//	Prepare(); err != nil {
+	//	err = fmt.Errorf("подготовка ресурсов сервера прервана ошибкой: %s", err)
+	//	return
+	//}
+	// Запуск всех зарегистрированных серверов.
+	serverAdded = uint64(len(sri.server))
+	for n = range sri.server {
+		switch sri.server[n].T {
+		case kitTypesServer.TWeb:
+			err = sri.serverWeb.
+				Start(sri.server[n].Web.Server.ID)
+		}
+		switch err {
+		case nil:
+			serverLaunched++
+		default:
+			sri.log().
+				Criticalf("запуск %q сервера прерван ошибкой: %s", sri.server[n].T.String(), err)
+			err = nil
+		}
 	}
-	// Сервер TCP/IP соединений.
-	if err = sio.sTcp.
-		Start(); err != nil {
-		return
-	}
-	// Сервер UDP соединений.
-	if err = sio.sUdp.
-		Start(); err != nil {
+	// Количество запущенных серверов не равно количеству добавленных серверов.
+	if serverAdded != serverLaunched {
+		err = sri.Errors().ServersAddedNotEqualLaunched(serverAdded, serverLaunched)
 		return
 	}
 
@@ -73,23 +98,21 @@ func (sio *impl[T]) Start() (err error) {
 }
 
 // Stop Остановка всех зарегистрированных серверов.
-// Если не зарегистрирован ни один сервер, функция возвращает ошибку.
-func (sio *impl[T]) Stop() (err error) {
-	if err = sio.sUdp.
-		Stop(); err != nil {
-		return
-	}
-	if err = sio.sTcp.
-		Stop(); err != nil {
-		return
-	}
-	if err = sio.sWeb.
-		Stop(); err != nil {
-		return
-	}
-	if err = sio.sGrpc.
-		Stop(); err != nil {
-		return
+func (sri *impl) Stop() (err error) {
+	var n int
+
+	// Остановка всех зарегистрированных серверов.
+	for n = range sri.server {
+		switch sri.server[n].T {
+		case kitTypesServer.TWeb:
+			err = sri.serverWeb.
+				Stop(sri.server[n].Web.Server.ID)
+		}
+		if err != nil {
+			sri.log().
+				Warningf("остановка %q сервера завершилась ошибкой: %s", sri.server[n].T.String(), err)
+			err = nil
+		}
 	}
 
 	return
