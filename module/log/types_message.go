@@ -13,8 +13,8 @@ type Message struct {
 	Timestamp time.Time               `json:"timestamp"`          // Время записи.
 	Level     kitModuleLogLevel.Level `json:"level"`              // Уровень логирования сообщения.
 	Pattern   *bytes.Buffer           `json:"pattern,omitempty"`  // Шаблон сообщения.
-	Argument  []interface{}           `json:"argument,omitempty"` // Аргументы сообщения.
-	Keys      map[string]interface{}  `json:"keys,omitempty"`     // Ключи сообщения.
+	Argument  []any                   `json:"argument,omitempty"` // Аргументы сообщения.
+	Keys      map[string]any          `json:"keys,omitempty"`     // Ключи сообщения.
 	Trace     *kitTypes.TraceInfo     `json:"trace"`              // Информация о вызове и стеке.
 	Fatality  bool                    `json:"fatality"`           // Флаг фатальности.
 	Done      chan struct{}           `json:"-"`                  // Канал ожидания завершения. После получения сигнала, объект вернётся в бассейн.

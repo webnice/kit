@@ -71,60 +71,60 @@ func (rer *recorder) Fatality(fy bool) kitTypes.Logger {
 }
 
 // Fatal Уровень 0: уровень предсмертных сообщений - система не стабильна, продолжение работы невозможно.
-func (rer *recorder) Fatal(ag ...interface{}) { newRec(rer).Fatal(ag...) }
+func (rer *recorder) Fatal(ag ...any) { newRec(rer).Fatal(ag...) }
 
 // Fatalf Уровень 0: уровень предсмертных сообщений - система не стабильна, продолжение работы невозможно.
-func (rer *recorder) Fatalf(pt string, ag ...interface{}) { newRec(rer).Fatalf(pt, ag...) }
+func (rer *recorder) Fatalf(pt string, ag ...any) { newRec(rer).Fatalf(pt, ag...) }
 
 // Alert Уровень 1: уровень сообщений тревоги - система нестабильна, но может частично продолжить работу.
-func (rer *recorder) Alert(ag ...interface{}) { newRec(rer).Alert(ag...) }
+func (rer *recorder) Alert(ag ...any) { newRec(rer).Alert(ag...) }
 
 // Alertf Уровень 1: уровень сообщений тревоги - система нестабильна, но может частично продолжить работу.
-func (rer *recorder) Alertf(pt string, ag ...interface{}) { newRec(rer).Alertf(pt, ag...) }
+func (rer *recorder) Alertf(pt string, ag ...any) { newRec(rer).Alertf(pt, ag...) }
 
 // Critical Уровень 2: уровень критических ошибок - часть функционала системы работает не корректно.
-func (rer *recorder) Critical(ag ...interface{}) { newRec(rer).Critical(ag...) }
+func (rer *recorder) Critical(ag ...any) { newRec(rer).Critical(ag...) }
 
 // Criticalf Уровень 2: уровень критических ошибок - часть функционала системы работает не корректно.
-func (rer *recorder) Criticalf(pt string, ag ...interface{}) { newRec(rer).Criticalf(pt, ag...) }
+func (rer *recorder) Criticalf(pt string, ag ...any) { newRec(rer).Criticalf(pt, ag...) }
 
 // Error Уровень 3: уровень не критических ошибок - ошибки не прерывающие работу приложения.
-func (rer *recorder) Error(ag ...interface{}) { newRec(rer).Error(ag...) }
+func (rer *recorder) Error(ag ...any) { newRec(rer).Error(ag...) }
 
 // Errorf Уровень 3: уровень не критических ошибок - ошибки не прерывающие работу приложения.
-func (rer *recorder) Errorf(pt string, ag ...interface{}) { newRec(rer).Errorf(pt, ag...) }
+func (rer *recorder) Errorf(pt string, ag ...any) { newRec(rer).Errorf(pt, ag...) }
 
 // Warning Уровень 4: уровень сообщений с предупреждениями.
-func (rer *recorder) Warning(ag ...interface{}) { newRec(rer).Warning(ag...) }
+func (rer *recorder) Warning(ag ...any) { newRec(rer).Warning(ag...) }
 
 // Warningf Уровень 4: уровень сообщений с предупреждениями.
-func (rer *recorder) Warningf(pt string, ag ...interface{}) { newRec(rer).Warningf(pt, ag...) }
+func (rer *recorder) Warningf(pt string, ag ...any) { newRec(rer).Warningf(pt, ag...) }
 
 // Notice Уровень 5: уровень штатных информационных сообщений, требующих повышенного внимания.
-func (rer *recorder) Notice(ag ...interface{}) { newRec(rer).Notice(ag...) }
+func (rer *recorder) Notice(ag ...any) { newRec(rer).Notice(ag...) }
 
 // Noticef Уровень 5: уровень штатных информационных сообщений, требующих повышенного внимания.
-func (rer *recorder) Noticef(pt string, ag ...interface{}) { newRec(rer).Noticef(pt, ag...) }
+func (rer *recorder) Noticef(pt string, ag ...any) { newRec(rer).Noticef(pt, ag...) }
 
 // Info Уровень 6: сообщения информационного характера описывающие шаги выполнения алгоритмов приложения.
-func (rer *recorder) Info(ag ...interface{}) { newRec(rer).Info(ag...) }
+func (rer *recorder) Info(ag ...any) { newRec(rer).Info(ag...) }
 
 // Infof Уровень 6: сообщения информационного характера описывающие шаги выполнения алгоритмов приложения.
-func (rer *recorder) Infof(pt string, ag ...interface{}) { newRec(rer).Infof(pt, ag...) }
+func (rer *recorder) Infof(pt string, ag ...any) { newRec(rer).Infof(pt, ag...) }
 
 // Debug Уровень 7: уровень отладочных сообщений.
-func (rer *recorder) Debug(ag ...interface{}) { newRec(rer).Debug(ag...) }
+func (rer *recorder) Debug(ag ...any) { newRec(rer).Debug(ag...) }
 
 // Debugf Уровень 7: уровень отладочных сообщений.
-func (rer *recorder) Debugf(pt string, ag ...interface{}) { newRec(rer).Debugf(pt, ag...) }
+func (rer *recorder) Debugf(pt string, ag ...any) { newRec(rer).Debugf(pt, ag...) }
 
 // Trace Уровень 8: уровень максимально подробной трассировки.
-func (rer *recorder) Trace(ag ...interface{}) { newRec(rer).Trace(ag...) }
+func (rer *recorder) Trace(ag ...any) { newRec(rer).Trace(ag...) }
 
 // Tracef Уровень 8: уровень максимально подробной трассировки.
-func (rer *recorder) Tracef(pt string, ag ...interface{}) { newRec(rer).Tracef(pt, ag...) }
+func (rer *recorder) Tracef(pt string, ag ...any) { newRec(rer).Tracef(pt, ag...) }
 
 // MessageWithLevel Отправка сообщения в лог с указанием уровня логирования.
-func (rer *recorder) MessageWithLevel(lv kitModuleLogLevel.Level, pt string, ag ...interface{}) {
+func (rer *recorder) MessageWithLevel(lv kitModuleLogLevel.Level, pt string, ag ...any) {
 	newRec(rer).MessageWithLevel(lv, pt, ag...)
 }

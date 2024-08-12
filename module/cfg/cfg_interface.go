@@ -129,22 +129,22 @@ type Interface interface {
 
 	// ConfigurationByType Возвращает объект конфигурации соответствующий указанному типу объекта.
 	// Если объект конфигурации с указанным типом не регистрировался, будет возвращена ошибка.
-	ConfigurationByType(t reflect.Type) (ret interface{}, err error)
+	ConfigurationByType(t reflect.Type) (ret any, err error)
 
 	// ConfigurationByTypeName Возвращает объект конфигурации соответствующий указанному названию типа объекта.
 	// Если объект конфигурации с указанным типом не регистрировался, будет возвращена ошибка.
-	ConfigurationByTypeName(typeName string) (ret interface{}, err error)
+	ConfigurationByTypeName(typeName string) (ret any, err error)
 
 	// ConfigurationByObject Возвращает объект конфигурации соответствующий типу переданного объекта, сам переданный
 	// объект никак не изменяется, он служит только для определения типа данных.
 	// Если объект конфигурации с указанным типом не регистрировался, будет возвращена ошибка.
-	ConfigurationByObject(o interface{}) (ret interface{}, err error)
+	ConfigurationByObject(o any) (ret any, err error)
 
 	// ConfigurationCopyByObject Если существует конфигурация с типом данных идентичным переданному объекту,
 	// тогда данные конфигурации копируются в переданный объект.
 	// Если объект конфигурации с указанным типом не регистрировался, будет возвращена ошибка.
 	// Объект должен передаваться по адресу, иначе его заполнение не возможно и будет возвращена ошибка.
-	ConfigurationCopyByObject(o interface{}) (err error)
+	ConfigurationCopyByObject(o any) (err error)
 
 	// ОШИБКИ
 

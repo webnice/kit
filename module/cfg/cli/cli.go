@@ -64,7 +64,7 @@ func (cli *impl) Bootstrap(b *kitTypes.BootstrapDefaultValue) (err error) {
 func (cli *impl) newKong(bs *kitTypes.BootstrapConfiguration) (err error) {
 	var (
 		option []kitModuleCfgCliKong.Option
-		e      interface{}
+		e      any
 	)
 
 	defer func() {

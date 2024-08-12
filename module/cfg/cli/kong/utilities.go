@@ -5,7 +5,7 @@ import (
 	"regexp"
 )
 
-func valueOrDefaultValue(value interface{}, defaultValue interface{}) interface{} {
+func valueOrDefaultValue(value any, defaultValue any) any {
 	switch value.(type) {
 	case string:
 		if value == "" {
@@ -24,7 +24,7 @@ func valueOrDefaultValue(value interface{}, defaultValue interface{}) interface{
 	return value
 }
 
-func oneSpace(template string, args ...interface{}) (ret string) {
+func oneSpace(template string, args ...any) (ret string) {
 	var (
 		rex *regexp.Regexp
 	)

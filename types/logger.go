@@ -26,64 +26,64 @@ type Logger interface {
 	// Универсальна функция логирования.
 
 	// MessageWithLevel Отправка сообщения в лог с указанием уровня логирования.
-	MessageWithLevel(level kitModuleLogLevel.Level, pattern string, args ...interface{})
+	MessageWithLevel(level kitModuleLogLevel.Level, pattern string, args ...any)
 
 	// Конечные функции
 
 	// Fatal Уровень 0: уровень предсмертных сообщений - система не стабильна, продолжение работы невозможно.
-	Fatal(args ...interface{})
+	Fatal(args ...any)
 
 	// Fatalf Уровень 0: уровень предсмертных сообщений - система не стабильна, продолжение работы невозможно.
-	Fatalf(pattern string, args ...interface{})
+	Fatalf(pattern string, args ...any)
 
 	// Alert Уровень 1: уровень сообщений тревоги - система нестабильна, но может частично продолжить работу.
-	Alert(args ...interface{})
+	Alert(args ...any)
 
 	// Alertf Уровень 1: уровень сообщений тревоги - система нестабильна, но может частично продолжить работу.
-	Alertf(pattern string, args ...interface{})
+	Alertf(pattern string, args ...any)
 
 	// Critical Уровень 2: уровень критических ошибок - часть функционала системы работает не корректно.
-	Critical(args ...interface{})
+	Critical(args ...any)
 
 	// Criticalf Уровень 2: уровень критических ошибок - часть функционала системы работает не корректно.
-	Criticalf(pattern string, args ...interface{})
+	Criticalf(pattern string, args ...any)
 
 	// Error Уровень 3: уровень не критических ошибок - ошибки не прерывающие работу приложения.
-	Error(args ...interface{})
+	Error(args ...any)
 
 	// Errorf Уровень 3: уровень не критических ошибок - ошибки не прерывающие работу приложения.
-	Errorf(pattern string, args ...interface{})
+	Errorf(pattern string, args ...any)
 
 	// Warning Уровень 4: уровень сообщений с предупреждениями.
-	Warning(args ...interface{})
+	Warning(args ...any)
 
 	// Warningf Уровень 4: уровень сообщений с предупреждениями.
-	Warningf(pattern string, args ...interface{})
+	Warningf(pattern string, args ...any)
 
 	// Notice Уровень 5: уровень штатных информационных сообщений, требующих повышенного внимания.
-	Notice(args ...interface{})
+	Notice(args ...any)
 
 	// Noticef Уровень 5: уровень штатных информационных сообщений, требующих повышенного внимания.
-	Noticef(pattern string, args ...interface{})
+	Noticef(pattern string, args ...any)
 
 	// Info Уровень 6: сообщения информационного характера описывающие шаги выполнения алгоритмов приложения.
-	Info(args ...interface{})
+	Info(args ...any)
 
 	// Infof Уровень 6: сообщения информационного характера описывающие шаги выполнения алгоритмов приложения.
-	Infof(pattern string, args ...interface{})
+	Infof(pattern string, args ...any)
 
 	// Debug Уровень 7: уровень отладочных сообщений.
-	Debug(args ...interface{})
+	Debug(args ...any)
 
 	// Debugf Уровень 7: уровень отладочных сообщений.
-	Debugf(pattern string, args ...interface{})
+	Debugf(pattern string, args ...any)
 
 	// Trace Уровень 8: уровень максимально подробной трассировки.
-	Trace(args ...interface{})
+	Trace(args ...any)
 
 	// Tracef Уровень 8: уровень максимально подробной трассировки.
-	Tracef(pattern string, args ...interface{})
+	Tracef(pattern string, args ...any)
 }
 
 // LoggerKey Ключи логирования.
-type LoggerKey map[string]interface{}
+type LoggerKey map[string]any

@@ -14,7 +14,7 @@ const (
 	eApplicationPanicException uint8 = 255 // 255 - приложение завершилось из-за прерывания по исключению - panic.
 	eApplicationUnknownError   uint8 = 254 // 254 - неожиданная ошибка приложения.
 	eApplicationHelpDisplayed  uint8 = 253 // 253 - приложение завершилось корректно с отображением помощи по CLI.
-	eApplicationfatality       uint8 = 252 // 252 - приложение завершилось из-за печати в лог сообщения с уровнем Fatal.
+	//eApplicationfatality       uint8 = 252 // 252 - приложение завершилось из-за печати в лог сообщения с уровнем Fatal.
 )
 
 // Обычные ошибки
@@ -91,73 +91,73 @@ const (
 
 // Текстовые значения кодов ошибок на основном языке приложения.
 const (
-	cApplicationPanicException                 = `Выполнение приложения прервано паникой:` + "\n%v\n%s."
+	cApplicationPanicException                 = "Выполнение приложения прервано паникой:\n%v\n%s."
 	cApplicationUnknownError                   = "%s"
 	cApplicationHelpDisplayed                  = "%s"
-	cApplicationVersion                        = `Версии приложения содержит ошибку: ` + "%s."
-	cApplicationMainFuncNotFound               = `Не определена основная функция приложения.`
-	cApplicationMainFuncAlreadyRegistered      = `Основная функция приложения уже зарегистрирована.`
-	cApplicationRegistrationUnknownObject      = `Регистрация не известного компонента, объекта или модуля: ` + "%q."
-	cComponentIsNull                           = `В качестве объекта компоненты передан nil.`
-	cComponentRegistrationProhibited           = `Регистрация компонентов запрещена. Компонента %q не зарегистрирована.`
-	cComponentRegistrationError                = `Регистрация компоненты %q завершилась ошибкой: %s.`
-	cComponentPreferencesCallBeforeCompleting  = `Опрос настроек компонентов вызван до завершения регистрации компонентов.`
-	cComponentPanicException                   = `Выполнение компоненты ` + "%q" + ` прервано паникой:` + "\n%v\n%s."
-	cComponentRunlevelError                    = `Уровень запуска (runlevel), для компоненты %q указан %d, необходимо указать уровень равный 0, либо в интервале от 10 до 65534 включительно.`
-	cComponentRulesError                       = `Правила %q для компоненты %q содержат ошибку: ` + "%s."
-	cRunlevelCantLessCurrentLevel              = `Новый уровень работы приложения (%d) не может быть меньше текущего уровня работы приложения (%d).`
-	cInitLogging                               = `Критическая ошибка в модуле менеджера логирования: ` + "%s."
-	cComponentConflict                         = `Компонента ` + "%q" + ` конфликтует с компонентой ` + "%q."
-	cComponentRequires                         = `Компонента ` + "%q" + ` имеет не удовлетворённую зависимость ` + "%q."
-	cComponentInitiateTimeout                  = `Превышено время ожидание выполнения функции Initiate() компоненты ` + "%q."
-	cComponentInitiateExecution                = `Выполнение функции Initiate() компоненты ` + "%q" + ` завершено с ошибкой: ` + "%s."
-	cComponentInitiatePanicException           = `Выполнение функции Initiate() компоненты ` + "%q" + ` прервано паникой:` + "\n%v\n%s."
-	cComponentDoExecution                      = `Выполнение функции Do() компоненты ` + "%q" + ` завершено с ошибкой: ` + "%s."
-	cComponentDoPanicException                 = `Выполнение функции Do() компоненты ` + "%q" + ` прервано паникой:` + "\n%v\n%s."
-	cComponentDoUnknownError                   = `Выполнение функций Do() завершилось ошибкой: ` + "%s."
-	cComponentFinalizeExecution                = `Выполнение функции Finalize() компоненты ` + "%q" + ` завершено с ошибкой: ` + "%s."
-	cComponentFinalizePanicException           = `Выполнение функции Finalize() компоненты ` + "%q" + ` прервано паникой:` + "\n%v\n%s."
-	cComponentFinalizeUnknownError             = `Выполнение функций Finalize() завершилось ошибкой: ` + "%s."
-	cComponentFinalizeWarning                  = `Выполнение функций Finalize() компоненты ` + "%q" + `, длится дольше отведённого времени (` + "%s" + `).`
-	cRunlevelSubscribeUnsubscribeNilFunction   = `Передана nil функция, подписка или отписка nil функции не возможна.`
-	cRunlevelAlreadySubscribedFunction         = `Функция ` + "%q" + ` уже подписана на получение событий изменения уровня работы приложения.`
-	cRunlevelSubscriptionNotFound              = `Не найдена подписка функции ` + "%q" + ` на события изменения уровня работы приложения.`
-	cRunlevelSubscriptionPanicException        = `Вызов функции подписчика на событие изменения уровня работы приложения, прервано паникой:` + "\n%v\n%s."
-	cCommandLineArgumentRequired               = `Требуется указать обязательную команду, аргумент или флаг командной строки: ` + "%s."
-	cCommandLineArgumentUnknown                = `Неизвестная команда, аргумент или флаг командной строки: ` + "%s."
-	cCommandLineArgumentNotCorrect             = `Не верное значение или тип аргумента, флага или параметра: ` + "%s."
-	cCommandLineRequiredFlag                   = `Не указан один или несколько обязательных флагов: ` + "%s."
-	cCommandLineUnexpectedError                = `Не предвиденная ошибка библиотеки командного интерфейса приложения: ` + "%s; %s."
-	cConfigurationBootstrap                    = `Ошибка начально bootstrap конфигурации приложения: ` + "%s."
-	cGetCurrentUser                            = `Не удалось загрузить данные о текущем пользователе операционной системы: ` + "%s."
-	cCantChangeWorkDirectory                   = `Не удалось сменить рабочую директорию приложения: ` + "%s."
-	cPidExistsAnotherProcessOfApplication      = `Существует один или несколько работающих процессов приложения, измените PID файл или остановите экземпляры приложения, PID: ` + "%s."
-	cPidFileError                              = `Ошибка работы с PID файлом %q: ` + "%s."
-	cDatabusRecursivePointer                   = `Не возможно определить тип рекурсивного указателя: ` + "%q."
-	cDatabusPanicException                     = `Работа с подпиской потребителя, в шине данных, прервана паникой:` + "\n%v\n%s."
-	cDatabusSubscribeNotFound                  = `Потребитель данных %q не был подписан на шину данных.`
-	cDatabusInternalError                      = `Внутренняя ошибка шины данных: ` + "%s."
-	cDatabusNotSubscribersForType              = `Отсутствуют потребители данных для типа данных: ` + "%q."
-	cDatabusObjectIsNil                        = `Передан nil объект.`
-	cConfigurationApplicationProhibited        = `Регистрация объектов конфигурации на текущем уровне работы приложения запрещена. Конфигурация %q не зарегистрирована.`
-	cConfigurationApplicationObject            = `Объект конфигурации приложения содержит ошибку: ` + "%s."
-	cConfigurationApplicationPanic             = `Непредвиденная ошибка при регистрации объекта конфигурации.` + "\nПаника: %v.\n%s"
-	cConfigurationFileNotFound                 = `Указанного файла конфигурации ` + "%q" + ` не существует: ` + "%s."
-	cConfigurationPermissionDenied             = `Отсутствует доступ к файлу конфигурации, ошибка: ` + "%s."
-	cConfigurationUnexpectedMistakeFileAccess  = `Неожиданная ошибка доступа к файлу конфигурации ` + "%q: %s."
-	cConfigurationFileIsDirectory              = `В качестве файла конфигурации указана директория: ` + "%s."
-	cConfigurationFileReadingError             = `Чтение фала конфигурации ` + "%q" + ` прервано ошибкой: ` + "%s."
-	cConfigurationSetDefault                   = `Установка значений по умолчанию, для переменных конфигурации, прервана ошибкой: ` + "%s."
-	cConfigurationSetDefaultValue              = `Установка значения по умолчанию %q, для переменной конфигурации %q, прервана ошибкой: ` + "%s."
-	cConfigurationSetDefaultPanic              = `Непредвиденная ошибка, при установке значений по умолчанию, объекта конфигурации.` + "\nПаника: %v.\n%s"
-	cConfigurationObjectNotFound               = `Объект конфигурации с типом %q не найден.`
-	cConfigurationObjectIsNotStructure         = `Переданный объект %q не является структурой.`
-	cConfigurationObjectIsNil                  = `Переданный объект, является nil объектом.`
-	cConfigurationObjectIsNotValid             = `Объект конфигурации с типом %q не инициализирован.`
-	cConfigurationObjectIsNotAddress           = `Объект конфигурации с типом %q передан не корректно. Необходимо передать адрес объекта.`
-	cConfigurationObjectCopy                   = `Копирование объекта конфигурации с типом %q прервано ошибкой: ` + "%s."
-	cConfigurationCallbackAlreadyRegistered    = `Подписка функции обратного вызова на изменение конфигурации с типом %q для функции %q уже существует.`
-	cConfigurationCallbackSubscriptionNotFound = `Подписка функции обратного вызова на изменение конфигурации с типом %q для функции %q не существует.`
+	cApplicationVersion                        = "Версии приложения содержит ошибку: %s."
+	cApplicationMainFuncNotFound               = "Не определена основная функция приложения."
+	cApplicationMainFuncAlreadyRegistered      = "Основная функция приложения уже зарегистрирована."
+	cApplicationRegistrationUnknownObject      = "Регистрация не известного компонента, объекта или модуля: %q."
+	cComponentIsNull                           = "В качестве объекта компоненты передан nil."
+	cComponentRegistrationProhibited           = "Регистрация компонентов запрещена. Компонента %q не зарегистрирована."
+	cComponentRegistrationError                = "Регистрация компоненты %q завершилась ошибкой: %s."
+	cComponentPreferencesCallBeforeCompleting  = "Опрос настроек компонентов вызван до завершения регистрации компонентов."
+	cComponentPanicException                   = "Выполнение компоненты %q прервано паникой:\n%v\n%s."
+	cComponentRunlevelError                    = "Уровень запуска (runlevel), для компоненты %q указан %d, необходимо указать уровень равный 0, либо в интервале от 10 до 65534 включительно."
+	cComponentRulesError                       = "Правила %q для компоненты %q содержат ошибку: %s."
+	cRunlevelCantLessCurrentLevel              = "Новый уровень работы приложения (%d) не может быть меньше текущего уровня работы приложения (%d)."
+	cInitLogging                               = "Критическая ошибка в модуле менеджера логирования: %s."
+	cComponentConflict                         = "Компонента %q конфликтует с компонентой %q."
+	cComponentRequires                         = "Компонента %q имеет не удовлетворённую зависимость %q."
+	cComponentInitiateTimeout                  = "Превышено время ожидание выполнения функции Initiate() компоненты %q."
+	cComponentInitiateExecution                = "Выполнение функции Initiate() компоненты %q завершено с ошибкой: %s."
+	cComponentInitiatePanicException           = "Выполнение функции Initiate() компоненты %q прервано паникой:\n%v\n%s."
+	cComponentDoExecution                      = "Выполнение функции Do() компоненты %q завершено с ошибкой: %s."
+	cComponentDoPanicException                 = "Выполнение функции Do() компоненты %q прервано паникой:\n%v\n%s."
+	cComponentDoUnknownError                   = "Выполнение функций Do() завершилось ошибкой: %s."
+	cComponentFinalizeExecution                = "Выполнение функции Finalize() компоненты %q завершено с ошибкой: %s."
+	cComponentFinalizePanicException           = "Выполнение функции Finalize() компоненты %q прервано паникой:\n%v\n%s."
+	cComponentFinalizeUnknownError             = "Выполнение функций Finalize() завершилось ошибкой: %s."
+	cComponentFinalizeWarning                  = "Выполнение функций Finalize() компоненты %q, длится дольше отведённого времени (%s)."
+	cRunlevelSubscribeUnsubscribeNilFunction   = "Передана nil функция, подписка или отписка nil функции не возможна."
+	cRunlevelAlreadySubscribedFunction         = "Функция %q уже подписана на получение событий изменения уровня работы приложения."
+	cRunlevelSubscriptionNotFound              = "Не найдена подписка функции %q на события изменения уровня работы приложения."
+	cRunlevelSubscriptionPanicException        = "Вызов функции подписчика на событие изменения уровня работы приложения, прервано паникой:\n%v\n%s."
+	cCommandLineArgumentRequired               = "Требуется указать обязательную команду, аргумент или флаг командной строки: %s."
+	cCommandLineArgumentUnknown                = "Неизвестная команда, аргумент или флаг командной строки: %s."
+	cCommandLineArgumentNotCorrect             = "Не верное значение или тип аргумента, флага или параметра: %s."
+	cCommandLineRequiredFlag                   = "Не указан один или несколько обязательных флагов: %s."
+	cCommandLineUnexpectedError                = "Не предвиденная ошибка библиотеки командного интерфейса приложения: %s; %s."
+	cConfigurationBootstrap                    = "Ошибка начально bootstrap конфигурации приложения: %s."
+	cGetCurrentUser                            = "Не удалось загрузить данные о текущем пользователе операционной системы: %s."
+	cCantChangeWorkDirectory                   = "Не удалось сменить рабочую директорию приложения: %s."
+	cPidExistsAnotherProcessOfApplication      = "Существует один или несколько работающих процессов приложения, измените PID файл или остановите экземпляры приложения, PID: %s."
+	cPidFileError                              = "Ошибка работы с PID файлом %q: %s."
+	cDatabusRecursivePointer                   = "Не возможно определить тип рекурсивного указателя: %q."
+	cDatabusPanicException                     = "Работа с подпиской потребителя, в шине данных, прервана паникой:\n%v\n%s."
+	cDatabusSubscribeNotFound                  = "Потребитель данных %q не был подписан на шину данных."
+	cDatabusInternalError                      = "Внутренняя ошибка шины данных: %s."
+	cDatabusNotSubscribersForType              = "Отсутствуют потребители данных для типа данных: %q."
+	cDatabusObjectIsNil                        = "Передан nil объект."
+	cConfigurationApplicationProhibited        = "Регистрация объектов конфигурации на текущем уровне работы приложения запрещена. Конфигурация %q не зарегистрирована."
+	cConfigurationApplicationObject            = "Объект конфигурации приложения содержит ошибку: %s."
+	cConfigurationApplicationPanic             = "Непредвиденная ошибка при регистрации объекта конфигурации.\nПаника: %v.\n%s"
+	cConfigurationFileNotFound                 = "Указанного файла конфигурации %q не существует: %s."
+	cConfigurationPermissionDenied             = "Отсутствует доступ к файлу конфигурации, ошибка: %s."
+	cConfigurationUnexpectedMistakeFileAccess  = "Неожиданная ошибка доступа к файлу конфигурации %q: %s."
+	cConfigurationFileIsDirectory              = "В качестве файла конфигурации указана директория: %s."
+	cConfigurationFileReadingError             = "Чтение фала конфигурации %q прервано ошибкой: %s."
+	cConfigurationSetDefault                   = "Установка значений по умолчанию, для переменных конфигурации, прервана ошибкой: %s."
+	cConfigurationSetDefaultValue              = "Установка значения по умолчанию %q, для переменной конфигурации %q, прервана ошибкой: %s."
+	cConfigurationSetDefaultPanic              = "Непредвиденная ошибка, при установке значений по умолчанию, объекта конфигурации.\nПаника: %v.\n%s"
+	cConfigurationObjectNotFound               = "Объект конфигурации с типом %q не найден."
+	cConfigurationObjectIsNotStructure         = "Переданный объект %q не является структурой."
+	cConfigurationObjectIsNil                  = "Переданный объект, является nil объектом."
+	cConfigurationObjectIsNotValid             = "Объект конфигурации с типом %q не инициализирован."
+	cConfigurationObjectIsNotAddress           = "Объект конфигурации с типом %q передан не корректно. Необходимо передать адрес объекта."
+	cConfigurationObjectCopy                   = "Копирование объекта конфигурации с типом %q прервано ошибкой: %s."
+	cConfigurationCallbackAlreadyRegistered    = "Подписка функции обратного вызова на изменение конфигурации с типом %q для функции %q уже существует."
+	cConfigurationCallbackSubscriptionNotFound = "Подписка функции обратного вызова на изменение конфигурации с типом %q для функции %q не существует."
 )
 
 // Константы указаны в объектах, адрес которых фиксирован всё время работы приложения.
@@ -236,7 +236,7 @@ var (
 // ERRORS: Реализация ошибок с возможностью сравнения ошибок между собой.
 
 // ApplicationPanicException Выполнение приложения прервано паникой: ...
-func (e *Error) ApplicationPanicException(code uint8, err interface{}, stack []byte) Err {
+func (e *Error) ApplicationPanicException(code uint8, err any, stack []byte) Err {
 	return newErr(&errApplicationPanicException, code, err, string(stack))
 }
 
@@ -251,7 +251,7 @@ func (e *Error) ApplicationHelpDisplayed(code uint8, help *bytes.Buffer) Err {
 }
 
 // ApplicationVersion Версии приложения содержит ошибку: ...
-func (e *Error) ApplicationVersion(code uint8, arg ...interface{}) Err {
+func (e *Error) ApplicationVersion(code uint8, arg ...any) Err {
 	return newErr(&errApplicationVersion, code, arg...)
 }
 
@@ -289,7 +289,7 @@ func (e *Error) ComponentPreferencesCallBeforeCompleting(code uint8) Err {
 }
 
 // ComponentPanicException Выполнение компоненты ... прервано паникой: ...
-func (e *Error) ComponentPanicException(code uint8, componentName string, err interface{}, stack []byte) Err {
+func (e *Error) ComponentPanicException(code uint8, componentName string, err any, stack []byte) Err {
 	return newErr(&errComponentPanicException, code, componentName, err, string(stack))
 }
 
@@ -334,7 +334,7 @@ func (e *Error) ComponentInitiateExecution(code uint8, nameComponent string, err
 }
 
 // ComponentInitiatePanicException Выполнение функции Initiate() компоненты ... прервано паникой: ...
-func (e *Error) ComponentInitiatePanicException(code uint8, nameComponent string, err interface{}, stack []byte) Err {
+func (e *Error) ComponentInitiatePanicException(code uint8, nameComponent string, err any, stack []byte) Err {
 	return newErr(&errComponentInitiatePanicException, code, nameComponent, err, string(stack))
 }
 
@@ -344,7 +344,7 @@ func (e *Error) ComponentDoExecution(code uint8, nameComponent string, err error
 }
 
 // ComponentDoPanicException Выполнение функции Do() компоненты ... прервано паникой: ...
-func (e *Error) ComponentDoPanicException(code uint8, nameComponent string, err interface{}, stack []byte) Err {
+func (e *Error) ComponentDoPanicException(code uint8, nameComponent string, err any, stack []byte) Err {
 	return newErr(&errComponentDoPanicException, code, nameComponent, err, string(stack))
 }
 
@@ -359,7 +359,7 @@ func (e *Error) ComponentFinalizeExecution(code uint8, nameComponent string, err
 }
 
 // ComponentFinalizePanicException Выполнение функции Finalize() компоненты ... прервано паникой: ...
-func (e *Error) ComponentFinalizePanicException(code uint8, nameComponent string, err interface{}, stack []byte) Err {
+func (e *Error) ComponentFinalizePanicException(code uint8, nameComponent string, err any, stack []byte) Err {
 	return newErr(&errComponentFinalizePanicException, code, nameComponent, err, string(stack))
 }
 
@@ -390,7 +390,7 @@ func (e *Error) RunlevelSubscriptionNotFound(code uint8, nameFn string) Err {
 
 // RunlevelSubscriptionPanicException Вызов функции подписчика на событие изменения уровня работы приложения,
 // прервано паникой: ...
-func (e *Error) RunlevelSubscriptionPanicException(code uint8, err interface{}, stack []byte) Err {
+func (e *Error) RunlevelSubscriptionPanicException(code uint8, err any, stack []byte) Err {
 	return newErr(&errRunlevelSubscriptionPanicException, code, err, string(stack))
 }
 
@@ -462,7 +462,7 @@ func (e *Error) DatabusRecursivePointer(code uint8, pointer string) Err {
 }
 
 // DatabusPanicException Работа с подпиской потребителя, в шине данных, прервана паникой: ... ....
-func (e *Error) DatabusPanicException(code uint8, err interface{}, stack []byte) Err {
+func (e *Error) DatabusPanicException(code uint8, err any, stack []byte) Err {
 	return newErr(&errDatabusPanicException, code, err, string(stack))
 }
 
@@ -498,7 +498,7 @@ func (e *Error) ConfigurationApplicationObject(code uint8, err error) Err {
 }
 
 // ConfigurationApplicationPanic Непредвиденная ошибка при регистрации объекта конфигурации. Паника: ... ...
-func (e *Error) ConfigurationApplicationPanic(code uint8, err interface{}, stack []byte) Err {
+func (e *Error) ConfigurationApplicationPanic(code uint8, err any, stack []byte) Err {
 	return newErr(&errConfigurationApplicationPanic, code, err, string(stack))
 }
 
@@ -540,7 +540,7 @@ func (e *Error) ConfigurationSetDefaultValue(code uint8, value string, name stri
 
 // ConfigurationSetDefaultPanic Непредвиденная ошибка, при установке значений по умолчанию, объекта
 // конфигурации. Паника: ...
-func (e *Error) ConfigurationSetDefaultPanic(code uint8, err interface{}, stack []byte) Err {
+func (e *Error) ConfigurationSetDefaultPanic(code uint8, err any, stack []byte) Err {
 	return newErr(&errConfigurationSetDefaultPanic, code, err, string(stack))
 }
 

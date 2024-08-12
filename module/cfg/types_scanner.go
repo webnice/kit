@@ -35,7 +35,7 @@ func makeScanner(rv reflect.Value) (ret sql.Scanner) {
 }
 
 // Scan Интерфейс sql.Scanner
-func (s *scanner) Scan(src interface{}) (err error) {
+func (s *scanner) Scan(src any) (err error) {
 	var (
 		srcS     string
 		nrv      reflect.Value
@@ -124,7 +124,7 @@ func (s *scanner) Scan(src interface{}) (err error) {
 }
 
 // Представляет любой простой тип в виде строки, а так же типы, реализующие интерфейс encoding.TextMarshaler.
-func (s *scanner) itemToString(item interface{}) (ret string, err error) {
+func (s *scanner) itemToString(item any) (ret string, err error) {
 	var (
 		textMarshaler encoding.TextMarshaler
 		buf           []byte

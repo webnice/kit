@@ -82,7 +82,7 @@ func (ses *session) makeFunc() (ret template.FuncMap) {
 		key string
 	)
 
-	ret = make(map[string]interface{})
+	ret = make(map[string]any)
 	tdi = ses.tagData()
 	for key = range tdi {
 		ret[tdi[key].Name] = tdi[key].Func

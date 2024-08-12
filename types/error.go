@@ -18,7 +18,7 @@ type errorWithCode struct {
 }
 
 // NewErrorWithCode Создание объекта ошибки приложения и возврат интерфейса error
-func NewErrorWithCode(code uint8, format string, arg ...interface{}) error {
+func NewErrorWithCode(code uint8, format string, arg ...any) error {
 	return &errorWithCode{code, fmt.Sprintf(format, arg...)}
 }
 

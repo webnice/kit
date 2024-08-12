@@ -83,7 +83,7 @@ func AbsolutePath(pth string) (ret string) {
 }
 
 // Получение полного названия функции.
-func getFuncFullName(obj interface{}) (ret string) {
+func getFuncFullName(obj any) (ret string) {
 	var (
 		rv   reflect.Value
 		rt   reflect.Type

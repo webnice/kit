@@ -23,7 +23,7 @@ func indirectType(rt reflect.Type) reflect.Type {
 	return rt
 }
 
-func reflectObject(c interface{}) (crv reflect.Value, crt reflect.Type, err error) {
+func reflectObject(c any) (crv reflect.Value, crt reflect.Type, err error) {
 	defer func() {
 		if e := recover(); e != nil {
 			err = Errors().ConfigurationApplicationPanic(0, e, runtimeDebug.Stack())
@@ -50,7 +50,7 @@ func reflectObject(c interface{}) (crv reflect.Value, crt reflect.Type, err erro
 	return
 }
 
-func reflectStructObject(c interface{}) (crv reflect.Value, crt reflect.Type, err error) {
+func reflectStructObject(c any) (crv reflect.Value, crt reflect.Type, err error) {
 	if crv, crt, err = reflectObject(c); err != nil {
 		return
 	}

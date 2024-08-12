@@ -6,7 +6,7 @@ import (
 )
 
 // DataPut Загрузка в объект данных, флага и контекста.
-func (wdo *data) DataPut(data interface{}, isSync bool, ctx context.Context) {
+func (wdo *data) DataPut(data any, isSync bool, ctx context.Context) {
 	wdo.data, wdo.sync = data, isSync
 	wdo.dataType = reflect.TypeOf(wdo.data)
 	if ctx != nil {
@@ -15,7 +15,7 @@ func (wdo *data) DataPut(data interface{}, isSync bool, ctx context.Context) {
 }
 
 // DataGet Возвращение оборачиваемых данных.
-func (wdo *data) DataGet() interface{} { return wdo.data }
+func (wdo *data) DataGet() any { return wdo.data }
 
 // Type Тип передаваемых потребителю данных.
 func (wdo *data) Type() reflect.Type { return wdo.dataType }
@@ -53,10 +53,10 @@ func (wdo *data) Reset() {
 }
 
 // DataPut Добавление данных с результатом.
-func (rsp *result) DataPut(d ...interface{}) { rsp.data = append(rsp.data, d...) }
+func (rsp *result) DataPut(d ...any) { rsp.data = append(rsp.data, d...) }
 
 // DataGet Возвращение данных с результатом.
-func (rsp *result) DataGet() []interface{} { return rsp.data }
+func (rsp *result) DataGet() []any { return rsp.data }
 
 // ErrPut Добавление ошибок в результат.
 func (rsp *result) ErrPut(e ...error) { rsp.errs = append(rsp.errs, e...) }

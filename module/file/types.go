@@ -8,7 +8,7 @@ import (
 
 // Interface is an interface
 type Interface interface {
-	// CleanEmptyFolder Удаление пустых папок.
+	// CleanEmptyFolder Удаление пустых директорий.
 	CleanEmptyFolder(folderPath string) (err error)
 
 	// Copy Копирует один файл в другой.

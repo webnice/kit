@@ -12,7 +12,7 @@ import (
 )
 
 // ComponentName Получение уникального имени пакета компоненты.
-func (essence *gist) ComponentName(obj interface{}) (ret string) {
+func (essence *gist) ComponentName(obj any) (ret string) {
 	var rt reflect.Type
 
 	if rt = reflect.TypeOf(obj); rt.Kind() == reflect.Ptr {

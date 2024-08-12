@@ -9,16 +9,16 @@ type (
 	// The internal structure of the error object with arguments, template, anchor and error interface
 	err struct {
 		tpl    string        // Template of error
-		args   []interface{} // Other error arguments
+		args   []any         // Other error arguments
 		anchor error         // Fixed address constant of error
 		errFn  func() string // Function of interface error
 	}
 
 	// Err an Error interface
 	Err interface {
-		Anchor() error       // Anchor by which you can compare two errors with each other
-		Error() string       // Error message or error message template
-		Args() []interface{} // Original arguments for error template
+		Anchor() error // Anchor by which you can compare two errors with each other
+		Error() string // Error message or error message template
+		Args() []any   // Original arguments for error template
 	}
 )
 
@@ -29,13 +29,13 @@ func (err err) Anchor() error { return err.anchor }
 func (err err) Error() string { return err.errFn() }
 
 // Args Implementation of interface Err
-func (err err) Args() []interface{} { return err.args }
+func (err err) Args() []any { return err.args }
 
 // Errors Collection of package errors that can be compared with each other
 func Errors() *Error { return errSingleton }
 
 // Object constructor
-func newErr(obj *err, arg ...interface{}) Err {
+func newErr(obj *err, arg ...any) Err {
 	return &err{
 		anchor: obj,
 		args:   arg,

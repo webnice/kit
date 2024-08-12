@@ -21,7 +21,7 @@ func New(isDebug bool) Interface {
 }
 
 // Конструктор объектов пула.
-func (pdw *impl) constructorWrapperData() interface{} {
+func (pdw *impl) constructorWrapperData() any {
 	var wdo = &data{
 		data:     nil,
 		sync:     false,

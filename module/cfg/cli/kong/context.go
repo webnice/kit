@@ -102,7 +102,7 @@ func Trace(k *Kong, args []string) (*Context, error) {
 }
 
 // Bind adds bindings to the Context.
-func (c *Context) Bind(args ...interface{}) {
+func (c *Context) Bind(args ...any) {
 	c.bindings.add(args...)
 }
 
@@ -111,7 +111,7 @@ func (c *Context) Bind(args ...interface{}) {
 // This will typically have to be called like so:
 //
 //	BindTo(impl, (*MyInterface)(nil))
-func (c *Context) BindTo(impl, iface interface{}) {
+func (c *Context) BindTo(impl, iface any) {
 	c.bindings.addTo(impl, iface)
 }
 
@@ -119,7 +119,7 @@ func (c *Context) BindTo(impl, iface interface{}) {
 //
 // This is useful when the Run() function of different commands require different values that may
 // not all be initialisable from the main() function.
-func (c *Context) BindToProvider(provider interface{}) error {
+func (c *Context) BindToProvider(provider any) error {
 	return c.bindings.addProvider(provider)
 }
 
@@ -308,7 +308,7 @@ func (c *Context) AddResolver(resolver Resolver) {
 }
 
 // FlagValue returns the set value of a flag if it was encountered and exists, or its default value.
-func (c *Context) FlagValue(flag *Flag) interface{} {
+func (c *Context) FlagValue(flag *Flag) any {
 	for _, trace := range c.Path {
 		if trace.Flag == flag {
 			v, ok := c.values[trace.Flag.Value]
@@ -560,7 +560,7 @@ func (c *Context) Resolve() error {
 			}
 
 			// Pick the last resolved value.
-			var selected interface{}
+			var selected any
 			for _, resolver := range resolvers {
 				s, err := resolver.Resolve(c, path, flag)
 				if err != nil {
@@ -714,7 +714,7 @@ func (c *Context) parseFlag(flags []*Flag, match string) (err error) {
 //
 // Any passed values will be bindable to arguments of the target Run() method. Additionally,
 // all parent nodes in the command structure will be bound.
-func (c *Context) RunNode(node *Node, binds ...interface{}) (err error) {
+func (c *Context) RunNode(node *Node, binds ...any) (err error) {
 	type targetMethod struct {
 		node   *Node
 		method reflect.Value
@@ -752,7 +752,7 @@ func (c *Context) RunNode(node *Node, binds ...interface{}) (err error) {
 //
 // Any passed values will be bindable to arguments of the target Run() method. Additionally,
 // all parent nodes in the command structure will be bound.
-func (c *Context) Run(binds ...interface{}) (err error) {
+func (c *Context) Run(binds ...any) (err error) {
 	node := c.Selected()
 	if node == nil {
 		if len(c.Path) > 0 {

@@ -107,7 +107,7 @@ func (e *Error) UnexpectedArgument(argument string) Err {
 }
 
 // UnexpectedFlagArgument unexpected flag argument
-func (e *Error) UnexpectedFlagArgument(argument interface{}) Err {
+func (e *Error) UnexpectedFlagArgument(argument any) Err {
 	return newErr(&errUnexpectedFlagArgument, argument)
 }
 
@@ -150,7 +150,7 @@ func (e *Error) IsRequired(required string) Err { return newErr(&errIsRequired, 
 func (e *Error) EnumSliceOrValue() Err { return newErr(&errEnumSliceOrValue) }
 
 // MustBeOneOfButGot ... must be one of ... but got ...
-func (e *Error) MustBeOneOfButGot(summary string, enums string, item interface{}) Err {
+func (e *Error) MustBeOneOfButGot(summary string, enums string, item any) Err {
 	return newErr(&errMustBeOneOfButGot, summary, enums, item)
 }
 
@@ -179,7 +179,7 @@ func (e *Error) KongMustBeConfiguredWithConfiguration() Err {
 func (e *Error) UndefinedVariable(name string) Err { return newErr(&errUndefinedVariable, name) }
 
 // ExpectedPointerToStructButGot expected a pointer to a struct but got ...
-func (e *Error) ExpectedPointerToStructButGot(ast interface{}) Err {
+func (e *Error) ExpectedPointerToStructButGot(ast any) Err {
 	return newErr(&errExpectedPointerToStructButGot, ast)
 }
 
@@ -187,7 +187,7 @@ func (e *Error) ExpectedPointerToStructButGot(ast interface{}) Err {
 func (e *Error) ExpectedAPointer() Err { return newErr(&errExpectedAPointer) }
 
 // CantMixPositionalArgumentsBranchingArguments Can't mix positional arguments and branching arguments on ...
-func (e *Error) CantMixPositionalArgumentsBranchingArguments(ast interface{}) Err {
+func (e *Error) CantMixPositionalArgumentsBranchingArguments(ast any) Err {
 	return newErr(&errCantMixPositionalArgumentsBranchingArguments, ast)
 }
 
@@ -197,7 +197,7 @@ func (e *Error) DecodeBoolValue(v1, v2, v3 string, value string) Err {
 }
 
 // DecodeBoolType Ожидался булев тип, но получен тип ... (...)
-func (e *Error) DecodeBoolType(t interface{}) Err { return newErr(&errDecodeBoolType, t, t) }
+func (e *Error) DecodeBoolType(t any) Err { return newErr(&errDecodeBoolType, t, t) }
 
 // DecodeDurationValue Ожидалось значение продолжительности времени, но получено значение ...: ...
 func (e *Error) DecodeDurationValue(value string, err error) Err {
@@ -205,7 +205,7 @@ func (e *Error) DecodeDurationValue(value string, err error) Err {
 }
 
 // DecodeDurationType Ожидался тип продолжительности времени, но получено ...
-func (e *Error) DecodeDurationType(value interface{}) Err {
+func (e *Error) DecodeDurationType(value any) Err {
 	return newErr(&errDecodeDurationType, value)
 }
 
@@ -213,7 +213,7 @@ func (e *Error) DecodeDurationType(value interface{}) Err {
 func (e *Error) DecodeIntValue(num int, tpe string) Err { return newErr(&errDecodeIntValue, num, tpe) }
 
 // DecodeIntType Ожидался тип int, но получен тип ... (...)
-func (e *Error) DecodeIntType(t string, v interface{}) Err { return newErr(&errDecodeIntType, t, v) }
+func (e *Error) DecodeIntType(t string, v any) Err { return newErr(&errDecodeIntType, t, v) }
 
 // DecodeUintValue Ожидалось значение для ... бит, типа uint, но получено значение ...
 func (e *Error) DecodeUintValue(num int, tpe string) Err {
@@ -221,17 +221,17 @@ func (e *Error) DecodeUintValue(num int, tpe string) Err {
 }
 
 // DecodeUintType Ожидался тип uint, но получен тип ... (...)
-func (e *Error) DecodeUintType(tpe string, v interface{}) Err {
+func (e *Error) DecodeUintType(tpe string, v any) Err {
 	return newErr(&errDecodeUintType, tpe, v)
 }
 
 // DecodeFloatValue Ожидалось значение типа float, но получено значение ... (...)
-func (e *Error) DecodeFloatValue(val string, tpe interface{}) Err {
+func (e *Error) DecodeFloatValue(val string, tpe any) Err {
 	return newErr(&errDecodeFloatValue, val, tpe)
 }
 
 // DecodeFloatType Ожидался тип float, но получен типа ... (...)
-func (e *Error) DecodeFloatType(val string, tpe interface{}) Err {
+func (e *Error) DecodeFloatType(val string, tpe any) Err {
 	return newErr(&errDecodeFloatType, val, tpe)
 }
 

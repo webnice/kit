@@ -223,8 +223,8 @@ func (r *Registry) RegisterKind(kind reflect.Kind, mapper Mapper) *Registry {
 //
 // eg.
 //
-// 		Mapper string `kong:"type='colour'`
-//   	Registry.RegisterName("colour", ...)
+//			Mapper string `kong:"type='colour'`
+//	  	Registry.RegisterName("colour", ...)
 func (r *Registry) RegisterName(name string, mapper Mapper) *Registry {
 	r.names[name] = mapper
 	return r
@@ -237,7 +237,7 @@ func (r *Registry) RegisterType(typ reflect.Type, mapper Mapper) *Registry {
 }
 
 // RegisterValue registers a Mapper by pointer to the field value.
-func (r *Registry) RegisterValue(ptr interface{}, mapper Mapper) *Registry {
+func (r *Registry) RegisterValue(ptr any, mapper Mapper) *Registry {
 	key := reflect.ValueOf(ptr)
 	if key.Kind() != reflect.Ptr {
 		panic(Errors().ExpectedAPointer().Error())
@@ -473,7 +473,7 @@ func mapDecoder(r *Registry) MapperFunc {
 			case string:
 				childScanner = Scan(SplitEscaped(v, sep)...)
 
-			case []map[string]interface{}:
+			case []map[string]any:
 				for _, m := range v {
 					err := jsonTranscode(m, target.Addr().Interface())
 					if err != nil {
@@ -482,7 +482,7 @@ func mapDecoder(r *Registry) MapperFunc {
 				}
 				return nil
 
-			case map[string]interface{}:
+			case map[string]any:
 				return jsonTranscode(v, target.Addr().Interface())
 
 			default:
@@ -548,11 +548,11 @@ func sliceDecoder(r *Registry) MapperFunc {
 			case string:
 				childScanner = Scan(SplitEscaped(v, sep)...)
 
-			case []interface{}:
+			case []any:
 				return jsonTranscode(v, target.Addr().Interface())
 
 			default:
-				v = []interface{}{v}
+				v = []any{v}
 				return jsonTranscode(v, target.Addr().Interface())
 			}
 		} else {
@@ -736,7 +736,7 @@ func urlMapper() MapperFunc {
 //
 // It differs from strings.Split() in that the separator can exist in a field by escaping it with a \. eg.
 //
-//     SplitEscaped(`hello\,there,bob`, ',') == []string{"hello,there", "bob"}
+//	SplitEscaped(`hello\,there,bob`, ',') == []string{"hello,there", "bob"}
 func SplitEscaped(s string, sep rune) (out []string) {
 	if sep == -1 {
 		return []string{s}
@@ -766,7 +766,7 @@ func SplitEscaped(s string, sep rune) (out []string) {
 
 // JoinEscaped joins a slice of strings on sep, but also escapes any instances of sep in the fields with \. eg.
 //
-//     JoinEscaped([]string{"hello,there", "bob"}, ',') == `hello\,there,bob`
+//	JoinEscaped([]string{"hello,there", "bob"}, ',') == `hello\,there,bob`
 func JoinEscaped(s []string, sep rune) string {
 	escaped := []string{}
 	for _, e := range s {
@@ -825,7 +825,7 @@ func (f *FileContentFlag) Decode(ctx *DecodeContext) error { // nolint: revive
 	return nil
 }
 
-func jsonTranscode(in, out interface{}) error {
+func jsonTranscode(in, out any) error {
 	data, err := json.Marshal(in)
 	if err != nil {
 		return err

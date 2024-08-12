@@ -82,7 +82,7 @@ func (essence *gist) Debug(debug bool) Essence {
 }
 
 // UpdateBootstrapConfigurationPathValue Коррекция значений стартовой конфигурация приложения, если они были загружены
-// из командной строки или переменной окружения, то есть не равны значениям по умолчанию
+// из командной строки или переменной окружения, то есть не равны значениям по умолчанию.
 func (essence *gist) UpdateBootstrapConfigurationPathValue() Essence {
 	// Коррекция значений, если они были загружены из командной строки или переменной окружения
 	if essence.parent.bootstrapConfiguration.HomeDirectory != defaultHomeDirectory() {
@@ -229,7 +229,7 @@ func (essence *gist) syncRegistration(ktc kitTypes.Component, name string) {
 }
 
 // Registration Регистрация разных объектов приложения.
-func (essence *gist) Registration(name string, obj interface{}) (err error) {
+func (essence *gist) Registration(name string, obj any) (err error) {
 	var (
 		ktc kitTypes.Component
 		ok  bool

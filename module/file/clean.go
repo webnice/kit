@@ -7,7 +7,7 @@ import (
 	"path"
 )
 
-// CleanEmptyFolder Удаление пустых папок.
+// CleanEmptyFolder Удаление пустых директорий.
 func (fl *impl) CleanEmptyFolder(folderPath string) (err error) {
 	return fl.cleanEmptyFolderRecursive(folderPath, 0)
 }

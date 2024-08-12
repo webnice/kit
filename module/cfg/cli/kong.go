@@ -76,7 +76,7 @@ func (cli *impl) KongDynamicCommand() (ret []kitModuleCfgCliKong.Option) {
 		hiddenCommand     = "hidden"
 	)
 	var (
-		value      interface{}
+		value      any
 		valueEmpty struct{}
 		tags       []string
 		n          int

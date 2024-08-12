@@ -26,9 +26,9 @@ func newComponent() kitTypes.Component {
 		databaseSql: new(kitTypesDb.DatabaseSqlConfiguration),
 	}
 
-	// Регистрация конфигурации.
+	// Регистрация конфигураций.
 	if !m8s.cfg.Gist().ConfigurationRegistration(m8s.databaseSql) {
-		m8s.cfg.Log().Error("ошибка регистрации конфигурации")
+		m8s.log().Error("ошибка регистрации конфигурации")
 	}
 
 	return m8s
@@ -36,19 +36,6 @@ func newComponent() kitTypes.Component {
 
 // Ссылка на менеджер логирования, для удобного использования внутри компоненты или модуля.
 func (m8s *impl) log() kitTypes.Logger { return m8s.cfg.Log() }
-
-// Обработка ошибки регистрации конфигурации.
-func (m8s *impl) registrationConfigurationError(err error) {
-	if err == nil {
-		return
-	}
-	switch eto := err.(type) {
-	case kitModuleCfg.Err:
-		m8s.cfg.Gist().ErrorAppend(eto)
-	default:
-		m8s.cfg.Gist().ErrorAppend(m8s.cfg.Errors().ConfigurationApplicationObject(0, eto))
-	}
-}
 
 // Preferences Функция возвращает настройки компоненты.
 func (m8s *impl) Preferences() kitTypes.ComponentPreferences {
@@ -71,7 +58,7 @@ func (m8s *impl) Preferences() kitTypes.ComponentPreferences {
 // Initiate Функция инициализации компонента и подготовки компонента к запуску.
 func (m8s *impl) Initiate() (err error) {
 	var (
-		elm interface{}
+		elm any
 		ok  bool
 		c   *kitTypesDb.DatabaseSqlConfiguration
 	)

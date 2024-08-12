@@ -61,10 +61,10 @@ type session struct {
 
 // Информация о тегах данных и цвета.
 type tagDataInfo struct {
-	Name    string      // Название функции шаблонизатора.
-	Func    interface{} // Функция - обработчик.
-	Docs    []string    // Документация по тегу.
-	Example string      // Пример указания тега.
+	Name    string   // Название функции шаблонизатора.
+	Func    any      // Функция - обработчик.
+	Docs    []string // Документация по тегу.
+	Example string   // Пример указания тега.
 }
 
 // Информация о тегах форматирования.

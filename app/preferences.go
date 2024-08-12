@@ -8,8 +8,8 @@ import (
 	kitTypes "github.com/webnice/kit/v4/types"
 )
 
-// Опрос зарегистрированных компонентов, получение настроек компонентов
-// Функция загрузки настроек компонента
+// Опрос зарегистрированных компонентов, получение настроек компонентов.
+// Функция загрузки настроек компонента.
 func (app *impl) preferencesFn(c *kitTypes.ComponentInfo) (ret *kitTypes.ComponentInfo, err kitTypes.ErrorWithCode) {
 	const (
 		cBefore   = `before`
@@ -22,35 +22,35 @@ func (app *impl) preferencesFn(c *kitTypes.ComponentInfo) (ret *kitTypes.Compone
 		n           int
 	)
 
-	// Функция защиты от паники, в связи с тем что вызывается код внешней компоненты, в нём может быть любая ошибка
+	// Функция защиты от паники, в связи с тем что вызывается код внешней компоненты, в нём может быть любая ошибка.
 	defer func() {
 		if e := recover(); e != nil {
 			err = app.cfg.Errors().ComponentPanicException(0, c.ComponentName, e, kitModuleTrace.StackShort())
 		}
 	}()
-	// Копирование настроек из регистрации компоненты
+	// Копирование настроек из регистрации компоненты.
 	ret = &kitTypes.ComponentInfo{
 		InitiateTimeout: c.InitiateTimeout,
 		Component:       c.Component,
 		ComponentName:   c.ComponentName,
 	}
-	// Запрос настроек компоненты
+	// Запрос настроек компоненты.
 	preferences = ret.
 		Component.
 		Preferences()
-	// Присвоение настройки максимального время ожидания инициализации компоненты
+	// Присвоение настройки максимального время ожидания инициализации компоненты.
 	if preferences.InitiateTimeout > 0 {
 		ret.InitiateTimeout = preferences.InitiateTimeout
 	}
-	// Проверка и присвоение настройки уровня запуска компоненты
+	// Проверка и присвоение настройки уровня запуска компоненты.
 	if preferences.Runlevel > 0 && (preferences.Runlevel < 10 || preferences.Runlevel > math.MaxUint16-1) {
 		ret, err = nil, app.cfg.Errors().ComponentRunlevelError(0, ret.ComponentName, preferences.Runlevel)
 		return
 	}
 	ret.Runlevel = preferences.Runlevel
-	// Присвоение настройки активности компоненты
+	// Присвоение настройки активности компоненты.
 	ret.IsDisable = preferences.IsDisable
-	// Компиляция regexp правил с контролем ошибок
+	// Компиляция regexp правил с контролем ошибок.
 	// BEFORE
 	if ret.Before, err = app.preferencesRegexpMake(preferences.Before, cBefore, ret.ComponentName); err != nil {
 		return
@@ -67,27 +67,27 @@ func (app *impl) preferencesFn(c *kitTypes.ComponentInfo) (ret *kitTypes.Compone
 	if ret.Conflict, err = app.preferencesRegexpMake(preferences.Conflict, cConflict, ret.ComponentName); err != nil {
 		return
 	}
-	// КОМАНДЫ Динамические команды компоненты приложения
+	// КОМАНДЫ Динамические команды компоненты приложения.
 	ret.Command = make([]string, 0, len(preferences.Command))
 	for n = range preferences.Command {
-		// Регистрация команды и группы команд компоненты для отображения в CLI
+		// Регистрация команды и группы команд компоненты для отображения в CLI.
 		app.cfg.Gist().ComponentCommandRegister(preferences.Command[n])
-		// Добавление команды
+		// Добавление команды.
 		ret.Command = append(ret.Command, preferences.Command[n].Command)
 	}
-	// ФЛАГИ Глобальные флаги компоненты приложения
+	// ФЛАГИ Глобальные флаги компоненты приложения.
 	for n = range preferences.Flag {
 		if preferences.Flag[n].Flag == "" {
 			continue
 		}
-		// Регистрация флага компоненты для отображения в CLI
+		// Регистрация флага компоненты для отображения в CLI.
 		app.cfg.Gist().ComponentFlagRegister(preferences.Flag[n])
 	}
 
 	return
 }
 
-// Преобразование массива строк в массив regexp правил
+// Преобразование массива строк в массив regexp правил.
 func (app *impl) preferencesRegexpMake(rules []string, key string, componentName string) (
 	ret []*regexp.Regexp,
 	err kitTypes.ErrorWithCode,

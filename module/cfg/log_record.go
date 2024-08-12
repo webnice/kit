@@ -16,7 +16,7 @@ func newRec(rer *recorder) (rec *record) {
 		recorder:  rer,
 		traceInfo: kitTypes.NewTraceInfo(),
 		stackBack: stackBack,
-		keys:      make(map[string]interface{}),
+		keys:      make(map[string]any),
 		fatality:  nil,
 	}
 
@@ -62,7 +62,7 @@ func (rec *record) Time(timestamp time.Time) kitTypes.Logger {
 func (rec *record) Fatality(fy bool) kitTypes.Logger { rec.fatality = &fy; return rec }
 
 // Fatal Уровень 0: уровень предсмертных сообщений - система не стабильна, продолжение работы невозможно.
-func (rec *record) Fatal(args ...interface{}) {
+func (rec *record) Fatal(args ...any) {
 	var defaultFatality = true
 
 	kitModuleTrace.Short(rec.traceInfo, rec.stackBack)
@@ -78,7 +78,7 @@ func (rec *record) Fatal(args ...interface{}) {
 }
 
 // Fatalf Уровень 0: уровень предсмертных сообщений - система не стабильна, продолжение работы невозможно.
-func (rec *record) Fatalf(pattern string, args ...interface{}) {
+func (rec *record) Fatalf(pattern string, args ...any) {
 	var defaultFatality = true
 
 	kitModuleTrace.Short(rec.traceInfo, rec.stackBack)
@@ -94,7 +94,7 @@ func (rec *record) Fatalf(pattern string, args ...interface{}) {
 }
 
 // Alert Уровень 1: уровень сообщений тревоги - система нестабильна, но может частично продолжить работу.
-func (rec *record) Alert(args ...interface{}) {
+func (rec *record) Alert(args ...any) {
 	kitModuleTrace.Short(rec.traceInfo, rec.stackBack)
 	// Присвоение времени записи.
 	if rec.timestamp.IsZero() {
@@ -104,7 +104,7 @@ func (rec *record) Alert(args ...interface{}) {
 }
 
 // Alertf Уровень 1: уровень сообщений тревоги - система нестабильна, но может частично продолжить работу.
-func (rec *record) Alertf(pattern string, args ...interface{}) {
+func (rec *record) Alertf(pattern string, args ...any) {
 	kitModuleTrace.Short(rec.traceInfo, rec.stackBack)
 	// Присвоение времени записи.
 	if rec.timestamp.IsZero() {
@@ -114,7 +114,7 @@ func (rec *record) Alertf(pattern string, args ...interface{}) {
 }
 
 // Critical Уровень 2: уровень критических ошибок - часть функционала системы работает не корректно.
-func (rec *record) Critical(args ...interface{}) {
+func (rec *record) Critical(args ...any) {
 	kitModuleTrace.Short(rec.traceInfo, rec.stackBack)
 	// Присвоение времени записи.
 	if rec.timestamp.IsZero() {
@@ -124,7 +124,7 @@ func (rec *record) Critical(args ...interface{}) {
 }
 
 // Criticalf Уровень 2: уровень критических ошибок - часть функционала системы работает не корректно.
-func (rec *record) Criticalf(pattern string, args ...interface{}) {
+func (rec *record) Criticalf(pattern string, args ...any) {
 	kitModuleTrace.Short(rec.traceInfo, rec.stackBack)
 	// Присвоение времени записи.
 	if rec.timestamp.IsZero() {
@@ -134,7 +134,7 @@ func (rec *record) Criticalf(pattern string, args ...interface{}) {
 }
 
 // Error Уровень 3: уровень не критических ошибок - ошибки не прерывающие работу приложения.
-func (rec *record) Error(args ...interface{}) {
+func (rec *record) Error(args ...any) {
 	kitModuleTrace.Short(rec.traceInfo, rec.stackBack)
 	// Присвоение времени записи.
 	if rec.timestamp.IsZero() {
@@ -144,7 +144,7 @@ func (rec *record) Error(args ...interface{}) {
 }
 
 // Errorf Уровень 3: уровень не критических ошибок - ошибки не прерывающие работу приложения.
-func (rec *record) Errorf(pattern string, args ...interface{}) {
+func (rec *record) Errorf(pattern string, args ...any) {
 	kitModuleTrace.Short(rec.traceInfo, rec.stackBack)
 	// Присвоение времени записи.
 	if rec.timestamp.IsZero() {
@@ -154,7 +154,7 @@ func (rec *record) Errorf(pattern string, args ...interface{}) {
 }
 
 // Warning Уровень 4: уровень сообщений с предупреждениями.
-func (rec *record) Warning(args ...interface{}) {
+func (rec *record) Warning(args ...any) {
 	kitModuleTrace.Short(rec.traceInfo, rec.stackBack)
 	// Присвоение времени записи.
 	if rec.timestamp.IsZero() {
@@ -164,7 +164,7 @@ func (rec *record) Warning(args ...interface{}) {
 }
 
 // Warningf Уровень 4: уровень сообщений с предупреждениями.
-func (rec *record) Warningf(pattern string, args ...interface{}) {
+func (rec *record) Warningf(pattern string, args ...any) {
 	kitModuleTrace.Short(rec.traceInfo, rec.stackBack)
 	// Присвоение времени записи.
 	if rec.timestamp.IsZero() {
@@ -174,7 +174,7 @@ func (rec *record) Warningf(pattern string, args ...interface{}) {
 }
 
 // Notice Уровень 5: уровень штатных информационных сообщений, требующих повышенного внимания.
-func (rec *record) Notice(args ...interface{}) {
+func (rec *record) Notice(args ...any) {
 	kitModuleTrace.Short(rec.traceInfo, rec.stackBack)
 	// Присвоение времени записи.
 	if rec.timestamp.IsZero() {
@@ -184,7 +184,7 @@ func (rec *record) Notice(args ...interface{}) {
 }
 
 // Noticef Уровень 5: уровень штатных информационных сообщений, требующих повышенного внимания.
-func (rec *record) Noticef(pattern string, args ...interface{}) {
+func (rec *record) Noticef(pattern string, args ...any) {
 	kitModuleTrace.Short(rec.traceInfo, rec.stackBack)
 	// Присвоение времени записи.
 	if rec.timestamp.IsZero() {
@@ -194,7 +194,7 @@ func (rec *record) Noticef(pattern string, args ...interface{}) {
 }
 
 // Info Уровень 6: сообщения информационного характера описывающие шаги выполнения алгоритмов приложения.
-func (rec *record) Info(args ...interface{}) {
+func (rec *record) Info(args ...any) {
 	kitModuleTrace.Short(rec.traceInfo, rec.stackBack)
 	// Присвоение времени записи.
 	if rec.timestamp.IsZero() {
@@ -204,7 +204,7 @@ func (rec *record) Info(args ...interface{}) {
 }
 
 // Infof Уровень 6: сообщения информационного характера описывающие шаги выполнения алгоритмов приложения.
-func (rec *record) Infof(pattern string, args ...interface{}) {
+func (rec *record) Infof(pattern string, args ...any) {
 	kitModuleTrace.Short(rec.traceInfo, rec.stackBack)
 	// Присвоение времени записи.
 	if rec.timestamp.IsZero() {
@@ -214,7 +214,7 @@ func (rec *record) Infof(pattern string, args ...interface{}) {
 }
 
 // Debug Уровень 7: уровень отладочных сообщений.
-func (rec *record) Debug(args ...interface{}) {
+func (rec *record) Debug(args ...any) {
 	kitModuleTrace.Short(rec.traceInfo, rec.stackBack)
 	// Присвоение времени записи.
 	if rec.timestamp.IsZero() {
@@ -224,7 +224,7 @@ func (rec *record) Debug(args ...interface{}) {
 }
 
 // Debugf Уровень 7: уровень отладочных сообщений.
-func (rec *record) Debugf(pattern string, args ...interface{}) {
+func (rec *record) Debugf(pattern string, args ...any) {
 	kitModuleTrace.Short(rec.traceInfo, rec.stackBack)
 	// Присвоение времени записи.
 	if rec.timestamp.IsZero() {
@@ -234,7 +234,7 @@ func (rec *record) Debugf(pattern string, args ...interface{}) {
 }
 
 // Trace Уровень 8: уровень максимально подробной трассировки.
-func (rec *record) Trace(args ...interface{}) {
+func (rec *record) Trace(args ...any) {
 	kitModuleTrace.Short(rec.traceInfo, rec.stackBack)
 	// Присвоение времени записи.
 	if rec.timestamp.IsZero() {
@@ -244,7 +244,7 @@ func (rec *record) Trace(args ...interface{}) {
 }
 
 // Tracef Уровень 8: уровень максимально подробной трассировки.
-func (rec *record) Tracef(pattern string, args ...interface{}) {
+func (rec *record) Tracef(pattern string, args ...any) {
 	kitModuleTrace.Short(rec.traceInfo, rec.stackBack)
 	// Присвоение времени записи.
 	if rec.timestamp.IsZero() {
@@ -254,7 +254,7 @@ func (rec *record) Tracef(pattern string, args ...interface{}) {
 }
 
 // MessageWithLevel Отправка сообщения в лог с указанием уровня логирования.
-func (rec *record) MessageWithLevel(level kitModuleLogLevel.Level, pattern string, args ...interface{}) {
+func (rec *record) MessageWithLevel(level kitModuleLogLevel.Level, pattern string, args ...any) {
 	kitModuleTrace.Short(rec.traceInfo, rec.stackBack)
 	// Присвоение времени записи.
 	if rec.timestamp.IsZero() {
@@ -264,7 +264,7 @@ func (rec *record) MessageWithLevel(level kitModuleLogLevel.Level, pattern strin
 }
 
 // Единое место отправки сообщения с полученным стеком вызовов и уровнем логирования.
-func (rec *record) messageSend(lv kitModuleLogLevel.Level, pattern string, args ...interface{}) {
+func (rec *record) messageSend(lv kitModuleLogLevel.Level, pattern string, args ...any) {
 	var (
 		isLog bool
 		msg   *kitModuleLog.Message
@@ -288,7 +288,7 @@ func (rec *record) messageSend(lv kitModuleLogLevel.Level, pattern string, args 
 	// Копирование всех данных лога в полученный объект.
 	msg.Timestamp, msg.Level = rec.timestamp, lv
 	msg.Pattern.WriteString(pattern)
-	msg.Argument = make([]interface{}, 0, len(args))
+	msg.Argument = make([]any, 0, len(args))
 	msg.Argument = append(msg.Argument, args...)
 	for key = range rec.keys {
 		msg.Keys[key] = rec.keys[key]

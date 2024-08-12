@@ -72,7 +72,7 @@ type Command struct {
 
 	// Value Ссылка на структуру значений с мета информацией, в неё же будут загружены
 	// указанное в CLI или ENV, значения.
-	Value interface{}
+	Value any
 }
 
 // Flag Структура регистрации динамических глобальных флагов приложения.
@@ -99,5 +99,5 @@ type Flag struct {
 	IsHidden bool
 
 	// Value Ссылка на переменную, в которую будет загружено указанное в CLI или ENV, значение.
-	Value interface{}
+	Value any
 }

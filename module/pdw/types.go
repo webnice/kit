@@ -32,10 +32,10 @@ type Interface interface {
 // Data Интерфейс обёртки данных.
 type Data interface {
 	// DataPut Загрузка в объект данных, флага и контекста.
-	DataPut(data interface{}, isSync bool, ctx context.Context)
+	DataPut(data any, isSync bool, ctx context.Context)
 
 	// DataGet Возвращение оборачиваемых данных.
-	DataGet() interface{}
+	DataGet() any
 
 	// Type Тип обёрнутых данных.
 	Type() reflect.Type
@@ -64,10 +64,10 @@ type Data interface {
 // Result Интерфейс результата обработки данных.
 type Result interface {
 	// DataPut Добавление данных с результатом.
-	DataPut(d ...interface{})
+	DataPut(d ...any)
 
 	// DataGet Возвращение данных с результатом.
-	DataGet() []interface{}
+	DataGet() []any
 
 	// ErrPut Добавление ошибок в результат.
 	ErrPut(e ...error)
@@ -85,7 +85,7 @@ type impl struct {
 
 // Обёртка над передаваемыми данными.
 type data struct {
-	data     interface{}     // Данные.
+	data     any             // Данные.
 	dataType reflect.Type    // Тип данных.
 	sync     bool            // Флаг синхронной передачи.
 	done     chan struct{}   // Канал обратной связи для синхронного вызова.
@@ -95,7 +95,7 @@ type data struct {
 
 // Обёртка над результатом передачи данных потребителю.
 type result struct {
-	data []interface{}
+	data []any
 	errs []error
 }
 

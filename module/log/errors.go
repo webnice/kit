@@ -27,7 +27,7 @@ var (
 // ERRORS: Реализация ошибок с возможностью сравнения ошибок между собой.
 
 // LogPanicException Вызов обработчика сообщений лога ... прервана паникой: ... ....
-func (e *Error) LogPanicException(code uint8, subscriberName, err interface{}, stack []byte) Err {
+func (e *Error) LogPanicException(code uint8, subscriberName, err any, stack []byte) Err {
 	return newErr(&errLogPanicException, code, subscriberName, err, string(stack))
 }
 

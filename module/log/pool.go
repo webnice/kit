@@ -16,13 +16,13 @@ func (log *logger) messageInitPool() {
 }
 
 // Конструктор объектов для бассейна объектов.
-func (log *logger) messageNew() interface{} {
+func (log *logger) messageNew() any {
 	var msg = &Message{
 		Timestamp: time.Unix(0, 0),
 		Level:     0,
 		Pattern:   &bytes.Buffer{},
-		Argument:  make([]interface{}, 0, 10),
-		Keys:      make(map[string]interface{}),
+		Argument:  make([]any, 0, 10),
+		Keys:      make(map[string]any),
 		Trace:     kitTypes.NewTraceInfo(),
 		Fatality:  false,
 		Done:      make(chan struct{}),

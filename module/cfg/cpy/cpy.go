@@ -9,7 +9,7 @@ import (
 )
 
 // Copy everything
-func (cpy *Cpy) Copy(toObj interface{}, fromObj interface{}, selected []string, omit []string, filter FilterFn) (err error) {
+func (cpy *Cpy) Copy(toObj any, fromObj any, selected []string, omit []string, filter FilterFn) (err error) {
 	var (
 		from, to, src, dst, key reflect.Value
 		fromT, toT              reflect.Type

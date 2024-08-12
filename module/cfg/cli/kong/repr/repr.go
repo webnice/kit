@@ -68,7 +68,7 @@ func ExplicitTypes(ok bool) Option { return func(o *Printer) { o.explicitTypes =
 func IgnoreGoStringer() Option { return func(o *Printer) { o.ignoreGoStringer = true } }
 
 // Hide excludes the given types from representation, instead just printing the name of the type.
-func Hide(ts ...interface{}) Option {
+func Hide(ts ...any) Option {
 	return func(o *Printer) {
 		for _, t := range ts {
 			rt := reflect.Indirect(reflect.ValueOf(t)).Type()
@@ -120,7 +120,7 @@ func (p *Printer) thisIndent(indent string) string {
 }
 
 // Print the values.
-func (p *Printer) Print(vs ...interface{}) {
+func (p *Printer) Print(vs ...any) {
 	for i, v := range vs {
 		if i > 0 {
 			fmt.Fprint(p.w, " ")
@@ -130,7 +130,7 @@ func (p *Printer) Print(vs ...interface{}) {
 }
 
 // Println prints each value on a new line.
-func (p *Printer) Println(vs ...interface{}) {
+func (p *Printer) Println(vs ...any) {
 	for i, v := range vs {
 		if i > 0 {
 			fmt.Fprint(p.w, " ")
@@ -289,7 +289,7 @@ func (p *Printer) reprValue(seen map[reflect.Value]bool, v reflect.Value, indent
 }
 
 // String returns a string representing v.
-func String(v interface{}, options ...Option) string {
+func String(v any, options ...Option) string {
 	w := bytes.NewBuffer(nil)
 	options = append([]Option{NoIndent()}, options...)
 	p := New(w, options...)
@@ -297,7 +297,7 @@ func String(v interface{}, options ...Option) string {
 	return w.String()
 }
 
-func extractOptions(vs ...interface{}) (args []interface{}, options []Option) {
+func extractOptions(vs ...any) (args []any, options []Option) {
 	for _, v := range vs {
 		if o, ok := v.(Option); ok {
 			options = append(options, o)
@@ -309,13 +309,13 @@ func extractOptions(vs ...interface{}) (args []interface{}, options []Option) {
 }
 
 // Println prints v to os.Stdout, one per line.
-func Println(vs ...interface{}) {
+func Println(vs ...any) {
 	args, options := extractOptions(vs...)
 	New(os.Stdout, options...).Println(args...)
 }
 
 // Print writes a representation of v to os.Stdout, separated by spaces.
-func Print(vs ...interface{}) {
+func Print(vs ...any) {
 	args, options := extractOptions(vs...)
 	New(os.Stdout, options...).Print(args...)
 }

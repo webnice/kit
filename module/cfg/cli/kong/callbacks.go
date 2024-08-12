@@ -16,7 +16,7 @@ func (b bindings) String() string {
 	return "bindings{" + strings.Join(out, ", ") + "}"
 }
 
-func (b bindings) add(values ...interface{}) bindings {
+func (b bindings) add(values ...any) bindings {
 	for _, v := range values {
 		v := v
 		b[reflect.TypeOf(v)] = func() (reflect.Value, error) { return reflect.ValueOf(v), nil }
@@ -24,12 +24,12 @@ func (b bindings) add(values ...interface{}) bindings {
 	return b
 }
 
-func (b bindings) addTo(impl, iface interface{}) {
+func (b bindings) addTo(impl, iface any) {
 	valueOf := reflect.ValueOf(impl)
 	b[reflect.TypeOf(iface).Elem()] = func() (reflect.Value, error) { return valueOf, nil }
 }
 
-func (b bindings) addProvider(provider interface{}) error {
+func (b bindings) addProvider(provider any) error {
 	pv := reflect.ValueOf(provider)
 	t := pv.Type()
 	if t.Kind() != reflect.Func || t.NumIn() != 0 || t.NumOut() != 2 || t.Out(1) != reflect.TypeOf((*error)(nil)).Elem() {

@@ -41,17 +41,17 @@ func (lgm *logGorm) LogMode(l gormLogger.LogLevel) gormLogger.Interface {
 }
 
 // Info Все без исключения запросы к базе данных.
-func (lgm *logGorm) Info(_ context.Context, s string, i ...interface{}) {
+func (lgm *logGorm) Info(_ context.Context, s string, i ...any) {
 	lgm.parent.log().Infof(s, i...)
 }
 
 // Warn Запросы с ошибками, а так же требующие повышенного внимания, но не являющиеся ошибкой.
-func (lgm *logGorm) Warn(_ context.Context, s string, i ...interface{}) {
+func (lgm *logGorm) Warn(_ context.Context, s string, i ...any) {
 	lgm.parent.log().Warningf(s, i...)
 }
 
 // Error Запросы, выполнение которых завершилось ошибкой.
-func (lgm *logGorm) Error(_ context.Context, s string, i ...interface{}) {
+func (lgm *logGorm) Error(_ context.Context, s string, i ...any) {
 	lgm.parent.log().Errorf(s, i...)
 }
 

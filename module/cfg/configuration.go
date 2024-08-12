@@ -35,7 +35,7 @@ import (
 //   - истина - в случае успешного внедрения конфигурации в конфигурацию приложения;
 //   - ложь   - в случае возникновения ошибки при внедрении конфигурации. Сама ошибка публикуется в список ошибок
 //     приложения.
-func (essence *gist) ConfigurationRegistration(c interface{}, callback ...kitTypes.Callbacker) (isOk bool) {
+func (essence *gist) ConfigurationRegistration(c any, callback ...kitTypes.Callbacker) (isOk bool) {
 	const (
 		tplDupName = "объект с типом %T, содержит поле с именем %q, которое совпадает с именем поля другого объекта" +
 			" конфигурации"
@@ -131,7 +131,7 @@ func (essence *gist) ConfigurationRegistration(c interface{}, callback ...kitTyp
 // ConfigurationCallbackSubscribe Подписка функции обратного вызова на событие изменения данных сегмента
 // конфигурации. Функция будет вызвана при изменении данных конфигурации, например при перезагрузке файла
 // конфигурации или иных реализациях динамического изменения значений конфигурации.
-func (essence *gist) ConfigurationCallbackSubscribe(c interface{}, callback kitTypes.Callbacker) (err error) {
+func (essence *gist) ConfigurationCallbackSubscribe(c any, callback kitTypes.Callbacker) (err error) {
 	var (
 		elm          *list.Element
 		rt           reflect.Type
@@ -186,9 +186,9 @@ func (essence *gist) ConfigurationCallbackSubscribe(c interface{}, callback kitT
 	return
 }
 
-// ConfigurationCallbackUnsubscribe Отписка функции обратного вызова на событие изменения данных сегмента
-// конфигурации.
-func (essence *gist) ConfigurationCallbackUnsubscribe(c interface{}, callback kitTypes.Callbacker) (err error) {
+// ConfigurationCallbackUnsubscribe Отписка функции обратного вызова на событие изменения данных
+// сегмента конфигурации.
+func (essence *gist) ConfigurationCallbackUnsubscribe(c any, callback kitTypes.Callbacker) (err error) {
 	var (
 		elm          *list.Element
 		del          []*list.Element
@@ -314,16 +314,16 @@ func (essence *gist) configurationCopyBootstrapConfiguration() {
 // Установка значений по умолчанию, значениями из переменных окружения, значениями описанными в тегах в структуры или
 // значениями полученными из метода Default(), если структура реализует интерфейс types.ConfigurationDefaulter.
 // Поддерживаются все простые типы данных, а так же типы данных, у которых реализованы
-// интерфейсы sql.Scanner и encoding.TextUnmarshaler
+// интерфейсы sql.Scanner и encoding.TextUnmarshaler.
 func (essence *gist) configurationSetDefaultValue() (err error) {
-	var csdv func(dc interface{})
+	var csdv func(dc any)
 
 	defer func() {
 		if e := recover(); e != nil {
 			err = Errors().ConfigurationSetDefaultPanic(0, e, runtimeDebug.Stack())
 		}
 	}()
-	csdv = func(dc interface{}) {
+	csdv = func(dc any) {
 		var (
 			dcRt           reflect.Type
 			dcRv           reflect.Value
@@ -416,14 +416,14 @@ func (essence *gist) configurationSetDefaultValue() (err error) {
 			}
 		}
 	}
-	// Union всегда является типом interface{} и не может реализовывать интерфейс types.ConfigurationDefaulter, поэтому
+	// Union всегда является типом any и не может реализовывать интерфейс types.ConfigurationDefaulter, поэтому
 	// данный вызов не нуждается в проверке на реализацию интерфейса types.ConfigurationDefaulter.
 	csdv(essence.parent.conf.Union)
 
 	return
 }
 
-// ConfigurationLoad Загрузка конфигурационного файла
+// ConfigurationLoad Загрузка конфигурационного файла.
 func (essence *gist) ConfigurationLoad(buf *bytes.Buffer) (err error) {
 	const tplYamlDecodeError = "декодирование конфигурации из формата yaml прервано ошибкой: %s"
 	var (
@@ -462,6 +462,8 @@ func (essence *gist) ConfigurationLoad(buf *bytes.Buffer) (err error) {
 	if err = kitModuleCfgCpy.All(essence.parent.conf.Union, essence.parent.bootstrapConfiguration); err != nil {
 		return
 	}
+	// Обновление флага отладки конфигурации и всех частей приложения.
+	essence.Debug(essence.parent.bootstrapConfiguration.ApplicationDebug)
 
 	//
 	// TODO: Сделать вызов callbackFn при динамическом изменении данных конфигураций по каждому сегменту конфигурации.

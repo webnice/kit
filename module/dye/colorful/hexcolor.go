@@ -13,11 +13,11 @@ import (
 type HexColor Color
 
 type errUnsupportedType struct {
-	got  interface{}
+	got  any
 	want reflect.Type
 }
 
-func (hc *HexColor) Scan(value interface{}) error {
+func (hc *HexColor) Scan(value any) error {
 	s, ok := value.(string)
 	if !ok {
 		return errUnsupportedType{got: reflect.TypeOf(value), want: reflect.TypeOf("")}
@@ -66,11 +66,11 @@ func (hc *HexColor) Decode(hexCode string) error {
 	return nil
 }
 
-func (hc HexColor) MarshalYAML() (interface{}, error) {
+func (hc HexColor) MarshalYAML() (any, error) {
 	return Color(hc).Hex(), nil
 }
 
-func (hc *HexColor) UnmarshalYAML(unmarshal func(interface{}) error) error {
+func (hc *HexColor) UnmarshalYAML(unmarshal func(any) error) error {
 	var hexCode string
 	if err := unmarshal(&hexCode); err != nil {
 		return err

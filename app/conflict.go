@@ -2,21 +2,21 @@ package app
 
 import kitTypes "github.com/webnice/kit/v4/types"
 
-// Функция проверки конфликтов между компонентами
+// Функция проверки конфликтов между компонентами.
 func (app *impl) conflictFn(components []*kitTypes.ComponentInfo) (err kitTypes.ErrorWithCode) {
 	var n, c, i int
 
-	// Обход всех компонент,
+	// Обход всех компонентов.
 	for n = range components {
-		// если у компоненты есть список конфликта,
+		// Если у компоненты есть список конфликта.
 		if len(components[n].Conflict) == 0 {
 			continue
 		}
-		// тогда проверка по списку,
+		// Тогда проверка по списку.
 		for c = range components[n].Conflict {
-			// всех других компонент,
+			// Всех других компонент.
 			for i = range components {
-				// на вхождение в список конфликта
+				// На вхождение в список конфликта.
 				if components[n].Conflict[c].MatchString(components[i].ComponentName) {
 					err = app.cfg.Errors().
 						ComponentConflict(0, components[n].ComponentName, components[i].ComponentName)

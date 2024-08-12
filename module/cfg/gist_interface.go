@@ -87,12 +87,12 @@ type Essence interface {
 	Targetlevel(tl uint16) Essence
 
 	// Registration Регистрация разных объектов приложения.
-	Registration(name string, obj interface{}) (err error)
+	Registration(name string, obj any) (err error)
 
 	// КОМПОНЕНТЫ.
 
 	// ComponentName Получение уникального имени пакета компоненты.
-	ComponentName(obj interface{}) (ret string)
+	ComponentName(obj any) (ret string)
 
 	// ComponentNames Возвращает список зарегистрированных компонентов.
 	ComponentNames() []string
@@ -184,16 +184,16 @@ type Essence interface {
 	// - истина - в случае успешного внедрения конфигурации в конфигурацию приложения;
 	// - ложь   - в случае возникновения ошибки при внедрении конфигурации. Сама ошибка публикуется в список ошибок
 	//            приложения.
-	ConfigurationRegistration(c interface{}, callback ...kitTypes.Callbacker) (isOk bool)
+	ConfigurationRegistration(c any, callback ...kitTypes.Callbacker) (isOk bool)
 
 	// ConfigurationCallbackSubscribe Подписка функции обратного вызова на событие изменения данных сегмента
 	// конфигурации. Функция будет вызвана при изменении данных конфигурации, например при перезагрузке файла
 	// конфигурации или иных реализациях динамического изменения значений конфигурации.
-	ConfigurationCallbackSubscribe(c interface{}, callback kitTypes.Callbacker) (err error)
+	ConfigurationCallbackSubscribe(c any, callback kitTypes.Callbacker) (err error)
 
 	// ConfigurationCallbackUnsubscribe Отписка функции обратного вызова на событие изменения данных сегмента
 	// конфигурации.
-	ConfigurationCallbackUnsubscribe(c interface{}, callback kitTypes.Callbacker) (err error)
+	ConfigurationCallbackUnsubscribe(c any, callback kitTypes.Callbacker) (err error)
 
 	// ConfigurationLoad Загрузка конфигурационного файла.
 	ConfigurationLoad(buf *bytes.Buffer) (err error)

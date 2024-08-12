@@ -2,6 +2,7 @@ package configuration
 
 import (
 	"bytes"
+	"errors"
 	"fmt"
 	"os"
 
@@ -69,7 +70,7 @@ func (ccf *impl) Initiate() (err error) {
 		ccf.cfg.DirectoryHome(),
 		ccf.cfg.DirectoryWorking(),
 		ccf.cfg.FileConfig(); fileName == "" {
-		// Поиск файла конфигурации по всем предопределённым директориям. Директории платформо-зависимые.
+		// Поиск файла конфигурации по всем предопределённым директориям. Директории платформ-зависимые.
 		fileName = ccf.findConfigurationFile(appName, dirConf, dirHome, dirWork)
 	}
 	// Если файл найден, установка значения пути и имени файла в конфигурации.
@@ -107,8 +108,9 @@ func (ccf *impl) Initiate() (err error) {
 	// Создание общей структуры конфигурации, состоящей из стартовой структуры приложения и всех имплантированных
 	// конфигураций компонентов. Выполнение загрузки данных и копирование во все имплантированные структуры.
 	if err = ccf.cfg.Gist().ConfigurationLoad(buf); err != nil {
-		switch err.(type) {
-		case kitTypes.ErrorWithCode:
+		var errorWithCode kitTypes.ErrorWithCode
+		switch {
+		case errors.As(err, &errorWithCode):
 			// Ошибка уже стандартизирована.
 		default:
 			// Ошибка не стандартизированная

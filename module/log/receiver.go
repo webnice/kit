@@ -9,7 +9,7 @@ import (
 )
 
 // Consumer Интерфейс types.Databuser.
-func (log *logger) Consumer(isSync bool, data interface{}) (ret []interface{}, errs []error) {
+func (log *logger) Consumer(isSync bool, data any) (ret []any, errs []error) {
 	var (
 		childDone  chan error
 		childCount int64
@@ -69,7 +69,7 @@ func (log *logger) Consumer(isSync bool, data interface{}) (ret []interface{}, e
 }
 
 // KnownType Интерфейс types.Databuser.
-func (log *logger) KnownType() (ret []interface{}) { ret = append(ret, new(Message)); return }
+func (log *logger) KnownType() (ret []any) { ret = append(ret, new(Message)); return }
 
 // Обработчик логов по умолчанию.
 func (log *logger) defaultLogHandler(msg *Message) {

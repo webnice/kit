@@ -198,13 +198,13 @@ func (cfg *impl) ConfigurationUnionSprintf() (ret string) {
 
 // ConfigurationByType Возвращает объект конфигурации соответствующий указанному типу объекта.
 // Если объект конфигурации с указанным типом не регистрировался, будет возвращена ошибка.
-func (cfg *impl) ConfigurationByType(t reflect.Type) (interface{}, error) {
+func (cfg *impl) ConfigurationByType(t reflect.Type) (any, error) {
 	return cfg.ConfigurationByTypeName(t.String())
 }
 
 // ConfigurationByTypeName Возвращает объект конфигурации соответствующий указанному названию типа объекта.
 // Если объект конфигурации с указанным типом не регистрировался, будет возвращена ошибка.
-func (cfg *impl) ConfigurationByTypeName(typeName string) (ret interface{}, err error) {
+func (cfg *impl) ConfigurationByTypeName(typeName string) (ret any, err error) {
 	var (
 		n     int
 		found bool
@@ -227,7 +227,7 @@ func (cfg *impl) ConfigurationByTypeName(typeName string) (ret interface{}, err 
 // ConfigurationByObject Возвращает объект конфигурации соответствующий типу переданного объекта, сам переданный
 // объект никак не изменяется, он служит только для определения типа данных.
 // Если объект конфигурации с указанным типом не регистрировался, будет возвращена ошибка.
-func (cfg *impl) ConfigurationByObject(o interface{}) (ret interface{}, err error) {
+func (cfg *impl) ConfigurationByObject(o any) (ret any, err error) {
 	var rt reflect.Type
 
 	if _, rt, err = reflectStructObject(o); err != nil {
@@ -242,10 +242,10 @@ func (cfg *impl) ConfigurationByObject(o interface{}) (ret interface{}, err erro
 // тогда данные конфигурации копируются в переданный объект.
 // Если объект конфигурации с указанным типом не регистрировался, будет возвращена ошибка.
 // Объект должен передаваться по адресу, иначе его заполнение не возможно и будет возвращена ошибка.
-func (cfg *impl) ConfigurationCopyByObject(o interface{}) (err error) {
+func (cfg *impl) ConfigurationCopyByObject(o any) (err error) {
 	var (
 		rt  reflect.Type
-		src interface{}
+		src any
 	)
 
 	// Определение типа объекта.

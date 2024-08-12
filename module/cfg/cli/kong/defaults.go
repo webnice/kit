@@ -1,7 +1,7 @@
 package kong
 
 // ApplyDefaults if they are not already set.
-func ApplyDefaults(target interface{}, options ...Option) (err error) {
+func ApplyDefaults(target any, options ...Option) (err error) {
 	var (
 		app *Kong
 		ctx *Context

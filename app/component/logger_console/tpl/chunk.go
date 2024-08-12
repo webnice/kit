@@ -4,10 +4,10 @@ import "fmt"
 
 // Куски шаблона.
 type chunk struct {
-	Src  string      // Исходный текст куска.
-	Arg  string      // Исходные аргументы тега куска.
-	Type chunkType   // Тип куска.
-	Tag  interface{} // Распознанный тег. Принимает значение *tagDataInfo или tagFormatInfo.
+	Src  string    // Исходный текст куска.
+	Arg  string    // Исходные аргументы тега куска.
+	Type chunkType // Тип куска.
+	Tag  any       // Распознанный тег. Принимает значение *tagDataInfo или tagFormatInfo.
 }
 
 // String Интерфейс Stringer.
@@ -46,7 +46,7 @@ func (c chunk) Template() (ret string) {
 		argn  int
 		argt  string
 		arg   string
-		arr   []interface{}
+		arr   []any
 		tdi   *tagDataInfo
 		ok    bool
 		quote bool

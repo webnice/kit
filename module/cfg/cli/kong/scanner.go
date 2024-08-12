@@ -41,7 +41,7 @@ func (t TokenType) String() string {
 
 // Token created by Scanner.
 type Token struct {
-	Value interface{}
+	Value any
 	Type  TokenType
 }
 
@@ -109,7 +109,7 @@ func (t Token) IsValue() bool {
 //
 // For example, the token "--foo=bar" will be split into the following by the parser:
 //
-// 		[{FlagToken, "foo"}, {FlagValueToken, "bar"}]
+//	[{FlagToken, "foo"}, {FlagValueToken, "bar"}]
 type Scanner struct {
 	args []Token
 }
@@ -166,7 +166,7 @@ func (s *Scanner) PopValue(context string) (Token, error) {
 // PopValueInto pops a value token into target or returns an error.
 //
 // "context" is used to assist the user if the value can not be popped, eg. "expected <context> value but got <type>"
-func (s *Scanner) PopValueInto(context string, target interface{}) error {
+func (s *Scanner) PopValueInto(context string, target any) error {
 	t, err := s.PopValue(context)
 	if err != nil {
 		return err
@@ -199,13 +199,13 @@ func (s *Scanner) Peek() Token {
 }
 
 // Push an untyped Token onto the front of the Scanner.
-func (s *Scanner) Push(arg interface{}) *Scanner {
+func (s *Scanner) Push(arg any) *Scanner {
 	s.PushToken(Token{Value: arg})
 	return s
 }
 
 // PushTyped pushes a typed token onto the front of the Scanner.
-func (s *Scanner) PushTyped(arg interface{}, typ TokenType) *Scanner {
+func (s *Scanner) PushTyped(arg any, typ TokenType) *Scanner {
 	s.PushToken(Token{Value: arg, Type: typ})
 	return s
 }

@@ -16,10 +16,10 @@ type recorder struct {
 
 // Структура объекта переноса данных
 type record struct {
-	recorder  *recorder              // Родительский объект
-	timestamp time.Time              // Время записи в UTC
-	traceInfo *kitTypes.TraceInfo    // Данные о вызывающей функции и стеке
-	stackBack int                    // Дополнительный откат записей стека
-	keys      map[string]interface{} // Ключи логирования
-	fatality  *bool                  // Флаг фатальности записи лога
+	recorder  *recorder           // Родительский объект
+	timestamp time.Time           // Время записи в UTC
+	traceInfo *kitTypes.TraceInfo // Данные о вызывающей функции и стеке
+	stackBack int                 // Дополнительный откат записей стека
+	keys      map[string]any      // Ключи логирования
+	fatality  *bool               // Флаг фатальности записи лога
 }

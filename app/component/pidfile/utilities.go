@@ -1,8 +1,8 @@
 package pidfile
 
 import (
+	"errors"
 	"fmt"
-	"io/ioutil"
 	"os"
 	"path"
 	"strconv"
@@ -38,7 +38,7 @@ func (pid *impl) IsProcessExist() (err kitTypes.ErrorWithCode) {
 		err = pid.cfg.Errors().PidFileError(0, pid.pfnm, e)
 		return
 	}
-	if buf, e = ioutil.ReadFile(pid.pfnm); e != nil {
+	if buf, e = os.ReadFile(pid.pfnm); e != nil {
 		e = fmt.Errorf(tplPidContentRead, pid.pfnm, e)
 		err = pid.cfg.Errors().PidFileError(0, pid.pfnm, e)
 		return
@@ -56,10 +56,10 @@ func (pid *impl) IsProcessExist() (err kitTypes.ErrorWithCode) {
 		if process, e = os.FindProcess(pds[n]); e != nil {
 			continue
 		}
-		switch e = process.Signal(syscall.Signal(0)); e {
-		case syscall.ESRCH, os.ErrProcessDone:
+		switch e = process.Signal(syscall.Signal(0)); {
+		case errors.Is(e, syscall.ESRCH), errors.Is(e, os.ErrProcessDone):
 			// Процесс завершён.
-		case nil, syscall.EPERM:
+		case e == nil, errors.Is(e, syscall.EPERM):
 			// Процесс есть или к нему нет доступа, что говорит о том что он есть.
 			exists = true
 		}
