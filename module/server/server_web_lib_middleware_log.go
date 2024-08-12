@@ -52,20 +52,8 @@ func (iwl *implWebLib) LogHandler() (ret func(http.Handler) http.Handler) {
 				}
 				// Вычисление времени выполнения запроса.
 				logRecord.LeadTime = time.Since(beginTime)
-
-				//
-
-				//
-
-				// Получение IP адреса клиента запроса.
-				//if logRecord.Address = middlewareIP.GetFromContext(rq); ld.Address == nil {
-				//	logRecord.Address = middlewareIP.IP(rq)
-				//}
-
-				//
-
-				//
-
+				// Загрузка IP адреса клиента HTTP запроса.
+				logRecord.Address = iwl.Middleware().IpGetFromContext(rq)
 				// Сбор данных запроса.
 				logRecord.Method = dic.ParseMethod(rq.Method)
 				logRecord.Path = rq.URL.Path

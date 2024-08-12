@@ -15,8 +15,8 @@ func (iwl *implWebLib) WebServerControlHandler(ctl *kitTypesServer.WebServerCont
 	ret = func(next http.Handler) (fn http.Handler) {
 		fn = http.HandlerFunc(func(wr http.ResponseWriter, rq *http.Request) {
 			rq = rq.WithContext(
-				context.WithValue(rq.Context(), contextKeyMiddlewareWebServerControl, &contextWrapper{
-					Name:  contextNameMiddlewareWebServerControl,
+				context.WithValue(rq.Context(), cKeyWebServerControl, &contextWrapper{
+					Name:  cNameWebServerControl,
 					Value: ctl,
 				}))
 			next.ServeHTTP(wr, rq)
@@ -27,36 +27,26 @@ func (iwl *implWebLib) WebServerControlHandler(ctl *kitTypesServer.WebServerCont
 	return
 }
 
-// WebServerControlGetFromContext Функция извлечения объекта контроля за ВЕБ сервером из контекста ВЕБ сервера.
+// WebServerControlGetFromContext Извлечение объекта контроля за ВЕБ сервером из контекста HTTP запроса.
 func (iwl *implWebLib) WebServerControlGetFromContext(rq *http.Request) (
 	ret *kitTypesServer.WebServerControl,
 	err error,
 ) {
 	const (
 		tplNotFound   = "данные по ключу %q в контексте не найдены"
-		tplWrongType  = "не верный тип данных полученных по ключу %q из контекста"
 		tplWrongValue = "по ключу %q получена обёртка контекста содержащая не верные данные"
 	)
 	var (
 		ok      bool
-		value   any
 		wrapper *contextWrapper
 	)
 
-	if value = rq.Context().Value(contextKeyMiddlewareWebServerControl); value == nil {
-		err = fmt.Errorf(tplNotFound, contextNameMiddlewareWebServerControl)
-		return
-	}
-	if wrapper, ok = value.(*contextWrapper); !ok {
-		err = fmt.Errorf(tplWrongType, contextNameMiddlewareWebServerControl)
-		return
-	}
-	if wrapper == nil || wrapper.Value == nil || wrapper.Name != contextNameMiddlewareWebServerControl {
-		err = fmt.Errorf(tplWrongValue, contextNameMiddlewareWebServerControl)
+	if wrapper = iwl.getContextWrapper(rq, cKeyWebServerControl, cNameWebServerControl); wrapper == nil {
+		err = fmt.Errorf(tplNotFound, cNameWebServerControl)
 		return
 	}
 	if ret, ok = wrapper.Value.(*kitTypesServer.WebServerControl); !ok {
-		err = fmt.Errorf(tplWrongValue, contextNameMiddlewareWebServerControl)
+		err = fmt.Errorf(tplWrongValue, cNameWebServerControl)
 		return
 	}
 

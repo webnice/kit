@@ -1,6 +1,7 @@
 package server
 
 import (
+	"net"
 	"net/http"
 
 	kitTypesServer "github.com/webnice/kit/v4/types/server"
@@ -32,17 +33,24 @@ type InterfaceHandlerFunc interface {
 type InterfaceMiddleware interface {
 	// ПРОМЕЖУТОЧНЫЙ СЛОЙ
 
+	// IpHandler Загрузка IP адреса клиента в контекст.
+	IpHandler() (ret func(http.Handler) http.Handler)
+
+	// IpGetFromContext Извлечение объекта IP адреса клиента из контекста HTTP запроса.
+	// Возвращается nil - когда http.Handler IP адреса не был подключен в "промежуточный слой".
+	IpGetFromContext(rq *http.Request) net.IP
+
+	// LogHandler Запись в журнал запросов к ВЕБ серверу.
+	LogHandler() (ret func(http.Handler) http.Handler)
+
 	// RecoverHandler Обработчик восстановления после паники в ВЕБ сервере.
 	RecoverHandler() (ret func(http.Handler) http.Handler)
 
 	// WebServerControlHandler Обработчик установки в контекст запросов ВЕБ сервера, объекта контроля за ВЕБ сервером.
 	WebServerControlHandler(ctl *kitTypesServer.WebServerControl) (ret func(http.Handler) http.Handler)
 
-	// WebServerControlGetFromContext Функция извлечения объекта контроля за ВЕБ сервером из контекста ВЕБ сервера.
+	// WebServerControlGetFromContext Извлечение объекта контроля за ВЕБ сервером из контекста HTTP запроса.
 	WebServerControlGetFromContext(rq *http.Request) (ret *kitTypesServer.WebServerControl, err error)
-
-	// LogHandler Запись в журнал запросов к ВЕБ серверу.
-	LogHandler() (ret func(http.Handler) http.Handler)
 }
 
 // Объект сущности, реализующий интерфейс InterfaceWebLib.
