@@ -26,7 +26,7 @@ type Interface interface {
 	// Функция возвращает:
 	// - истина - если существует хотя бы один потребитель;
 	// - ложь   - если не существует ни одного потребителя;
-	IsSubscriber(data interface{}) bool
+	IsSubscriber(data any) bool
 
 	// PublishSync Передача в шину данных объекта данных в синхронном режиме, функция блокируется до окончания передачи
 	// данных всем зарегистрированным потребителям, подписанным на получение передаваемого типа данных.
@@ -34,7 +34,7 @@ type Interface interface {
 	// - тип переданных данных не зарегистрирован ни одним потребителем данных, то есть некому передать данные.
 	// - тип данных является пустым интерфейсом или nil.
 	// - ошибку вернул потребитель данных.
-	PublishSync(data interface{}) (ret []interface{}, errs []error)
+	PublishSync(data any) (ret []any, errs []error)
 
 	// PublishSyncWithContext Передача в шину данных объекта данных в синхронном режиме с контекстом,
 	// функция блокируется до окончания передачи данных всем зарегистрированным потребителям, подписанным на получение
@@ -45,7 +45,7 @@ type Interface interface {
 	// - тип данных является пустым интерфейсом или nil.
 	// - ошибку вернул потребитель данных.
 	// - произошло прерывание ожидания ответа через контекст.
-	PublishSyncWithContext(ctx context.Context, data interface{}) (ret []interface{}, errs []error)
+	PublishSyncWithContext(ctx context.Context, data any) (ret []any, errs []error)
 
 	// PublishSyncWithTimeout Передача в шину данных объекта данных в синхронном режиме с таймаутом,
 	// функция блокируется до окончания передачи данных всем зарегистрированным потребителям, подписанным на получение
@@ -56,13 +56,13 @@ type Interface interface {
 	// - тип данных является пустым интерфейсом или nil.
 	// - ошибку вернул потребитель данных.
 	// - произошло прерывание ожидания ответа по таймауту.
-	PublishSyncWithTimeout(timeout time.Duration, data interface{}) (ret []interface{}, errs []error)
+	PublishSyncWithTimeout(timeout time.Duration, data any) (ret []any, errs []error)
 
 	// PublishAsync Передача в шину данных объекта данных в асинхронном режиме.
 	// Функция вернёт ошибку, если:
 	// - тип переданных данных не зарегистрирован ни одним потребителем данных, то есть некому передать данные.
 	// - тип данных является пустым интерфейсом или nil.
-	PublishAsync(data interface{}) (err error)
+	PublishAsync(data any) (err error)
 
 	// Gist Интерфейс к служебным методам.
 	Gist() Essence

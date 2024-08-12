@@ -51,7 +51,7 @@ type subscriber struct {
 
 // Описание типа данных, которыми ожидают подписчики.
 type subscriberTypeInfo struct {
-	Original         interface{}  // Оригинальный объект.
+	Original         any          // Оригинальный объект.
 	OriginalType     reflect.Type // Тип данных в том виде как был передан в регистрацию.
 	TypeName         string       // Название типа.
 	BaseType         reflect.Type // Базовый тип после раскрытия всех адресов.
@@ -60,7 +60,7 @@ type subscriberTypeInfo struct {
 
 // Структура с результатами обработки данных.
 type workerSafeCallResponse struct {
-	Err  error         // Ошибка вызова потребителя.
-	Resp []interface{} // Результат обработки данных потребителем.
-	Errs []error       // Ошибки возвращённые потребителем.
+	Err  error   // Ошибка вызова потребителя.
+	Resp []any   // Результат обработки данных потребителем.
+	Errs []error // Ошибки возвращённые потребителем.
 }

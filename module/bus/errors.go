@@ -44,7 +44,7 @@ func (e *Error) DatabusRecursivePointer(code uint8, pointer string) Err {
 }
 
 // DatabusPanicException Работа с подпиской потребителя, в шине данных, прервана паникой: ... ....
-func (e *Error) DatabusPanicException(code uint8, err interface{}, stack []byte) Err {
+func (e *Error) DatabusPanicException(code uint8, err any, stack []byte) Err {
 	return newErr(&errDatabusPanicException, code, err, string(stack))
 }
 

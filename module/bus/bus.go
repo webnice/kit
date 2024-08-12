@@ -70,7 +70,7 @@ func (bus *impl) Errors() *Error { return Errors() }
 // - функция регистрации типов данных вернула недопустимые значения.
 func (bus *impl) Subscribe(databuser kitTypes.Databuser) (err error) {
 	var (
-		types []interface{}
+		types []any
 		rt    reflect.Type
 		n     int
 		sti   *subscriberTypeInfo
@@ -131,7 +131,7 @@ func (bus *impl) Unsubscribe(databuser kitTypes.Databuser) (err error) {
 // Функция возвращает:
 // - истина - если существует хотя бы один потребитель;
 // - ложь   - если не существует ни одного потребителя;
-func (bus *impl) IsSubscriber(data interface{}) bool {
+func (bus *impl) IsSubscriber(data any) bool {
 	return bus.databus.
 		Subscribers.
 		IsExistSubscriber(reflect.TypeOf(data))
@@ -143,7 +143,7 @@ func (bus *impl) IsSubscriber(data interface{}) bool {
 // - тип переданных данных не зарегистрирован ни одним потребителем данных, то есть некому передать данные.
 // - тип данных является пустым интерфейсом или nil.
 // - ошибку вернул потребитель данных.
-func (bus *impl) PublishSync(data interface{}) (ret []interface{}, errs []error) {
+func (bus *impl) PublishSync(data any) (ret []any, errs []error) {
 	return bus.publishSync(context.Background(), data)
 }
 
@@ -156,7 +156,7 @@ func (bus *impl) PublishSync(data interface{}) (ret []interface{}, errs []error)
 // - тип данных является пустым интерфейсом или nil.
 // - ошибку вернул потребитель данных.
 // - произошло прерывание ожидания ответа через контекст.
-func (bus *impl) PublishSyncWithContext(ctx context.Context, data interface{}) (ret []interface{}, errs []error) {
+func (bus *impl) PublishSyncWithContext(ctx context.Context, data any) (ret []any, errs []error) {
 	return bus.publishSync(ctx, data)
 }
 
@@ -169,7 +169,7 @@ func (bus *impl) PublishSyncWithContext(ctx context.Context, data interface{}) (
 // - тип данных является пустым интерфейсом или nil.
 // - ошибку вернул потребитель данных.
 // - произошло прерывание ожидания ответа по таймауту.
-func (bus *impl) PublishSyncWithTimeout(timeout time.Duration, data interface{}) (ret []interface{}, errs []error) {
+func (bus *impl) PublishSyncWithTimeout(timeout time.Duration, data any) (ret []any, errs []error) {
 	var (
 		ctx context.Context
 		cfn context.CancelFunc
@@ -179,7 +179,7 @@ func (bus *impl) PublishSyncWithTimeout(timeout time.Duration, data interface{})
 	return bus.publishSync(ctx, data)
 }
 
-func (bus *impl) publishSync(ctx context.Context, data interface{}) (ret []interface{}, errs []error) {
+func (bus *impl) publishSync(ctx context.Context, data any) (ret []any, errs []error) {
 	var (
 		err error
 		wdi kitModulePdw.Data
@@ -198,7 +198,7 @@ func (bus *impl) publishSync(ctx context.Context, data interface{}) (ret []inter
 	wdi.DataPut(data, true, ctx)
 	bus.publish(wdi)
 	if n = len(wdi.Result().DataGet()); n > 0 {
-		ret = make([]interface{}, 0, n)
+		ret = make([]any, 0, n)
 		ret = append(ret, wdi.Result().DataGet()...)
 	}
 	if n = len(wdi.Result().ErrGet()); n > 0 {
@@ -215,7 +215,7 @@ func (bus *impl) publishSync(ctx context.Context, data interface{}) (ret []inter
 // Функция вернёт ошибку, если:
 // - тип переданных данных не зарегистрирован ни одним потребителем данных, то есть некому передать данные.
 // - тип данных является пустым интерфейсом или nil.
-func (bus *impl) PublishAsync(data interface{}) (err error) {
+func (bus *impl) PublishAsync(data any) (err error) {
 	var wdi kitModulePdw.Data
 
 	if err = bus.publishDataCheck(data); err != nil {
@@ -232,7 +232,7 @@ func (bus *impl) PublishAsync(data interface{}) (err error) {
 }
 
 // Проверка передаваемых данных.
-func (bus *impl) publishDataCheck(data interface{}) (err error) {
+func (bus *impl) publishDataCheck(data any) (err error) {
 	var rdt reflect.Type
 
 	if data == nil {
