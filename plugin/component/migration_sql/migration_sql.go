@@ -40,13 +40,13 @@ func (m8s *impl) log() kitTypes.Logger { return m8s.cfg.Log() }
 // Preferences Функция возвращает настройки компоненты.
 func (m8s *impl) Preferences() kitTypes.ComponentPreferences {
 	const (
-		cEnvironment   = `(?mi)app/component/environment$`
-		cInterrupt     = `(?mi)app/component/interrupt$`
-		cConfiguration = `(?mi)app/component/configuration$`
-		cLogging       = `(?mi)app/component/logg.*`
-		cLoggerConsole = `(?mi)app/component/logger_console$`
-		cPidfile       = `(?mi)app/component/pidfile$`
-		cBootstrap     = `(?mi)app/component/bootstrap$`
+		cEnvironment   = "(?mi)/component/environment$"
+		cInterrupt     = "(?mi)/component/interrupt$"
+		cConfiguration = "(?mi)/component/configuration$"
+		cLogging       = "(?mi)/component/logg.*"
+		cLoggerConsole = "(?mi)/component/logger_console$"
+		cPidfile       = "(?mi)/component/pidfile$"
+		cBootstrap     = "(?mi)/component/bootstrap$"
 	)
 	return kitTypes.ComponentPreferences{
 		After:   []string{cConfiguration, cLoggerConsole, cLogging, cPidfile, cInterrupt, cEnvironment},

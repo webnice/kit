@@ -5,7 +5,7 @@ import (
 	"sync/atomic"
 )
 
-// Interface is an interface of package.
+// Interface Интерфейс пакета.
 type Interface interface {
 	// Start Запуск перехвата внешних прерываний.
 	Start() Interface
@@ -14,7 +14,7 @@ type Interface interface {
 	Stop() Interface
 }
 
-// impl is an implementation of package.
+// Объект сущности, реализующий интерфейс Interface.
 type impl struct {
 	doExitUp   chan struct{}  // Канал сигнала о завершении горутины.
 	doExitDone chan struct{}  // Канал сигнала "горутина завершена".

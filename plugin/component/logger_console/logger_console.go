@@ -5,7 +5,7 @@ import (
 	"runtime"
 	"sync"
 
-	"github.com/webnice/kit/v4/app/component/logger_console/tpl"
+	"github.com/webnice/kit/v4/plugin/component/logger_console/tpl"
 
 	kitModuleCfg "github.com/webnice/kit/v4/module/cfg"
 	kitModuleCfgReg "github.com/webnice/kit/v4/module/cfg/reg"
@@ -43,7 +43,7 @@ func (lgc *impl) wr() kitTypes.SyncWriter { return lgc.cfg.RawWriter() }
 
 // Preferences Функция возвращает настройки компоненты.
 func (lgc *impl) Preferences() kitTypes.ComponentPreferences {
-	const cConfiguration = `(?mi)app/component/configuration$`
+	const cConfiguration = "(?mi)/component/configuration$"
 	return kitTypes.ComponentPreferences{
 		After: []string{cConfiguration},
 	}

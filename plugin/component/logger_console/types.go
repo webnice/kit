@@ -3,7 +3,7 @@ package loggerconsole
 import (
 	"sync"
 
-	"github.com/webnice/kit/v4/app/component/logger_console/tpl"
+	"github.com/webnice/kit/v4/plugin/component/logger_console/tpl"
 
 	kitModuleCfg "github.com/webnice/kit/v4/module/cfg"
 )

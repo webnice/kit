@@ -7,44 +7,44 @@ import (
 	kitTypes "github.com/webnice/kit/v4/types"
 )
 
-// Short Получение информации о текущем вызове и коротком стеке вызовов активной горутины
-// Аргументы: stackBack - количество дополнительно пропускаемых вызовов следующих за вызовами текущего пакета
+// Short Получение информации о текущем вызове и коротком стеке вызовов активной горутины.
+// Аргументы: stackBack - количество дополнительно пропускаемых вызовов следующих за вызовами текущего пакета.
 func Short(ti *kitTypes.TraceInfo, stackBack int) {
 	const isFullStack = false
 	var buf *buffer
 
-	// Сброс заполняемого объекта
+	// Сброс заполняемого объекта.
 	ti.Reset()
-	// Установка блокировки доступа к объекту
+	// Установка блокировки доступа к объекту.
 	ti.Mux.Lock()
-	// Получение буфера из бассейна
+	// Получение буфера из бассейна.
 	buf = getBuffer()
-	// Поиск первого пакета в стеке вызовов, до первого вызова текущего пакета
+	// Поиск первого пакета в стеке вызовов, до первого вызова текущего пакета.
 	stackBack += getStackBack(buf)
 	if buf.UintPtr, buf.String1, ti.Line, buf.Ok = runtime.Caller(stackBack - 1); buf.Ok {
 		_, _ = ti.FilenameLong.WriteString(buf.String1)
-		// Название функции вызова
+		// Название функции вызова.
 		if buf.RuntimeFunc = runtime.FuncForPC(buf.UintPtr); buf.RuntimeFunc != nil {
 			_, _ = ti.Function.WriteString(buf.RuntimeFunc.Name())
 		}
-		// Стек вызова
+		// Стек вызова.
 		getStack(ti, stackBack, isFullStack, buf)
-		// Коррекция названия функции
+		// Коррекция названия функции.
 		functionCorrect(ti)
-		// Получение короткого названия файла приложения из которого был совершён вызов лога
+		// Получение короткого названия файла приложения из которого был совершён вызов лога.
 		if buf.SliceString = strings.Split(ti.FilenameLong.String(), packageNameSeparator); len(buf.SliceString) > 0 {
 			_, _ = ti.FilenameShort.WriteString(buf.SliceString[len(buf.SliceString)-1])
 		}
 	}
-	// Возвращение буфера в бассейн
+	// Возвращение буфера в бассейн.
 	putBuffer(buf)
-	// Снятие блокировки доступа к объекту
+	// Снятие блокировки доступа к объекту.
 	ti.Mux.Unlock()
 
 	return
 }
 
-// Коррекция названия функции
+// Коррекция названия функции.
 func functionCorrect(ti *kitTypes.TraceInfo) {
 	var buf *buffer
 
@@ -67,9 +67,9 @@ func functionCorrect(ti *kitTypes.TraceInfo) {
 	putBuffer(buf)
 }
 
-// Поиск первого пакета в стеке вызовов, до первого вызова текущего пакета
+// Поиск первого пакета в стеке вызовов, до первого вызова текущего пакета.
 func getStackBack(buf *buffer) (ret int) {
-	// Определение текущего пакета
+	// Определение текущего пакета.
 	if _, buf.String1, _, buf.Ok = runtime.Caller(0); !buf.Ok {
 		return
 	}
@@ -88,26 +88,26 @@ func getStackBack(buf *buffer) (ret int) {
 	return
 }
 
-// GetStack Загрузка стека вызова
+// GetStack Загрузка стека вызова.
 func getStack(ti *kitTypes.TraceInfo, stackBack int, isFullStack bool, buf *buffer) {
 	if len(buf.Byte64k) != cap(buf.Byte64k) {
 		// Увеличиваем размер до размера выделенной памяти, в буфере будут видны старые данные, но это не важно, при
-		// успешном выполнении, данные будут затёрты и обрезаны
+		// успешном выполнении, данные будут затёрты и обрезаны.
 		buf.Byte64k = buf.Byte64k[0:cap(buf.Byte64k)]
 	}
-	// Попытка получить стек до ошибки либо до тех пор, пока буфер будет достаточного размера для успешной загрузки
+	// Попытка получить стек до ошибки либо до тех пор, пока буфер будет достаточного размера для успешной загрузки.
 	for {
 		if buf.Int = runtime.Stack(buf.Byte64k, isFullStack); buf.Int < len(buf.Byte64k) {
 			buf.Byte64k = buf.Byte64k[:buf.Int]
 			break
 		}
-		// Нужен новый буфер в два раза больше, создание нового буфера
+		// Нужен новый буфер в два раза больше, создание нового буфера.
 		buf.Byte64k = make([]byte, 2*len(buf.Byte64k))
 	}
 	// Результат
 	ti.StackTrace.Write(buf.Byte64k[:])
 	buf.Byte64k = buf.Byte64k[:0]
-	// Если не требуется получение полного стека, обрезание первых строк с не нужными пакетами
+	// Если не требуется получение полного стека, обрезание первых строк с не нужными пакетами.
 	if !isFullStack {
 		buf.SliceString = strings.Split(ti.StackTrace.String(), stackLineSeparator)
 		ti.StackTrace.Reset()

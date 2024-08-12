@@ -2,7 +2,7 @@ package trace
 
 import "runtime"
 
-// StackShort Загрузка короткого стека текущей горутины
+// StackShort Загрузка короткого стека текущей горутины.
 func StackShort() (ret []byte) {
 	var n int
 
@@ -18,7 +18,7 @@ func StackShort() (ret []byte) {
 	return
 }
 
-// StackFull Загрузка полного стека вызовов всех горутин приложения
+// StackFull Загрузка полного стека вызовов всех горутин приложения.
 func StackFull() (ret []byte) {
 	var n int
 

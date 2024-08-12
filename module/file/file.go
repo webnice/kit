@@ -8,7 +8,7 @@ import (
 	_ "github.com/webnice/dic"
 )
 
-// New creates new object and return Interface
+// New Конструктор объекта сущности пакета, возвращается интерфейс пакета.
 func New() Interface {
 	var obj = new(impl)
 	return obj

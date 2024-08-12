@@ -1,6 +1,6 @@
 package bus
 
-// Обычные ошибки
+// Обычные ошибки.
 const (
 	eDatabusRecursivePointer      uint8 = iota + 1 // 001
 	eDatabusPanicException                         // 002

@@ -37,8 +37,8 @@ func (ipt *impl) log() kitTypes.Logger { return kitModuleCfg.Get().Log() }
 // Preferences Функция возвращает настройки компоненты.
 func (ipt *impl) Preferences() kitTypes.ComponentPreferences {
 	const (
-		cConfiguration = `(?mi)app/component/configuration$`
-		cLogging       = `(?mi)app/component/logging$`
+		cConfiguration = "(?mi)/component/configuration$"
+		cLogging       = "(?mi)/component/logging$"
 	)
 	return kitTypes.ComponentPreferences{
 		After: []string{cConfiguration, cLogging},

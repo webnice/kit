@@ -25,7 +25,7 @@ func (ccf *impl) log() kitTypes.Logger { return ccf.cfg.Log() }
 
 // Preferences Функция возвращает настройки компоненты.
 func (ccf *impl) Preferences() kitTypes.ComponentPreferences {
-	const cEnvironment = `(?mi)app/component/environment$`
+	const cEnvironment = "(?mi)app/component/environment$"
 	return kitTypes.ComponentPreferences{
 		After: []string{cEnvironment},
 		Command: []kitTypes.ComponentCommand{

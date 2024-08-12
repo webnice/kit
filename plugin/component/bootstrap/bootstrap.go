@@ -4,6 +4,7 @@ package bootstrap
 //
 // Компонента не выполняет никакой полезной нагрузки, предназначена для определения опорной точки,
 // после которой приложение полностью инициализировано и готово к работе.
+//
 // В последующих компонентах приложения, достаточно указать то, что они выполняются после компоненты bootstrap,
 // вместо перечисления всех необходимых для работы компонентов.
 //
@@ -37,13 +38,13 @@ func (brp *impl) log() kitTypes.Logger { return brp.cfg.Log() }
 // Preferences Функция возвращает настройки компоненты.
 func (brp *impl) Preferences() kitTypes.ComponentPreferences {
 	const (
-		cEnvironment   = `(?mi)app/component/environment$`
-		cInterrupt     = `(?mi)app/component/interrupt$`
-		cConfiguration = `(?mi)app/component/configuration$`
-		cLogging       = `(?mi)app/component/logg.*`
-		cLoggerConsole = `(?mi)app/component/logger_console$`
-		cPidfile       = `(?mi)app/component/pidfile$`
-		cMigration     = `(?mi)app/component/migration.*$`
+		cEnvironment   = "(?mi)/component/environment$"
+		cInterrupt     = "(?mi)/component/interrupt$"
+		cConfiguration = "(?mi)/component/configuration$"
+		cLogging       = "(?mi)/component/logg.*"
+		cLoggerConsole = "(?mi)/component/logger_console$"
+		cPidfile       = "(?mi)/component/pidfile$"
+		cMigration     = "(?mi)/component/migration.*$"
 	)
 	return kitTypes.ComponentPreferences{
 		After: []string{

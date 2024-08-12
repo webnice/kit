@@ -53,8 +53,8 @@ func (pid *impl) log() kitTypes.Logger { return pid.cfg.Log() }
 // Preferences Функция возвращает настройки компоненты.
 func (pid *impl) Preferences() kitTypes.ComponentPreferences {
 	const (
-		cConfiguration = `(?mi)app/component/configuration$`
-		cLogging       = `(?mi)app/component/logging$`
+		cConfiguration = "(?mi)/component/configuration$"
+		cLogging       = "(?mi)/component/logging$"
 	)
 	return kitTypes.ComponentPreferences{
 		After: []string{cConfiguration, cLogging},

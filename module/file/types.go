@@ -6,7 +6,7 @@ import (
 	"os"
 )
 
-// Interface is an interface
+// Interface Интерфейс пакета.
 type Interface interface {
 	// CleanEmptyFolder Удаление пустых директорий.
 	CleanEmptyFolder(folderPath string) (err error)
@@ -31,13 +31,13 @@ type Interface interface {
 	LoadFile(filename string) (data *bytes.Buffer, info os.FileInfo, err error)
 }
 
-// is an implementation
+// Объект сущности, реализующий интерфейс Interface.
 type impl struct {
 }
 
-// InfoSha512 Структура возвращаемой информации о файле
+// InfoSha512 Структура возвращаемой информации о файле.
 type InfoSha512 struct {
-	Name   string // Название файла
-	Size   int64  // Размер файла
-	Sha512 string // Контрольная сумма файла
+	Name   string // Название файла.
+	Size   int64  // Размер файла.
+	Sha512 string // Контрольная сумма файла.
 }

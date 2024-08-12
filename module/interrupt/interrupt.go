@@ -11,7 +11,7 @@ import (
 	kitTypes "github.com/webnice/kit/v4/types"
 )
 
-// New Создание объекта и возвращение интерфейса.
+// New Конструктор объекта сущности пакета, возвращается интерфейс пакета.
 func New(fn CatchFn) Interface {
 	var itp = &impl{
 		doExitUp:   make(chan struct{}, 1),
@@ -25,6 +25,7 @@ func New(fn CatchFn) Interface {
 	return itp
 }
 
+// Деструктор.
 func destructor(itp *impl) {
 	defer func() { _ = recover() }()
 	close(itp.signal)
@@ -32,7 +33,7 @@ func destructor(itp *impl) {
 	close(itp.doExitUp)
 }
 
-// Log Ссылка на менеджер логирования для использования внутри компоненты.
+// Log Ссылка на менеджер логирования.
 func (i7t *impl) Log() kitTypes.Logger { return kitModuleCfg.Get().Log() }
 
 // Start Запуск перехвата сигналов прерывания.
