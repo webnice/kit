@@ -1,8 +1,10 @@
-package server
+package ans
 
 // Создание объекта и возвращение интерфейса Essence.
 func newEssence(parent *impl) *gist {
-	var ece = &gist{parent: parent}
+	var ece = &gist{
+		parent: parent,
+	}
 
 	return ece
 }

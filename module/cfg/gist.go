@@ -9,7 +9,7 @@ import (
 	kitModuleLogLevel "github.com/webnice/kit/v4/module/log/level"
 	kitTypes "github.com/webnice/kit/v4/types"
 
-	"github.com/Masterminds/semver"
+	"github.com/Masterminds/semver/v3"
 )
 
 // Создание объекта и возвращение интерфейса Essence.
@@ -77,6 +77,7 @@ func (essence *gist) Debug(debug bool) Essence {
 	essence.parent.logger.Debug(debug)
 	essence.parent.bus.Gist().Debug(debug)
 	essence.parent.srv.Gist().Debug(debug)
+	essence.parent.ans.Gist().Debug(debug)
 
 	return essence
 }

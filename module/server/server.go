@@ -8,9 +8,9 @@ import (
 )
 
 // New Конструктор объекта сущности пакета, возвращается интерфейс пакета.
-func New(l kitTypes.Logger) Interface {
+func New(logger kitTypes.Logger) Interface {
 	var sri = &impl{
-		logger: l,
+		logger: logger,
 	}
 	sri.gist = newEssence(sri)
 	sri.serverWeb = newWeb(sri)

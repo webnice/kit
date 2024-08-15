@@ -4,6 +4,7 @@ import (
 	"container/list"
 	"sync"
 
+	kitModuleAns "github.com/webnice/kit/v4/module/ans"
 	kitModuleBus "github.com/webnice/kit/v4/module/bus"
 	kitModuleCfgCli "github.com/webnice/kit/v4/module/cfg/cli"
 	kitModuleLog "github.com/webnice/kit/v4/module/log"
@@ -11,7 +12,7 @@ import (
 	kitModuleUuid "github.com/webnice/kit/v4/module/uuid"
 	kitTypes "github.com/webnice/kit/v4/types"
 
-	"github.com/Masterminds/semver"
+	"github.com/Masterminds/semver/v3"
 )
 
 func init() {
@@ -53,6 +54,8 @@ func init() {
 	singleton.runLevelChangeChan, singleton.runLevelSubscribers = runlevelChangeFuncNew(), list.New()
 	// Интерфейс сервера.
 	singleton.srv = kitModuleServer.New(singleton.rec)
+	// Интерфейс ans.Interface.
+	singleton.ans = kitModuleAns.New(singleton.rec)
 }
 
 // Основная часть конфигурации приложения, интерфейс работы с командной строкой и переменными окружения.

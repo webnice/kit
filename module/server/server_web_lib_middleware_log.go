@@ -93,7 +93,7 @@ func (iwl *implWebLib) LogHandler() (ret func(http.Handler) http.Handler) {
 					return
 				}
 				// Запись в журнал с разбивкой по полям, для возможности работы с GrayLog.
-				log = iwl.parent.logger.
+				log = iwl.parent.log().
 					Key(
 						kitTypes.LoggerKey{"Address": logRecord.Address.String()},
 						kitTypes.LoggerKey{"Code": logRecord.Code},

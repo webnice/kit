@@ -8,6 +8,7 @@ import (
 	"strings"
 
 	"github.com/webnice/debug"
+	kitModuleAns "github.com/webnice/kit/v4/module/ans"
 	kitModuleBus "github.com/webnice/kit/v4/module/bus"
 	kitModuleCfgCpy "github.com/webnice/kit/v4/module/cfg/cpy"
 	kitModuleLogLevel "github.com/webnice/kit/v4/module/log/level"
@@ -35,6 +36,9 @@ func RegistrationMain(fn kitTypes.MainFn) Interface {
 
 	return singleton
 }
+
+// Answer Интерфейс библиотеки функций для формирования ответа на HTTP запрос к серверу.
+func (cfg *impl) Answer() kitModuleAns.Interface { return cfg.ans }
 
 // Bus Интерфейс шины данных приложения.
 func (cfg *impl) Bus() kitModuleBus.Interface { return cfg.bus }

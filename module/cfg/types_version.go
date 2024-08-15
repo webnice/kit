@@ -3,15 +3,15 @@ package cfg
 // Version Интерфейс доступа к методам версии в семантике "Семантическое Версионирование 2.0.0"
 type Version interface {
 	// Major returns the major version
-	Major() int64
+	Major() uint64
 
 	// Minor returns the minor version
-	Minor() int64
+	Minor() uint64
 
 	// Patch returns the patch version
-	Patch() int64
+	Patch() uint64
 
-	// Prerelease returns the pre-release version
+	// Prerelease returns the prerelease version
 	Prerelease() string
 
 	// Metadata returns the metadata on the version

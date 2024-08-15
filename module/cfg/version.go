@@ -7,13 +7,13 @@ func newVersion(parent *impl) Version {
 }
 
 // Major returns the major version.
-func (ver *version) Major() int64 { return ver.parent.main.Version.Major() }
+func (ver *version) Major() uint64 { return ver.parent.main.Version.Major() }
 
 // Minor returns the minor version.
-func (ver *version) Minor() int64 { return ver.parent.main.Version.Minor() }
+func (ver *version) Minor() uint64 { return ver.parent.main.Version.Minor() }
 
 // Patch returns the patch version.
-func (ver *version) Patch() int64 { return ver.parent.main.Version.Patch() }
+func (ver *version) Patch() uint64 { return ver.parent.main.Version.Patch() }
 
 // Prerelease returns the prerelease version.
 func (ver *version) Prerelease() string { return ver.parent.main.Version.Prerelease() }

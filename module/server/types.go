@@ -59,5 +59,5 @@ type impl struct {
 
 // Объект сути сущности, интерфейс Essence.
 type gist struct {
-	p *impl // Адрес объекта родительской сущности (parent), интерфейс Interface.
+	parent *impl // Адрес объекта родительской сущности (parent), интерфейс Interface.
 }

@@ -4,6 +4,7 @@ import (
 	"os/user"
 	"reflect"
 
+	kitModuleAns "github.com/webnice/kit/v4/module/ans"
 	kitModuleBus "github.com/webnice/kit/v4/module/bus"
 	kitModuleLogLevel "github.com/webnice/kit/v4/module/log/level"
 	kitModuleServer "github.com/webnice/kit/v4/module/server"
@@ -14,6 +15,9 @@ import (
 // Interface Интерфейс пакета.
 type Interface interface {
 	// ИНТЕРФЕЙСЫ.
+
+	// Answer Интерфейс библиотеки функций для формирования ответа на HTTP запрос к серверу.
+	Answer() kitModuleAns.Interface
 
 	// Bus Интерфейс шины данных приложения.
 	Bus() kitModuleBus.Interface

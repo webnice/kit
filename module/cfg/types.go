@@ -8,6 +8,7 @@ import (
 	"sync"
 	"time"
 
+	kitModuleAns "github.com/webnice/kit/v4/module/ans"
 	kitModuleBus "github.com/webnice/kit/v4/module/bus"
 	kitModuleCfgCli "github.com/webnice/kit/v4/module/cfg/cli"
 	kitModuleLog "github.com/webnice/kit/v4/module/log"
@@ -15,7 +16,7 @@ import (
 	kitModuleUuid "github.com/webnice/kit/v4/module/uuid"
 	kitTypes "github.com/webnice/kit/v4/types"
 
-	"github.com/Masterminds/semver"
+	"github.com/Masterminds/semver/v3"
 )
 
 var (
@@ -59,6 +60,7 @@ type impl struct {
 	uuid    kitModuleUuid.Interface   // Объект интерфейса UUID.
 	cli     kitModuleCfgCli.Interface // Объект интерфейса CLI.
 	srv     kitModuleServer.Interface // Объект интерфейса Server.
+	ans     kitModuleAns.Interface    // Объект интерфейса Ans.
 }
 
 // Объект сути сущности, интерфейс Essence.

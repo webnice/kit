@@ -80,8 +80,6 @@ func (iweb *implWeb) makeRouting() (err error) {
 	iweb.router = chi.NewRouter()
 	// Базовые промежуточные, используемые всегда.
 	iweb.router.
-		Use(iweb.Lib().Middleware().RecoverHandler()) // Восстановление после паники в ВЕБ сервере.
-	iweb.router.
 		Use(iweb.Lib().Middleware().IpHandler()) // Загрузка IP адреса клиента в контекст.
 	// Группировка ресурсов по базовому пути URN.
 	grp = make(map[string][]*kitTypesServer.Web)
@@ -100,6 +98,9 @@ func (iweb *implWeb) makeRouting() (err error) {
 			}
 		}
 	}
+	// Промежуточные восстановления после паники.
+	iweb.router.
+		Use(iweb.Lib().Middleware().RecoverHandler()) // Восстановление после паники в ВЕБ сервере.
 	// Создание роутинга для зарегистрированных ресурсов.
 	for pattern = range grp {
 		if pattern == "" {

@@ -1,30 +1,41 @@
 package lock
 
 import (
-	"io/ioutil"
 	"os"
 	"testing"
 )
 
 func Test(t *testing.T) {
-	tmpFileFh, err := ioutil.TempFile(os.TempDir(), "lock-")
-	_ = tmpFileFh.Close()
-	tmpFile := tmpFileFh.Name()
-	_ = os.Remove(tmpFile)
+	var (
+		err       error
+		tmpFileFh *os.File
+		tmpFile   string
+		lock      *Lock
+		locked    bool
+		newLock   *Lock
+	)
 
-	lock := New(tmpFile)
-	locked, err := lock.TryLock()
-	if locked == false || err != nil {
-		t.Fatalf("failed to lock file: locked: %t, err: %v", locked, err)
+	if tmpFileFh, err = os.CreateTemp(os.TempDir(), "lock-"); err != nil {
+		t.Fatal(err.Error())
+		return
 	}
-
-	newLock := New(tmpFile)
+	_ = tmpFileFh.Close()
+	tmpFile = tmpFileFh.Name()
+	_ = os.Remove(tmpFile)
+	lock = New(tmpFile)
+	locked, err = lock.TryLock()
+	if locked == false || err != nil {
+		t.Fatalf("функция TryLock() вернула %t или прервана ошибкой: %s", locked, err)
+		return
+	}
+	newLock = New(tmpFile)
 	locked, err = newLock.TryLock()
 	if locked != false || err != nil {
-		t.Fatalf("should have failed locking file: locked: %t, err: %v", locked, err)
+		t.Fatalf("функция TryLock() вернула %t или прервана ошибкой: %s", locked, err)
+		return
 	}
-
 	if newLock.fh != nil {
-		t.Fatal("file handle should have been released and be nil")
+		t.Fatal("дескриптор файла должен был быть освобожден и иметь значение nil")
+		return
 	}
 }
