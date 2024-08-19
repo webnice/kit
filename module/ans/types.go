@@ -3,7 +3,8 @@ package ans
 import kitTypes "github.com/webnice/kit/v4/types"
 
 const (
-	errEncode = "сериализация в JSON прервана ошибкой: %s"
+	errEncode   = "сериализация в JSON прервана ошибкой: %s"
+	errResponse = "передача HTTP ответа прервана ошибкой: %s"
 )
 
 // Essence Служебный публичный интерфейс.

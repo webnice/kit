@@ -40,7 +40,6 @@ func (rqv *impl) Load(request *http.Request, variable any) (err error) {
 		if !field.IsValid() || !field.CanSet() {
 			continue
 		}
-
 		if tmp, ok = flds[n].Tag.Lookup(tagContext); ok {
 			if err = rqv.loadFromContext(request, field, tmp); err != nil {
 				return
@@ -80,6 +79,13 @@ func (rqv *impl) Load(request *http.Request, variable any) (err error) {
 			if !field.IsZero() {
 				continue
 			}
+		}
+	}
+	// Функции вызываются после обработки всей структуры другими тегами.
+	for n = range flds {
+		field = item.FieldByName(flds[n].Name)
+		if !field.IsValid() || !field.CanSet() {
+			continue
 		}
 		if tmp, ok = flds[n].Tag.Lookup(tagRqFunc); ok {
 			if err = rqv.loadFromRqFunc(request, item, field, tmp); err != nil {

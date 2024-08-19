@@ -62,7 +62,7 @@ dep: dep-init
 	@go mod tidy
 	@# go mod vendor
 	@# rm -rf ${DIR}/vendor/self; cd ${DIR}/vendor; #ln -s ${DIR} self; #true
-	$(call PROJECT_DEPENDENCES)
+	$(call PROJECT_DEPENDENCIES)
 .PHONY: dep
 dep-dev: dep-init
 	@for item in $(LOCALPACKAGES); do PKGNAME=`echo $${item} | awk -F'=' '{print $$1}'`; REPLACE=`echo $${item} | awk -F'=' '{print $$2}'`; \
@@ -72,7 +72,7 @@ dep-dev: dep-init
 	@go mod edit -replace self=${DIR}
 	@go mod download
 	@go mod tidy
-	$(call PROJECT_DEPENDENCES_DEVELOPMENT)
+	$(call PROJECT_DEPENDENCIES_DEVELOPMENT)
 .PHONY: dep-dev
 
 ## Кодогенерация (run only during development).

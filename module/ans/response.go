@@ -7,51 +7,113 @@ import (
 	"net/http"
 	"reflect"
 	"strconv"
+	"time"
 
 	"github.com/webnice/dic"
 )
 
-// NoContent Ответ кодом 204 "No Content" без передачи тела сообщения.
-func (ans *impl) NoContent(wr http.ResponseWriter) Interface {
-	wr.WriteHeader(dic.Status().NoContent.Code())
+// Status Ответ кодом статуса без передачи тела сообщения.
+func (ans *impl) Status(wr http.ResponseWriter, status dic.IStatus) Interface {
+	wr.WriteHeader(status.Code())
 	return ans
 }
 
-// BadRequest Ответ на запрос с передачей ошибки запроса и структуры описывающей найденную ошибку
-func (ans *impl) BadRequest(wr http.ResponseWriter, status dic.IStatus, data any) {
+// Ok Ответ кодом 200 "Ok".
+func (ans *impl) Ok(wr http.ResponseWriter) Interface { return ans.Status(wr, dic.Status().Ok) }
 
-	// data verify.Interface
+// NoContent Ответ кодом 204 "No Content" без передачи тела сообщения.
+func (ans *impl) NoContent(wr http.ResponseWriter) Interface {
+	return ans.Status(wr, dic.Status().NoContent)
+}
 
-	//var (
-	//	err error
-	//	buf []byte
-	//)
-	//
-	//if buf = data.Json(); len(buf) == 0 {
-	//	// TODO: Добавить проверку ошибки кодирования JSON в библиотеке github.com/webnice/kit/v2/module/verify
-	//	err = fmt.Errorf("github.com/webnice/kit/v2/module/verify JSON encode error")
-	//	InternalServerError(wr, err)
-	//	return
-	//}
-	//wr.Header().Set(header.ContentType, mime.ApplicationJSONCharsetUTF8)
-	//Response(wr, statusCode, buf)
+// Unauthorized Ответ кодом 401 "Unauthorized" без передачи тела сообщения.
+func (ans *impl) Unauthorized(wr http.ResponseWriter) Interface {
+	return ans.Status(wr, dic.Status().Unauthorized)
+}
+
+// Forbidden Ответ кодом 403 "Forbidden" без передачи тела сообщения.
+func (ans *impl) Forbidden(wr http.ResponseWriter) Interface {
+	return ans.Status(wr, dic.Status().Forbidden)
+}
+
+// NotFound Ответ кодом 404 "Not Found" без передачи тела сообщения.
+func (ans *impl) NotFound(wr http.ResponseWriter) Interface {
+	return ans.Status(wr, dic.Status().NotFound)
+}
+
+// BadRequest Ответ на запрос с передачей ошибки запроса и структуры описывающей найденную ошибку.
+func (ans *impl) BadRequest(wr http.ResponseWriter, data RestErrorInterface) Interface {
+	ans.Status(wr, dic.Status().BadRequest)
+	if data == nil {
+		return ans
+	}
+	data.Json(wr)
+
+	return ans
+}
+
+// BadRequestBytes Ответ на запрос с передачей данных в исходном виде.
+func (ans *impl) BadRequestBytes(wr http.ResponseWriter, data []byte) Interface {
+	var err error
+
+	ans.Status(wr, dic.Status().BadRequest)
+	if len(data) <= 0 {
+		return ans
+	}
+	if _, err = wr.Write(data); err != nil {
+		ans.logErrorf(errResponse, err)
+		return ans
+	}
+
+	return ans
 }
 
 // InternalServerError Ответ на запрос с кодом ошибки 500 и структурой описывающей ошибку.
 func (ans *impl) InternalServerError(wr http.ResponseWriter, err error) Interface {
-	//var data verify.Interface
-	//
-	//log.Error(err.Error())
-	//data = verify.E5xx().Code(-1).Message(err.Error())
-	//ResponseBadRequest(wr, status.InternalServerError, data)
+	if err != nil {
+		ans.logErrorf(err.Error())
+	}
+	ans.
+		NewRestError(dic.Status().InternalServerError, err).
+		CodeSet(-1).
+		Json(wr)
 
+	return ans
+}
+
+// Header Установка заголовка передаваемых данных.
+func (ans *impl) Header(wr http.ResponseWriter, header dic.IHeader, mime dic.IMime) Interface {
+	return ans.HeaderString(wr, header, mime.String())
+}
+
+// HeaderString Установка заголовка передаваемых данных объектом строка.
+func (ans *impl) HeaderString(wr http.ResponseWriter, header dic.IHeader, mimeString string) Interface {
+	wr.Header().Set(header.String(), mimeString)
 	return ans
 }
 
 // ContentType Установка типа контента передаваемых данных.
 func (ans *impl) ContentType(wr http.ResponseWriter, mime dic.IMime) Interface {
-	wr.Header().Set(dic.Header().ContentType.String(), mime.String())
-	return ans
+	return ans.Header(wr, dic.Header().ContentType, mime)
+}
+
+// ContentTypeString Установка типа контента передаваемых данных объектом строка.
+func (ans *impl) ContentTypeString(wr http.ResponseWriter, mimeString string) Interface {
+	return ans.HeaderString(wr, dic.Header().ContentType, mimeString)
+}
+
+// ContentLength Установка заголовка длинны передаваемого контента.
+func (ans *impl) ContentLength(wr http.ResponseWriter, contentLength uint64) Interface {
+	return ans.HeaderString(wr, dic.Header().ContentLength, strconv.FormatUint(contentLength, 10))
+}
+
+// LastModified Установка заголовка с датой и временем изменения контента.
+func (ans *impl) LastModified(wr http.ResponseWriter, lastModified time.Time) Interface {
+	const timeFormat = "Mon, 02 Jan 2006 15:04:05 GMT"
+	if lastModified.IsZero() {
+		return ans
+	}
+	return ans.HeaderString(wr, dic.Header().LastModified, lastModified.UTC().Format(timeFormat))
 }
 
 // ResponseBytes Ответ с проверкой передачи данных.
@@ -73,7 +135,7 @@ func (ans *impl) Response(wr http.ResponseWriter, status dic.IStatus, buf *bytes
 	wr.WriteHeader(status.Code())
 	if buf.Len() > 0 {
 		if _, err = buf.WriteTo(wr); err != nil {
-			ans.logErrorf("передача HTTP ответа прервана ошибкой: %s", err)
+			ans.logErrorf(errResponse, err)
 			return ans
 		}
 	}

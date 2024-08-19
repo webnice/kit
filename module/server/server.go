@@ -47,11 +47,17 @@ func (sri *impl) Start() (err error) {
 		n              int
 	)
 
+	serverAdded = uint64(len(sri.server))
 	// Подготовка зарегистрированных ресурсов веб сервера.
-	if err = sri.serverWeb.
-		Prepare(); err != nil {
-		err = fmt.Errorf("подготовка ресурсов сервера прервана ошибкой: %s", err)
-		return
+	for n = range sri.server {
+		switch sri.server[n].T {
+		case kitTypesServer.TWeb:
+			err = sri.serverWeb.Prepare(sri.server[n].Web)
+		}
+		if err != nil {
+			err = fmt.Errorf("подготовка ресурсов сервера прервана ошибкой: %s", err)
+			return
+		}
 	}
 	// Подготовка зарегистрированных ресурсов GRPC сервера(ов).
 	//if err = sri.serverGrpc.
@@ -72,7 +78,6 @@ func (sri *impl) Start() (err error) {
 	//	return
 	//}
 	// Запуск всех зарегистрированных серверов.
-	serverAdded = uint64(len(sri.server))
 	for n = range sri.server {
 		switch sri.server[n].T {
 		case kitTypesServer.TWeb:

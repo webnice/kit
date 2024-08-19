@@ -3,6 +3,7 @@ package ans
 import (
 	"bytes"
 	"net/http"
+	"time"
 
 	"github.com/webnice/dic"
 	kitModuleRqVar "github.com/webnice/kit/v4/module/rqvar"
@@ -52,14 +53,50 @@ type Interface interface {
 
 	// РАБОТА С ДАННЫМИ ОТВЕТА НА ЗАПРОС
 
+	// Status Ответ кодом статуса без передачи тела сообщения.
+	Status(wr http.ResponseWriter, status dic.IStatus) Interface
+
+	// Ok Ответ кодом 200 "Ok".
+	Ok(wr http.ResponseWriter) Interface
+
 	// NoContent Ответ кодом 204 "No Content" без передачи тела сообщения.
 	NoContent(wr http.ResponseWriter) Interface
+
+	// Unauthorized Ответ кодом 401 "Unauthorized" без передачи тела сообщения.
+	Unauthorized(wr http.ResponseWriter) Interface
+
+	// Forbidden Ответ кодом 403 "Forbidden" без передачи тела сообщения.
+	Forbidden(wr http.ResponseWriter) Interface
+
+	// NotFound Ответ кодом 404 "Not Found" без передачи тела сообщения.
+	NotFound(wr http.ResponseWriter) Interface
+
+	// BadRequest Ответ на запрос с передачей ошибки запроса и структуры описывающей найденную ошибку.
+	BadRequest(wr http.ResponseWriter, data RestErrorInterface) Interface
+
+	// BadRequestBytes Ответ на запрос с передачей данных в исходном виде.
+	BadRequestBytes(wr http.ResponseWriter, data []byte) Interface
 
 	// InternalServerError Ответ на запрос с кодом ошибки 500 и структурой описывающей ошибку.
 	InternalServerError(wr http.ResponseWriter, err error) Interface
 
+	// Header Установка заголовка передаваемых данных.
+	Header(wr http.ResponseWriter, header dic.IHeader, mime dic.IMime) Interface
+
+	// HeaderString Установка заголовка передаваемых данных объектом строка.
+	HeaderString(wr http.ResponseWriter, header dic.IHeader, mimeString string) Interface
+
 	// ContentType Установка типа контента передаваемых данных.
 	ContentType(wr http.ResponseWriter, mime dic.IMime) Interface
+
+	// ContentTypeString Установка типа контента передаваемых данных объектом строка.
+	ContentTypeString(wr http.ResponseWriter, mimeString string) Interface
+
+	// ContentLength Установка заголовка длинны передаваемого контента.
+	ContentLength(wr http.ResponseWriter, contentLength uint64) Interface
+
+	// LastModified Установка заголовка с датой и временем изменения контента.
+	LastModified(wr http.ResponseWriter, lastModified time.Time) Interface
 
 	// ResponseBytes Ответ с проверкой передачи данных.
 	ResponseBytes(wr http.ResponseWriter, status dic.IStatus, data []byte) Interface

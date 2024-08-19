@@ -8,7 +8,7 @@ import (
 )
 
 // Prepare Подготовка зарегистрированных ресурсов веб сервера и создание роутинга.
-func (iweb *implWeb) Prepare() (err error) {
+func (iweb *implWeb) Prepare(wc *kitTypesServer.WebConfiguration) (err error) {
 	// Вызов функции Before.
 	iweb.info("Подготовка зарегистрированных ресурсов веб сервера.")
 	if err = iweb.callBefore(); err != nil {
@@ -17,7 +17,7 @@ func (iweb *implWeb) Prepare() (err error) {
 	iweb.info("Подготовка зарегистрированных ресурсов веб сервера выполнено.")
 	// Создание роутинга ВЕБ сервера.
 	iweb.info("Создание роутинга ВЕБ сервера.")
-	if err = iweb.makeRouting(); err != nil {
+	if err = iweb.makeRouting(wc); err != nil {
 		return
 	}
 	iweb.info("Создание роутинга ВЕБ сервера выполнено.")
@@ -27,7 +27,11 @@ func (iweb *implWeb) Prepare() (err error) {
 
 // Вызов функции Before.
 func (iweb *implWeb) callBefore() (err error) {
-	var n, s int
+	var (
+		n, s     int
+		resource *kitTypesServer.Web
+		before   kitTypesServer.WebEventFn
+	)
 
 	// Функция защиты от паники.
 	defer func() {
@@ -38,19 +42,18 @@ func (iweb *implWeb) callBefore() (err error) {
 	}()
 	// Запуск функции Before.
 	for n = range iweb.res {
-		if iweb.res[n].Resource() == nil {
+		if iweb.res[n].Resource == nil {
 			continue
 		}
-		if iweb.res[n].Resource().Before == nil {
+		resource = iweb.res[n].Resource(nil)
+		if before = resource.Before; before == nil {
 			continue
 		}
 		for s = range iweb.parent.server {
 			if iweb.parent.server[s].T != kitTypesServer.TWeb {
 				continue
 			}
-			if err = iweb.res[n].
-				Resource().
-				Before(iweb.parent.server[s]); err != nil {
+			if err = before(iweb.parent.server[s]); err != nil {
 				err = iweb.parent.Errors().BeforeExitWithError(err)
 				return
 			}
@@ -61,7 +64,7 @@ func (iweb *implWeb) callBefore() (err error) {
 }
 
 // Создание роутинга ВЕБ сервера.
-func (iweb *implWeb) makeRouting() (err error) {
+func (iweb *implWeb) makeRouting(wc *kitTypesServer.WebConfiguration) (err error) {
 	var (
 		grp     map[string][]*kitTypesServer.Web
 		res     *kitTypesServer.Web
@@ -84,7 +87,7 @@ func (iweb *implWeb) makeRouting() (err error) {
 	// Группировка ресурсов по базовому пути URN.
 	grp = make(map[string][]*kitTypesServer.Web)
 	for n = range iweb.res {
-		res = iweb.res[n].Resource()
+		res = iweb.res[n].Resource(wc)
 		grp[res.Path] = append(grp[res.Path], res)
 	}
 	// Только "промежуточные", без указания пути URN, подключаемые из плагинов.

@@ -10,12 +10,12 @@ endef
 export APP
 
 ## Загрузка зависимостей проекта, продакшн режим.
-define PROJECT_DEPENDENCES
+define PROJECT_DEPENDENCIES
   @#go get -d ...
 endef
 
 ## Загрузка зависимостей проекта, режим разработки.
-define PROJECT_DEPENDENCES_DEVELOPMENT
+define PROJECT_DEPENDENCIES_DEVELOPMENT
 	@#go get -d ...
 endef
 
