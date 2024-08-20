@@ -51,6 +51,14 @@ type InterfaceMiddleware interface {
 
 	// WebServerControlGetFromContext Извлечение объекта контроля за ВЕБ сервером из контекста HTTP запроса.
 	WebServerControlGetFromContext(rq *http.Request) (ret *kitTypesServer.WebServerControl, err error)
+
+	// RequestShadowInfoHandler Загрузка объекта информации о запросе и всех данных переданных в запросе в контекст.
+	RequestShadowInfoHandler() (ret func(http.Handler) http.Handler)
+
+	// RequestShadowInfoGetFromContext Извлечение объекта информации о запросе и всех данных переданных в запросе
+	// из контекста HTTP запроса.
+	// Возвращается nil, если объект информации не был найден в контексте HTTP запроса.
+	RequestShadowInfoGetFromContext(rq *http.Request) (ret *kitTypesServer.RequestShadowInfo)
 }
 
 // Объект сущности, реализующий интерфейс InterfaceWebLib.

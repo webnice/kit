@@ -8,6 +8,9 @@ const (
 
 	// Название контекста для объекта ip адреса клиента HTTP запроса.
 	cNameIP = "middleware-client-request-ip"
+
+	// Название контекста для объекта получения полной информации о запросе и всех данных переданных в запросе.
+	cNameRequestShadowInfo = "middleware-request-shadow-info"
 )
 
 var (
@@ -16,6 +19,9 @@ var (
 
 	// Ключ контекста для объекта ip адреса клиента HTTP запроса.
 	cKeyIP = &contextKey{cNameIP}
+
+	// Название контекста для объекта получения полной информации о запросе и всех данных переданных в запросе.
+	cKeyRequestShadowInfo = &contextKey{cNameRequestShadowInfo}
 )
 
 // Общая функция извлечения из контекста обёртки над данными с проверкой ключа и названия.
