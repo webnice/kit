@@ -1,10 +1,15 @@
 package ans
 
 import (
+	"fmt"
 	"net/http"
+	"strconv"
+	"strings"
 
 	"github.com/webnice/dic"
 	kitModuleRqVar "github.com/webnice/kit/v4/module/rqvar"
+
+	"github.com/go-chi/chi/v5"
 )
 
 // RqVar Интерфейс модуля github.com/webnice/kit/module/rqvar. Поиск и загрузка данных из:
@@ -15,6 +20,53 @@ import (
 // + путей URN роутинга HTTP запроса;
 // + вызов функции структуры загружаемых данных;
 func (ans *impl) RqVar() kitModuleRqVar.Interface { return kitModuleRqVar.Get() }
+
+// RqIds Загрузка числовых идентификаторов указанных в path-param под ключём {key} и перечисленных через запятую.
+// В случае возникновения ошибки формируется и отправляется HTTP ответ с кодом 400, содержащий возникшую ошибку.
+func (ans *impl) RqIds(wr http.ResponseWriter, rq *http.Request, key string) (ret []uint64, err error) {
+	const sep = ","
+	var (
+		srcIDs string
+		sIDs   []string
+		n      int
+		v      uint64
+	)
+
+	srcIDs = chi.URLParam(rq, key)
+	sIDs = strings.Split(srcIDs, sep)
+	ret = make([]uint64, 0, len(sIDs))
+	for n = range sIDs {
+		if v, err = strconv.ParseUint(strings.TrimSpace(sIDs[n]), 10, 64); err != nil {
+			err = fmt.Errorf("конвертация значения %q в число прервана ошибкой: %s", sIDs[n], err)
+			ans.NewRestError(dic.Status().BadRequest, err).CodeSet(-1).
+				Add(key, sIDs[n], err.Error()).Json(wr)
+			return
+		}
+		ret = append(ret, v)
+	}
+
+	return
+}
+
+// RqId Загрузка значения указанного в path-param под ключём {key} и конвертация его в число.
+// В случае возникновения ошибки формируется и отправляется HTTP ответ с кодом 400, содержащий возникшую ошибку.
+func (ans *impl) RqId(wr http.ResponseWriter, rq *http.Request, key string) (ret uint64, err error) {
+	var (
+		src string
+	)
+
+	if src = strings.TrimSpace(chi.URLParam(rq, key)); src == "" {
+		return
+	}
+	if ret, err = strconv.ParseUint(src, 10, 64); err != nil {
+		err = fmt.Errorf("конвертация значения %q в число прервана ошибкой: %s", src, err)
+		ans.NewRestError(dic.Status().BadRequest, err).CodeSet(-1).
+			Add(key, src, err.Error()).Json(wr)
+		return
+	}
+
+	return
+}
 
 // RqLoad Выполнение загрузки и декодирования данных, в случае возникновения ошибки формируется и отправляется HTTP
 // ответ с кодом 400, содержащий возникшую ошибку.

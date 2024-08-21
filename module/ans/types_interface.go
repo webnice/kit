@@ -28,6 +28,14 @@ type Interface interface {
 	// + вызов функции структуры загружаемых данных;
 	RqVar() kitModuleRqVar.Interface
 
+	// RqIds Загрузка числовых идентификаторов указанных в path-param под ключём {key} и перечисленных через запятую.
+	// В случае возникновения ошибки формируется и отправляется HTTP ответ с кодом 400, содержащий возникшую ошибку.
+	RqIds(wr http.ResponseWriter, rq *http.Request, key string) (ret []uint64, err error)
+
+	// RqId Загрузка значения указанного в path-param под ключём {key} и конвертация его в число.
+	// В случае возникновения ошибки формируется и отправляется HTTP ответ с кодом 400, содержащий возникшую ошибку.
+	RqId(wr http.ResponseWriter, rq *http.Request, key string) (ret uint64, err error)
+
 	// RqBytes Загрузка тела HTTP запроса в виде среза байт и возвращение объекта *bytes.Buffer.
 	RqBytes(rq *http.Request) (ret *bytes.Buffer, err error)
 
