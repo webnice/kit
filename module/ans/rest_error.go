@@ -14,7 +14,8 @@ import (
 func (ans *impl) NewRestError(status dic.IStatus, err error) (reo RestErrorInterface) {
 	reo = &RestError{
 		parent: ans,
-		Error:  RestErrorBody{Code: status.Code()},
+		status: status,
+		Error:  RestErrorBody{Code: -1},
 	}
 	if err != nil {
 		reo.MessageSet(err.Error())
@@ -93,7 +94,7 @@ func (reo *RestError) Json(wr http.ResponseWriter) {
 		return
 	}
 	reo.parent.ContentType(wr, dic.Mime().ApplicationJson)
-	reo.parent.Response(wr, dic.ParseStatusCode(reo.Error.Code), buf)
+	reo.parent.Response(wr, reo.status, buf)
 
 	return
 }

@@ -1,6 +1,7 @@
 package sql
 
 import (
+	"errors"
 	"math"
 
 	//kitModuleCfg "github.com/webnice/kit/v4/module/cfg"
@@ -62,12 +63,12 @@ func (mys *impl) MigrationUp() (err error) {
 		}
 	}
 	if count <= 0 {
-		mys.log().Infof(tplNoNewMigration, mys.cfg.Driver, current)
+		mys.info(tplNoNewMigration, mys.cfg.Driver, current)
 		return
 	}
-	mys.log().Infof(tplNewMigration, mys.cfg.Driver, count)
+	mys.info(tplNewMigration, mys.cfg.Driver, count)
 	// Применение миграций.
-	mys.log().Info(tplNewApply)
+	mys.info(tplNewApply)
 	for {
 		if end {
 			break
@@ -76,9 +77,9 @@ func (mys *impl) MigrationUp() (err error) {
 			end, err = true, nil
 			continue
 		}
-		switch next, err = migration.Next(current); err {
-		case nil:
-		case goose.ErrNoNextVersion:
+		switch next, err = migration.Next(current); {
+		case err == nil:
+		case errors.Is(err, goose.ErrNoNextVersion):
 			end, err = true, nil
 			continue
 		}
@@ -88,7 +89,7 @@ func (mys *impl) MigrationUp() (err error) {
 		}
 	}
 	if err == nil {
-		mys.log().Infof(tplNewApplied, mys.cfg.Driver)
+		mys.info(tplNewApplied, mys.cfg.Driver)
 	}
 
 	return

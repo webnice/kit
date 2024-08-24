@@ -116,6 +116,11 @@ func (ans *impl) LastModified(wr http.ResponseWriter, lastModified time.Time) In
 	return ans.HeaderString(wr, dic.Header().LastModified, lastModified.UTC().Format(timeFormat))
 }
 
+// RetryAfter Установка заголовка 'Retry-After' с числом секунд.
+func (ans *impl) RetryAfter(wr http.ResponseWriter, duration time.Duration) Interface {
+	return ans.HeaderString(wr, dic.Header().RetryAfter, strconv.FormatUint(uint64(duration/time.Second), 10))
+}
+
 // ResponseBytes Ответ с проверкой передачи данных.
 func (ans *impl) ResponseBytes(wr http.ResponseWriter, status dic.IStatus, data []byte) Interface {
 	return ans.Response(wr, status, bytes.NewBuffer(data))

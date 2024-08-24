@@ -1,9 +1,11 @@
 package server
 
 import (
+	"bytes"
 	"net/http"
 
 	"github.com/webnice/dic"
+	"github.com/webnice/kit/v4/module/ans"
 )
 
 // InternalServerErrorGet Получение функции для обработки внутренней ошибки ВЕБ сервера.
@@ -25,13 +27,18 @@ func (iwl *implWebLib) InternalServerErrorSet(fn http.HandlerFunc) InterfaceHand
 }
 
 func (iwl *implWebLib) defaultInternalServerError(wr http.ResponseWriter, _ *http.Request) {
-	var err error
+	var (
+		ero error
+		rsp ans.Interface
+		buf *bytes.Buffer
+	)
 
-	wr.Header().Set(dic.Header().ContentType.String(), dic.Mime().TextPlain.String())
-	wr.WriteHeader(dic.Status().InternalServerError.Code())
-	if err = iwl.parent.serverWeb.error.InternalServerError(nil); err == nil {
-		_, _ = wr.Write(dic.Status().InternalServerError.Bytes())
-		return
+	rsp = ans.New(iwl.parent.logger)
+	rsp.ContentType(wr, dic.Mime().TextPlain)
+	buf = bytes.NewBuffer(dic.Status().InternalServerError.Bytes())
+	if ero = iwl.parent.serverWeb.error.InternalServerError(nil); ero != nil {
+		buf = bytes.NewBufferString(ero.Error())
+		iwl.parent.log().Error(ero.Error())
 	}
-	_, _ = wr.Write([]byte(err.Error()))
+	rsp.ResponseBytes(wr, dic.Status().InternalServerError, buf.Bytes())
 }

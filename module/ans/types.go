@@ -1,6 +1,9 @@
 package ans
 
-import kitTypes "github.com/webnice/kit/v4/types"
+import (
+	"github.com/webnice/dic"
+	kitTypes "github.com/webnice/kit/v4/types"
+)
 
 const (
 	errEncode   = "сериализация в JSON прервана ошибкой: %s"
@@ -28,6 +31,7 @@ type gist struct {
 // RestError Структура стандартного REST ответа с ошибкой с кодами 4xx и 5xx.
 type RestError struct {
 	parent *impl
+	status dic.IStatus
 	Error  RestErrorBody `json:"error" xml:"error"`
 }
 

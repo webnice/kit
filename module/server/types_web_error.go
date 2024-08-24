@@ -3,7 +3,7 @@ package server
 import "github.com/webnice/kit/v4/module/ambry"
 
 const (
-	errInternalServerError uint32 = iota
+	errInternalServerError uint32 = iota + 1
 	errMethodNotAllowed
 )
 

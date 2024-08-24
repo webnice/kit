@@ -133,6 +133,13 @@ func (mys *impl) err() error {
 // Ссылка на менеджер логирования, для удобного использования внутри компоненты или модуля.
 func (mys *impl) log() kitTypes.Logger { return kitModuleCfg.Get().Log() }
 
+// Отправка сообщения в лог уровня "info", если включён режим отладки.
+func (mys *impl) info(pattern string, args ...any) {
+	if kitModuleCfg.Get().Debug() {
+		mys.log().Infof(pattern, args...)
+	}
+}
+
 // Errors Справочник всех ошибок пакета.
 func (mys *impl) Errors() *Error { return Errors() }
 

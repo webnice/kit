@@ -106,6 +106,9 @@ type Interface interface {
 	// LastModified Установка заголовка с датой и временем изменения контента.
 	LastModified(wr http.ResponseWriter, lastModified time.Time) Interface
 
+	// RetryAfter Установка заголовка 'Retry-After' с числом секунд.
+	RetryAfter(wr http.ResponseWriter, duration time.Duration) Interface
+
 	// ResponseBytes Ответ с проверкой передачи данных.
 	ResponseBytes(wr http.ResponseWriter, status dic.IStatus, data []byte) Interface
 

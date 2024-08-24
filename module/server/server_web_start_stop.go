@@ -1,6 +1,7 @@
 package server
 
 import (
+	"runtime"
 	"strings"
 
 	kitTypesServer "github.com/webnice/kit/v4/types/server"
@@ -80,12 +81,17 @@ func (iweb *implWeb) Start(serverID string) (err error) {
 
 // Stop Остановка ВЕБ сервера с указанным идентификатором.
 func (iweb *implWeb) Stop(serverID string) (err error) {
-	const patternBeg, patternEnd = "Остановка ВЕБ сервера %q.", "Остановка ВЕБ сервера %q, выполнена."
+	const (
+		patternBeg, patternWit = "Остановка ВЕБ сервера %q.", "Ожидание остановки ВЕБ сервера %q."
+		patternEnd             = "Остановка ВЕБ сервера %q, выполнена."
+	)
 	var (
 		serverKey string
 		ok        bool
 	)
 
+	runtime.Gosched()
+	iweb.info(patternBeg, serverID)
 	// Блокировка конкурентного доступа.
 	iweb.server.Protect.Lock()
 	defer iweb.server.Protect.Unlock()
@@ -96,12 +102,13 @@ func (iweb *implWeb) Stop(serverID string) (err error) {
 		return
 	}
 	// Остановка сервера, ожидание завершения сервера.
-	iweb.info(patternBeg, serverID)
+	iweb.info(patternWit, serverID)
 	err = iweb.server.Control[serverKey].
 		Server.
 		Stop().
 		Wait().
 		Error()
+	runtime.Gosched()
 	// Удаление сервера из списка запущенных.
 	delete(iweb.server.Control, serverKey)
 	iweb.info(patternEnd, serverID)
