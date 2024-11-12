@@ -54,6 +54,19 @@ func (rer *recorder) Time(timestamp time.Time) kitTypes.Logger {
 	return rec
 }
 
+// StackBackCorrect Дополнительная коррекция просмотра стека вызовов для поиска функции вызвавшей логирование.
+// Используется когда целевая функция в стеке вызова смещена больше или меньше стандартного значения.
+func (rer *recorder) StackBackCorrect(stepBack int) kitTypes.Logger {
+	var rec *record
+
+	// Создание объекта.
+	rec = newRec(rer)
+	rec.stackBack--
+	rec.stackBackCorrect = stepBack
+
+	return rec
+}
+
 // Fatality Изменение режима фатальности по умолчанию для записи лога.
 // Допустимые значения:
 //   - true  - после вывода записи в лог, приложение получает сигнал немедленного завершения.

@@ -54,6 +54,14 @@ func (rec *record) Time(timestamp time.Time) kitTypes.Logger {
 	return rec
 }
 
+// StackBackCorrect Дополнительная коррекция просмотра стека вызовов для поиска функции вызвавшей логирование.
+// Используется когда целевая функция в стеке вызова смещена больше или меньше стандартного значения.
+func (rec *record) StackBackCorrect(stepBack int) kitTypes.Logger {
+	rec.stackBackCorrect = stepBack
+
+	return rec
+}
+
 // Fatality Изменение режима фатальности по умолчанию для записи лога.
 // Допустимые значения:
 //   - true  - после вывода записи в лог, приложение получает сигнал немедленного завершения.
@@ -65,7 +73,7 @@ func (rec *record) Fatality(fy bool) kitTypes.Logger { rec.fatality = &fy; retur
 func (rec *record) Fatal(args ...any) {
 	var defaultFatality = true
 
-	kitModuleTrace.Short(rec.traceInfo, rec.stackBack)
+	kitModuleTrace.Short(rec.traceInfo, rec.stackBack+rec.stackBackCorrect)
 	// Присвоение времени записи.
 	if rec.timestamp.IsZero() {
 		rec.timestamp = time.Now().In(time.UTC)
@@ -81,7 +89,7 @@ func (rec *record) Fatal(args ...any) {
 func (rec *record) Fatalf(pattern string, args ...any) {
 	var defaultFatality = true
 
-	kitModuleTrace.Short(rec.traceInfo, rec.stackBack)
+	kitModuleTrace.Short(rec.traceInfo, rec.stackBack+rec.stackBackCorrect)
 	// Присвоение времени записи.
 	if rec.timestamp.IsZero() {
 		rec.timestamp = time.Now().In(time.UTC)
@@ -95,7 +103,7 @@ func (rec *record) Fatalf(pattern string, args ...any) {
 
 // Alert Уровень 1: уровень сообщений тревоги - система нестабильна, но может частично продолжить работу.
 func (rec *record) Alert(args ...any) {
-	kitModuleTrace.Short(rec.traceInfo, rec.stackBack)
+	kitModuleTrace.Short(rec.traceInfo, rec.stackBack+rec.stackBackCorrect)
 	// Присвоение времени записи.
 	if rec.timestamp.IsZero() {
 		rec.timestamp = time.Now().In(time.UTC)
@@ -105,7 +113,7 @@ func (rec *record) Alert(args ...any) {
 
 // Alertf Уровень 1: уровень сообщений тревоги - система нестабильна, но может частично продолжить работу.
 func (rec *record) Alertf(pattern string, args ...any) {
-	kitModuleTrace.Short(rec.traceInfo, rec.stackBack)
+	kitModuleTrace.Short(rec.traceInfo, rec.stackBack+rec.stackBackCorrect)
 	// Присвоение времени записи.
 	if rec.timestamp.IsZero() {
 		rec.timestamp = time.Now().In(time.UTC)
@@ -115,7 +123,7 @@ func (rec *record) Alertf(pattern string, args ...any) {
 
 // Critical Уровень 2: уровень критических ошибок - часть функционала системы работает не корректно.
 func (rec *record) Critical(args ...any) {
-	kitModuleTrace.Short(rec.traceInfo, rec.stackBack)
+	kitModuleTrace.Short(rec.traceInfo, rec.stackBack+rec.stackBackCorrect)
 	// Присвоение времени записи.
 	if rec.timestamp.IsZero() {
 		rec.timestamp = time.Now().In(time.UTC)
@@ -125,7 +133,7 @@ func (rec *record) Critical(args ...any) {
 
 // Criticalf Уровень 2: уровень критических ошибок - часть функционала системы работает не корректно.
 func (rec *record) Criticalf(pattern string, args ...any) {
-	kitModuleTrace.Short(rec.traceInfo, rec.stackBack)
+	kitModuleTrace.Short(rec.traceInfo, rec.stackBack+rec.stackBackCorrect)
 	// Присвоение времени записи.
 	if rec.timestamp.IsZero() {
 		rec.timestamp = time.Now().In(time.UTC)
@@ -135,7 +143,7 @@ func (rec *record) Criticalf(pattern string, args ...any) {
 
 // Error Уровень 3: уровень не критических ошибок - ошибки не прерывающие работу приложения.
 func (rec *record) Error(args ...any) {
-	kitModuleTrace.Short(rec.traceInfo, rec.stackBack)
+	kitModuleTrace.Short(rec.traceInfo, rec.stackBack+rec.stackBackCorrect)
 	// Присвоение времени записи.
 	if rec.timestamp.IsZero() {
 		rec.timestamp = time.Now().In(time.UTC)
@@ -145,7 +153,7 @@ func (rec *record) Error(args ...any) {
 
 // Errorf Уровень 3: уровень не критических ошибок - ошибки не прерывающие работу приложения.
 func (rec *record) Errorf(pattern string, args ...any) {
-	kitModuleTrace.Short(rec.traceInfo, rec.stackBack)
+	kitModuleTrace.Short(rec.traceInfo, rec.stackBack+rec.stackBackCorrect)
 	// Присвоение времени записи.
 	if rec.timestamp.IsZero() {
 		rec.timestamp = time.Now().In(time.UTC)
@@ -155,7 +163,7 @@ func (rec *record) Errorf(pattern string, args ...any) {
 
 // Warning Уровень 4: уровень сообщений с предупреждениями.
 func (rec *record) Warning(args ...any) {
-	kitModuleTrace.Short(rec.traceInfo, rec.stackBack)
+	kitModuleTrace.Short(rec.traceInfo, rec.stackBack+rec.stackBackCorrect)
 	// Присвоение времени записи.
 	if rec.timestamp.IsZero() {
 		rec.timestamp = time.Now().In(time.UTC)
@@ -165,7 +173,7 @@ func (rec *record) Warning(args ...any) {
 
 // Warningf Уровень 4: уровень сообщений с предупреждениями.
 func (rec *record) Warningf(pattern string, args ...any) {
-	kitModuleTrace.Short(rec.traceInfo, rec.stackBack)
+	kitModuleTrace.Short(rec.traceInfo, rec.stackBack+rec.stackBackCorrect)
 	// Присвоение времени записи.
 	if rec.timestamp.IsZero() {
 		rec.timestamp = time.Now().In(time.UTC)
@@ -175,7 +183,7 @@ func (rec *record) Warningf(pattern string, args ...any) {
 
 // Notice Уровень 5: уровень штатных информационных сообщений, требующих повышенного внимания.
 func (rec *record) Notice(args ...any) {
-	kitModuleTrace.Short(rec.traceInfo, rec.stackBack)
+	kitModuleTrace.Short(rec.traceInfo, rec.stackBack+rec.stackBackCorrect)
 	// Присвоение времени записи.
 	if rec.timestamp.IsZero() {
 		rec.timestamp = time.Now().In(time.UTC)
@@ -185,7 +193,7 @@ func (rec *record) Notice(args ...any) {
 
 // Noticef Уровень 5: уровень штатных информационных сообщений, требующих повышенного внимания.
 func (rec *record) Noticef(pattern string, args ...any) {
-	kitModuleTrace.Short(rec.traceInfo, rec.stackBack)
+	kitModuleTrace.Short(rec.traceInfo, rec.stackBack+rec.stackBackCorrect)
 	// Присвоение времени записи.
 	if rec.timestamp.IsZero() {
 		rec.timestamp = time.Now().In(time.UTC)
@@ -195,7 +203,7 @@ func (rec *record) Noticef(pattern string, args ...any) {
 
 // Info Уровень 6: сообщения информационного характера описывающие шаги выполнения алгоритмов приложения.
 func (rec *record) Info(args ...any) {
-	kitModuleTrace.Short(rec.traceInfo, rec.stackBack)
+	kitModuleTrace.Short(rec.traceInfo, rec.stackBack+rec.stackBackCorrect)
 	// Присвоение времени записи.
 	if rec.timestamp.IsZero() {
 		rec.timestamp = time.Now().In(time.UTC)
@@ -205,7 +213,7 @@ func (rec *record) Info(args ...any) {
 
 // Infof Уровень 6: сообщения информационного характера описывающие шаги выполнения алгоритмов приложения.
 func (rec *record) Infof(pattern string, args ...any) {
-	kitModuleTrace.Short(rec.traceInfo, rec.stackBack)
+	kitModuleTrace.Short(rec.traceInfo, rec.stackBack+rec.stackBackCorrect)
 	// Присвоение времени записи.
 	if rec.timestamp.IsZero() {
 		rec.timestamp = time.Now().In(time.UTC)
@@ -215,7 +223,7 @@ func (rec *record) Infof(pattern string, args ...any) {
 
 // Debug Уровень 7: уровень отладочных сообщений.
 func (rec *record) Debug(args ...any) {
-	kitModuleTrace.Short(rec.traceInfo, rec.stackBack)
+	kitModuleTrace.Short(rec.traceInfo, rec.stackBack+rec.stackBackCorrect)
 	// Присвоение времени записи.
 	if rec.timestamp.IsZero() {
 		rec.timestamp = time.Now().In(time.UTC)
@@ -225,7 +233,7 @@ func (rec *record) Debug(args ...any) {
 
 // Debugf Уровень 7: уровень отладочных сообщений.
 func (rec *record) Debugf(pattern string, args ...any) {
-	kitModuleTrace.Short(rec.traceInfo, rec.stackBack)
+	kitModuleTrace.Short(rec.traceInfo, rec.stackBack+rec.stackBackCorrect)
 	// Присвоение времени записи.
 	if rec.timestamp.IsZero() {
 		rec.timestamp = time.Now().In(time.UTC)
@@ -235,7 +243,7 @@ func (rec *record) Debugf(pattern string, args ...any) {
 
 // Trace Уровень 8: уровень максимально подробной трассировки.
 func (rec *record) Trace(args ...any) {
-	kitModuleTrace.Short(rec.traceInfo, rec.stackBack)
+	kitModuleTrace.Short(rec.traceInfo, rec.stackBack+rec.stackBackCorrect)
 	// Присвоение времени записи.
 	if rec.timestamp.IsZero() {
 		rec.timestamp = time.Now().In(time.UTC)
@@ -245,7 +253,7 @@ func (rec *record) Trace(args ...any) {
 
 // Tracef Уровень 8: уровень максимально подробной трассировки.
 func (rec *record) Tracef(pattern string, args ...any) {
-	kitModuleTrace.Short(rec.traceInfo, rec.stackBack)
+	kitModuleTrace.Short(rec.traceInfo, rec.stackBack+rec.stackBackCorrect)
 	// Присвоение времени записи.
 	if rec.timestamp.IsZero() {
 		rec.timestamp = time.Now().In(time.UTC)
@@ -255,7 +263,7 @@ func (rec *record) Tracef(pattern string, args ...any) {
 
 // MessageWithLevel Отправка сообщения в лог с указанием уровня логирования.
 func (rec *record) MessageWithLevel(level kitModuleLogLevel.Level, pattern string, args ...any) {
-	kitModuleTrace.Short(rec.traceInfo, rec.stackBack)
+	kitModuleTrace.Short(rec.traceInfo, rec.stackBack+rec.stackBackCorrect)
 	// Присвоение времени записи.
 	if rec.timestamp.IsZero() {
 		rec.timestamp = time.Now().In(time.UTC)

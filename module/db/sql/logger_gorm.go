@@ -66,6 +66,8 @@ func (lgm *logGorm) Trace(
 		keyQuery, keySql               = `query`, `sql`
 		keyDriver, keyElapsed, keyRows = `driver`, `elapsed`, `rows`
 		tplTracef, tplErrorf           = `sql:"%s"`, `sql:"%s", ошибка: %s`
+		// Увеличение глубины поиска в стеке вызовов, функции вызвавшей логирование, так как используется ORM.
+		stackBackCorrect = 5
 	)
 	var (
 		logLevel string
@@ -97,11 +99,18 @@ func (lgm *logGorm) Trace(
 		//	tplTracef,
 		//	color+sql+kitModuleDye.New().Normal().Done().String(),
 		//)
-		lgm.parent.log().Key(keys).Errorf(
-			tplErrorf,
-			kitModuleDye.New().Yellow().Done().String()+sql+kitModuleDye.New().Reset().Done().String(),
-			color+e.Error()+kitModuleDye.New().Reset().Done().String(),
-		)
+		lgm.parent.log().
+			Key(keys).
+			StackBackCorrect(stackBackCorrect).
+			Errorf(
+				tplErrorf,
+				kitModuleDye.New().Yellow().Done().String()+
+					sql+
+					kitModuleDye.New().Reset().Done().String(),
+				color+
+					e.Error()+
+					kitModuleDye.New().Reset().Done().String(),
+			)
 	}
 	switch lgm.Loglevel {
 	case kmll.Off:
@@ -111,10 +120,13 @@ func (lgm *logGorm) Trace(
 	case kmll.Warning:
 		msgFn(err, kitModuleDye.New().Magenta().Done().String())
 	case kmll.Info:
-		lgm.parent.log().Key(keys).Tracef(
-			tplTracef,
-			kitModuleDye.New().Yellow().Done().String()+sql+kitModuleDye.New().Normal().Done().String(),
-		)
+		lgm.parent.log().
+			Key(keys).
+			StackBackCorrect(stackBackCorrect).
+			Tracef(
+				tplTracef,
+				kitModuleDye.New().Yellow().Done().String()+sql+kitModuleDye.New().Normal().Done().String(),
+			)
 	default:
 		//lgm.parent.log().
 		//	Errorf("не поддерживаемый уровень логирования %q", lgm.Loglevel.String())

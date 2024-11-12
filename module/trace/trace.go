@@ -90,6 +90,8 @@ func getStackBack(buf *buffer) (ret int) {
 
 // GetStack Загрузка стека вызова.
 func getStack(ti *kitTypes.TraceInfo, stackBack int, isFullStack bool, buf *buffer) {
+	var end int
+
 	if len(buf.Byte64k) != cap(buf.Byte64k) {
 		// Увеличиваем размер до размера выделенной памяти, в буфере будут видны старые данные, но это не важно, при
 		// успешном выполнении, данные будут затёрты и обрезаны.
@@ -111,8 +113,11 @@ func getStack(ti *kitTypes.TraceInfo, stackBack int, isFullStack bool, buf *buff
 	if !isFullStack {
 		buf.SliceString = strings.Split(ti.StackTrace.String(), stackLineSeparator)
 		ti.StackTrace.Reset()
+		if end = 1 + (stackBack * 2); end < 0 {
+			end = 0
+		}
 		_, _ = ti.StackTrace.WriteString(strings.Join(
-			append(buf.SliceString[0:1], buf.SliceString[1+(stackBack*2):]...),
+			append(buf.SliceString[0:1], buf.SliceString[end:]...),
 			stackLineSeparator,
 		))
 	}
