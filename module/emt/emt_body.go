@@ -70,7 +70,7 @@ func (emt *impl) BodyImageEmbed(tpl *Template, fn ImageEmbedFn) (err error) {
 			continue
 		}
 		replace = append(replace, &replaceContent{
-			Old:  tpl.BodyImgUri[n].String(),
+			Old:  tpl.Embedded[n].Name,
 			New:  newUri,
 			Type: mme,
 		})
