@@ -41,10 +41,7 @@ func (wrw *impl) Header() http.Header { return wrw.essence.Header() }
 
 // Write Передаёт данные в соединение с клиентом.
 func (wrw *impl) Write(bytes []byte) (n int, err error) {
-	if wrw.statusCode == nil {
-		wrw.statusCode = new(int)
-		*wrw.statusCode = http.StatusOK
-	}
+	wrw.WriteHeader(http.StatusOK)
 	if n, err = wrw.essence.Write(bytes); err != nil {
 		return
 	}
@@ -58,6 +55,9 @@ func (wrw *impl) Write(bytes []byte) (n int, err error) {
 
 // WriteHeader Передаёт заголовок HTTP ответа.
 func (wrw *impl) WriteHeader(statusCode int) {
+	if wrw.statusCode != nil {
+		return
+	}
 	wrw.statusCode = new(int)
 	*wrw.statusCode = statusCode
 	wrw.essence.WriteHeader(statusCode)
@@ -109,10 +109,7 @@ func (wrw *impl) WriteString(s string) (n int, err error) {
 		sw io.StringWriter
 	)
 
-	if wrw.statusCode == nil {
-		wrw.statusCode = new(int)
-		*wrw.statusCode = http.StatusOK
-	}
+	wrw.WriteHeader(http.StatusOK)
 	if sw, ok = wrw.essence.(io.StringWriter); !ok {
 		return wrw.Write([]byte(s))
 	}

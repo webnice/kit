@@ -30,16 +30,20 @@ func (ans *impl) RqIds(wr http.ResponseWriter, rq *http.Request, key string) (re
 		sIDs   []string
 		n      int
 		v      uint64
+		tmp    string
 	)
 
 	srcIDs = chi.URLParam(rq, key)
 	sIDs = strings.Split(srcIDs, sep)
 	ret = make([]uint64, 0, len(sIDs))
 	for n = range sIDs {
-		if v, err = strconv.ParseUint(strings.TrimSpace(sIDs[n]), 10, 64); err != nil {
-			err = fmt.Errorf("конвертация значения %q в число прервана ошибкой: %s", sIDs[n], err)
+		if tmp = strings.TrimSpace(sIDs[n]); tmp == "" {
+			continue
+		}
+		if v, err = strconv.ParseUint(tmp, 10, 64); err != nil {
+			err = fmt.Errorf("конвертация значения %q в число прервана ошибкой: %s", tmp, err)
 			ans.NewRestError(dic.Status().BadRequest, err).CodeSet(-1).
-				Add(key, sIDs[n], err.Error()).Json(wr)
+				Add(key, tmp, err.Error()).Json(wr)
 			return
 		}
 		ret = append(ret, v)
