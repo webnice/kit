@@ -112,6 +112,9 @@ type Interface interface {
 	// ResponseBytes Ответ с проверкой передачи данных.
 	ResponseBytes(wr http.ResponseWriter, status dic.IStatus, data []byte) Interface
 
+	// ResponseString Ответ с проверкой передачи данных.
+	ResponseString(wr http.ResponseWriter, status dic.IStatus, data string) Interface
+
 	// Response Ответ с проверкой передачи данных.
 	Response(wr http.ResponseWriter, status dic.IStatus, buf *bytes.Buffer) Interface
 

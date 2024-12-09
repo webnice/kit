@@ -126,6 +126,11 @@ func (ans *impl) ResponseBytes(wr http.ResponseWriter, status dic.IStatus, data 
 	return ans.Response(wr, status, bytes.NewBuffer(data))
 }
 
+// ResponseString Ответ с проверкой передачи данных.
+func (ans *impl) ResponseString(wr http.ResponseWriter, status dic.IStatus, data string) Interface {
+	return ans.Response(wr, status, bytes.NewBufferString(data))
+}
+
 // Response Ответ с проверкой передачи данных.
 func (ans *impl) Response(wr http.ResponseWriter, status dic.IStatus, buf *bytes.Buffer) Interface {
 	var err error
