@@ -2,8 +2,6 @@ module github.com/webnice/kit/v4
 
 go 1.22
 
-toolchain go1.22.4
-
 require (
 	github.com/Masterminds/semver/v3 v3.3.0
 	github.com/PuerkitoBio/goquery v1.9.2
