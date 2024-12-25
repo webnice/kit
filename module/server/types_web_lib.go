@@ -59,6 +59,12 @@ type InterfaceMiddleware interface {
 	// из контекста HTTP запроса.
 	// Возвращается nil, если объект информации не был найден в контексте HTTP запроса.
 	RequestShadowInfoGetFromContext(rq *http.Request) (ret *kitTypesServer.RequestShadowInfo)
+
+	// BasicAuthHandler Простая web авторизация запросов с использованием логина и пароля.
+	BasicAuthHandler(cfg kitTypesServer.BasicAuthConfiguration) (ret func(http.Handler) http.Handler)
+
+	// BasicAuthGetFromContext Извлечение имени пользователя из контекста проверки авторизации через простую авторизацию.
+	BasicAuthGetFromContext(rq *http.Request) (ret string)
 }
 
 // Объект сущности, реализующий интерфейс InterfaceWebLib.

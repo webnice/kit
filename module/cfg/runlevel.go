@@ -28,6 +28,7 @@ func (cfg *impl) runlevelChangeFunc(ch chan *runLevelUp) {
 	// Цикл чтения канала, цикл завершится с закрытием канала.
 	for msg = range cfg.runLevelChangeChan {
 		if newLevel = msg.newLever; newLevel == cfg.runLevel {
+			msg.done <- struct{}{}
 			continue
 		}
 		// Закрытие регистрации компонентов.

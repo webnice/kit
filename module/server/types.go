@@ -7,6 +7,7 @@
 package server
 
 import (
+	kitModuleAns "github.com/webnice/kit/v4/module/ans"
 	kitTypes "github.com/webnice/kit/v4/types"
 	kitTypesServer "github.com/webnice/kit/v4/types/server"
 )
@@ -55,6 +56,7 @@ type impl struct {
 	gist      *gist                    // Объект служебного интерфейса Essence.
 	server    []*kitTypesServer.Server // Добавленные конфигурации серверов.
 	serverWeb *implWeb                 // Объект служебного интерфейса InterfaceWeb.
+	answer    kitModuleAns.Interface   // Интерфейс работы с http запросами и ответами.
 }
 
 // Объект сути сущности, интерфейс Essence.

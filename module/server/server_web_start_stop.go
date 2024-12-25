@@ -88,6 +88,7 @@ func (iweb *implWeb) Stop(serverID string) (err error) {
 	var (
 		serverKey string
 		ok        bool
+		si        web.Interface
 	)
 
 	runtime.Gosched()
@@ -103,12 +104,17 @@ func (iweb *implWeb) Stop(serverID string) (err error) {
 	}
 	// Остановка сервера, ожидание завершения сервера.
 	iweb.info(patternWit, serverID)
-	err = iweb.server.Control[serverKey].
+	// DEBUG
+	//println("Stop.начало.")
+	// DEBUG
+	si = iweb.server.Control[serverKey].
 		Server.
-		Stop().
-		Wait().
-		Error()
+		Stop()
+	// DEBUG
+	//println("Stop.окончание")
+	// DEBUG
 	runtime.Gosched()
+	err = si.Wait().Error()
 	// Удаление сервера из списка запущенных.
 	delete(iweb.server.Control, serverKey)
 	iweb.info(patternEnd, serverID)

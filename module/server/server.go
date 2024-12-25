@@ -3,6 +3,7 @@ package server
 import (
 	"fmt"
 
+	kitModuleAns "github.com/webnice/kit/v4/module/ans"
 	kitTypes "github.com/webnice/kit/v4/types"
 	kitTypesServer "github.com/webnice/kit/v4/types/server"
 )
@@ -11,6 +12,7 @@ import (
 func New(logger kitTypes.Logger) Interface {
 	var sri = &impl{
 		logger: logger,
+		answer: kitModuleAns.New(logger),
 	}
 	sri.gist = newEssence(sri)
 	sri.serverWeb = newWeb(sri)
@@ -20,6 +22,9 @@ func New(logger kitTypes.Logger) Interface {
 
 // Ссылка на менеджер логирования.
 func (sri *impl) log() kitTypes.Logger { return sri.logger }
+
+// Интерфейс библиотеки функций работы с HTTP запросами и ответами.
+func (sri *impl) ans() kitModuleAns.Interface { return sri.answer }
 
 // Errors Справочник ошибок.
 func (sri *impl) Errors() *Error { return Errors() }
