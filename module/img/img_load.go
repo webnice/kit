@@ -10,12 +10,12 @@ import (
 	"strings"
 
 	// Регистрация поддерживаемых форматов графических изображений.
-	_ "git.webdesk.ru/wd/kit/v2/module/img/ico" // Расширение image для формата ico.
-	_ "golang.org/x/image/bmp"                  // Расширение image для формата bmp.
-	_ "golang.org/x/image/tiff"                 // Расширение image для формата tiff.
-	_ "image/gif"                               // Расширение image для формата gif.
-	_ "image/jpeg"                              // Расширение image для формата jpeg.
-	_ "image/png"                               // Расширение image для формата png.
+	_ "github.com/webnice/kit/v4/module/img/ico" // Расширение image для формата ico.
+	_ "golang.org/x/image/bmp"                   // Расширение image для формата bmp.
+	_ "golang.org/x/image/tiff"                  // Расширение image для формата tiff.
+	_ "image/gif"                                // Расширение image для формата gif.
+	_ "image/jpeg"                               // Расширение image для формата jpeg.
+	_ "image/png"                                // Расширение image для формата png.
 )
 
 // ReadFrom Реализация интерфейса io.ReadFrom.

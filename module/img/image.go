@@ -7,12 +7,12 @@ import (
 	"io"
 	"os"
 
-	"git.webdesk.ru/wd/kit/v2/module/img/ico" // Расширение image для формата ico.
-	"golang.org/x/image/bmp"                  // Расширение image для формата bmp.
-	"golang.org/x/image/tiff"                 // Расширение image для формата tiff.
-	"image/gif"                               // Расширение image для формата gif.
-	"image/jpeg"                              // Расширение image для формата jpeg.
-	"image/png"                               // Расширение image для формата png.
+	"github.com/webnice/kit/v4/module/img/ico" // Расширение image для формата ico.
+	"golang.org/x/image/bmp"                   // Расширение image для формата bmp.
+	"golang.org/x/image/tiff"                  // Расширение image для формата tiff.
+	"image/gif"                                // Расширение image для формата gif.
+	"image/jpeg"                               // Расширение image для формата jpeg.
+	"image/png"                                // Расширение image для формата png.
 )
 
 // Write Реализация интерфейса io.Writer.

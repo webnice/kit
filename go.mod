@@ -7,6 +7,7 @@ toolchain go1.23.3
 require (
 	github.com/Masterminds/semver/v3 v3.3.1
 	github.com/PuerkitoBio/goquery v1.10.0
+	github.com/disintegration/imaging v1.6.2
 	github.com/go-chi/chi/v5 v5.2.0
 	github.com/go-playground/validator/v10 v10.23.0
 	github.com/go-sql-driver/mysql v1.8.1
@@ -17,6 +18,7 @@ require (
 	github.com/webnice/dic v1.2.1
 	github.com/webnice/migrate v1.0.2
 	github.com/webnice/web/v3 v3.1.0
+	golang.org/x/image v0.23.0
 	golang.org/x/sys v0.28.0
 	gopkg.in/yaml.v3 v3.0.1
 	gorm.io/driver/mysql v1.5.7
