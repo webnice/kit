@@ -3,6 +3,7 @@ package app
 import (
 	"context"
 	"errors"
+	"os"
 	"time"
 
 	kitModuleTrace "github.com/webnice/kit/v4/module/trace"
@@ -21,11 +22,21 @@ func (app *impl) finalizeFn(component *kitTypes.ComponentInfo) (err kitTypes.Err
 	defer cfn()
 	// Запуск вспомогательной горутины, которая по таймауту выведет в лог сообщение о долгой работе функции Finalize().
 	go func(cx context.Context, name string, tout time.Duration) {
-		select {
-		case <-cx.Done():
-			return
-		case <-time.After(tout):
-			app.cfg.Log().Warning(app.cfg.Errors().ComponentFinalizeWarning(0, name, tout).Error())
+		const maxCount = 5
+		var count int8
+
+		warning := app.cfg.Errors().ComponentFinalizeWarning(0, name, tout)
+		for {
+			count++
+			select {
+			case <-cx.Done():
+				return
+			case <-time.After(tout):
+				app.cfg.Log().Warning(warning.Error())
+			}
+			if count >= maxCount {
+				os.Exit(int(warning.Code()))
+			}
 		}
 	}(ctx, component.ComponentName, app.cfg.Gist().ComponentFinalizeWarningTimeout())
 	err = app.finalizeSafeCall(component.ComponentName, component.Component)
