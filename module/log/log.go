@@ -180,7 +180,7 @@ func (log *logger) HandlerSubscribe(handler Handler, min, max kitModuleLogLevel.
 		}
 	}
 	if found {
-		err = log.Errors().HandlerAlreadySubscribed(0, name)
+		err = log.Errors().HandlerAlreadySubscribed.Bind(name)
 		return
 	}
 	item = &subscriber{
@@ -215,7 +215,7 @@ func (log *logger) HandlerUnsubscribe(handler Handler) (err error) {
 		}
 	}
 	if len(del) == 0 {
-		err = log.Errors().HandlerSubscriptionNotFound(0, name)
+		err = log.Errors().HandlerSubscriptionNotFound.Bind(name)
 		return
 	}
 	for n = range del {

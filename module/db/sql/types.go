@@ -63,7 +63,7 @@ type Interface interface {
 
 	// ОШИБКИ
 
-	// Errors Справочник всех ошибок пакета.
+	// Errors Справочник ошибок.
 	Errors() *Error
 }
 

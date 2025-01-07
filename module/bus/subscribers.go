@@ -58,7 +58,7 @@ func (sss *subscribers) Delete(databuserName string) (err error) {
 		}
 	}
 	if len(del) == 0 {
-		err = Errors().DatabusSubscribeNotFound(0, databuserName)
+		err = Errors().DatabusSubscribeNotFound.Bind(databuserName)
 		return
 	}
 	for n = range del {

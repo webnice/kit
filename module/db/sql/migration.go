@@ -8,9 +8,9 @@ import (
 	"github.com/webnice/migrate/goose"
 
 	// Обязательно наличие зарегистрированных драйверов баз данных.
-	_ "github.com/go-sql-driver/mysql" // mysql
-	_ "github.com/jackc/pgx/v4"        // postgre, cockroach, redshift
-	_ "github.com/mattn/go-sqlite3"    // sqlite3
+	_ "github.com/go-sql-driver/mysql" // mysql.
+	_ "github.com/jackc/pgx/v4"        // postgre, cockroach, redshift.
+	_ "github.com/mattn/go-sqlite3"    // sqlite3.
 )
 
 // MigrationUp Применение миграций базы данных.
@@ -40,14 +40,14 @@ func (mys *impl) MigrationUp() (err error) {
 	defer func() { mys.connect.SetConnMaxLifetime(mys.cfg.MaxLifetimeConn) }()
 	// Настройка диалекта библиотеки применения миграций.
 	if err = goose.SetDialect(mys.cfg.Driver); err != nil {
-		err = mys.Errors().UnknownDialect(0, mys.cfg.Driver, err)
+		err = mys.Errors().UnknownDialect.Bind(mys.cfg.Driver, err)
 		return
 	}
 	//kitModuleCfg.Get().Gist().AbsolutePathAndUpdate(&mys.cfg.Migration)
 	// Получение текущей версии базы данных и подсчёт количества новых миграций.
-	switch current, err = goose.EnsureDBVersion(mys.conn()); err {
-	case nil:
-	case goose.ErrNoNextVersion:
+	switch current, err = goose.EnsureDBVersion(mys.conn()); {
+	case err == nil:
+	case errors.Is(err, goose.ErrNoNextVersion):
 		err = nil
 	default:
 		return
@@ -84,7 +84,7 @@ func (mys *impl) MigrationUp() (err error) {
 			continue
 		}
 		if err = next.Up(mys.conn()); err != nil {
-			end, err = true, mys.Errors().ApplyMigration(0, err)
+			end, err = true, mys.Errors().ApplyMigration.Bind(err)
 			continue
 		}
 	}

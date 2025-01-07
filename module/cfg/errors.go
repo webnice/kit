@@ -1,23 +1,15 @@
 package cfg
 
-import (
-	"bytes"
-	"strconv"
-	"strings"
-	"time"
-)
+import "github.com/webnice/dic"
 
-// Все ошибки определены как константы. Коды ошибок приложения:
-
-// Особенные ошибки
+// Коды особенных ошибок.
 const (
 	eApplicationPanicException uint8 = 255 // 255 - приложение завершилось из-за прерывания по исключению - panic.
 	eApplicationUnknownError   uint8 = 254 // 254 - неожиданная ошибка приложения.
 	eApplicationHelpDisplayed  uint8 = 253 // 253 - приложение завершилось корректно с отображением помощи по CLI.
-	//eApplicationfatality       uint8 = 252 // 252 - приложение завершилось из-за печати в лог сообщения с уровнем Fatal.
 )
 
-// Обычные ошибки
+// Коды ошибок.
 const (
 	eApplicationVersion                        uint8 = iota + 1 // 001
 	eApplicationMainFuncNotFound                                // 002
@@ -83,13 +75,9 @@ const (
 	eConfigurationObjectCopy                                    // 062
 	eConfigurationCallbackAlreadyRegistered                     // 063
 	eConfigurationCallbackSubscriptionNotFound                  // 064
-	//eCantCreateWorkers                                     //
-	//eCantStartWorkers                                      //
-	//eAllWorkersStopWithError                               //
-	//eCantOpenSocket                                        //
 )
 
-// Текстовые значения кодов ошибок на основном языке приложения.
+// Текстовые значения кодов ошибок.
 const (
 	cApplicationPanicException                 = "Выполнение приложения прервано паникой:\n%v\n%s."
 	cApplicationUnknownError                   = "%s"
@@ -143,7 +131,7 @@ const (
 	cConfigurationApplicationObject            = "Объект конфигурации приложения содержит ошибку: %s."
 	cConfigurationApplicationPanic             = "Непредвиденная ошибка при регистрации объекта конфигурации.\nПаника: %v.\n%s"
 	cConfigurationFileNotFound                 = "Указанного файла конфигурации %q не существует: %s."
-	cConfigurationPermissionDenied             = "Отсутствует доступ к файлу конфигурации, ошибка: %s."
+	cConfigurationPermissionDenied             = "Отсутствует доступ к файлу конфигурации %q, ошибка: %s."
 	cConfigurationUnexpectedMistakeFileAccess  = "Неожиданная ошибка доступа к файлу конфигурации %q: %s."
 	cConfigurationFileIsDirectory              = "В качестве файла конфигурации указана директория: %s."
 	cConfigurationFileReadingError             = "Чтение фала конфигурации %q прервано ошибкой: %s."
@@ -160,429 +148,215 @@ const (
 	cConfigurationCallbackSubscriptionNotFound = "Подписка функции обратного вызова на изменение конфигурации с типом %q для функции %q не существует."
 )
 
-// Константы указаны в объектах, адрес которых фиксирован всё время работы приложения.
-// Это позволяет сравнивать ошибки между собой используя обычное сравнение "==", но сравнивать необходимо только якорь "Anchor()" объекта ошибки.
-var (
-	errSingleton                                 = &Error{}
-	errApplicationPanicException                 = err{tpl: cApplicationPanicException, code: eApplicationPanicException}
-	errApplicationUnknownError                   = err{tpl: cApplicationUnknownError, code: eApplicationUnknownError}
-	errApplicationHelpDisplayed                  = err{tpl: cApplicationHelpDisplayed, code: eApplicationHelpDisplayed}
-	errApplicationVersion                        = err{tpl: cApplicationVersion, code: eApplicationVersion}
-	errApplicationMainFuncNotFound               = err{tpl: cApplicationMainFuncNotFound, code: eApplicationMainFuncNotFound}
-	errApplicationMainFuncAlreadyRegistered      = err{tpl: cApplicationMainFuncAlreadyRegistered, code: eApplicationMainFuncAlreadyRegistered}
-	errApplicationRegistrationUnknownObject      = err{tpl: cApplicationRegistrationUnknownObject, code: eApplicationRegistrationUnknownObject}
-	errComponentIsNull                           = err{tpl: cComponentIsNull, code: eComponentIsNull}
-	errComponentRegistrationProhibited           = err{tpl: cComponentRegistrationProhibited, code: eComponentRegistrationProhibited}
-	errComponentRegistrationError                = err{tpl: cComponentRegistrationError, code: eComponentRegistrationError}
-	errComponentPreferencesCallBeforeCompleting  = err{tpl: cComponentPreferencesCallBeforeCompleting, code: eComponentPreferencesCallBeforeCompleting}
-	errComponentPanicException                   = err{tpl: cComponentPanicException, code: eComponentPanicException}
-	errComponentRunlevelError                    = err{tpl: cComponentRunlevelError, code: eComponentRunlevelError}
-	errComponentRulesError                       = err{tpl: cComponentRulesError, code: eComponentRulesError}
-	errRunlevelCantLessCurrentLevel              = err{tpl: cRunlevelCantLessCurrentLevel, code: eRunlevelCantLessCurrentLevel}
-	errInitLogging                               = err{tpl: cInitLogging, code: eInitLogging}
-	errComponentConflict                         = err{tpl: cComponentConflict, code: eComponentConflict}
-	errComponentRequires                         = err{tpl: cComponentRequires, code: eComponentRequires}
-	errComponentInitiateTimeout                  = err{tpl: cComponentInitiateTimeout, code: eComponentInitiateTimeout}
-	errComponentInitiateExecution                = err{tpl: cComponentInitiateExecution, code: eComponentInitiateExecution}
-	errComponentInitiatePanicException           = err{tpl: cComponentInitiatePanicException, code: eComponentInitiatePanicException}
-	errComponentDoExecution                      = err{tpl: cComponentDoExecution, code: eComponentDoExecution}
-	errComponentDoPanicException                 = err{tpl: cComponentDoPanicException, code: eComponentDoPanicException}
-	errComponentDoUnknownError                   = err{tpl: cComponentDoUnknownError, code: eComponentDoUnknownError}
-	errComponentFinalizeExecution                = err{tpl: cComponentFinalizeExecution, code: eComponentFinalizeExecution}
-	errComponentFinalizePanicException           = err{tpl: cComponentFinalizePanicException, code: eComponentFinalizePanicException}
-	errComponentFinalizeUnknownError             = err{tpl: cComponentFinalizeUnknownError, code: eComponentFinalizeUnknownError}
-	errComponentFinalizeWarning                  = err{tpl: cComponentFinalizeWarning, code: eComponentFinalizeWarning}
-	errRunlevelSubscribeUnsubscribeNilFunction   = err{tpl: cRunlevelSubscribeUnsubscribeNilFunction, code: eRunlevelSubscribeUnsubscribeNilFunction}
-	errRunlevelAlreadySubscribedFunction         = err{tpl: cRunlevelAlreadySubscribedFunction, code: eRunlevelAlreadySubscribedFunction}
-	errRunlevelSubscriptionNotFound              = err{tpl: cRunlevelSubscriptionNotFound, code: eRunlevelSubscriptionNotFound}
-	errRunlevelSubscriptionPanicException        = err{tpl: cRunlevelSubscriptionPanicException, code: eRunlevelSubscriptionPanicException}
-	errCommandLineArgumentRequired               = err{tpl: cCommandLineArgumentRequired, code: eCommandLineArgumentRequired}
-	errCommandLineArgumentUnknown                = err{tpl: cCommandLineArgumentUnknown, code: eCommandLineArgumentUnknown}
-	errCommandLineArgumentNotCorrect             = err{tpl: cCommandLineArgumentNotCorrect, code: eCommandLineArgumentNotCorrect}
-	errCommandLineRequiredFlag                   = err{tpl: cCommandLineRequiredFlag, code: eCommandLineRequiredFlag}
-	errCommandLineUnexpectedError                = err{tpl: cCommandLineUnexpectedError, code: eCommandLineUnexpectedError}
-	errConfigurationBootstrap                    = err{tpl: cConfigurationBootstrap, code: eConfigurationBootstrap}
-	errGetCurrentUser                            = err{tpl: cGetCurrentUser, code: eGetCurrentUser}
-	errCantChangeWorkDirectory                   = err{tpl: cCantChangeWorkDirectory, code: eCantChangeWorkDirectory}
-	errPidExistsAnotherProcessOfApplication      = err{tpl: cPidExistsAnotherProcessOfApplication, code: ePidExistsAnotherProcessOfApplication}
-	errPidFileError                              = err{tpl: cPidFileError, code: ePidFileError}
-	errDatabusRecursivePointer                   = err{tpl: cDatabusRecursivePointer, code: eDatabusRecursivePointer}
-	errDatabusPanicException                     = err{tpl: cDatabusPanicException, code: eDatabusPanicException}
-	errDatabusSubscribeNotFound                  = err{tpl: cDatabusSubscribeNotFound, code: eDatabusSubscribeNotFound}
-	errDatabusInternalError                      = err{tpl: cDatabusInternalError, code: eDatabusInternalError}
-	errDatabusNotSubscribersForType              = err{tpl: cDatabusNotSubscribersForType, code: eDatabusNotSubscribersForType}
-	errDatabusObjectIsNil                        = err{tpl: cDatabusObjectIsNil, code: eDatabusObjectIsNil}
-	errConfigurationApplicationProhibited        = err{tpl: cConfigurationApplicationProhibited, code: eConfigurationApplicationProhibited}
-	errConfigurationApplicationObject            = err{tpl: cConfigurationApplicationObject, code: eConfigurationApplicationObject}
-	errConfigurationApplicationPanic             = err{tpl: cConfigurationApplicationPanic, code: eConfigurationApplicationPanic}
-	errConfigurationFileNotFound                 = err{tpl: cConfigurationFileNotFound, code: eConfigurationFileNotFound}
-	errConfigurationPermissionDenied             = err{tpl: cConfigurationPermissionDenied, code: eConfigurationPermissionDenied}
-	errConfigurationUnexpectedMistakeFileAccess  = err{tpl: cConfigurationUnexpectedMistakeFileAccess, code: eConfigurationUnexpectedMistakeFileAccess}
-	errConfigurationFileIsDirectory              = err{tpl: cConfigurationFileIsDirectory, code: eConfigurationFileIsDirectory}
-	errConfigurationFileReadingError             = err{tpl: cConfigurationFileReadingError, code: eConfigurationFileReadingError}
-	errConfigurationSetDefault                   = err{tpl: cConfigurationSetDefault, code: eConfigurationSetDefault}
-	errConfigurationSetDefaultValue              = err{tpl: cConfigurationSetDefaultValue, code: eConfigurationSetDefaultValue}
-	errConfigurationSetDefaultPanic              = err{tpl: cConfigurationSetDefaultPanic, code: eConfigurationSetDefaultPanic}
-	errConfigurationObjectNotFound               = err{tpl: cConfigurationObjectNotFound, code: eConfigurationObjectNotFound}
-	errConfigurationObjectIsNotStructure         = err{tpl: cConfigurationObjectIsNotStructure, code: eConfigurationObjectIsNotStructure}
-	errConfigurationObjectIsNil                  = err{tpl: cConfigurationObjectIsNil, code: eConfigurationObjectIsNil}
-	errConfigurationObjectIsNotValid             = err{tpl: cConfigurationObjectIsNotValid, code: eConfigurationObjectIsNotValid}
-	errConfigurationObjectIsNotAddress           = err{tpl: cConfigurationObjectIsNotAddress, code: eConfigurationObjectIsNotAddress}
-	errConfigurationObjectCopy                   = err{tpl: cConfigurationObjectCopy, code: eConfigurationObjectCopy}
-	errConfigurationCallbackAlreadyRegistered    = err{tpl: cConfigurationCallbackAlreadyRegistered, code: eConfigurationCallbackAlreadyRegistered}
-	errConfigurationCallbackSubscriptionNotFound = err{tpl: cConfigurationCallbackSubscriptionNotFound, code: eConfigurationCallbackSubscriptionNotFound}
-)
-
-// ERRORS: Реализация ошибок с возможностью сравнения ошибок между собой.
-
-// ApplicationPanicException Выполнение приложения прервано паникой: ...
-func (e *Error) ApplicationPanicException(code uint8, err any, stack []byte) Err {
-	return newErr(&errApplicationPanicException, code, err, string(stack))
-}
-
-// ApplicationUnknownError Любая не описанная и не ожидаемая ошибка приложения.
-func (e *Error) ApplicationUnknownError(code uint8, err error) Err {
-	return newErr(&errApplicationUnknownError, code, err)
-}
-
-// ApplicationHelpDisplayed Отображение помощи по командам, аргументам и флагам запуска приложения.
-func (e *Error) ApplicationHelpDisplayed(code uint8, help *bytes.Buffer) Err {
-	return newErr(&errApplicationHelpDisplayed, code, help.String())
-}
-
-// ApplicationVersion Версии приложения содержит ошибку: ...
-func (e *Error) ApplicationVersion(code uint8, arg ...any) Err {
-	return newErr(&errApplicationVersion, code, arg...)
-}
-
-// ApplicationMainFuncNotFound Не определена основная функция приложения.
-func (e *Error) ApplicationMainFuncNotFound(code uint8) Err {
-	return newErr(&errApplicationMainFuncNotFound, code)
-}
-
-// ApplicationMainFuncAlreadyRegistered Основная функция приложения уже зарегистрирована.
-func (e *Error) ApplicationMainFuncAlreadyRegistered(code uint8) Err {
-	return newErr(&errApplicationMainFuncAlreadyRegistered, code)
-}
-
-// ApplicationRegistrationUnknownObject Регистрация не известного компонента, объекта или модуля: ...
-func (e *Error) ApplicationRegistrationUnknownObject(code uint8, objectName string) Err {
-	return newErr(&errApplicationRegistrationUnknownObject, code, objectName)
-}
-
-// ComponentIsNull В качестве объекта компоненты передан nil.
-func (e *Error) ComponentIsNull(code uint8) Err { return newErr(&errComponentIsNull, code) }
-
-// ComponentRegistrationProhibited Регистрация компонентов запрещена. Компонента %q не зарегистрирована.
-func (e *Error) ComponentRegistrationProhibited(code uint8, componentName string) Err {
-	return newErr(&errComponentRegistrationProhibited, code, componentName)
-}
-
-// ComponentRegistrationError Регистрация компоненты ... завершилась ошибкой: ...
-func (e *Error) ComponentRegistrationError(code uint8, componentName string, err error) Err {
-	return newErr(&errComponentRegistrationError, code, componentName, err)
-}
-
-// ComponentPreferencesCallBeforeCompleting Опрос настроек компонентов вызван до завершения регистрации компонентов.
-func (e *Error) ComponentPreferencesCallBeforeCompleting(code uint8) Err {
-	return newErr(&errComponentPreferencesCallBeforeCompleting, code)
-}
-
-// ComponentPanicException Выполнение компоненты ... прервано паникой: ...
-func (e *Error) ComponentPanicException(code uint8, componentName string, err any, stack []byte) Err {
-	return newErr(&errComponentPanicException, code, componentName, err, string(stack))
-}
-
-// ComponentRunlevelError Уровень запуска (runlevel), для компоненты %q указан %d, необходимо указать уровень равный 0,
-// либо в интервале от 10 до 65534 включительно.
-func (e *Error) ComponentRunlevelError(code uint8, componentName string, runlevel uint16) Err {
-	return newErr(&errComponentRunlevelError, code, componentName, runlevel)
-}
-
-// ComponentRulesError Правила %q для компоненты ... содержат ошибку: ...
-func (e *Error) ComponentRulesError(code uint8, rulesName string, componentName string, err error) Err {
-	return newErr(&errComponentRulesError, code, rulesName, componentName, err)
-}
-
-// RunlevelCantLessCurrentLevel Новый уровень работы приложения (...) не может быть меньше текущего уровня работы
-// приложения (...).
-func (e *Error) RunlevelCantLessCurrentLevel(code uint8, currentRunlevel uint16, newRunlevel uint16) Err {
-	return newErr(&errRunlevelCantLessCurrentLevel, code, newRunlevel, currentRunlevel)
-}
-
-// InitLogging Критическая ошибка в модуле менеджера логирования: ...
-func (e *Error) InitLogging(code uint8, err error) Err { return newErr(&errInitLogging, code, err) }
-
-// ComponentConflict Компонента ... конфликтует с компонентой ...
-func (e *Error) ComponentConflict(code uint8, nameComponent, nameConflict string) Err {
-	return newErr(&errComponentConflict, code, nameComponent, nameConflict)
-}
-
-// ComponentRequires Компонента ... имеет не удовлетворённую зависимость ...
-func (e *Error) ComponentRequires(code uint8, nameComponent, nameRequires string) Err {
-	return newErr(&errComponentRequires, code, nameComponent, nameRequires)
-}
-
-// ComponentInitiateTimeout Превышено время ожидание выполнения функции Initiate() компоненты ...
-func (e *Error) ComponentInitiateTimeout(code uint8, nameComponent string) Err {
-	return newErr(&errComponentInitiateTimeout, code, nameComponent)
-}
-
-// ComponentInitiateExecution Выполнение функции Initiate() компоненты ... завершено с ошибкой: ...
-func (e *Error) ComponentInitiateExecution(code uint8, nameComponent string, err error) Err {
-	return newErr(&errComponentInitiateExecution, code, nameComponent, err)
-}
-
-// ComponentInitiatePanicException Выполнение функции Initiate() компоненты ... прервано паникой: ...
-func (e *Error) ComponentInitiatePanicException(code uint8, nameComponent string, err any, stack []byte) Err {
-	return newErr(&errComponentInitiatePanicException, code, nameComponent, err, string(stack))
-}
-
-// ComponentDoExecution Выполнение функции Do() компоненты ... завершено с ошибкой: ...
-func (e *Error) ComponentDoExecution(code uint8, nameComponent string, err error) Err {
-	return newErr(&errComponentDoExecution, code, nameComponent, err)
-}
-
-// ComponentDoPanicException Выполнение функции Do() компоненты ... прервано паникой: ...
-func (e *Error) ComponentDoPanicException(code uint8, nameComponent string, err any, stack []byte) Err {
-	return newErr(&errComponentDoPanicException, code, nameComponent, err, string(stack))
-}
-
-// ComponentDoUnknownError Выполнение функций Do() завершилось ошибкой: ...
-func (e *Error) ComponentDoUnknownError(code uint8, err error) Err {
-	return newErr(&errComponentDoUnknownError, code, err)
-}
-
-// ComponentFinalizeExecution Выполнение функции Finalize() компоненты ... завершено с ошибкой: ...
-func (e *Error) ComponentFinalizeExecution(code uint8, nameComponent string, err error) Err {
-	return newErr(&errComponentFinalizeExecution, code, nameComponent, err)
-}
-
-// ComponentFinalizePanicException Выполнение функции Finalize() компоненты ... прервано паникой: ...
-func (e *Error) ComponentFinalizePanicException(code uint8, nameComponent string, err any, stack []byte) Err {
-	return newErr(&errComponentFinalizePanicException, code, nameComponent, err, string(stack))
-}
-
-// ComponentFinalizeUnknownError Выполнение функций Finalize() завершилось ошибкой: ...
-func (e *Error) ComponentFinalizeUnknownError(code uint8, err error) Err {
-	return newErr(&errComponentFinalizeUnknownError, code, err)
-}
-
-// ComponentFinalizeWarning Выполнение функций Finalize() компоненты ..., длится дольше отведённого времени ...
-func (e *Error) ComponentFinalizeWarning(code uint8, nameComponent string, tout time.Duration) Err {
-	return newErr(&errComponentFinalizeWarning, code, nameComponent, tout)
-}
-
-// RunlevelSubscribeUnsubscribeNilFunction Передана nil функция, подписка или отписка nil функции не возможна.
-func (e *Error) RunlevelSubscribeUnsubscribeNilFunction(code uint8) Err {
-	return newErr(&errRunlevelSubscribeUnsubscribeNilFunction, code)
-}
-
-// RunlevelAlreadySubscribedFunction Функция ... уже подписана на получение событий изменения уровня работы приложения.
-func (e *Error) RunlevelAlreadySubscribedFunction(code uint8, nameFn string) Err {
-	return newErr(&errRunlevelAlreadySubscribedFunction, code, nameFn)
-}
-
-// RunlevelSubscriptionNotFound Не найдена подписка функции ... на события изменения уровня работы приложения.
-func (e *Error) RunlevelSubscriptionNotFound(code uint8, nameFn string) Err {
-	return newErr(&errRunlevelSubscriptionNotFound, code, nameFn)
-}
-
-// RunlevelSubscriptionPanicException Вызов функции подписчика на событие изменения уровня работы приложения,
-// прервано паникой: ...
-func (e *Error) RunlevelSubscriptionPanicException(code uint8, err any, stack []byte) Err {
-	return newErr(&errRunlevelSubscriptionPanicException, code, err, string(stack))
-}
-
-// CommandLineArgumentRequired Требуется указать обязательную команду, аргумент или флаг командной строки: ...
-func (e *Error) CommandLineArgumentRequired(code uint8, description string) Err {
-	return newErr(&errCommandLineArgumentRequired, code, description)
-}
-
-// CommandLineArgumentUnknown Неизвестная команда, аргумент или флаг командной строки: ...
-func (e *Error) CommandLineArgumentUnknown(code uint8, description string) Err {
-	return newErr(&errCommandLineArgumentUnknown, code, description)
-}
-
-// CommandLineArgumentNotCorrect Не верное значение или тип аргумента, флага или параметра: ...
-func (e *Error) CommandLineArgumentNotCorrect(code uint8, description string) Err {
-	return newErr(&errCommandLineArgumentNotCorrect, code, description)
-}
-
-// CommandLineRequiredFlag Не указан один или несколько обязательных флагов: ...
-func (e *Error) CommandLineRequiredFlag(code uint8, description string) Err {
-	return newErr(&errCommandLineRequiredFlag, code, description)
-}
-
-// CommandLineUnexpectedError Не предвиденная ошибка библиотеки командного интерфейса приложения: ...
-func (e *Error) CommandLineUnexpectedError(code uint8, description string, err error) Err {
-	return newErr(&errCommandLineUnexpectedError, code, err, description)
-}
-
-// ConfigurationBootstrap Ошибка начально bootstrap конфигурации приложения: ...
-func (e *Error) ConfigurationBootstrap(code uint8, err error) Err {
-	return newErr(&errConfigurationBootstrap, code, err)
-}
-
-// GetCurrentUser Не удалось загрузить данные о текущем пользователе операционной системы: ...
-func (e *Error) GetCurrentUser(code uint8, err error) Err {
-	return newErr(&errGetCurrentUser, code, err)
-}
-
-// CantChangeWorkDirectory Не удалось сменить рабочую директорию приложения: ...
-func (e *Error) CantChangeWorkDirectory(code uint8, err error) Err {
-	return newErr(&errCantChangeWorkDirectory, code, err)
-}
-
-// PidExistsAnotherProcessOfApplication Существует один или несколько работающих процессов приложения, измените
-// PID файл или остановите экземпляры приложения, PID: ...
-func (e *Error) PidExistsAnotherProcessOfApplication(code uint8, PIDs []int) (err Err) {
-	var (
-		tmp []string
-		n   int
-	)
-
-	tmp = make([]string, 0, len(PIDs))
-	for n = range PIDs {
-		tmp = append(tmp, strconv.FormatInt(int64(PIDs[n]), 10))
-	}
-	err = newErr(&errPidExistsAnotherProcessOfApplication, code, strings.Join(tmp, ", "))
-
-	return
-}
-
-// PidFileError Ошибка работы с PID файлом ...: ...
-func (e *Error) PidFileError(code uint8, filename string, err error) Err {
-	return newErr(&errPidFileError, code, filename, err)
-}
-
-// DatabusRecursivePointer Не возможно определить тип рекурсивного указателя: ...
-func (e *Error) DatabusRecursivePointer(code uint8, pointer string) Err {
-	return newErr(&errDatabusRecursivePointer, code, pointer)
-}
-
-// DatabusPanicException Работа с подпиской потребителя, в шине данных, прервана паникой: ... ....
-func (e *Error) DatabusPanicException(code uint8, err any, stack []byte) Err {
-	return newErr(&errDatabusPanicException, code, err, string(stack))
-}
-
-// DatabusSubscribeNotFound Потребитель данных ... не был подписан на шину данных.
-func (e *Error) DatabusSubscribeNotFound(code uint8, databuserName string) Err {
-	return newErr(&errDatabusSubscribeNotFound, code, databuserName)
-}
-
-// DatabusInternalError Внутренняя ошибка шины данных: ...
-func (e *Error) DatabusInternalError(code uint8, err error) Err {
-	return newErr(&errDatabusInternalError, code, err)
-}
-
-// DatabusNotSubscribersForType Отсутствуют потребители данных для типа данных: ...
-func (e *Error) DatabusNotSubscribersForType(code uint8, typeName string) Err {
-	return newErr(&errDatabusNotSubscribersForType, code, typeName)
-}
-
-// DatabusObjectIsNil Передан nil объект.
-func (e *Error) DatabusObjectIsNil(code uint8) Err {
-	return newErr(&errDatabusObjectIsNil, code)
-}
-
-// ConfigurationApplicationProhibited Регистрация объектов конфигурации на текущем уровне работы приложения запрещена.
-// Конфигурация ... не зарегистрирована.
-func (e *Error) ConfigurationApplicationProhibited(code uint8, objectName string) Err {
-	return newErr(&errConfigurationApplicationProhibited, code, objectName)
-}
-
-// ConfigurationApplicationObject Объект конфигурации приложения содержит ошибку: ...
-func (e *Error) ConfigurationApplicationObject(code uint8, err error) Err {
-	return newErr(&errConfigurationApplicationObject, code, err)
-}
-
-// ConfigurationApplicationPanic Непредвиденная ошибка при регистрации объекта конфигурации. Паника: ... ...
-func (e *Error) ConfigurationApplicationPanic(code uint8, err any, stack []byte) Err {
-	return newErr(&errConfigurationApplicationPanic, code, err, string(stack))
-}
-
-// ConfigurationFileNotFound Указанного файла конфигурации ... не существует: ...
-func (e *Error) ConfigurationFileNotFound(code uint8, filename string, err error) Err {
-	return newErr(&errConfigurationFileNotFound, code, filename, err)
-}
-
-// ConfigurationPermissionDenied Отсутствует доступ к файлу конфигурации, ошибка: ...
-func (e *Error) ConfigurationPermissionDenied(code uint8, _ string, err error) Err {
-	return newErr(&errConfigurationPermissionDenied, code, err)
-}
-
-// ConfigurationUnexpectedMistakeFileAccess Неожиданная ошибка доступа к файлу конфигурации ...: ...
-func (e *Error) ConfigurationUnexpectedMistakeFileAccess(code uint8, filename string, err error) Err {
-	return newErr(&errConfigurationUnexpectedMistakeFileAccess, code, filename, err)
-}
-
-// ConfigurationFileIsDirectory В качестве файла конфигурации указана директория: ...
-func (e *Error) ConfigurationFileIsDirectory(code uint8, filename string) Err {
-	return newErr(&errConfigurationFileIsDirectory, code, filename)
-}
-
-// ConfigurationFileReadingError Чтение фала конфигурации ... прервано ошибкой: ...
-func (e *Error) ConfigurationFileReadingError(code uint8, filename string, err error) Err {
-	return newErr(&errConfigurationFileReadingError, code, filename, err)
-}
-
-// ConfigurationSetDefault Установка значений по умолчанию, для переменных конфигурации, прервана ошибкой: ...
-func (e *Error) ConfigurationSetDefault(code uint8, err error) Err {
-	return newErr(&errConfigurationSetDefault, code, err)
-}
-
-// ConfigurationSetDefaultValue Установка значения по умолчанию ..., для переменной конфигурации ..., прервана
-// ошибкой: ...
-func (e *Error) ConfigurationSetDefaultValue(code uint8, value string, name string, err error) Err {
-	return newErr(&errConfigurationSetDefaultValue, code, value, name, err)
-}
-
-// ConfigurationSetDefaultPanic Непредвиденная ошибка, при установке значений по умолчанию, объекта
-// конфигурации. Паника: ...
-func (e *Error) ConfigurationSetDefaultPanic(code uint8, err any, stack []byte) Err {
-	return newErr(&errConfigurationSetDefaultPanic, code, err, string(stack))
-}
-
-// ConfigurationObjectNotFound Объект конфигурации с типом ... не найден.
-func (e *Error) ConfigurationObjectNotFound(code uint8, typeName string) Err {
-	return newErr(&errConfigurationObjectNotFound, code, typeName)
-}
-
-// ConfigurationObjectIsNotStructure Переданный объект ... не является структурой.
-func (e *Error) ConfigurationObjectIsNotStructure(code uint8, typeName string) Err {
-	return newErr(&errConfigurationObjectIsNotStructure, code, typeName)
-}
-
-// ConfigurationObjectIsNil Переданный объект, является nil объектом.
-func (e *Error) ConfigurationObjectIsNil(code uint8) Err {
-	return newErr(&errConfigurationObjectIsNil, code)
-}
-
-// ConfigurationObjectIsNotValid Объект конфигурации с типом ... не инициализирован.
-func (e *Error) ConfigurationObjectIsNotValid(code uint8, typeName string) Err {
-	return newErr(&errConfigurationObjectIsNotValid, code, typeName)
-}
-
-// ConfigurationObjectIsNotAddress Объект конфигурации с типом ... передан не корректно. Необходимо передать
-// адрес объекта.
-func (e *Error) ConfigurationObjectIsNotAddress(code uint8, typeName string) Err {
-	return newErr(&errConfigurationObjectIsNotAddress, code, typeName)
-}
-
-// ConfigurationObjectCopy Копирование объекта конфигурации я типом ... прервано ошибкой: ...
-func (e *Error) ConfigurationObjectCopy(code uint8, typeName string, err error) Err {
-	return newErr(&errConfigurationObjectCopy, code, typeName, err)
-}
-
-// ConfigurationCallbackAlreadyRegistered Подписка функции обратного вызова на изменение конфигурации с
-// типом ... для функции ... уже существует.
-func (e *Error) ConfigurationCallbackAlreadyRegistered(code uint8, typeName string, fnName string) Err {
-	return newErr(&errConfigurationCallbackAlreadyRegistered, code, typeName, fnName)
-}
-
-// ConfigurationCallbackSubscriptionNotFound Подписка функции обратного вызова на изменение конфигурации с
-// типом ... для функции ... не существует.
-func (e *Error) ConfigurationCallbackSubscriptionNotFound(code uint8, typeName string, fnName string) Err {
-	return newErr(&errConfigurationCallbackSubscriptionNotFound, code, typeName, fnName)
-}
+var errSingleton = &Error{
+	Errors:                                    dic.Error(),
+	ApplicationPanicException:                 dic.NewError(cApplicationPanicException, "паника", "стек вызовов").CodeU8().Set(eApplicationPanicException),
+	ApplicationUnknownError:                   dic.NewError(cApplicationUnknownError, "ошибка").CodeU8().Set(eApplicationUnknownError),
+	ApplicationHelpDisplayed:                  dic.NewError(cApplicationHelpDisplayed, "помощь").CodeU8().Set(eApplicationHelpDisplayed),
+	ApplicationVersion:                        dic.NewError(cApplicationVersion, "ошибка").CodeU8().Set(eApplicationVersion),
+	ApplicationMainFuncNotFound:               dic.NewError(cApplicationMainFuncNotFound).CodeU8().Set(eApplicationMainFuncNotFound),
+	ApplicationMainFuncAlreadyRegistered:      dic.NewError(cApplicationMainFuncAlreadyRegistered).CodeU8().Set(eApplicationMainFuncAlreadyRegistered),
+	ApplicationRegistrationUnknownObject:      dic.NewError(cApplicationRegistrationUnknownObject, "объект").CodeU8().Set(eApplicationRegistrationUnknownObject),
+	ComponentIsNull:                           dic.NewError(cComponentIsNull).CodeU8().Set(eComponentIsNull),
+	ComponentRegistrationProhibited:           dic.NewError(cComponentRegistrationProhibited, "название компоненты").CodeU8().Set(eComponentRegistrationProhibited),
+	ComponentRegistrationError:                dic.NewError(cComponentRegistrationError, "название компоненты", "ошибка").CodeU8().Set(eComponentRegistrationError),
+	ComponentPreferencesCallBeforeCompleting:  dic.NewError(cComponentPreferencesCallBeforeCompleting).CodeU8().Set(eComponentPreferencesCallBeforeCompleting),
+	ComponentPanicException:                   dic.NewError(cComponentPanicException, "название компоненты", "паника", "стек вызовов").CodeU8().Set(eComponentPanicException),
+	ComponentRunlevelError:                    dic.NewError(cComponentRunlevelError, "название компоненты", "уровень").CodeU8().Set(eComponentRunlevelError),
+	ComponentRulesError:                       dic.NewError(cComponentRulesError, "правила", "название компоненты", "ошибка").CodeU8().Set(eComponentRulesError),
+	RunlevelCantLessCurrentLevel:              dic.NewError(cRunlevelCantLessCurrentLevel, "уровень", "уровень").CodeU8().Set(eRunlevelCantLessCurrentLevel),
+	InitLogging:                               dic.NewError(cInitLogging, "ошибка").CodeU8().Set(eInitLogging),
+	ComponentConflict:                         dic.NewError(cComponentConflict, "название компоненты", "название компоненты").CodeU8().Set(eComponentConflict),
+	ComponentRequires:                         dic.NewError(cComponentRequires, "название компоненты", "зависимость").CodeU8().Set(eComponentRequires),
+	ComponentInitiateTimeout:                  dic.NewError(cComponentInitiateTimeout, "название компоненты").CodeU8().Set(eComponentInitiateTimeout),
+	ComponentInitiateExecution:                dic.NewError(cComponentInitiateExecution, "название компоненты", "ошибка").CodeU8().Set(eComponentInitiateExecution),
+	ComponentInitiatePanicException:           dic.NewError(cComponentInitiatePanicException, "название компоненты", "паника", "стек вызовов").CodeU8().Set(eComponentInitiatePanicException),
+	ComponentDoExecution:                      dic.NewError(cComponentDoExecution, "название компоненты", "ошибка").CodeU8().Set(eComponentDoExecution),
+	ComponentDoPanicException:                 dic.NewError(cComponentDoPanicException, "название компоненты", "паника", "стек вызовов").CodeU8().Set(eComponentDoPanicException),
+	ComponentDoUnknownError:                   dic.NewError(cComponentDoUnknownError, "ошибка").CodeU8().Set(eComponentDoUnknownError),
+	ComponentFinalizeExecution:                dic.NewError(cComponentFinalizeExecution, "название компоненты", "ошибка").CodeU8().Set(eComponentFinalizeExecution),
+	ComponentFinalizePanicException:           dic.NewError(cComponentFinalizePanicException, "название компоненты", "паника", "стек вызовов").CodeU8().Set(eComponentFinalizePanicException),
+	ComponentFinalizeUnknownError:             dic.NewError(cComponentFinalizeUnknownError, "ошибка").CodeU8().Set(eComponentFinalizeUnknownError),
+	ComponentFinalizeWarning:                  dic.NewError(cComponentFinalizeWarning, "название компоненты", "время").CodeU8().Set(eComponentFinalizeWarning),
+	RunlevelSubscribeUnsubscribeNilFunction:   dic.NewError(cRunlevelSubscribeUnsubscribeNilFunction).CodeU8().Set(eRunlevelSubscribeUnsubscribeNilFunction),
+	RunlevelAlreadySubscribedFunction:         dic.NewError(cRunlevelAlreadySubscribedFunction, "название функции").CodeU8().Set(eRunlevelAlreadySubscribedFunction),
+	RunlevelSubscriptionNotFound:              dic.NewError(cRunlevelSubscriptionNotFound, "название функции").CodeU8().Set(eRunlevelSubscriptionNotFound),
+	RunlevelSubscriptionPanicException:        dic.NewError(cRunlevelSubscriptionPanicException, "паника", "стек вызовов").CodeU8().Set(eRunlevelSubscriptionPanicException),
+	CommandLineArgumentRequired:               dic.NewError(cCommandLineArgumentRequired, "параметр").CodeU8().Set(eCommandLineArgumentRequired),
+	CommandLineArgumentUnknown:                dic.NewError(cCommandLineArgumentUnknown, "неизвестный параметр").CodeU8().Set(eCommandLineArgumentUnknown),
+	CommandLineArgumentNotCorrect:             dic.NewError(cCommandLineArgumentNotCorrect, "параметр").CodeU8().Set(eCommandLineArgumentNotCorrect),
+	CommandLineRequiredFlag:                   dic.NewError(cCommandLineRequiredFlag, "название флага").CodeU8().Set(eCommandLineRequiredFlag),
+	CommandLineUnexpectedError:                dic.NewError(cCommandLineUnexpectedError, "ошибка", "ошибка").CodeU8().Set(eCommandLineUnexpectedError),
+	ConfigurationBootstrap:                    dic.NewError(cConfigurationBootstrap, "ошибка").CodeU8().Set(eConfigurationBootstrap),
+	GetCurrentUser:                            dic.NewError(cGetCurrentUser, "пользователь").CodeU8().Set(eGetCurrentUser),
+	CantChangeWorkDirectory:                   dic.NewError(cCantChangeWorkDirectory, "директория").CodeU8().Set(eCantChangeWorkDirectory),
+	PidExistsAnotherProcessOfApplication:      dic.NewError(cPidExistsAnotherProcessOfApplication, "идентификатор").CodeU8().Set(ePidExistsAnotherProcessOfApplication),
+	PidFileError:                              dic.NewError(cPidFileError, "название файла", "ошибка").CodeU8().Set(ePidFileError),
+	DatabusRecursivePointer:                   dic.NewError(cDatabusRecursivePointer, "указатель").CodeU8().Set(eDatabusRecursivePointer),
+	DatabusPanicException:                     dic.NewError(cDatabusPanicException, "паника", "стек вызовов").CodeU8().Set(eDatabusPanicException),
+	DatabusSubscribeNotFound:                  dic.NewError(cDatabusSubscribeNotFound, "потребитель").CodeU8().Set(eDatabusSubscribeNotFound),
+	DatabusInternalError:                      dic.NewError(cDatabusInternalError, "ошибка").CodeU8().Set(eDatabusInternalError),
+	DatabusNotSubscribersForType:              dic.NewError(cDatabusNotSubscribersForType, "тип данных").CodeU8().Set(eDatabusNotSubscribersForType),
+	DatabusObjectIsNil:                        dic.NewError(cDatabusObjectIsNil).CodeU8().Set(eDatabusObjectIsNil),
+	ConfigurationApplicationProhibited:        dic.NewError(cConfigurationApplicationProhibited, "конфигурация").CodeU8().Set(eConfigurationApplicationProhibited),
+	ConfigurationApplicationObject:            dic.NewError(cConfigurationApplicationObject, "ошибка").CodeU8().Set(eConfigurationApplicationObject),
+	ConfigurationApplicationPanic:             dic.NewError(cConfigurationApplicationPanic, "паника", "стек вызовов").CodeU8().Set(eConfigurationApplicationPanic),
+	ConfigurationFileNotFound:                 dic.NewError(cConfigurationFileNotFound, "название файла", "ошибка").CodeU8().Set(eConfigurationFileNotFound),
+	ConfigurationPermissionDenied:             dic.NewError(cConfigurationPermissionDenied, "название файла", "ошибка").CodeU8().Set(eConfigurationPermissionDenied),
+	ConfigurationUnexpectedMistakeFileAccess:  dic.NewError(cConfigurationUnexpectedMistakeFileAccess, "название файла", "ошибка").CodeU8().Set(eConfigurationUnexpectedMistakeFileAccess),
+	ConfigurationFileIsDirectory:              dic.NewError(cConfigurationFileIsDirectory, "название директории").CodeU8().Set(eConfigurationFileIsDirectory),
+	ConfigurationFileReadingError:             dic.NewError(cConfigurationFileReadingError, "название файла", "ошибка").CodeU8().Set(eConfigurationFileReadingError),
+	ConfigurationSetDefault:                   dic.NewError(cConfigurationSetDefault, "ошибка").CodeU8().Set(eConfigurationSetDefault),
+	ConfigurationSetDefaultValue:              dic.NewError(cConfigurationSetDefaultValue, "значение", "переменная", "ошибка").CodeU8().Set(eConfigurationSetDefaultValue),
+	ConfigurationSetDefaultPanic:              dic.NewError(cConfigurationSetDefaultPanic, "паника", "стек вызовов").CodeU8().Set(eConfigurationSetDefaultPanic),
+	ConfigurationObjectNotFound:               dic.NewError(cConfigurationObjectNotFound, "тип").CodeU8().Set(eConfigurationObjectNotFound),
+	ConfigurationObjectIsNotStructure:         dic.NewError(cConfigurationObjectIsNotStructure, "объект").CodeU8().Set(eConfigurationObjectIsNotStructure),
+	ConfigurationObjectIsNil:                  dic.NewError(cConfigurationObjectIsNil).CodeU8().Set(eConfigurationObjectIsNil),
+	ConfigurationObjectIsNotValid:             dic.NewError(cConfigurationObjectIsNotValid, "тип").CodeU8().Set(eConfigurationObjectIsNotValid),
+	ConfigurationObjectIsNotAddress:           dic.NewError(cConfigurationObjectIsNotAddress, "тип").CodeU8().Set(eConfigurationObjectIsNotAddress),
+	ConfigurationObjectCopy:                   dic.NewError(cConfigurationObjectCopy, "тип", "ошибка").CodeU8().Set(eConfigurationObjectCopy),
+	ConfigurationCallbackAlreadyRegistered:    dic.NewError(cConfigurationCallbackAlreadyRegistered, "тип", "функция").CodeU8().Set(eConfigurationCallbackAlreadyRegistered),
+	ConfigurationCallbackSubscriptionNotFound: dic.NewError(cConfigurationCallbackSubscriptionNotFound, "тип", "функция").CodeU8().Set(eConfigurationCallbackSubscriptionNotFound),
+}
+
+// Error Структура справочника ошибок.
+type Error struct {
+	dic.Errors
+	// ApplicationPanicException Выполнение приложения прервано паникой:\n...\n...
+	ApplicationPanicException dic.IError
+	// ApplicationUnknownError Неизвестная ошибка ...
+	ApplicationUnknownError dic.IError
+	// ApplicationHelpDisplayed Отображение помощи ...
+	ApplicationHelpDisplayed dic.IError
+	// ApplicationVersion Версии приложения содержит ошибку: ...
+	ApplicationVersion dic.IError
+	// ApplicationMainFuncNotFound Не определена основная функция приложения.
+	ApplicationMainFuncNotFound dic.IError
+	// ApplicationMainFuncAlreadyRegistered Основная функция приложения уже зарегистрирована.
+	ApplicationMainFuncAlreadyRegistered dic.IError
+	// ApplicationRegistrationUnknownObject Регистрация не известного компонента, объекта или модуля: ...
+	ApplicationRegistrationUnknownObject dic.IError
+	// ComponentIsNull В качестве объекта компоненты передан nil.
+	ComponentIsNull dic.IError
+	// ComponentRegistrationProhibited Регистрация компонентов запрещена. Компонента ... не зарегистрирована.
+	ComponentRegistrationProhibited dic.IError
+	// ComponentRegistrationError Регистрация компоненты ... завершилась ошибкой: ...
+	ComponentRegistrationError dic.IError
+	// ComponentPreferencesCallBeforeCompleting Опрос настроек компонентов вызван до завершения регистрации компонентов.
+	ComponentPreferencesCallBeforeCompleting dic.IError
+	// ComponentPanicException Выполнение компоненты ... прервано паникой:\n...\n...
+	ComponentPanicException dic.IError
+	// ComponentRunlevelError Уровень запуска (runlevel), для компоненты ... указан ..., необходимо указать уровень равный 0, либо в интервале от 10 до 65534 включительно.
+	ComponentRunlevelError dic.IError
+	// ComponentRulesError Правила ... для компоненты ... содержат ошибку: ...
+	ComponentRulesError dic.IError
+	// RunlevelCantLessCurrentLevel Новый уровень работы приложения (...) не может быть меньше текущего уровня работы приложения (...).
+	RunlevelCantLessCurrentLevel dic.IError
+	// InitLogging Критическая ошибка в модуле менеджера логирования: ...
+	InitLogging dic.IError
+	// ComponentConflict Компонента ... конфликтует с компонентой ...
+	ComponentConflict dic.IError
+	// ComponentRequires Компонента ... имеет не удовлетворённую зависимость ...
+	ComponentRequires dic.IError
+	// ComponentInitiateTimeout Превышено время ожидание выполнения функции Initiate() компоненты ...
+	ComponentInitiateTimeout dic.IError
+	// ComponentInitiateExecution Выполнение функции Initiate() компоненты ... завершено с ошибкой: ...
+	ComponentInitiateExecution dic.IError
+	// ComponentInitiatePanicException Выполнение функции Initiate() компоненты ... прервано паникой:\n...\n...
+	ComponentInitiatePanicException dic.IError
+	// ComponentDoExecution Выполнение функции Do() компоненты ... завершено с ошибкой: ...
+	ComponentDoExecution dic.IError
+	// ComponentDoPanicException Выполнение функции Do() компоненты ... прервано паникой:\n...\n...
+	ComponentDoPanicException dic.IError
+	// ComponentDoUnknownError Выполнение функций Do() завершилось ошибкой: ...
+	ComponentDoUnknownError dic.IError
+	// ComponentFinalizeExecution Выполнение функции Finalize() компоненты ... завершено с ошибкой: ...
+	ComponentFinalizeExecution dic.IError
+	// ComponentFinalizePanicException Выполнение функции Finalize() компоненты ... прервано паникой:\n...\n...
+	ComponentFinalizePanicException dic.IError
+	// ComponentFinalizeUnknownError Выполнение функций Finalize() завершилось ошибкой: ...
+	ComponentFinalizeUnknownError dic.IError
+	// ComponentFinalizeWarning Выполнение функций Finalize() компоненты ..., длится дольше отведённого времени (...).
+	ComponentFinalizeWarning dic.IError
+	// RunlevelSubscribeUnsubscribeNilFunction Передана nil функция, подписка или отписка nil функции не возможна.
+	RunlevelSubscribeUnsubscribeNilFunction dic.IError
+	// RunlevelAlreadySubscribedFunction Функция ... уже подписана на получение событий изменения уровня работы приложения.
+	RunlevelAlreadySubscribedFunction dic.IError
+	// RunlevelSubscriptionNotFound Не найдена подписка функции ... на события изменения уровня работы приложения.
+	RunlevelSubscriptionNotFound dic.IError
+	// RunlevelSubscriptionPanicException Вызов функции подписчика на событие изменения уровня работы приложения, прервано паникой:\n...\n....
+	RunlevelSubscriptionPanicException dic.IError
+	// CommandLineArgumentRequired Требуется указать обязательную команду, аргумент или флаг командной строки: ...
+	CommandLineArgumentRequired dic.IError
+	// CommandLineArgumentUnknown Неизвестная команда, аргумент или флаг командной строки: ...
+	CommandLineArgumentUnknown dic.IError
+	// CommandLineArgumentNotCorrect Не верное значение или тип аргумента, флага или параметра: ...
+	CommandLineArgumentNotCorrect dic.IError
+	// CommandLineRequiredFlag Не указан один или несколько обязательных флагов: ...
+	CommandLineRequiredFlag dic.IError
+	// CommandLineUnexpectedError Не предвиденная ошибка библиотеки командного интерфейса приложения: ...; ...
+	CommandLineUnexpectedError dic.IError
+	// ConfigurationBootstrap Ошибка начально bootstrap конфигурации приложения: ...
+	ConfigurationBootstrap dic.IError
+	// GetCurrentUser Не удалось загрузить данные о текущем пользователе операционной системы: ...
+	GetCurrentUser dic.IError
+	// CantChangeWorkDirectory Не удалось сменить рабочую директорию приложения: ...
+	CantChangeWorkDirectory dic.IError
+	// PidExistsAnotherProcessOfApplication Существует один или несколько работающих процессов приложения, измените PID файл или остановите экземпляры приложения, PID: ...
+	PidExistsAnotherProcessOfApplication dic.IError
+	// PidFileError Ошибка работы с PID файлом ...: ...
+	PidFileError dic.IError
+	// DatabusRecursivePointer Не возможно определить тип рекурсивного указателя: ...
+	DatabusRecursivePointer dic.IError
+	// DatabusPanicException Работа с подпиской потребителя, в шине данных, прервана паникой:\n...\n...
+	DatabusPanicException dic.IError
+	// DatabusSubscribeNotFound Потребитель данных ... не был подписан на шину данных.
+	DatabusSubscribeNotFound dic.IError
+	// DatabusInternalError Внутренняя ошибка шины данных: ...
+	DatabusInternalError dic.IError
+	// DatabusNotSubscribersForType Отсутствуют потребители данных для типа данных: ...
+	DatabusNotSubscribersForType dic.IError
+	// DatabusObjectIsNil Передан nil объект.
+	DatabusObjectIsNil dic.IError
+	// ConfigurationApplicationProhibited Регистрация объектов конфигурации на текущем уровне работы приложения запрещена. Конфигурация ... не зарегистрирована.
+	ConfigurationApplicationProhibited dic.IError
+	// ConfigurationApplicationObject Объект конфигурации приложения содержит ошибку: ...
+	ConfigurationApplicationObject dic.IError
+	// ConfigurationApplicationPanic Непредвиденная ошибка при регистрации объекта конфигурации.\nПаника: ...\n...
+	ConfigurationApplicationPanic dic.IError
+	// ConfigurationFileNotFound Указанного файла конфигурации ... не существует: ...
+	ConfigurationFileNotFound dic.IError
+	// ConfigurationPermissionDenied Отсутствует доступ к файлу конфигурации ..., ошибка: ...
+	ConfigurationPermissionDenied dic.IError
+	// ConfigurationUnexpectedMistakeFileAccess Неожиданная ошибка доступа к файлу конфигурации ...: ...
+	ConfigurationUnexpectedMistakeFileAccess dic.IError
+	// ConfigurationFileIsDirectory В качестве файла конфигурации указана директория: ...
+	ConfigurationFileIsDirectory dic.IError
+	// ConfigurationFileReadingError Чтение фала конфигурации ... прервано ошибкой: ...
+	ConfigurationFileReadingError dic.IError
+	// ConfigurationSetDefault Установка значений по умолчанию, для переменных конфигурации, прервана ошибкой: ...
+	ConfigurationSetDefault dic.IError
+	// ConfigurationSetDefaultValue Установка значения по умолчанию ..., для переменной конфигурации ..., прервана ошибкой: ...
+	ConfigurationSetDefaultValue dic.IError
+	// ConfigurationSetDefaultPanic Непредвиденная ошибка, при установке значений по умолчанию, объекта конфигурации.\nПаника: ...\n...
+	ConfigurationSetDefaultPanic dic.IError
+	// ConfigurationObjectNotFound Объект конфигурации с типом ... не найден.
+	ConfigurationObjectNotFound dic.IError
+	// ConfigurationObjectIsNotStructure Переданный объект ... не является структурой.
+	ConfigurationObjectIsNotStructure dic.IError
+	// ConfigurationObjectIsNil Переданный объект, является nil объектом.
+	ConfigurationObjectIsNil dic.IError
+	// ConfigurationObjectIsNotValid Объект конфигурации с типом ... не инициализирован.
+	ConfigurationObjectIsNotValid dic.IError
+	// ConfigurationObjectIsNotAddress Объект конфигурации с типом ... передан не корректно. Необходимо передать адрес объекта.
+	ConfigurationObjectIsNotAddress dic.IError
+	// ConfigurationObjectCopy Копирование объекта конфигурации с типом ... прервано ошибкой: ...
+	ConfigurationObjectCopy dic.IError
+	// ConfigurationCallbackAlreadyRegistered Подписка функции обратного вызова на изменение конфигурации с типом ... для функции ... уже существует.
+	ConfigurationCallbackAlreadyRegistered dic.IError
+	// ConfigurationCallbackSubscriptionNotFound Подписка функции обратного вызова на изменение конфигурации с типом ... для функции ... не существует.
+	ConfigurationCallbackSubscriptionNotFound dic.IError
+}
+
+// Errors Справочник ошибок.
+func Errors() *Error { return errSingleton }

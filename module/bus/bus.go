@@ -79,11 +79,11 @@ func (bus *impl) Subscribe(databuser kitTypes.Databuser) (err error) {
 
 	defer func() {
 		if e := recover(); e != nil {
-			err = bus.Errors().DatabusPanicException(0, e, kitModuleTrace.StackShort())
+			err = bus.Errors().DatabusPanicException.Bind(e, kitModuleTrace.StackShort())
 		}
 	}()
 	if databuser == nil {
-		err = bus.Errors().DatabusObjectIsNil(0)
+		err = bus.Errors().DatabusObjectIsNil.Bind()
 		return
 	}
 	types = databuser.KnownType()
@@ -114,11 +114,11 @@ func (bus *impl) Unsubscribe(databuser kitTypes.Databuser) (err error) {
 
 	defer func() {
 		if e := recover(); e != nil {
-			err = bus.Errors().DatabusPanicException(0, e, kitModuleTrace.StackShort())
+			err = bus.Errors().DatabusPanicException.Bind(e, kitModuleTrace.StackShort())
 		}
 	}()
 	if databuser == nil {
-		err = bus.Errors().DatabusObjectIsNil(0)
+		err = bus.Errors().DatabusObjectIsNil.Bind()
 		return
 	}
 	databuserName = getFuncFullName(databuser)
@@ -191,7 +191,7 @@ func (bus *impl) publishSync(ctx context.Context, data any) (ret []any, errs []e
 		return
 	}
 	if wdi = bus.databus.Wrappers.Get(); wdi == nil {
-		err = bus.Errors().DatabusPoolInternalError(0)
+		err = bus.Errors().DatabusPoolInternalError.Bind()
 		errs = append(errs, err)
 		return
 	}
@@ -222,7 +222,7 @@ func (bus *impl) PublishAsync(data any) (err error) {
 		return
 	}
 	if wdi = bus.databus.Wrappers.Get(); wdi == nil {
-		err = bus.Errors().DatabusPoolInternalError(0)
+		err = bus.Errors().DatabusPoolInternalError.Bind()
 		return
 	}
 	wdi.DataPut(data, false, nil)
@@ -236,11 +236,11 @@ func (bus *impl) publishDataCheck(data any) (err error) {
 	var rdt reflect.Type
 
 	if data == nil {
-		err = bus.Errors().DatabusObjectIsNil(0)
+		err = bus.Errors().DatabusObjectIsNil.Bind()
 		return
 	}
 	if rdt = reflect.TypeOf(data); !bus.databus.Subscribers.IsExistSubscriber(rdt) {
-		err = bus.Errors().DatabusNotSubscribersForType(0, rdt.String())
+		err = bus.Errors().DatabusNotSubscribersForType.Bind(rdt.String())
 		return
 	}
 

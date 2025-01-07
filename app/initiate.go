@@ -2,24 +2,24 @@ package app
 
 import (
 	"context"
-	"errors"
 
 	kitModuleTrace "github.com/webnice/kit/v4/module/trace"
 	kitTypes "github.com/webnice/kit/v4/types"
 )
 
 // Функция вызова функции Initiate() у компоненты с контролем длительности выполнения и прерыванием по таймауту.
-func (app *impl) initiateFn(component *kitTypes.ComponentInfo) (err kitTypes.ErrorWithCode) {
+func (app *impl) initiateFn(component *kitTypes.ComponentInfo) (err error) {
 	var (
 		ctx  context.Context
 		ctf  context.CancelFunc
-		call chan kitTypes.ErrorWithCode
+		call chan error
 	)
 
 	// Функция защиты от паники.
 	defer func() {
 		if e := recover(); e != nil {
-			err = app.cfg.Errors().ComponentPanicException(0, component.ComponentName, e, kitModuleTrace.StackShort())
+			err = app.cfg.Errors().ComponentPanicException.
+				Bind(component.ComponentName, e, kitModuleTrace.StackShort())
 		}
 	}()
 	// Создание контекста контроля таймаута.
@@ -31,8 +31,8 @@ func (app *impl) initiateFn(component *kitTypes.ComponentInfo) (err kitTypes.Err
 	// Ожидание, либо таймаута, либо завершения функции Initiate().
 	select {
 	case <-ctx.Done():
-		err = app.cfg.Errors().
-			ComponentInitiateTimeout(0, component.ComponentName)
+		err = app.cfg.Errors().ComponentInitiateTimeout.
+			Bind(component.ComponentName)
 	case err = <-call:
 		component.IsInitiate = err == nil
 	}
@@ -41,30 +41,24 @@ func (app *impl) initiateFn(component *kitTypes.ComponentInfo) (err kitTypes.Err
 }
 
 // Запуск горутины с каналом обратной связи для получения ошибки из вызываемой функции Initiate().
-func (app *impl) initiateCallFn(componentName string, cpt kitTypes.Component) (ret chan kitTypes.ErrorWithCode) {
-	ret = make(chan kitTypes.ErrorWithCode)
+func (app *impl) initiateCallFn(componentName string, cpt kitTypes.Component) (ret chan error) {
+	ret = make(chan error)
 	go func() { ret <- app.initiateSafeCall(componentName, cpt) }()
 
 	return
 }
 
 // Запуск функции Initiate() в компоненте с защитой от паники.
-func (app *impl) initiateSafeCall(componentName string, cpt kitTypes.Component) (err kitTypes.ErrorWithCode) {
-	var e error
-
+func (app *impl) initiateSafeCall(componentName string, cpt kitTypes.Component) (err error) {
 	// Функция защиты от паники.
 	defer func() {
 		if e := recover(); e != nil {
-			err = app.cfg.Errors().ComponentInitiatePanicException(0, componentName, e, kitModuleTrace.StackShort())
+			err = app.cfg.Errors().ComponentInitiatePanicException.Bind(componentName, e, kitModuleTrace.StackShort())
 		}
 	}()
-	if e = cpt.Initiate(); e != nil {
-		var eto kitTypes.ErrorWithCode
-		switch {
-		case errors.As(e, &eto):
-			err = eto
-		default:
-			err = app.cfg.Errors().ComponentInitiateExecution(0, componentName, e)
+	if err = cpt.Initiate(); err != nil {
+		if app.cfg.Errors().Unbind(err) == nil {
+			err = app.cfg.Errors().ComponentInitiateExecution.Bind(componentName, err)
 		}
 	}
 

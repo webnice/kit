@@ -15,7 +15,7 @@ func (mys *impl) makeDsn() (err error) {
 
 	// Проверка конфигурации.
 	if mys.cfg == nil {
-		err = mys.Errors().ConfigurationIsEmpty(0)
+		err = mys.Errors().ConfigurationIsEmpty.Bind()
 		return
 	}
 	// Проверка драйвера базы данных.
@@ -26,7 +26,7 @@ func (mys *impl) makeDsn() (err error) {
 		}
 	}
 	if !found {
-		err = mys.Errors().UnknownDatabaseDriver(0, mys.cfg.Driver)
+		err = mys.Errors().UnknownDatabaseDriver.Bind(mys.cfg.Driver)
 		return
 	}
 	// Самая простая конфигурация: sqlite
@@ -36,7 +36,7 @@ func (mys *impl) makeDsn() (err error) {
 	}
 	// Имя пользователя.
 	if mys.cfg.Login == "" {
-		err = mys.Errors().UsernameIsEmpty(0)
+		err = mys.Errors().UsernameIsEmpty.Bind()
 		return
 	}
 	// Имя пользователя и пароль можно добавлять в DSN.
@@ -48,7 +48,7 @@ func (mys *impl) makeDsn() (err error) {
 	case keySocket:
 		mys.dsn += fmt.Sprintf(dsnUnixTpl, mys.cfg.Socket)
 	default:
-		err = mys.Errors().WrongConnectionType(0, mys.cfg.Type)
+		err = mys.Errors().WrongConnectionType.Bind(mys.cfg.Type)
 		return
 	}
 	mys.cfg.Type = strings.ToLower(mys.cfg.Type)

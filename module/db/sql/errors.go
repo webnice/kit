@@ -1,6 +1,8 @@
 package sql
 
-// Обычные ошибки
+import "github.com/webnice/dic"
+
+// Коды ошибок.
 const (
 	eConfigurationIsEmpty  uint = iota + 1 // 001
 	eUnknownDatabaseDriver                 // 002
@@ -14,63 +16,57 @@ const (
 
 // Текстовые значения кодов ошибок на основном языке приложения.
 const (
-	cConfigurationIsEmpty  = `Конфигурация подключения к базе данных пустая.`
-	cUnknownDatabaseDriver = `Указан неизвестный или не поддерживаемый драйвер базы данных: ` + "%q."
-	cUsernameIsEmpty       = `Не указано имя пользователя, для подключения к базе данных.`
-	cWrongConnectionType   = `Указан неизвестный или не поддерживаемый способ подключения к базе данных: ` + "%q."
-	cConnectError          = `Подключение к базе данных завершилось ошибкой: ` + "%s."
-	cDriverUnImplemented   = `Подключение к базе данных с помощью драйвера %q не создано.`
-	cApplyMigration        = `Применение новых миграций базы данных прервано ошибкой: ` + "%s."
-	cUnknownDialect        = `Применение миграций базы данных, настройка диалекта %q прервано ошибкой: ` + "%s."
+	cConfigurationIsEmpty  = "Конфигурация подключения к базе данных пустая."
+	cUnknownDatabaseDriver = "Указан неизвестный или не поддерживаемый драйвер базы данных: %q."
+	cUsernameIsEmpty       = "Не указано имя пользователя, для подключения к базе данных."
+	cWrongConnectionType   = "Указан неизвестный или не поддерживаемый способ подключения к базе данных: %q."
+	cConnectError          = "Подключение к базе данных завершилось ошибкой: %s."
+	cDriverUnImplemented   = "Подключение к базе данных с помощью драйвера %q не создано."
+	cApplyMigration        = "Применение новых миграций базы данных прервано ошибкой: %s."
+	cUnknownDialect        = "Применение миграций базы данных, настройка диалекта %q прервано ошибкой: %s."
 )
 
-// Константы указаны в объектах, адрес которых фиксирован всё время работы приложения.
-// Это позволяет сравнивать ошибки между собой используя обычное сравнение "==", но сравнивать необходимо только
-// якорь "Anchor()" объекта ошибки.
+type Error struct {
+	dic.Errors
+
+	// ConfigurationIsEmpty Конфигурация подключения к базе данных пустая.
+	ConfigurationIsEmpty dic.IError
+
+	// UnknownDatabaseDriver Указан неизвестный или не поддерживаемый драйвер базы данных: ...
+	UnknownDatabaseDriver dic.IError
+
+	// UsernameIsEmpty Не указано имя пользователя, для подключения к базе данных.
+	UsernameIsEmpty dic.IError
+
+	// WrongConnectionType Указан неизвестный или не поддерживаемый способ подключения к базе данных: ...
+	WrongConnectionType dic.IError
+
+	// ConnectError Подключение к базе данных завершилось ошибкой: ...
+	ConnectError dic.IError
+
+	// DriverUnImplemented Подключение к базе данных с помощью драйвера ... не создано.
+	DriverUnImplemented dic.IError
+
+	// ApplyMigration Применение новых миграций базы данных прервано ошибкой: ...
+	ApplyMigration dic.IError
+
+	// UnknownDialect Применение миграций базы данных, настройка диалекта ... прервано ошибкой: ...
+	UnknownDialect dic.IError
+}
+
 var (
-	errSingleton             = &Error{}
-	errConfigurationIsEmpty  = err{tpl: cConfigurationIsEmpty, code: eConfigurationIsEmpty}
-	errUnknownDatabaseDriver = err{tpl: cUnknownDatabaseDriver, code: eUnknownDatabaseDriver}
-	errUsernameIsEmpty       = err{tpl: cUsernameIsEmpty, code: eUsernameIsEmpty}
-	errWrongConnectionType   = err{tpl: cWrongConnectionType, code: eWrongConnectionType}
-	errConnectError          = err{tpl: cConnectError, code: eConnectError}
-	errDriverUnImplemented   = err{tpl: cDriverUnImplemented, code: eDriverUnImplemented}
-	errApplyMigration        = err{tpl: cApplyMigration, code: eApplyMigration}
-	errUnknownDialect        = err{tpl: cUnknownDialect, code: eUnknownDialect}
+	errSingleton = &Error{
+		Errors:                dic.Error(),
+		ConfigurationIsEmpty:  dic.NewError(cConfigurationIsEmpty).CodeU().Set(eConfigurationIsEmpty),
+		UnknownDatabaseDriver: dic.NewError(cUnknownDatabaseDriver, "название драйвера").CodeU().Set(eUnknownDatabaseDriver),
+		UsernameIsEmpty:       dic.NewError(cUsernameIsEmpty).CodeU().Set(eUsernameIsEmpty),
+		WrongConnectionType:   dic.NewError(cWrongConnectionType, "способ подключения").CodeU().Set(eWrongConnectionType),
+		ConnectError:          dic.NewError(cConnectError, "ошибка").CodeU().Set(eConnectError),
+		DriverUnImplemented:   dic.NewError(cDriverUnImplemented, "название драйвера").CodeU().Set(eDriverUnImplemented),
+		ApplyMigration:        dic.NewError(cApplyMigration, "ошибка").CodeU().Set(eApplyMigration),
+		UnknownDialect:        dic.NewError(cUnknownDialect, "диалект", "ошибка").CodeU().Set(eUnknownDialect),
+	}
+
+	// Errors Справочник ошибок.
+	Errors = func() *Error { return errSingleton }
 )
-
-// ERRORS: Реализация ошибок с возможностью сравнения ошибок между собой.
-
-// ConfigurationIsEmpty Конфигурация подключения к базе данных пустая.
-func (e *Error) ConfigurationIsEmpty(code uint) Err { return newErr(&errConfigurationIsEmpty, code) }
-
-// UnknownDatabaseDriver Указан неизвестный или не поддерживаемый драйвер базы данных: ...
-func (e *Error) UnknownDatabaseDriver(code uint, driver string) Err {
-	return newErr(&errUnknownDatabaseDriver, code, driver)
-}
-
-// UsernameIsEmpty Не указано имя пользователя, для подключения к базе данных.
-func (e *Error) UsernameIsEmpty(code uint) Err { return newErr(&errUsernameIsEmpty, code) }
-
-// WrongConnectionType Указан неизвестный или не поддерживаемый способ подключения к базе данных: ...
-func (e *Error) WrongConnectionType(code uint, connType string) Err {
-	return newErr(&errWrongConnectionType, code, connType)
-}
-
-// ConnectError Подключение к базе данных завершилось ошибкой: ...
-func (e *Error) ConnectError(code uint, err error) Err { return newErr(&errConnectError, code, err) }
-
-// DriverUnImplemented Подключение к базе данных с помощью драйвера ... не создано.
-func (e *Error) DriverUnImplemented(code uint, driver string) Err {
-	return newErr(&errDriverUnImplemented, code, driver)
-}
-
-// ApplyMigration Применение новых миграций базы данных прервано ошибкой: ...
-func (e *Error) ApplyMigration(code uint, err error) Err {
-	return newErr(&errApplyMigration, code, err)
-}
-
-// UnknownDialect Применение миграций базы данных, настройка диалекта ... прервано ошибкой: ...
-func (e *Error) UnknownDialect(code uint, dialect string, err error) Err {
-	return newErr(&errUnknownDialect, code, dialect, err)
-}

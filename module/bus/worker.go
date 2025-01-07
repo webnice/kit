@@ -52,7 +52,7 @@ func (bus *impl) workerCallerAsync(wdi kitModulePdw.Data, ss []*subscriber) {
 
 	defer func() {
 		if e := recover(); e != nil {
-			err = bus.Errors().DatabusPanicException(0, e, kitModuleTrace.StackShort())
+			err = bus.Errors().DatabusPanicException.Bind(e, kitModuleTrace.StackShort())
 			log.Println(err.Error())
 		}
 	}()
@@ -140,7 +140,7 @@ func (bus *impl) workerSafeCall(s *subscriber, wdi kitModulePdw.Data) (ret *work
 	ret = new(workerSafeCallResponse)
 	defer func() {
 		if e := recover(); e != nil {
-			ret.Err = bus.Errors().DatabusPanicException(0, e, kitModuleTrace.StackShort())
+			ret.Err = bus.Errors().DatabusPanicException.Bind(e, kitModuleTrace.StackShort())
 		}
 	}()
 	ret.Resp, ret.Errs = s.Item.Consumer(wdi.IsSync(), wdi.DataGet())

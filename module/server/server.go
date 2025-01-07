@@ -100,7 +100,7 @@ func (sri *impl) Start() (err error) {
 	}
 	// Количество запущенных серверов не равно количеству добавленных серверов.
 	if serverAdded != serverLaunched {
-		err = sri.Errors().ServersAddedNotEqualLaunched(serverAdded, serverLaunched)
+		err = sri.Errors().ServersAddedNotEqualLaunched.Bind(serverAdded, serverLaunched)
 		return
 	}
 

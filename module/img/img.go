@@ -1,6 +1,6 @@
 /*
 
-    Модуль работы с графическими изображениями.
+   Модуль работы с графическими изображениями.
 
 */
 
@@ -45,9 +45,9 @@ func (img *impl) Open(filename string) (ret Image, err error) {
 		i  *imgItem
 	)
 
-	fh, err = os.Open(filename) // nolint: gosec
+	fh, err = os.Open(filename)
 	if os.IsNotExist(err) {
-		err = img.Errors().NotFound()
+		err = img.Errors().FileNotExist.Bind(filename, err)
 		return
 	} else if err != nil {
 		return

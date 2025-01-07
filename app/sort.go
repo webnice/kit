@@ -8,7 +8,7 @@ import (
 )
 
 // Функция сортировки компонентов в соответствии с настройками (before) и (after).
-func (app *impl) sortFn(components []*kitTypes.ComponentInfo) (err kitTypes.ErrorWithCode) {
+func (app *impl) sortFn(components []*kitTypes.ComponentInfo) (err error) {
 	var (
 		fnGetIdx func(*regexp.Regexp) int64
 		mp       map[string]int64

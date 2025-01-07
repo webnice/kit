@@ -1,11 +1,6 @@
 package app
 
-import (
-	"errors"
-	"math"
-
-	kitTypes "github.com/webnice/kit/v4/types"
-)
+import "math"
 
 // Выполнение действий приложения на уровнях от 10 до 65534.
 // [10] выполнение функций Do() компонентов приложения.
@@ -24,15 +19,10 @@ func (app *impl) mainRunlevelDo(_ uint16, new uint16) {
 	// Фильтрация компонентов по runlevel и команде.
 	if code, err = app.cfg.Gist().
 		ComponentDo(new, app.doFn); code != 0 || err != nil {
-		var errorWithCode kitTypes.ErrorWithCode
-		switch {
-		case errors.As(err, &errorWithCode):
-			// Приведение ошибки к стандартизированным "ErrorWithCode".
-			app.cfg.Gist().ErrorAppend(err)
-		default:
-			// Ошибка не стандартизированная.
-			app.cfg.Gist().ErrorAppend(app.cfg.Errors().ComponentDoUnknownError(code, err))
+		if app.cfg.Errors().Unbind(err) == nil { // Ошибка не dic.IError, приведение к стандартизированной ошибке.
+			err = app.cfg.Errors().ComponentDoUnknownError.Bind(err)
 		}
+		app.cfg.Gist().ErrorAppend(err)
 	}
 	// Остановка автоматического переключения уровня работы приложения при достижении целевого уровня.
 	if app.cfg.Targetlevel() == new {
@@ -65,14 +55,9 @@ func (app *impl) mainRunlevelFinalize(_ uint16, new uint16) {
 	defer func() { app.finalize <- struct{}{} }()
 	if code, err = app.cfg.Gist().
 		ComponentFinalize(app.finalizeFn); code != 0 || err != nil {
-		var errorWithCode kitTypes.ErrorWithCode
-		switch {
-		case errors.As(err, &errorWithCode):
-			// Приведение ошибки к стандартизированным "ErrorWithCode".
-			app.cfg.Gist().ErrorAppend(err)
-		default:
-			// Ошибка не стандартизированная.
-			app.cfg.Gist().ErrorAppend(app.cfg.Errors().ComponentFinalizeUnknownError(code, err))
+		if app.cfg.Errors().Unbind(err) == nil { // Ошибка не dic.IError, приведение к стандартизированной ошибке.
+			err = app.cfg.Errors().ComponentFinalizeUnknownError.Bind(err)
 		}
+		app.cfg.Gist().ErrorAppend(err)
 	}
 }

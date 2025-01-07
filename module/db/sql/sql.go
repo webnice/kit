@@ -81,7 +81,7 @@ func (mys *impl) makeConnect(onDone chan<- struct{}) {
 	}
 	// Выполнение подключения к базе данных.
 	if mys.connect, err = sql.Open(mys.cfg.Driver, mys.dsn); err != nil {
-		mys.error = mys.Errors().ConnectError(0, err)
+		mys.error = mys.Errors().ConnectError.Bind(err)
 		return
 	}
 	// Настройка подключения к базе данных.
@@ -140,7 +140,7 @@ func (mys *impl) info(pattern string, args ...any) {
 	}
 }
 
-// Errors Справочник всех ошибок пакета.
+// Errors Справочник ошибок.
 func (mys *impl) Errors() *Error { return Errors() }
 
 // E Ошибка соединения с базой данных.
@@ -214,7 +214,7 @@ func (mys *impl) GormDB() (ret *gorm.DB) {
 	//		Logger:                 NewLoggerGorm(mys),
 	//	})
 	default:
-		mys.error = mys.Errors().DriverUnImplemented(0, mys.cfg.Driver)
+		mys.error = mys.Errors().DriverUnImplemented.Bind(mys.cfg.Driver)
 		return
 	}
 

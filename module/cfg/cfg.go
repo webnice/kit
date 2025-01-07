@@ -27,8 +27,8 @@ func RegistrationMain(fn kitTypes.MainFn) Interface {
 	singleton.main.FnMutex.Lock()
 	if singleton.main.Fn != nil {
 		fnName = getFuncFullName(RegistrationMain)
-		singleton.error = append(singleton.error, Errors().ApplicationMainFuncAlreadyRegistered(0))
-		panic(fnName + "\n" + Errors().ApplicationMainFuncAlreadyRegistered(0).Error())
+		singleton.error = append(singleton.error, Errors().ApplicationMainFuncAlreadyRegistered.Bind())
+		panic(fnName + "\n" + Errors().ApplicationMainFuncAlreadyRegistered.Bind().Error())
 		return singleton
 	}
 	singleton.main.Fn = fn
@@ -221,7 +221,7 @@ func (cfg *impl) ConfigurationByTypeName(typeName string) (ret any, err error) {
 		}
 	}
 	if !found {
-		ret, err = nil, cfg.Errors().ConfigurationObjectNotFound(0, typeName)
+		ret, err = nil, cfg.Errors().ConfigurationObjectNotFound.Bind(typeName)
 		return
 	}
 
@@ -262,7 +262,7 @@ func (cfg *impl) ConfigurationCopyByObject(o any) (err error) {
 	}
 	// Копирование данных их объекта конфигурации в объект результата.
 	if err = kitModuleCfgCpy.All(o, src); err != nil {
-		err = cfg.Errors().ConfigurationObjectCopy(0, rt.String(), err)
+		err = cfg.Errors().ConfigurationObjectCopy.Bind(rt.String(), err)
 		return
 	}
 

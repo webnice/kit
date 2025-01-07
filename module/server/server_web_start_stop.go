@@ -45,7 +45,7 @@ func (iweb *implWeb) Start(serverID string) (err error) {
 	// Проверка наличия сервера в списке.
 	serverKey = strings.ToUpper(serverID)
 	if _, ok = iweb.server.Control[serverKey]; ok {
-		err = iweb.parent.Errors().ServerByIdAlreadyStarted(serverKey)
+		err = iweb.parent.Errors().ServerByIdAlreadyStarted.Bind(serverKey)
 		return
 	}
 	iweb.server.Control[serverKey] = new(kitTypesServer.WebServerControl)
@@ -56,7 +56,7 @@ func (iweb *implWeb) Start(serverID string) (err error) {
 		}
 	}
 	if iweb.server.Control[serverKey].Configuration == nil {
-		err = iweb.parent.Errors().ServerByIdNotFound(serverKey)
+		err = iweb.parent.Errors().ServerByIdNotFound.Bind(serverKey)
 		return
 	}
 	iweb.info(patternBeg, serverID)
@@ -99,7 +99,7 @@ func (iweb *implWeb) Stop(serverID string) (err error) {
 	serverKey = strings.ToUpper(serverID)
 	// Проверка наличия сервера в списке.
 	if _, ok = iweb.server.Control[serverKey]; !ok {
-		err = iweb.parent.Errors().ServerByIdNotStarted(serverKey)
+		err = iweb.parent.Errors().ServerByIdNotStarted.Bind(serverKey)
 		return
 	}
 	// Остановка сервера, ожидание завершения сервера.

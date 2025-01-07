@@ -63,9 +63,9 @@ func (lgm *logGorm) Trace(
 	err error,
 ) {
 	const (
-		keyQuery, keySql               = `query`, `sql`
-		keyDriver, keyElapsed, keyRows = `driver`, `elapsed`, `rows`
-		tplTracef, tplErrorf           = `sql:"%s"`, `sql:"%s", ошибка: %s`
+		keyQuery, keySql               = "query", "sql"
+		keyDriver, keyElapsed, keyRows = "driver", "elapsed", "rows"
+		tplTracef, tplErrorf           = "sql:%q", "sql:%q, ошибка: %s"
 		// Увеличение глубины поиска в стеке вызовов, функции вызвавшей логирование, так как используется ORM.
 		stackBackCorrect = 5
 	)

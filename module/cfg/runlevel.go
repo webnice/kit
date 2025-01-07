@@ -4,7 +4,6 @@ import (
 	"container/list"
 
 	kitModuleTrace "github.com/webnice/kit/v4/module/trace"
-	kitTypes "github.com/webnice/kit/v4/types"
 )
 
 // Функция создаёт канал изменения уровня работы приложения.
@@ -66,15 +65,15 @@ func (cfg *impl) runlevelCallSubscribers(oldLevel, newLevel uint16) {
 
 // Безопасный вызов функции обратного вызова подписчика на изменения уровня работы приложения.
 func (cfg *impl) runlevelSafeCallSubscriber(fn RunlevelSubscriberFn, oldLevel uint16, newLevel uint16) (
-	err kitTypes.ErrorWithCode,
+	err error,
 ) {
-	// Функция защиты от паники
+	// Функция защиты от паники.
 	defer func() {
 		if e := recover(); e != nil {
-			err = cfg.Errors().RunlevelSubscriptionPanicException(0, e, kitModuleTrace.StackShort())
+			err = cfg.Errors().RunlevelSubscriptionPanicException.Bind(e, kitModuleTrace.StackShort())
 		}
 	}()
-	// Вызов функции подписчика
+	// Вызов функции подписчика.
 	fn(oldLevel, newLevel)
 
 	return
@@ -97,7 +96,7 @@ func (cfg *impl) RunlevelSubscribe(fn RunlevelSubscriberFn) (err error) {
 
 	// Проверка на ошибку разработчика
 	if fn == nil {
-		err = cfg.Errors().RunlevelSubscribeUnsubscribeNilFunction(0)
+		err = cfg.Errors().RunlevelSubscribeUnsubscribeNilFunction.Bind()
 		return
 	}
 	funcFullName = getFuncFullName(fn)
@@ -111,7 +110,7 @@ func (cfg *impl) RunlevelSubscribe(fn RunlevelSubscriberFn) (err error) {
 	}
 	// Если подписчик уже существует, возвращение ошибки
 	if found {
-		err = cfg.Errors().RunlevelAlreadySubscribedFunction(0, funcFullName)
+		err = cfg.Errors().RunlevelAlreadySubscribedFunction.Bind(funcFullName)
 		return
 	}
 	cfg.runLevelSubscribers.PushBack(fn)
@@ -131,7 +130,7 @@ func (cfg *impl) RunlevelUnsubscribe(fn RunlevelSubscriberFn) (err error) {
 
 	// Проверка на ошибку разработчика
 	if fn == nil {
-		err = cfg.Errors().RunlevelSubscribeUnsubscribeNilFunction(0)
+		err = cfg.Errors().RunlevelSubscribeUnsubscribeNilFunction.Bind()
 		return
 	}
 	funcFullName = getFuncFullName(fn)
@@ -144,7 +143,7 @@ func (cfg *impl) RunlevelUnsubscribe(fn RunlevelSubscriberFn) (err error) {
 	}
 	// Подписчик не нашёлся
 	if len(forDelete) == 0 {
-		err = cfg.Errors().RunlevelSubscriptionNotFound(0, funcFullName)
+		err = cfg.Errors().RunlevelSubscriptionNotFound.Bind(funcFullName)
 		return
 	}
 	// Удаление подписчика

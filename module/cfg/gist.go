@@ -27,7 +27,7 @@ func (essence *gist) App() {
 		essence.exitWithCode()
 	}()
 	if essence.parent.main.Fn == nil {
-		essence.parent.error = append(essence.parent.error, essence.parent.Errors().ApplicationMainFuncNotFound(0))
+		essence.parent.error = append(essence.parent.error, essence.parent.Errors().ApplicationMainFuncNotFound.Bind())
 		return
 	}
 	essence.safeLaunchApplication()
@@ -64,7 +64,7 @@ func (essence *gist) Version(version string, build string) Essence {
 		tmp = version + keyBuild + build
 	}
 	if essence.parent.main.Version, err = semver.NewVersion(tmp); err != nil {
-		essence.parent.error = append(essence.parent.error, essence.parent.Errors().ApplicationVersion(0, err))
+		essence.parent.error = append(essence.parent.error, essence.parent.Errors().ApplicationVersion.Bind(err))
 		return essence
 	}
 
@@ -135,7 +135,9 @@ func (essence *gist) Runlevel(runlevel uint16) Essence {
 	var msg *runLevelUp
 
 	if runlevel > 0 && essence.parent.runLevel > runlevel {
-		essence.ErrorAppend(essence.parent.Errors().RunlevelCantLessCurrentLevel(0, essence.parent.runLevel, runlevel))
+		essence.ErrorAppend(
+			essence.parent.Errors().RunlevelCantLessCurrentLevel.Bind(essence.parent.runLevel, runlevel),
+		)
 		return essence
 	}
 	if runlevel == 0 {
@@ -242,7 +244,7 @@ func (essence *gist) Registration(name string, obj any) (err error) {
 			essence.syncRegistration(ktc, name)
 		}
 	default:
-		err = essence.Cfg().Errors().ApplicationRegistrationUnknownObject(0, name)
+		err = essence.Cfg().Errors().ApplicationRegistrationUnknownObject.Bind(name)
 	}
 
 	return

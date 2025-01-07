@@ -10,7 +10,7 @@ import (
 
 // Опрос зарегистрированных компонентов, получение настроек компонентов.
 // Функция загрузки настроек компонента.
-func (app *impl) preferencesFn(c *kitTypes.ComponentInfo) (ret *kitTypes.ComponentInfo, err kitTypes.ErrorWithCode) {
+func (app *impl) preferencesFn(c *kitTypes.ComponentInfo) (ret *kitTypes.ComponentInfo, err error) {
 	const (
 		cBefore   = `before`
 		cAfter    = `after`
@@ -25,7 +25,7 @@ func (app *impl) preferencesFn(c *kitTypes.ComponentInfo) (ret *kitTypes.Compone
 	// Функция защиты от паники, в связи с тем что вызывается код внешней компоненты, в нём может быть любая ошибка.
 	defer func() {
 		if e := recover(); e != nil {
-			err = app.cfg.Errors().ComponentPanicException(0, c.ComponentName, e, kitModuleTrace.StackShort())
+			err = app.cfg.Errors().ComponentPanicException.Bind(c.ComponentName, e, kitModuleTrace.StackShort())
 		}
 	}()
 	// Копирование настроек из регистрации компоненты.
@@ -44,7 +44,7 @@ func (app *impl) preferencesFn(c *kitTypes.ComponentInfo) (ret *kitTypes.Compone
 	}
 	// Проверка и присвоение настройки уровня запуска компоненты.
 	if preferences.Runlevel > 0 && (preferences.Runlevel < 10 || preferences.Runlevel > math.MaxUint16-1) {
-		ret, err = nil, app.cfg.Errors().ComponentRunlevelError(0, ret.ComponentName, preferences.Runlevel)
+		ret, err = nil, app.cfg.Errors().ComponentRunlevelError.Bind(ret.ComponentName, preferences.Runlevel)
 		return
 	}
 	ret.Runlevel = preferences.Runlevel
@@ -90,7 +90,7 @@ func (app *impl) preferencesFn(c *kitTypes.ComponentInfo) (ret *kitTypes.Compone
 // Преобразование массива строк в массив regexp правил.
 func (app *impl) preferencesRegexpMake(rules []string, key string, componentName string) (
 	ret []*regexp.Regexp,
-	err kitTypes.ErrorWithCode,
+	err error,
 ) {
 	var (
 		e   error
@@ -101,7 +101,7 @@ func (app *impl) preferencesRegexpMake(rules []string, key string, componentName
 	ret = make([]*regexp.Regexp, 0, len(rules))
 	for n = range rules {
 		if rex, e = regexp.Compile(rules[n]); e != nil {
-			err = app.cfg.Errors().ComponentRulesError(0, key, componentName, e)
+			err = app.cfg.Errors().ComponentRulesError.Bind(key, componentName, e)
 			return
 		}
 		ret = append(ret, rex)

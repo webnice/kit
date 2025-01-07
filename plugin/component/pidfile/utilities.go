@@ -8,12 +8,10 @@ import (
 	"strconv"
 	"strings"
 	"syscall"
-
-	kitTypes "github.com/webnice/kit/v4/types"
 )
 
 // IsProcessExist Проверка существования процесса по данным из PID файла.
-func (pid *impl) IsProcessExist() (err kitTypes.ErrorWithCode) {
+func (pid *impl) IsProcessExist() (err error) {
 	var (
 		e       error
 		fi      os.FileInfo
@@ -30,17 +28,17 @@ func (pid *impl) IsProcessExist() (err kitTypes.ErrorWithCode) {
 		return
 	}
 	if e != nil {
-		err = pid.cfg.Errors().PidFileError(0, pid.pfnm, e)
+		err = pid.cfg.Errors().PidFileError.Bind(pid.pfnm, e)
 		return
 	}
 	if fi.IsDir() {
 		e = fmt.Errorf(tplPidFileIsDirectory, pid.pfnm)
-		err = pid.cfg.Errors().PidFileError(0, pid.pfnm, e)
+		err = pid.cfg.Errors().PidFileError.Bind(pid.pfnm, e)
 		return
 	}
 	if buf, e = os.ReadFile(pid.pfnm); e != nil {
 		e = fmt.Errorf(tplPidContentRead, pid.pfnm, e)
-		err = pid.cfg.Errors().PidFileError(0, pid.pfnm, e)
+		err = pid.cfg.Errors().PidFileError.Bind(pid.pfnm, e)
 		return
 	}
 	str = strings.Split(string(buf), "\n")
@@ -65,7 +63,7 @@ func (pid *impl) IsProcessExist() (err kitTypes.ErrorWithCode) {
 		}
 	}
 	if exists {
-		err = pid.cfg.Errors().PidExistsAnotherProcessOfApplication(0, pds)
+		err = pid.cfg.Errors().PidExistsAnotherProcessOfApplication.Bind(pid.sliceIntToString(pds...))
 	}
 
 	return
@@ -75,4 +73,21 @@ func (pid *impl) IsProcessExist() (err kitTypes.ErrorWithCode) {
 func (pid *impl) createDirectoryForFile(filename string) {
 	var dir = path.Dir(filename)
 	_ = os.MkdirAll(dir, defaultModeDir)
+}
+
+// Представление среза чисел как строки с числами через запятую.
+func (pid *impl) sliceIntToString(i ...int) (ret string) {
+	const sep = ", "
+	var (
+		tmp []string
+		n   int
+	)
+
+	tmp = make([]string, 0, len(i))
+	for n = range i {
+		tmp = append(tmp, strconv.FormatInt(int64(i[n]), 10))
+	}
+	ret = strings.Join(tmp, sep)
+
+	return
 }

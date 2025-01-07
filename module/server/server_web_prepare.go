@@ -37,7 +37,7 @@ func (iweb *implWeb) callBefore() (err error) {
 	defer func() {
 		if e := recover(); e != nil {
 			err = iweb.parent.Errors().
-				ModulePanicException(moduleName, e, kitModuleTrace.StackShort())
+				ModulePanicException.Bind(moduleName, e, kitModuleTrace.StackShort())
 		}
 	}()
 	// Запуск функции Before.
@@ -54,7 +54,7 @@ func (iweb *implWeb) callBefore() (err error) {
 				continue
 			}
 			if err = before(iweb.parent.server[s]); err != nil {
-				err = iweb.parent.Errors().BeforeExitWithError(err)
+				err = iweb.parent.Errors().BeforeExitWithError.Bind(err)
 				return
 			}
 		}
@@ -76,7 +76,7 @@ func (iweb *implWeb) makeRouting(wc *kitTypesServer.WebConfiguration) (err error
 	defer func() {
 		if e := recover(); e != nil {
 			err = iweb.parent.Errors().
-				ModulePanicException(moduleName, e, kitModuleTrace.StackShort())
+				ModulePanicException.Bind(moduleName, e, kitModuleTrace.StackShort())
 		}
 	}()
 	iweb.Error().Reset()

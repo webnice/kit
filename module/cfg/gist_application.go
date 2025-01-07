@@ -7,26 +7,25 @@ import (
 	runtimeDebug "runtime/debug"
 	"strings"
 
-	kitTypes "github.com/webnice/kit/v4/types"
+	"github.com/webnice/dic"
 )
 
 // Завершение приложения с кодом ошибки
 func (essence *gist) exitWithCode() {
 	var (
-		ewc  kitTypes.ErrorWithCode
+		ierr dic.IError
 		tmp  string
 		code uint8
 		n    int
-		ok   bool
 	)
 
 	for n = range essence.parent.error {
 		if tmp = strings.TrimSpace(essence.parent.error[n].Error()); tmp != "" {
 			_, _ = fmt.Fprintln(essence.parent.rawWriter, tmp)
 		}
-		if ewc, ok = essence.parent.error[n].(kitTypes.ErrorWithCode); ok {
-			if ewc.Code() > code {
-				code = ewc.Code()
+		if ierr = essence.Cfg().Errors().Unbind(essence.parent.error[n]); ierr != nil {
+			if ierr.CodeU8().Get() > code {
+				code = ierr.CodeU8().Get()
 			}
 		}
 	}
@@ -44,7 +43,7 @@ func (essence *gist) safeLaunchApplication() {
 
 	defer func() {
 		if e := recover(); e != nil {
-			err = essence.parent.Errors().ApplicationPanicException(0, e, runtimeDebug.Stack())
+			err = essence.parent.Errors().ApplicationPanicException.Bind(e, runtimeDebug.Stack())
 			essence.parent.error = append(essence.parent.error, err)
 		}
 	}()
@@ -58,10 +57,15 @@ func (essence *gist) safeLaunchApplication() {
 		if err == nil {
 			err = errors.New("")
 		}
-		if code == 0 {
-			essence.parent.error = append(essence.parent.error, essence.parent.Errors().ApplicationUnknownError(0, err))
-		} else {
-			essence.parent.error = append(essence.parent.error, kitTypes.NewErrorWithCode(code, err.Error()))
+		switch code {
+		case 0:
+			essence.parent.error = append(
+				essence.parent.error, essence.parent.Errors().ApplicationUnknownError.Bind(err),
+			)
+		default:
+			essence.parent.error = append(
+				essence.parent.error, dic.NewError(err.Error()).CodeU8().Set(code).Bind(),
+			)
 		}
 	}
 

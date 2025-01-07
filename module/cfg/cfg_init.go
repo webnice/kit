@@ -86,7 +86,7 @@ func (cfg *impl) initMainConfiguration() {
 		LogLevel:               defaultLogLevel().String,            // Уровень логирования по умолчанию до загрузки конфигурации.
 		CommandGroup:           cfg.initGroupOfCommand,              // Список групп команд, который сформируется при регистрации компонентов.
 	}); err != nil {
-		cfg.error = append(cfg.error, Errors().ConfigurationBootstrap(0, err))
+		cfg.error = append(cfg.error, Errors().ConfigurationBootstrap.Bind(err))
 	}
 	// Регистрация объекта конфигурации для последующего чтения из файла.
 	cfg.essence.ConfigurationRegistration(cfg.loadableConfiguration)

@@ -1,18 +1,30 @@
 package cpy
 
-import "fmt"
+import "github.com/webnice/dic"
 
-var (
-	errCopyToObjectUnaddressable = fmt.Errorf("copy to object is unaddressable")
-	errCopyFromObjectInvalid     = fmt.Errorf("copy from object is invalid")
-	errTypeMapNotEqual           = fmt.Errorf("type of map is not equal")
+const (
+	cCopyToObjectUnaddressable = "Объект назначения не адресуемый."
+	cCopyFromObjectInvalid     = "Объект источника не адресуемый."
+	cTypeMapNotEqual           = "Типы данных карты не эквивалентны."
 )
 
-// ErrCopyToObjectUnaddressable Error: Copy to object is unaddressable
-func (cpy *Cpy) ErrCopyToObjectUnaddressable() error { return errCopyToObjectUnaddressable }
+// Error Структура справочника ошибок.
+type Error struct {
+	dic.Errors
 
-// ErrCopyFromObjectInvalid Error: Copy from object is invalid
-func (cpy *Cpy) ErrCopyFromObjectInvalid() error { return errCopyFromObjectInvalid }
+	// CopyToObjectUnaddressable Объект назначения не адресуемый.
+	CopyToObjectUnaddressable dic.IError
 
-// ErrTypeMapNotEqual Error: Type of map is not equal
-func (cpy *Cpy) ErrTypeMapNotEqual() error { return errTypeMapNotEqual }
+	// CopyFromObjectInvalid Объект источника не адресуемый.
+	CopyFromObjectInvalid dic.IError
+
+	// TypeMapNotEqual Типы данных карты не эквивалентны.
+	TypeMapNotEqual dic.IError
+}
+
+var errSingleton = &Error{
+	Errors:                    dic.Error(),
+	CopyToObjectUnaddressable: dic.NewError(cCopyToObjectUnaddressable),
+	CopyFromObjectInvalid:     dic.NewError(cCopyFromObjectInvalid),
+	TypeMapNotEqual:           dic.NewError(cTypeMapNotEqual),
+}

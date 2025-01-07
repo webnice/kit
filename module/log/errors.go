@@ -1,6 +1,8 @@
 package log
 
-// Обычные ошибки
+import "github.com/webnice/dic"
+
+// Коды ошибок.
 const (
 	eLogPanicException           uint8 = iota + 1 // 001
 	eHandlerAlreadySubscribed                     // 002
@@ -9,34 +11,32 @@ const (
 
 // Текстовые значения кодов ошибок на основном языке приложения.
 const (
-	cLogPanicException           = `Вызов обработчика сообщений лога %q прервана паникой:` + "\n%v\n%s."
+	cLogPanicException           = "Вызов обработчика сообщений лога %q прервана паникой:\n%v\n%s."
 	cHandlerAlreadySubscribed    = "Обработчик логов %q уже зарегистрирован."
 	cHandlerSubscriptionNotFound = "Регистрация обработчика логов %q не найдена."
 )
 
-// Константы указаны в объектах, адрес которых фиксирован всё время работы приложения.
-// Это позволяет сравнивать ошибки между собой используя обычное сравнение "==", но сравнивать необходимо только
-// якорь "Anchor()" объекта ошибки.
+type Error struct {
+	dic.Errors
+
+	// LogPanicException Вызов обработчика сообщений лога ... прервана паникой: ... ....
+	LogPanicException dic.IError
+
+	// HandlerAlreadySubscribed Обработчик логов ... уже зарегистрирован.
+	HandlerAlreadySubscribed dic.IError
+
+	// HandlerSubscriptionNotFound Регистрация обработчика логов ... не найдена.
+	HandlerSubscriptionNotFound dic.IError
+}
+
 var (
-	errSingleton                   = &Error{}
-	errLogPanicException           = err{tpl: cLogPanicException, code: eLogPanicException}
-	errHandlerAlreadySubscribed    = err{tpl: cHandlerAlreadySubscribed, code: eHandlerAlreadySubscribed}
-	errHandlerSubscriptionNotFound = err{tpl: cHandlerSubscriptionNotFound, code: eHandlerSubscriptionNotFound}
+	errSingleton = &Error{
+		Errors:                      dic.Error(),
+		LogPanicException:           dic.NewError(cLogPanicException, "обработчик логов", "паника", "стек вызовов").CodeU8().Set(eLogPanicException),
+		HandlerAlreadySubscribed:    dic.NewError(cHandlerAlreadySubscribed, "обработчик логов").CodeU8().Set(eHandlerAlreadySubscribed),
+		HandlerSubscriptionNotFound: dic.NewError(cHandlerSubscriptionNotFound, "обработчик логов").CodeU8().Set(eHandlerSubscriptionNotFound),
+	}
+
+	// Errors Справочник ошибок.
+	Errors = func() *Error { return errSingleton }
 )
-
-// ERRORS: Реализация ошибок с возможностью сравнения ошибок между собой.
-
-// LogPanicException Вызов обработчика сообщений лога ... прервана паникой: ... ....
-func (e *Error) LogPanicException(code uint8, subscriberName, err any, stack []byte) Err {
-	return newErr(&errLogPanicException, code, subscriberName, err, string(stack))
-}
-
-// HandlerAlreadySubscribed Обработчик логов ... уже зарегистрирован.
-func (e *Error) HandlerAlreadySubscribed(code uint8, subscriberName string) Err {
-	return newErr(&errHandlerAlreadySubscribed, code, subscriberName)
-}
-
-// HandlerSubscriptionNotFound Регистрация обработчика логов ... не найдена.
-func (e *Error) HandlerSubscriptionNotFound(code uint8, subscriberName string) Err {
-	return newErr(&errHandlerSubscriptionNotFound, code, subscriberName)
-}

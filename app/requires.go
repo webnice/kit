@@ -3,7 +3,7 @@ package app
 import kitTypes "github.com/webnice/kit/v4/types"
 
 // Функция проверки зависимости между компонентами.
-func (app *impl) requiresFn(components []*kitTypes.ComponentInfo) (err kitTypes.ErrorWithCode) {
+func (app *impl) requiresFn(components []*kitTypes.ComponentInfo) (err error) {
 	var (
 		n, i, j int
 		reqOk   bool
@@ -26,8 +26,8 @@ func (app *impl) requiresFn(components []*kitTypes.ComponentInfo) (err kitTypes.
 			}
 			// Ошибка, если зависимость не удовлетворена.
 			if !reqOk {
-				err = app.cfg.Errors().
-					ComponentRequires(0, components[n].ComponentName, components[n].Require[i].String())
+				err = app.cfg.Errors().ComponentRequires.
+					Bind(components[n].ComponentName, components[n].Require[i].String())
 				return
 			}
 		}

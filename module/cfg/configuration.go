@@ -56,14 +56,14 @@ func (essence *gist) ConfigurationRegistration(c any, callback ...kitTypes.Callb
 	defer func() {
 		if e := recover(); e != nil {
 			essence.ErrorAppend(
-				Errors().ConfigurationApplicationPanic(0, e, runtimeDebug.Stack()),
+				Errors().ConfigurationApplicationPanic.Bind(e, runtimeDebug.Stack()),
 			)
 		}
 	}()
 	// Проверка уровня работы приложения.
 	if essence.parent.runLevel > 0 {
 		essence.ErrorAppend(
-			essence.parent.Errors().ConfigurationApplicationProhibited(0, reflect.TypeOf(c).String()),
+			essence.parent.Errors().ConfigurationApplicationProhibited.Bind(reflect.TypeOf(c).String()),
 		)
 		return
 	}
@@ -71,7 +71,7 @@ func (essence *gist) ConfigurationRegistration(c any, callback ...kitTypes.Callb
 	cfItem = &configurationItem{Original: c, callback: list.New()}
 	if cfItem.Value, cfItem.Type, err = reflectStructObject(c); err != nil {
 		essence.ErrorAppend(
-			essence.parent.Errors().ConfigurationApplicationObject(0, err),
+			essence.parent.Errors().ConfigurationApplicationObject.Bind(err),
 		)
 		return
 	}
@@ -87,7 +87,7 @@ func (essence *gist) ConfigurationRegistration(c any, callback ...kitTypes.Callb
 		// Проверка наличия поля с тем же именем в уже добавленных структурах конфигураций.
 		if essence.parent.conf.IsName(tsf.Name) {
 			essence.ErrorAppend(
-				essence.parent.Errors().ConfigurationApplicationObject(0, fmt.Errorf(tplDupName, c, tsf.Name)),
+				essence.parent.Errors().ConfigurationApplicationObject.Bind(fmt.Errorf(tplDupName, c, tsf.Name)),
 			)
 			return
 		}
@@ -101,8 +101,7 @@ func (essence *gist) ConfigurationRegistration(c any, callback ...kitTypes.Callb
 			// иначе, при загрузке YAML файла, библиотека yaml упадёт в панику, на повторяющемся теге.
 			if essence.parent.conf.IsTagValue(tagYaml, value) {
 				essence.ErrorAppend(
-					essence.parent.Errors().ConfigurationApplicationObject(
-						0,
+					essence.parent.Errors().ConfigurationApplicationObject.Bind(
 						fmt.Errorf(tplDupTag, c, tagYaml, value, tagYaml),
 					),
 				)
@@ -119,7 +118,7 @@ func (essence *gist) ConfigurationRegistration(c any, callback ...kitTypes.Callb
 	for n = range callback {
 		if err = essence.ConfigurationCallbackSubscribe(c, callback[n]); err != nil {
 			essence.ErrorAppend(
-				essence.parent.Errors().ConfigurationApplicationObject(0, err),
+				essence.parent.Errors().ConfigurationApplicationObject.Bind(err),
 			)
 			return
 		}
@@ -144,7 +143,7 @@ func (essence *gist) ConfigurationCallbackSubscribe(c any, callback kitTypes.Cal
 
 	defer func() {
 		if e := recover(); e != nil {
-			err = Errors().ConfigurationApplicationPanic(0, e, runtimeDebug.Stack())
+			err = Errors().ConfigurationApplicationPanic.Bind(e, runtimeDebug.Stack())
 		}
 	}()
 	// Проверка корректности объекта структуры конфигурации.
@@ -159,7 +158,7 @@ func (essence *gist) ConfigurationCallbackSubscribe(c any, callback kitTypes.Cal
 		}
 	}
 	if cfItem == nil {
-		err = essence.parent.Errors().ConfigurationObjectNotFound(0, rt.String())
+		err = essence.parent.Errors().ConfigurationObjectNotFound.Bind(rt.String())
 		return
 	}
 	// Проверка наличия подписки.
@@ -173,7 +172,7 @@ func (essence *gist) ConfigurationCallbackSubscribe(c any, callback kitTypes.Cal
 		}
 	}
 	if found {
-		err = essence.parent.Errors().ConfigurationCallbackAlreadyRegistered(0, rt.String(), funcFullName)
+		err = essence.parent.Errors().ConfigurationCallbackAlreadyRegistered.Bind(rt.String(), funcFullName)
 		return
 	}
 	// Подписка.
@@ -202,7 +201,7 @@ func (essence *gist) ConfigurationCallbackUnsubscribe(c any, callback kitTypes.C
 
 	defer func() {
 		if e := recover(); e != nil {
-			err = Errors().ConfigurationApplicationPanic(0, e, runtimeDebug.Stack())
+			err = Errors().ConfigurationApplicationPanic.Bind(e, runtimeDebug.Stack())
 		}
 	}()
 	// Проверка корректности объекта структуры конфигурации.
@@ -217,7 +216,7 @@ func (essence *gist) ConfigurationCallbackUnsubscribe(c any, callback kitTypes.C
 		}
 	}
 	if cfItem == nil {
-		err = essence.parent.Errors().ConfigurationObjectNotFound(0, rt.String())
+		err = essence.parent.Errors().ConfigurationObjectNotFound.Bind(rt.String())
 		return
 	}
 	// Поиск подписки.
@@ -231,7 +230,7 @@ func (essence *gist) ConfigurationCallbackUnsubscribe(c any, callback kitTypes.C
 		}
 	}
 	if len(del) == 0 {
-		err = essence.parent.Errors().ConfigurationCallbackSubscriptionNotFound(0, rt.String(), funcFullName)
+		err = essence.parent.Errors().ConfigurationCallbackSubscriptionNotFound.Bind(rt.String(), funcFullName)
 		return
 	}
 	// Удаление подписки.
@@ -320,7 +319,7 @@ func (essence *gist) configurationSetDefaultValue() (err error) {
 
 	defer func() {
 		if e := recover(); e != nil {
-			err = Errors().ConfigurationSetDefaultPanic(0, e, runtimeDebug.Stack())
+			err = Errors().ConfigurationSetDefaultPanic.Bind(e, runtimeDebug.Stack())
 		}
 	}()
 	csdv = func(dc any) {
@@ -342,7 +341,7 @@ func (essence *gist) configurationSetDefaultValue() (err error) {
 		)
 
 		if dcRv, dcRt, err = reflectStructObject(dc); err != nil {
-			err = essence.parent.Errors().ConfigurationSetDefault(0, err)
+			err = essence.parent.Errors().ConfigurationSetDefault.Bind(err)
 			return
 		}
 		for n = 0; n < dcRt.NumField(); n++ {
@@ -370,15 +369,15 @@ func (essence *gist) configurationSetDefaultValue() (err error) {
 				}
 				scanner = makeScanner(dcV)
 				if scannerRv, _, err = reflectObject(scanner); err != nil {
-					err = essence.parent.Errors().ConfigurationSetDefault(0, err)
+					err = essence.parent.Errors().ConfigurationSetDefault.Bind(err)
 					return
 				}
 				if defaultValueRv, _, err = reflectObject(&defaultValue); err != nil {
-					err = essence.parent.Errors().ConfigurationSetDefault(0, err)
+					err = essence.parent.Errors().ConfigurationSetDefault.Bind(err)
 					return
 				}
 				if ok, err = kitModuleCfgCpy.Gist().Set(scannerRv, defaultValueRv); err != nil {
-					err = essence.parent.Errors().ConfigurationSetDefaultValue(0, defaultValue, dcRsf.Name, err)
+					err = essence.parent.Errors().ConfigurationSetDefaultValue.Bind(defaultValue, dcRsf.Name, err)
 					return
 				}
 			// Обработка структуры.
@@ -389,11 +388,11 @@ func (essence *gist) configurationSetDefaultValue() (err error) {
 					objDefaultRv = reflect.New(dcRsf.Type)
 					if tcdi, ok = objDefaultRv.Interface().(kitTypes.ConfigurationDefaulter); ok {
 						if err = tcdi.Default(); err != nil {
-							err = essence.parent.Errors().ConfigurationSetDefault(0, err)
+							err = essence.parent.Errors().ConfigurationSetDefault.Bind(err)
 							return
 						}
 						if err = kitModuleCfgCpy.Gist().CopyToIsZero(dcV, objDefaultRv); err != nil {
-							err = essence.parent.Errors().ConfigurationSetDefault(0, err)
+							err = essence.parent.Errors().ConfigurationSetDefault.Bind(err)
 							return
 						}
 					}
@@ -434,7 +433,7 @@ func (essence *gist) ConfigurationLoad(buf *bytes.Buffer) (err error) {
 
 	defer func() {
 		if e := recover(); e != nil {
-			err = Errors().ConfigurationApplicationPanic(0, e, runtimeDebug.Stack())
+			err = Errors().ConfigurationApplicationPanic.Bind(e, runtimeDebug.Stack())
 		}
 	}()
 	// Создание новой структуры конфигурации объединяющей в себе все зарегистрированные структуры конфигураций.

@@ -1,30 +1,23 @@
 package img
 
-// Все ошибки определены как константы.
+import "github.com/webnice/dic"
+
 const (
-	cNotFound = "Not found"
+	cFileNotExist = "открытие файла %q прервано ошибкой: %w"
 )
 
-// Константы указаны в объектах, адрес которых фиксирован всё время работы приложения.
-// Ошибку с ошибкой можно сравнивать по телу, по адресу и т.п.
+type Error struct {
+	dic.Errors
+	// NotFound Открытие файла ... прервано ошибкой: ...
+	FileNotExist dic.IError
+}
+
 var (
-	errSingleton = &Error{}
-	errNotFound  = err(cNotFound)
+	errSingleton = &Error{
+		Errors:       dic.Error(),
+		FileNotExist: dic.NewError(cFileNotExist, "открываемый объект", "ошибка"),
+	}
+
+	// Errors Справочник ошибок.
+	Errors = func() *Error { return errSingleton }
 )
-
-type (
-	// Error Объект ошибки.
-	Error struct{}
-	err   string
-)
-
-// Error Представление ошибки в качестве строки.
-func (e err) Error() string { return string(e) }
-
-// Errors Справочник ошибок.
-func Errors() *Error { return errSingleton }
-
-// ОШИБКИ
-
-// NotFound Not found.
-func (e *Error) NotFound() error { return &errNotFound }

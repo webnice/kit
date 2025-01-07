@@ -125,7 +125,7 @@ func currentUser(cfg *impl) (ret *user.User) {
 			}
 			return
 		}()}
-		cfg.Gist().ErrorAppend(Errors().GetCurrentUser(0, err))
+		cfg.Gist().ErrorAppend(Errors().GetCurrentUser.Bind(err))
 		return
 	}
 

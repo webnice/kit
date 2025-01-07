@@ -6,7 +6,7 @@ toolchain go1.23.3
 
 require (
 	github.com/Masterminds/semver/v3 v3.3.1
-	github.com/PuerkitoBio/goquery v1.10.0
+	github.com/PuerkitoBio/goquery v1.10.1
 	github.com/disintegration/imaging v1.6.2
 	github.com/go-chi/chi/v5 v5.2.0
 	github.com/go-playground/validator/v10 v10.23.0
@@ -53,3 +53,5 @@ require (
 	golang.org/x/sync v0.10.0 // indirect
 	golang.org/x/text v0.21.0 // indirect
 )
+
+replace self => /Users/kallisto/Projects/lib/github.com/webnice/kit

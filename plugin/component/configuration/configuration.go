@@ -2,10 +2,10 @@ package configuration
 
 import (
 	"bytes"
-	"errors"
 	"fmt"
 	"os"
 
+	"github.com/webnice/dic"
 	kitModuleCfg "github.com/webnice/kit/v4/module/cfg"
 	kitModuleCfgReg "github.com/webnice/kit/v4/module/cfg/reg"
 	kitTypes "github.com/webnice/kit/v4/types"
@@ -45,6 +45,7 @@ func (ccf *impl) Preferences() kitTypes.ComponentPreferences {
 // Initiate Функция инициализации компонента и подготовки компонента к запуску.
 func (ccf *impl) Initiate() (err error) {
 	var (
+		ierr       dic.IError
 		appName    string
 		fileName   string
 		dirConf    string
@@ -85,21 +86,21 @@ func (ccf *impl) Initiate() (err error) {
 	if fi, err = os.Stat(fileName); err != nil {
 		switch {
 		case os.IsNotExist(err):
-			err = ccf.cfg.Errors().ConfigurationFileNotFound(0, fileName, err)
+			err = ccf.cfg.Errors().ConfigurationFileNotFound.Bind(fileName, err)
 		case os.IsPermission(err):
-			err = ccf.cfg.Errors().ConfigurationPermissionDenied(0, fileName, err)
+			err = ccf.cfg.Errors().ConfigurationPermissionDenied.Bind(fileName, err)
 		default:
-			err = ccf.cfg.Errors().ConfigurationUnexpectedMistakeFileAccess(0, fileName, err)
+			err = ccf.cfg.Errors().ConfigurationUnexpectedMistakeFileAccess.Bind(fileName, err)
 		}
 		return
 	}
 	if fi.IsDir() {
-		err = ccf.cfg.Errors().ConfigurationFileIsDirectory(0, fileName)
+		err = ccf.cfg.Errors().ConfigurationFileIsDirectory.Bind(fileName)
 		return
 	}
 	// Чтение файла конфигурации в память.
 	if bufContent, err = os.ReadFile(fileName); err != nil {
-		err = ccf.cfg.Errors().ConfigurationFileReadingError(0, fileName, err)
+		err = ccf.cfg.Errors().ConfigurationFileReadingError.Bind(fileName, err)
 		return
 	}
 	buf = bytes.NewBuffer(bufContent)
@@ -108,13 +109,8 @@ func (ccf *impl) Initiate() (err error) {
 	// Создание общей структуры конфигурации, состоящей из стартовой структуры приложения и всех имплантированных
 	// конфигураций компонентов. Выполнение загрузки данных и копирование во все имплантированные структуры.
 	if err = ccf.cfg.Gist().ConfigurationLoad(buf); err != nil {
-		var errorWithCode kitTypes.ErrorWithCode
-		switch {
-		case errors.As(err, &errorWithCode):
-			// Ошибка уже стандартизирована.
-		default:
-			// Ошибка не стандартизированная
-			err = ccf.cfg.Errors().ConfigurationApplicationObject(0, err)
+		if ierr = ccf.cfg.Errors().Unbind(err); ierr == nil {
+			err = ccf.cfg.Errors().ConfigurationApplicationObject.Bind(err)
 		}
 		return
 	}
@@ -135,7 +131,7 @@ func (ccf *impl) Do() (levelDone bool, levelExit bool, err error) {
 	// Переход в рабочую директорию приложения.
 	if tmp = ccf.cfg.DirectoryWorking(); tmp != "" {
 		if err = ccf.cfg.DirectoryWorkingChdir(); err != nil {
-			err = ccf.cfg.Errors().CantChangeWorkDirectory(0, err)
+			err = ccf.cfg.Errors().CantChangeWorkDirectory.Bind(err)
 			return
 		}
 	}

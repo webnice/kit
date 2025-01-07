@@ -92,7 +92,7 @@ func (cli *impl) Init() (help *bytes.Buffer, description string, err error) {
 
 	// Создание объекта библиотеки CLI с загрузкой базовой минимальной конфигурации в объект cli.bootstrap.
 	if err = cli.newKong(cli.bootstrap); err != nil {
-		description, err = err.Error(), cli.Errors().UnexpectedError()
+		description, err = err.Error(), cli.Errors().UnexpectedError.Bind()
 		return
 	}
 	// Переназначение имён переменных окружения для некоторых параметров bootstrap конфигурации.
@@ -105,34 +105,34 @@ func (cli *impl) Init() (help *bytes.Buffer, description string, err error) {
 			switch e.MustErr().Anchor() {
 			case kitModuleCfgCliKong.Errors().Expected("").Anchor():
 				description = fmt.Sprintf("%s", e.MustErr().Args()...)
-				err = cli.Errors().RequiredCommand()
+				err = cli.Errors().RequiredCommand.Bind()
 			case kitModuleCfgCliKong.Errors().ExpectedOneOf("").Anchor():
 				description = fmt.Sprintf("%s", e.MustErr().Args()...)
-				err = cli.Errors().RequiredCommand()
+				err = cli.Errors().RequiredCommand.Bind()
 			case kitModuleCfgCliKong.Errors().UnexpectedArgument("").Anchor():
 				description = fmt.Sprintf("%q", e.MustErr().Args()...)
-				err = cli.Errors().UnknownCommand()
+				err = cli.Errors().UnknownCommand.Bind()
 			case kitModuleCfgCliKong.Errors().UnknownFlag("").Anchor():
 				description = fmt.Sprintf("%q", e.MustErr().Args()[0])
-				err = cli.Errors().UnknownCommand()
+				err = cli.Errors().UnknownCommand.Bind()
 			case kitModuleCfgCliKong.Errors().UnexpectedArgument("").Anchor():
 				description = fmt.Sprintf("%q", e.MustErr().Args()[1])
-				err = cli.Errors().UnknownArgument()
+				err = cli.Errors().UnknownArgument.Bind()
 			case kitModuleCfgCliKong.Errors().DecodeValueError("", nil).Anchor(),
 				kitModuleCfgCliKong.Errors().DecodeValueEnv(nil, "", "").Anchor():
 				description = err.Error()
-				err = cli.Errors().NotCorrectArgument()
+				err = cli.Errors().NotCorrectArgument.Bind()
 			case kitModuleCfgCliKong.Errors().HelperErrorDidYouMean(nil, "").Anchor(),
 				kitModuleCfgCliKong.Errors().HelperErrorDidYouMeanOneOf(nil, []string{}).Anchor():
 				description = fmt.Sprintf(
 					perhapsYouWantedTo, e.MustErr().Args()[0], fmt.Sprintf("%s", e.MustErr().Args()[1:]...),
 				)
-				err = cli.Errors().UnknownArgument()
+				err = cli.Errors().UnknownArgument.Bind()
 			case kitModuleCfgCliKong.Errors().MissingFlags("").Anchor():
 				description = fmt.Sprintf("%q", e.MustErr().Args()[0])
-				err = cli.Errors().RequiredFlag()
+				err = cli.Errors().RequiredFlag.Bind()
 			default:
-				description, err = err.Error(), cli.Errors().UnexpectedError()
+				description, err = err.Error(), cli.Errors().UnexpectedError.Bind()
 			}
 		}
 	}
@@ -170,7 +170,7 @@ func (cli *impl) helpDisplayedError() (help *bytes.Buffer, description string, e
 	if _, _ = help.Write(buf); len(buf) > 0 {
 		_, _ = help.WriteString(newLine)
 	}
-	err = cli.Errors().HelpDisplayed()
+	err = cli.Errors().HelpDisplayed.Bind()
 
 	return
 }

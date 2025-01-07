@@ -1,6 +1,8 @@
 package bus
 
-// Обычные ошибки.
+import "github.com/webnice/dic"
+
+// Коды ошибок.
 const (
 	eDatabusRecursivePointer      uint8 = iota + 1 // 001
 	eDatabusPanicException                         // 002
@@ -11,64 +13,52 @@ const (
 	eDatabusPoolInternalError                      // 007
 )
 
-// Текстовые значения кодов ошибок на основном языке приложения.
 const (
-	cDatabusRecursivePointer      = `Не возможно определить тип рекурсивного указателя: ` + "%q."
-	cDatabusPanicException        = `Работа с подпиской потребителя, в шине данных, прервана паникой:` + "\n%v\n%s."
-	cDatabusSubscribeNotFound     = `Потребитель данных %q не был подписан на шину данных.`
-	cDatabusInternalError         = `Внутренняя ошибка шины данных: ` + "%s."
-	cDatabusNotSubscribersForType = `Отсутствуют потребители данных для типа данных: ` + "%q."
-	cDatabusObjectIsNil           = `Передан nil объект.`
-	cDatabusPoolInternalError     = `Бассейн объектов вернул не корректный объект.`
+	cDatabusRecursivePointer      = "Не возможно определить тип рекурсивного указателя: %q."
+	cDatabusPanicException        = "Работа с подпиской потребителя, в шине данных, прервана паникой:\n%v\n%s."
+	cDatabusSubscribeNotFound     = "Потребитель данных %q не был подписан на шину данных."
+	cDatabusInternalError         = "Внутренняя ошибка шины данных: %s."
+	cDatabusNotSubscribersForType = "Отсутствуют потребители данных для типа данных %q."
+	cDatabusObjectIsNil           = "Передан nil объект."
+	cDatabusPoolInternalError     = "Бассейн объектов вернул не корректный объект."
 )
 
-// Константы указаны в объектах, адрес которых фиксирован всё время работы приложения.
-// Это позволяет сравнивать ошибки между собой используя обычное сравнение "==", но сравнивать необходимо только
-// якорь "Anchor()" объекта ошибки.
-var (
-	errSingleton                    = &Error{}
-	errDatabusRecursivePointer      = err{tpl: cDatabusRecursivePointer, code: eDatabusRecursivePointer}
-	errDatabusPanicException        = err{tpl: cDatabusPanicException, code: eDatabusPanicException}
-	errDatabusSubscribeNotFound     = err{tpl: cDatabusSubscribeNotFound, code: eDatabusSubscribeNotFound}
-	errDatabusInternalError         = err{tpl: cDatabusInternalError, code: eDatabusInternalError}
-	errDatabusNotSubscribersForType = err{tpl: cDatabusNotSubscribersForType, code: eDatabusNotSubscribersForType}
-	errDatabusObjectIsNil           = err{tpl: cDatabusObjectIsNil, code: eDatabusObjectIsNil}
-	errDatabusPoolInternalError     = err{tpl: cDatabusPoolInternalError, code: eDatabusPoolInternalError}
-)
+// Error Структура справочника ошибок.
+type Error struct {
+	dic.Errors
 
-// ERRORS: Реализация ошибок с возможностью сравнения ошибок между собой.
+	// DatabusRecursivePointer Не возможно определить тип рекурсивного указателя: ...
+	DatabusRecursivePointer dic.IError
 
-// DatabusRecursivePointer Не возможно определить тип рекурсивного указателя: ...
-func (e *Error) DatabusRecursivePointer(code uint8, pointer string) Err {
-	return newErr(&errDatabusRecursivePointer, code, pointer)
+	// DatabusPanicException Работа с подпиской потребителя, в шине данных, прервана паникой:\n...\n...
+	DatabusPanicException dic.IError
+
+	// DatabusSubscribeNotFound Потребитель данных ... не был подписан на шину данных.
+	DatabusSubscribeNotFound dic.IError
+
+	// DatabusInternalError Внутренняя ошибка шины данных: ...
+	DatabusInternalError dic.IError
+
+	// DatabusNotSubscribersForType Отсутствуют потребители данных для типа данных ...
+	DatabusNotSubscribersForType dic.IError
+
+	// DatabusObjectIsNil Передан nil объект.
+	DatabusObjectIsNil dic.IError
+
+	// DatabusPoolInternalError Бассейн объектов вернул не корректный объект.
+	DatabusPoolInternalError dic.IError
 }
 
-// DatabusPanicException Работа с подпиской потребителя, в шине данных, прервана паникой: ... ....
-func (e *Error) DatabusPanicException(code uint8, err any, stack []byte) Err {
-	return newErr(&errDatabusPanicException, code, err, string(stack))
+var errSingleton = &Error{
+	Errors:                       dic.Error(),
+	DatabusRecursivePointer:      dic.NewError(cDatabusRecursivePointer, "указатель").CodeU8().Set(eDatabusRecursivePointer),
+	DatabusPanicException:        dic.NewError(cDatabusPanicException, "паника", "стек вызовов").CodeU8().Set(eDatabusPanicException),
+	DatabusSubscribeNotFound:     dic.NewError(cDatabusSubscribeNotFound, "потребитель").CodeU8().Set(eDatabusSubscribeNotFound),
+	DatabusInternalError:         dic.NewError(cDatabusInternalError, "ошибка").CodeU8().Set(eDatabusInternalError),
+	DatabusNotSubscribersForType: dic.NewError(cDatabusNotSubscribersForType, "тип").CodeU8().Set(eDatabusNotSubscribersForType),
+	DatabusObjectIsNil:           dic.NewError(cDatabusObjectIsNil).CodeU8().Set(eDatabusObjectIsNil),
+	DatabusPoolInternalError:     dic.NewError(cDatabusPoolInternalError).CodeU8().Set(eDatabusPoolInternalError),
 }
 
-// DatabusSubscribeNotFound Потребитель данных ... не был подписан на шину данных.
-func (e *Error) DatabusSubscribeNotFound(code uint8, databuserName string) Err {
-	return newErr(&errDatabusSubscribeNotFound, code, databuserName)
-}
-
-// DatabusInternalError Внутренняя ошибка шины данных: ...
-func (e *Error) DatabusInternalError(code uint8, err error) Err {
-	return newErr(&errDatabusInternalError, code, err)
-}
-
-// DatabusNotSubscribersForType Отсутствуют потребители данных для типа данных: ...
-func (e *Error) DatabusNotSubscribersForType(code uint8, typeName string) Err {
-	return newErr(&errDatabusNotSubscribersForType, code, typeName)
-}
-
-// DatabusObjectIsNil Передан nil объект.
-func (e *Error) DatabusObjectIsNil(code uint8) Err {
-	return newErr(&errDatabusObjectIsNil, code)
-}
-
-// DatabusPoolInternalError Бассейн объектов вернул не корректный объект.
-func (e *Error) DatabusPoolInternalError(code uint8) Err {
-	return newErr(&errDatabusPoolInternalError, code)
-}
+// Errors Справочник ошибок.
+func Errors() *Error { return errSingleton }

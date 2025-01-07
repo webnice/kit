@@ -65,7 +65,7 @@ func makeSubscriberTypeInfo(rt reflect.Type) (ret *subscriberTypeInfo, err error
 			break
 		}
 		if ret.BaseType = pt.Elem(); ret.BaseType == slowpoke {
-			err = Errors().DatabusRecursivePointer(0, ret.BaseType.String())
+			err = Errors().DatabusRecursivePointer.Bind(ret.BaseType.String())
 			return
 		}
 		if ret.IndirectionCount%2 == 0 {

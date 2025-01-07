@@ -3,7 +3,7 @@ package app
 import kitTypes "github.com/webnice/kit/v4/types"
 
 // Функция проверки конфликтов между компонентами.
-func (app *impl) conflictFn(components []*kitTypes.ComponentInfo) (err kitTypes.ErrorWithCode) {
+func (app *impl) conflictFn(components []*kitTypes.ComponentInfo) (err error) {
 	var n, c, i int
 
 	// Обход всех компонентов.
@@ -18,8 +18,8 @@ func (app *impl) conflictFn(components []*kitTypes.ComponentInfo) (err kitTypes.
 			for i = range components {
 				// На вхождение в список конфликта.
 				if components[n].Conflict[c].MatchString(components[i].ComponentName) {
-					err = app.cfg.Errors().
-						ComponentConflict(0, components[n].ComponentName, components[i].ComponentName)
+					err = app.cfg.Errors().ComponentConflict.
+						Bind(components[n].ComponentName, components[i].ComponentName)
 					return
 				}
 			}

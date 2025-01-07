@@ -7,6 +7,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/webnice/dic"
 	kitModuleCfgCli "github.com/webnice/kit/v4/module/cfg/cli"
 	kitTypes "github.com/webnice/kit/v4/types"
 )
@@ -40,21 +41,22 @@ func (essence *gist) ComponentNames() (ret []string) {
 // ComponentPreferences Функция-менеджер загрузки и обработки настроек компонентов.
 func (essence *gist) ComponentPreferences(fn kitTypes.ComponentPreferencesFn) (code uint8, err error) {
 	var (
-		e        kitTypes.ErrorWithCode
+		ierr     dic.IError
 		src, res *kitTypes.ComponentInfo
 	)
 
 	essence.parent.comp.ComponentMutex.Lock()
 	defer essence.parent.comp.ComponentMutex.Unlock()
 	if !essence.parent.comp.IsClose {
-		e = essence.parent.Errors().ComponentPreferencesCallBeforeCompleting(0)
-		code = e.Code()
-		essence.ErrorAppend(e)
+		code = essence.parent.Errors().ComponentPreferencesCallBeforeCompleting.CodeU8().Get()
+		essence.ErrorAppend(essence.parent.Errors().ComponentPreferencesCallBeforeCompleting.Bind())
 		return
 	}
 	for _, src = range essence.parent.comp.Registered {
-		if res, e = fn(src); e != nil {
-			code, err = e.Code(), e
+		if res, err = fn(src); err != nil {
+			if ierr = Errors().Unbind(err); ierr != nil {
+				code = ierr.CodeU8().Get()
+			}
 			return
 		}
 		essence.parent.comp.Component = append(essence.parent.comp.Component, res)
@@ -67,12 +69,14 @@ func (essence *gist) ComponentPreferences(fn kitTypes.ComponentPreferencesFn) (c
 
 // ComponentCheckConflict Проверка конфликтов между всеми зарегистрированными компонентами.
 func (essence *gist) ComponentCheckConflict(fn kitTypes.ComponentConflictFn) (code uint8, err error) {
-	var e kitTypes.ErrorWithCode
+	var ierr dic.IError
 
 	essence.parent.comp.ComponentMutex.Lock()
 	defer essence.parent.comp.ComponentMutex.Unlock()
-	if e = fn(essence.parent.comp.Component); e != nil {
-		code, err = e.Code(), e
+	if err = fn(essence.parent.comp.Component); err != nil {
+		if ierr = Errors().Unbind(err); ierr != nil {
+			code = ierr.CodeU8().Get()
+		}
 		return
 	}
 
@@ -81,12 +85,14 @@ func (essence *gist) ComponentCheckConflict(fn kitTypes.ComponentConflictFn) (co
 
 // ComponentRequiresCheck Проверка зависимостей между всеми зарегистрированными компонентами.
 func (essence *gist) ComponentRequiresCheck(fn kitTypes.ComponentRequiresFn) (code uint8, err error) {
-	var e kitTypes.ErrorWithCode
+	var ierr dic.IError
 
 	essence.parent.comp.ComponentMutex.Lock()
 	defer essence.parent.comp.ComponentMutex.Unlock()
-	if e = fn(essence.parent.comp.Component); e != nil {
-		code, err = e.Code(), e
+	if err = fn(essence.parent.comp.Component); err != nil {
+		if ierr = Errors().Unbind(err); ierr != nil {
+			code = ierr.CodeU8().Get()
+		}
 		return
 	}
 
@@ -95,12 +101,14 @@ func (essence *gist) ComponentRequiresCheck(fn kitTypes.ComponentRequiresFn) (co
 
 // ComponentSort Сортировка зарегистрированных компонентов в соответствии с настройками (before) и (after).
 func (essence *gist) ComponentSort(fn kitTypes.ComponentSortFn) (code uint8, err error) {
-	var e kitTypes.ErrorWithCode
+	var ierr dic.IError
 
 	essence.parent.comp.ComponentMutex.Lock()
 	defer essence.parent.comp.ComponentMutex.Unlock()
-	if e = fn(essence.parent.comp.Component); e != nil {
-		code, err = e.Code(), e
+	if err = fn(essence.parent.comp.Component); err != nil {
+		if ierr = Errors().Unbind(err); ierr != nil {
+			code = ierr.CodeU8().Get()
+		}
 		return
 	}
 
@@ -146,8 +154,8 @@ func (essence *gist) ComponentMapRunlevel(targetlevel uint16) (code uint8, err e
 // ComponentInitiate Вызов функции Initiate у всех зарегистрированных компонентов в прямом порядке.
 func (essence *gist) ComponentInitiate(fn kitTypes.ComponentInitiateFn) (code uint8, err error) {
 	var (
-		e kitTypes.ErrorWithCode
-		n int
+		ierr dic.IError
+		n    int
 	)
 
 	essence.parent.comp.ComponentMutex.Lock()
@@ -161,8 +169,10 @@ func (essence *gist) ComponentInitiate(fn kitTypes.ComponentInitiateFn) (code ui
 		if essence.parent.comp.Component[n].IsInitiate {
 			continue
 		}
-		if e = fn(essence.parent.comp.Component[n]); e != nil {
-			code, err = e.Code(), e
+		if err = fn(essence.parent.comp.Component[n]); err != nil {
+			if ierr = Errors().Unbind(err); ierr != nil {
+				code = ierr.CodeU8().Get()
+			}
 			break
 		}
 	}
@@ -194,7 +204,7 @@ func (essence *gist) ComponentDoFindByCommand(n int) (ret bool) {
 func (essence *gist) ComponentDo(runlevel uint16, fn kitTypes.ComponentDoFn) (code uint8, err error) {
 	var (
 		bcfw *kitTypes.BootstrapConfigurationForkWorker
-		e    kitTypes.ErrorWithCode
+		ierr dic.IError
 		n    int
 	)
 
@@ -247,8 +257,10 @@ func (essence *gist) ComponentDo(runlevel uint16, fn kitTypes.ComponentDoFn) (co
 		// Помечаем то что компонента была запущена.
 		essence.parent.comp.Component[n].IsDo = true
 		// Выполнение запуска компоненты с использованием внешней функции запуска.
-		if e = fn(essence.parent.comp.Component[n]); e != nil {
-			code, err = e.Code(), e
+		if err = fn(essence.parent.comp.Component[n]); err != nil {
+			if ierr = Errors().Unbind(err); ierr != nil {
+				code = ierr.CodeU8().Get()
+			}
 			break
 		}
 	}
@@ -266,8 +278,8 @@ func (essence *gist) ComponentFinalizeWarningTimeout() (ret time.Duration) {
 // ComponentFinalize Вызов функции Finalize у всех зарегистрированных компонентов в обратном порядке.
 func (essence *gist) ComponentFinalize(fn kitTypes.ComponentFinalizeFn) (code uint8, err error) {
 	var (
-		e kitTypes.ErrorWithCode
-		n int
+		ierr dic.IError
+		n    int
 	)
 
 	essence.parent.comp.ComponentMutex.Lock()
@@ -289,8 +301,10 @@ func (essence *gist) ComponentFinalize(fn kitTypes.ComponentFinalizeFn) (code ui
 		if essence.parent.comp.Component[n].IsFinalize {
 			continue
 		}
-		if e = fn(essence.parent.comp.Component[n]); e != nil {
-			code, err = e.Code(), e
+		if err = fn(essence.parent.comp.Component[n]); err != nil {
+			if ierr = Errors().Unbind(err); ierr != nil {
+				code = ierr.CodeU8().Get()
+			}
 			break
 		}
 	}

@@ -2,8 +2,6 @@ package ans
 
 import (
 	"bytes"
-	"github.com/go-chi/chi/v5"
-	"github.com/webnice/dic"
 	"io"
 	"log"
 	"net/http"
@@ -11,6 +9,10 @@ import (
 	"net/url"
 	"strings"
 	"testing"
+
+	"github.com/webnice/dic"
+
+	"github.com/go-chi/chi/v5"
 )
 
 func TestImpl_RqLoadVerify(t *testing.T) {
@@ -53,7 +55,7 @@ func TestImpl_RqLoadVerify(t *testing.T) {
 			request:          nil,
 			response:         nil,
 			responseData:     nil,
-			responseExpected: `{"error":{"code":400,"message":"тело запроса пустое","i18nKey":"","errors":null}}`,
+			responseExpected: `{"error":{"code":-1,"message":"тело запроса пустое","i18nKey":"","errors":null}}`,
 		},
 		"Тест 02": {
 			err: nil,
@@ -74,7 +76,7 @@ func TestImpl_RqLoadVerify(t *testing.T) {
 			request:        nil,
 			response:       nil,
 			responseData:   nil,
-			responseExpected: `{"error":{"code":400,"message":"заголовок Content-Type не передан, либо неизвестен ` +
+			responseExpected: `{"error":{"code":-1,"message":"заголовок Content-Type не передан, либо неизвестен ` +
 				`тип контента: \"\"","i18nKey":"","errors":null}}`,
 		},
 		"Тест 03": {
@@ -98,7 +100,7 @@ func TestImpl_RqLoadVerify(t *testing.T) {
 			request:      nil,
 			response:     nil,
 			responseData: nil,
-			responseExpected: `{"error":{"code":400,"message":"заголовок Content-Type не передан, либо неизвестен ` +
+			responseExpected: `{"error":{"code":-1,"message":"заголовок Content-Type не передан, либо неизвестен ` +
 				`тип контента: \"application/msgpack\"","i18nKey":"","errors":null}}`,
 		},
 		"Тест 04": {
@@ -122,7 +124,7 @@ func TestImpl_RqLoadVerify(t *testing.T) {
 			request:      nil,
 			response:     nil,
 			responseData: nil,
-			responseExpected: `{"error":{"code":400,"message":"Key: 'Uint' Error:Field validation for 'Uint' failed ` +
+			responseExpected: `{"error":{"code":-1,"message":"Key: 'Uint' Error:Field validation for 'Uint' failed ` +
 				`on the 'required' tag\nKey: 'Email' Error:Field validation for 'Email' failed on the 'required' tag` +
 				`\nKey: 'Age' Error:Field validation for 'Age' failed on the 'gte' tag","i18nKey":"","errors":[{"fie` +
 				`ld":"Uint","fieldValue":"0","message":"required","i18nKey":""},{"field":"Email","fieldValue":"","me` +
@@ -149,7 +151,7 @@ func TestImpl_RqLoadVerify(t *testing.T) {
 			request:      nil,
 			response:     nil,
 			responseData: nil,
-			responseExpected: `{"error":{"code":400,"message":"Key: 'Age' Error:Field validation for 'Age' failed ` +
+			responseExpected: `{"error":{"code":-1,"message":"Key: 'Age' Error:Field validation for 'Age' failed ` +
 				`on the 'gte' tag","i18nKey":"","errors":[{"field":"Age","fieldValue":"0","message":"gte","i18nKey` +
 				`":""}]}}`,
 		},
@@ -174,7 +176,7 @@ func TestImpl_RqLoadVerify(t *testing.T) {
 			request:      nil,
 			response:     nil,
 			responseData: nil,
-			responseExpected: `{"error":{"code":400,"message":"Key: 'Email' Error:Field validation for 'Email' ` +
+			responseExpected: `{"error":{"code":-1,"message":"Key: 'Email' Error:Field validation for 'Email' ` +
 				`failed on the 'email' tag\nKey: 'Age' Error:Field validation for 'Age' failed on the 'gte' tag` +
 				`","i18nKey":"","errors":[{"field":"Email","fieldValue":"this is not e-mail","message":"email",` +
 				`"i18nKey":""},{"field":"Age","fieldValue":"0","message":"gte","i18nKey":""}]}}`,
@@ -200,7 +202,7 @@ func TestImpl_RqLoadVerify(t *testing.T) {
 			request:      nil,
 			response:     nil,
 			responseData: nil,
-			responseExpected: `{"error":{"code":400,"message":"Key: 'Age' Error:Field validation for 'Age' failed ` +
+			responseExpected: `{"error":{"code":-1,"message":"Key: 'Age' Error:Field validation for 'Age' failed ` +
 				`on the 'gte' tag","i18nKey":"","errors":[{"field":"Age","fieldValue":"20","message":"gte","i18nKe` +
 				`y":""}]}}`,
 		},
@@ -247,7 +249,7 @@ func TestImpl_RqLoadVerify(t *testing.T) {
 			request:      nil,
 			response:     nil,
 			responseData: nil,
-			responseExpected: `{"error":{"code":400,"message":"Key: 'ID' Error:Field validation for 'ID' failed on ` +
+			responseExpected: `{"error":{"code":-1,"message":"Key: 'ID' Error:Field validation for 'ID' failed on ` +
 				`the 'required' tag","i18nKey":"","errors":[{"field":"ID","fieldValue":"0","message":"required","i1` +
 				`8nKey":""}]}}`,
 		},

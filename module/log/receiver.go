@@ -89,7 +89,7 @@ func (log *logger) defaultLogHandler(msg *Message) {
 func (log *logger) safeCallLogHandler(item *subscriber, msg *Message) (err error) {
 	defer func() {
 		if e := recover(); e != nil {
-			err = log.Errors().LogPanicException(0, item.Name, e, kitModuleTrace.StackShort())
+			err = log.Errors().LogPanicException.Bind(item.Name, e, kitModuleTrace.StackShort())
 		}
 	}()
 	item.Func(msg)

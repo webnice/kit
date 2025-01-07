@@ -1,6 +1,6 @@
 package cpy
 
-const tagName = `cpy`
+const tagName = "cpy"
 
 var singleton = &Cpy{}
 

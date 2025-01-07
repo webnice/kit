@@ -5,6 +5,7 @@ import (
 	"errors"
 	"runtime"
 
+	"github.com/webnice/dic"
 	kitModuleCfg "github.com/webnice/kit/v4/module/cfg"
 	kitTypes "github.com/webnice/kit/v4/types"
 )
@@ -39,8 +40,8 @@ func (app *impl) mainCheckingAccumulatedErrors(log func(string, ...any)) (ret bo
 // приложением, скриптом или операционной системой.
 func (app *impl) Main() (code uint8, err error) {
 	var (
-		e       kitTypes.ErrorWithCode
-		ok, end bool
+		ierr dic.IError
+		end  bool
 	)
 
 	for {
@@ -56,7 +57,7 @@ func (app *impl) Main() (code uint8, err error) {
 			// Настройка менеджера логирования.
 			if err = app.Cfg().Gist().
 				Logger().Debug(app.cfg.Debug()).Initialization(); err != nil {
-				app.cfg.Gist().ErrorAppend(app.cfg.Errors().InitLogging(0, err))
+				app.cfg.Gist().ErrorAppend(app.cfg.Errors().InitLogging.Bind(err))
 				return
 			}
 			if app.cfg.Debug() {
@@ -101,15 +102,15 @@ func (app *impl) Main() (code uint8, err error) {
 		case 9: // [9] Регистрация функций слежения за уровнем приложения.
 			// Функция mainRunlevelDo - слежение за переключением уровней с 10 по 65535.
 			if err = app.cfg.RunlevelSubscribe(app.mainRunlevelDo); err != nil {
-				if ok = errors.As(err, &e); ok {
-					code, err = e.Code(), errors.New(e.Error())
+				if ierr = app.cfg.Errors().Unbind(err); ierr != nil {
+					code = ierr.CodeU8().Get()
 				}
 				return
 			}
 			// Функция mainRunlevelFinalize - слежение за переключением на уровень 65535, запуск функций Finalize().
 			if err = app.cfg.RunlevelSubscribe(app.mainRunlevelFinalize); err != nil {
-				if ok = errors.As(err, &e); ok {
-					code, err = e.Code(), errors.New(e.Error())
+				if ierr = app.cfg.Errors().Unbind(err); ierr != nil {
+					code = ierr.CodeU8().Get()
 				}
 				return
 			}
@@ -132,15 +133,15 @@ func (app *impl) Main() (code uint8, err error) {
 	<-app.finalize
 	// Удаление регистрации функции mainRunlevelDo.
 	if err = app.cfg.RunlevelUnsubscribe(app.mainRunlevelDo); err != nil {
-		if ok = errors.As(err, &e); ok {
-			code, err = e.Code(), errors.New(e.Error())
+		if ierr = app.cfg.Errors().Unbind(err); ierr != nil {
+			code = ierr.CodeU8().Get()
 		}
 		return
 	}
 	// Удаление регистрации функции mainRunlevelFinalize.
 	if err = app.cfg.RunlevelUnsubscribe(app.mainRunlevelFinalize); err != nil {
-		if ok = errors.As(err, &e); ok {
-			code, err = e.Code(), errors.New(e.Error())
+		if ierr = app.cfg.Errors().Unbind(err); ierr != nil {
+			code = ierr.CodeU8().Get()
 		}
 		return
 	}
@@ -157,7 +158,6 @@ func (app *impl) mainRunCliInitWithParseError() (code uint8, err error) {
 	var (
 		help *bytes.Buffer
 		desc string
-		ewc  kitModuleCfg.Err
 		bcfw *kitTypes.BootstrapConfigurationForkWorker
 	)
 
@@ -166,33 +166,33 @@ func (app *impl) mainRunCliInitWithParseError() (code uint8, err error) {
 		CLI().Init(); err != nil {
 		switch {
 		// Отображение помощи по командам, аргументам и флагам приложения.
-		case errors.Is(err, app.cfg.Gist().CLI().Errors().HelpDisplayed()):
-			ewc = app.cfg.Errors().ApplicationHelpDisplayed(0, help)
-			code, err = ewc.Code(), errors.New(ewc.Error())
+		case errors.Is(err, app.cfg.Gist().CLI().Errors().HelpDisplayed.Bind()):
+			code = app.cfg.Errors().ApplicationHelpDisplayed.CodeU8().Get()
+			err = app.cfg.Errors().ApplicationHelpDisplayed.Bind(help)
 			// Требуется указать команду, аргумент или флаг командной строки.
-		case errors.Is(err, app.cfg.Gist().CLI().Errors().RequiredCommand()):
-			ewc = app.cfg.Errors().CommandLineArgumentRequired(0, desc)
-			code, err = ewc.Code(), errors.New(ewc.Error())
+		case errors.Is(err, app.cfg.Gist().CLI().Errors().RequiredCommand.Bind()):
+			code = app.cfg.Errors().CommandLineArgumentRequired.CodeU8().Get()
+			err = app.cfg.Errors().CommandLineArgumentRequired.Bind(desc)
 			// Указана не известная команда.
-		case errors.Is(err, app.cfg.Gist().CLI().Errors().UnknownCommand()):
-			ewc = app.cfg.Errors().CommandLineArgumentUnknown(0, desc)
-			code, err = ewc.Code(), errors.New(ewc.Error())
+		case errors.Is(err, app.cfg.Gist().CLI().Errors().UnknownCommand.Bind()):
+			code = app.cfg.Errors().CommandLineArgumentUnknown.CodeU8().Get()
+			err = app.cfg.Errors().CommandLineArgumentUnknown.Bind(desc)
 			// Не верное значение, тип значения, битность значения, аргумента, флага или параметра (проверка значений).
-		case errors.Is(err, app.cfg.Gist().CLI().Errors().NotCorrectArgument()):
-			ewc = app.cfg.Errors().CommandLineArgumentNotCorrect(0, desc)
-			code, err = ewc.Code(), errors.New(ewc.Error())
+		case errors.Is(err, app.cfg.Gist().CLI().Errors().NotCorrectArgument.Bind()):
+			code = app.cfg.Errors().CommandLineArgumentNotCorrect.CodeU8().Get()
+			err = app.cfg.Errors().CommandLineArgumentNotCorrect.Bind(desc)
 			// Неизвестный аргумент.
-		case errors.Is(err, app.cfg.Gist().CLI().Errors().UnknownArgument()):
-			ewc = app.cfg.Errors().CommandLineArgumentUnknown(0, desc)
-			code, err = ewc.Code(), errors.New(ewc.Error())
+		case errors.Is(err, app.cfg.Gist().CLI().Errors().UnknownArgument.Bind()):
+			code = app.cfg.Errors().CommandLineArgumentUnknown.CodeU8().Get()
+			err = app.cfg.Errors().CommandLineArgumentUnknown.Bind(desc)
 			// Не указан один или несколько обязательных флагов.
-		case errors.Is(err, app.cfg.Gist().CLI().Errors().RequiredFlag()):
-			ewc = app.cfg.Errors().CommandLineRequiredFlag(0, desc)
-			code, err = ewc.Code(), errors.New(ewc.Error())
+		case errors.Is(err, app.cfg.Gist().CLI().Errors().RequiredFlag.Bind()):
+			code = app.cfg.Errors().CommandLineRequiredFlag.CodeU8().Get()
+			err = app.cfg.Errors().CommandLineRequiredFlag.Bind(desc)
 			// Любая иная не предвиденная ошибка.
 		default:
-			ewc = app.cfg.Errors().CommandLineUnexpectedError(0, desc, err)
-			code, err = ewc.Code(), errors.New(ewc.Error())
+			code = app.cfg.Errors().CommandLineUnexpectedError.CodeU8().Get()
+			err = app.cfg.Errors().CommandLineUnexpectedError.Bind(desc, err)
 		}
 		return
 	}

@@ -1,8 +1,10 @@
 package server
 
+import "github.com/webnice/dic"
+
 // Все ошибки определены как константы. Коды ошибок приложения:
 
-// Обычные ошибки
+// Коды ошибок.
 const (
 	eServerByIdNotFound uint8 = iota + 1
 	eServersAddedNotEqualLaunched
@@ -22,44 +24,39 @@ const (
 	cServerByIdNotStarted         = "Сервер с идентификатором %q не был запущен."
 )
 
-// Константы указаны в объектах, адрес которых фиксирован всё время работы приложения.
-// Это позволяет сравнивать ошибки между собой используя обычное сравнение "==", но сравнивать необходимо только якорь "Anchor()" объекта ошибки.
+type Error struct {
+	dic.Errors
+
+	// ServerByIdNotFound Конфигурация сервера с идентификатором ... не найдена.
+	ServerByIdNotFound dic.IError
+
+	// ServersAddedNotEqualLaunched Добавлено ... серверов, запущено ... серверов.
+	ServersAddedNotEqualLaunched dic.IError
+
+	// ModulePanicException Выполнение модуля ... прервано паникой: ...
+	ModulePanicException dic.IError
+
+	// BeforeExitWithError Функция Before() завершилась с ошибкой: ...
+	BeforeExitWithError dic.IError
+
+	// ServerByIdAlreadyStarted Сервер с идентификатором ... уже запущен.
+	ServerByIdAlreadyStarted dic.IError
+
+	// ServerByIdNotStarted Сервер с идентификатором ... не был запущен.
+	ServerByIdNotStarted dic.IError
+}
+
 var (
-	errSingleton                    = &Error{}
-	errServerByIdNotFound           = err{tpl: cServerByIdNotFound, code: eServerByIdNotFound}
-	errServersAddedNotEqualLaunched = err{tpl: cServersAddedNotEqualLaunched, code: eServersAddedNotEqualLaunched}
-	errModulePanicException         = err{tpl: cModulePanicException, code: eModulePanicException}
-	errBeforeExitWithError          = err{tpl: cBeforeExitWithError, code: eBeforeExitWithError}
-	errServerByIdAlreadyStarted     = err{tpl: cServerByIdAlreadyStarted, code: eServerByIdAlreadyStarted}
-	errServerByIdNotStarted         = err{tpl: cServerByIdNotStarted, code: eServerByIdNotStarted}
+	errSingleton = &Error{
+		Errors:                       dic.Error(),
+		ServerByIdNotFound:           dic.NewError(cServerByIdNotFound, "идентификатор").CodeU8().Set(eServerByIdNotFound),
+		ServersAddedNotEqualLaunched: dic.NewError(cServersAddedNotEqualLaunched, "добавлено", "запущено").CodeU8().Set(eServersAddedNotEqualLaunched),
+		ModulePanicException:         dic.NewError(cModulePanicException, "название модуля", "стек паники").CodeU8().Set(eModulePanicException),
+		BeforeExitWithError:          dic.NewError(cBeforeExitWithError, "ошибка").CodeU8().Set(eBeforeExitWithError),
+		ServerByIdAlreadyStarted:     dic.NewError(cServerByIdAlreadyStarted, "идентификатор").CodeU8().Set(eServerByIdAlreadyStarted),
+		ServerByIdNotStarted:         dic.NewError(cServerByIdNotStarted, "идентификатор").CodeU8().Set(eServerByIdNotStarted),
+	}
+
+	// Errors Справочник ошибок.
+	Errors = func() *Error { return errSingleton }
 )
-
-// ERRORS: Реализация ошибок с возможностью сравнения ошибок между собой.
-
-// ServerByIdNotFound Конфигурация сервера с идентификатором ... не найдена.
-func (e *Error) ServerByIdNotFound(serverID string) Err {
-	return newErr(&errServerByIdNotFound, 0, serverID)
-}
-
-// ServersAddedNotEqualLaunched Добавлено ... серверов, запущено ... серверов.
-func (e *Error) ServersAddedNotEqualLaunched(added, launched uint64) Err {
-	return newErr(&errServersAddedNotEqualLaunched, 0, added, launched)
-}
-
-// ModulePanicException Выполнение модуля ... прервано паникой: ...
-func (e *Error) ModulePanicException(componentName string, err any, stack []byte) Err {
-	return newErr(&errModulePanicException, 0, componentName, err, string(stack))
-}
-
-// BeforeExitWithError Функция Before() завершилась с ошибкой: ...
-func (e *Error) BeforeExitWithError(err error) Err { return newErr(&errBeforeExitWithError, 0, err) }
-
-// ServerByIdAlreadyStarted Сервер с идентификатором ... уже запущен.
-func (e *Error) ServerByIdAlreadyStarted(serverID string) Err {
-	return newErr(&errServerByIdAlreadyStarted, 0, serverID)
-}
-
-// ServerByIdNotStarted Сервер с идентификатором ... не был запущен.
-func (e *Error) ServerByIdNotStarted(serverID string) Err {
-	return newErr(&errServerByIdNotStarted, 0, serverID)
-}

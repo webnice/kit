@@ -26,24 +26,24 @@ func indirectType(rt reflect.Type) reflect.Type {
 func reflectObject(c any) (crv reflect.Value, crt reflect.Type, err error) {
 	defer func() {
 		if e := recover(); e != nil {
-			err = Errors().ConfigurationApplicationPanic(0, e, runtimeDebug.Stack())
+			err = Errors().ConfigurationApplicationPanic.Bind(e, runtimeDebug.Stack())
 		}
 	}()
 	// Проверка на nil.
 	if c == nil {
-		err = Errors().ConfigurationObjectIsNil(0)
+		err = Errors().ConfigurationObjectIsNil.Bind()
 		return
 	}
 	crv = indirect(reflect.ValueOf(c))
 	// Проверка на не инициализированный объект равный nil.
 	if !crv.IsValid() {
-		err = Errors().ConfigurationObjectIsNotValid(0, reflect.TypeOf(c).String())
+		err = Errors().ConfigurationObjectIsNotValid.Bind(reflect.TypeOf(c).String())
 		return
 	}
 	crt = indirectType(crv.Type())
 	// Проверка того что объект является адресом.
 	if !crv.CanAddr() {
-		err = Errors().ConfigurationObjectIsNotAddress(0, crv.Type().String())
+		err = Errors().ConfigurationObjectIsNotAddress.Bind(crv.Type().String())
 		return
 	}
 
@@ -56,7 +56,7 @@ func reflectStructObject(c any) (crv reflect.Value, crt reflect.Type, err error)
 	}
 	// В качестве конфигураций ожидаются только структуры.
 	if crt.Kind() != reflect.Struct {
-		err = Errors().ConfigurationObjectIsNotStructure(0, reflect.TypeOf(c).String())
+		err = Errors().ConfigurationObjectIsNotStructure.Bind(reflect.TypeOf(c).String())
 		return
 	}
 

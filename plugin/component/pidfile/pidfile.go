@@ -86,14 +86,14 @@ func (pid *impl) Do() (levelDone bool, levelExit bool, err error) {
 	if err != nil {
 		levelDone, levelExit = true, true
 		err = fmt.Errorf(tplPidMake, pid.pfnm, err)
-		err = pid.cfg.Errors().PidFileError(0, pid.pfnm, err)
+		err = pid.cfg.Errors().PidFileError.Bind(pid.pfnm, err)
 		return
 	}
 	// Запись в файл ID текущего процесса.
 	if _, err = fmt.Fprintln(pid.pffh, pid.id); err != nil {
 		levelDone, levelExit = true, true
 		err = fmt.Errorf(tplPidWrite, pid.pfnm, err)
-		err = pid.cfg.Errors().PidFileError(0, pid.pfnm, err)
+		err = pid.cfg.Errors().PidFileError.Bind(pid.pfnm, err)
 		return
 	}
 	// Блокировка PID файла, как минимум попытка (блокировка в некоторых OS не работает).
@@ -101,7 +101,7 @@ func (pid *impl) Do() (levelDone bool, levelExit bool, err error) {
 	if err = pid.lock.Lock(); err != nil {
 		levelDone, levelExit = true, true
 		err = fmt.Errorf(tplPidLock, pid.pfnm, err)
-		err = pid.cfg.Errors().PidFileError(0, pid.pfnm, err)
+		err = pid.cfg.Errors().PidFileError.Bind(pid.pfnm, err)
 		return
 	}
 	if pid.cfg.Debug() && pid.pfnm != "" && pid.pffh != nil {
@@ -122,21 +122,21 @@ func (pid *impl) Finalize() (err error) {
 	if pid.lock != nil && pid.lock.IsLocked() {
 		if err = pid.lock.Unlock(); err != nil {
 			err = fmt.Errorf(tplPidUnlock, pid.pfnm, err)
-			pid.cfg.Gist().ErrorAppend(pid.cfg.Errors().PidFileError(0, pid.pfnm, err))
+			pid.cfg.Gist().ErrorAppend(pid.cfg.Errors().PidFileError.Bind(pid.pfnm, err))
 		}
 	}
 	// Закрытие файлового дескриптора
 	if pid.pffh != nil {
 		if err = pid.pffh.Close(); err != nil {
 			err = fmt.Errorf(tplPidClose, pid.pfnm, err)
-			pid.cfg.Gist().ErrorAppend(pid.cfg.Errors().PidFileError(0, pid.pfnm, err))
+			pid.cfg.Gist().ErrorAppend(pid.cfg.Errors().PidFileError.Bind(pid.pfnm, err))
 		}
 	}
 	// Удаление PID файла
 	if pid.pfnm != "" {
 		if err = os.Remove(pid.pfnm); err != nil {
 			err = fmt.Errorf(tplPidDelete, pid.pfnm, err)
-			pid.cfg.Gist().ErrorAppend(pid.cfg.Errors().PidFileError(0, pid.pfnm, err))
+			pid.cfg.Gist().ErrorAppend(pid.cfg.Errors().PidFileError.Bind(pid.pfnm, err))
 		} else {
 			isRm = true
 		}
