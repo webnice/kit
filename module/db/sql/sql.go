@@ -205,14 +205,6 @@ func (mys *impl) GormDB() (ret *gorm.DB) {
 			CreateBatchSize:        mys.cfg.CreateBatchSize,
 			Logger:                 NewLoggerGorm(mys),
 		})
-	//case driverSqlite:
-	//	ret, mys.error = gorm.Open(sqlite.Open(mys.dsn), &gorm.Config{
-	//		SkipDefaultTransaction: mys.cfg.SkipDefaultTransaction,
-	//		DisableAutomaticPing:   mys.cfg.DisableAutomaticPing,
-	//		PrepareStmt:            mys.cfg.PrepareStmt,
-	//		CreateBatchSize:        mys.cfg.CreateBatchSize,
-	//		Logger:                 NewLoggerGorm(mys),
-	//	})
 	default:
 		mys.error = mys.Errors().DriverUnImplemented.Bind(mys.cfg.Driver)
 		return

@@ -2,6 +2,7 @@ package sql
 
 import (
 	"context"
+	"strings"
 	"time"
 
 	kitModuleDye "github.com/webnice/kit/v4/module/dye"
@@ -65,7 +66,7 @@ func (lgm *logGorm) Trace(
 	const (
 		keyQuery, keySql               = "query", "sql"
 		keyDriver, keyElapsed, keyRows = "driver", "elapsed", "rows"
-		tplTracef, tplErrorf           = "sql:%q", "sql:%q, ошибка: %s"
+		tplTracef, tplErrorf           = "sql:\"%s\"", "sql:\"%s\", ошибка: %s"
 		// Увеличение глубины поиска в стеке вызовов, функции вызвавшей логирование, так как используется ORM.
 		stackBackCorrect = 5
 	)
@@ -73,6 +74,7 @@ func (lgm *logGorm) Trace(
 		logLevel string
 		elapsed  time.Duration
 		sql      string
+		qSql     string
 		rows     int64
 		keys     kitTypes.LoggerKey
 		ok       bool
@@ -91,21 +93,18 @@ func (lgm *logGorm) Trace(
 		keyElapsed: elapsed,
 		keyRows:    rows,
 	}
+	qSql = strings.ReplaceAll(sql, "\"", "\\\"")
 	msgFn = func(e error, color string) {
 		if err == nil {
 			return
 		}
-		//lgm.parent.log().Key(keys).Tracef(
-		//	tplTracef,
-		//	color+sql+kitModuleDye.New().Normal().Done().String(),
-		//)
 		lgm.parent.log().
 			Key(keys).
 			StackBackCorrect(stackBackCorrect).
 			Errorf(
 				tplErrorf,
 				kitModuleDye.New().Yellow().Done().String()+
-					sql+
+					qSql+
 					kitModuleDye.New().Reset().Done().String(),
 				color+
 					e.Error()+
@@ -125,7 +124,7 @@ func (lgm *logGorm) Trace(
 			StackBackCorrect(stackBackCorrect).
 			Tracef(
 				tplTracef,
-				kitModuleDye.New().Yellow().Done().String()+sql+kitModuleDye.New().Normal().Done().String(),
+				kitModuleDye.New().Yellow().Done().String()+qSql+kitModuleDye.New().Normal().Done().String(),
 			)
 	default:
 		//lgm.parent.log().
