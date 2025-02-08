@@ -8,18 +8,18 @@ require (
 	github.com/Masterminds/semver/v3 v3.3.1
 	github.com/PuerkitoBio/goquery v1.10.1
 	github.com/disintegration/imaging v1.6.2
-	github.com/go-chi/chi/v5 v5.2.0
-	github.com/go-playground/validator/v10 v10.23.0
+	github.com/go-chi/chi/v5 v5.2.1
+	github.com/go-playground/validator/v10 v10.24.0
 	github.com/go-sql-driver/mysql v1.8.1
 	github.com/jackc/pgx/v4 v4.18.3
 	github.com/jmoiron/sqlx v1.4.0
 	github.com/mattn/go-sqlite3 v1.14.24
 	github.com/webnice/debug v1.1.1
-	github.com/webnice/dic v1.2.1
+	github.com/webnice/dic v1.3.1
 	github.com/webnice/migrate v1.0.2
 	github.com/webnice/web/v3 v3.1.0
-	golang.org/x/image v0.23.0
-	golang.org/x/sys v0.28.0
+	golang.org/x/image v0.24.0
+	golang.org/x/sys v0.30.0
 	gopkg.in/yaml.v3 v3.0.1
 	gorm.io/driver/mysql v1.5.7
 	gorm.io/driver/postgres v1.5.11
@@ -29,7 +29,7 @@ require (
 require (
 	filippo.io/edwards25519 v1.1.0 // indirect
 	github.com/andybalholm/cascadia v1.3.3 // indirect
-	github.com/gabriel-vasile/mimetype v1.4.7 // indirect
+	github.com/gabriel-vasile/mimetype v1.4.8 // indirect
 	github.com/go-playground/locales v0.14.1 // indirect
 	github.com/go-playground/universal-translator v0.18.1 // indirect
 	github.com/google/uuid v1.6.0 // indirect
@@ -48,10 +48,10 @@ require (
 	github.com/pires/go-proxyproto v0.8.0 // indirect
 	github.com/rogpeppe/go-internal v1.12.0 // indirect
 	github.com/webnice/net v1.3.1 // indirect
-	golang.org/x/crypto v0.31.0 // indirect
-	golang.org/x/net v0.33.0 // indirect
-	golang.org/x/sync v0.10.0 // indirect
-	golang.org/x/text v0.21.0 // indirect
+	golang.org/x/crypto v0.33.0 // indirect
+	golang.org/x/net v0.34.0 // indirect
+	golang.org/x/sync v0.11.0 // indirect
+	golang.org/x/text v0.22.0 // indirect
 )
 
 replace self => /Users/kallisto/Projects/lib/github.com/webnice/kit
