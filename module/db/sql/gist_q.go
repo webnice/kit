@@ -9,7 +9,7 @@ import (
 
 // QErr Создание единообразной непредвиденной ошибки
 func (db *Implementation) QErr(err error) error {
-	const qError = "ошибка базы данных: %w"
+	const qError = "ошибка базы данных: %s"
 	return dic.NewError(qError, "ошибка").Bind(err)
 }
 
