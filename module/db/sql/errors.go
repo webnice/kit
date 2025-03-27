@@ -20,10 +20,10 @@ const (
 	cUnknownDatabaseDriver = "Указан неизвестный или не поддерживаемый драйвер базы данных: %q."
 	cUsernameIsEmpty       = "Не указано имя пользователя, для подключения к базе данных."
 	cWrongConnectionType   = "Указан неизвестный или не поддерживаемый способ подключения к базе данных: %q."
-	cConnectError          = "Подключение к базе данных завершилось ошибкой: %w."
+	cConnectError          = "Подключение к базе данных завершилось ошибкой: %s."
 	cDriverUnImplemented   = "Подключение к базе данных с помощью драйвера %q не создано."
-	cApplyMigration        = "Применение новых миграций базы данных прервано ошибкой: %w."
-	cUnknownDialect        = "Применение миграций базы данных, настройка диалекта %q прервано ошибкой: %w."
+	cApplyMigration        = "Применение новых миграций базы данных прервано, файл миграции %q, ошибка: %s."
+	cUnknownDialect        = "Применение миграций базы данных, настройка диалекта %q прервано ошибкой: %s."
 )
 
 type Error struct {
@@ -47,7 +47,7 @@ type Error struct {
 	// DriverUnImplemented Подключение к базе данных с помощью драйвера ... не создано.
 	DriverUnImplemented dic.IError
 
-	// ApplyMigration Применение новых миграций базы данных прервано ошибкой: ...
+	// ApplyMigration Применение новых миграций базы данных прервано, файл миграции ..., ошибка: ...
 	ApplyMigration dic.IError
 
 	// UnknownDialect Применение миграций базы данных, настройка диалекта ... прервано ошибкой: ...
@@ -63,7 +63,7 @@ var (
 		WrongConnectionType:   dic.NewError(cWrongConnectionType, "способ подключения").CodeU().Set(eWrongConnectionType),
 		ConnectError:          dic.NewError(cConnectError, "ошибка").CodeU().Set(eConnectError),
 		DriverUnImplemented:   dic.NewError(cDriverUnImplemented, "название драйвера").CodeU().Set(eDriverUnImplemented),
-		ApplyMigration:        dic.NewError(cApplyMigration, "ошибка").CodeU().Set(eApplyMigration),
+		ApplyMigration:        dic.NewError(cApplyMigration, "файл миграции", "ошибка").CodeU().Set(eApplyMigration),
 		UnknownDialect:        dic.NewError(cUnknownDialect, "диалект", "ошибка").CodeU().Set(eUnknownDialect),
 	}
 

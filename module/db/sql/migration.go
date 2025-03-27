@@ -84,7 +84,7 @@ func (mys *impl) MigrationUp() (err error) {
 			continue
 		}
 		if err = next.Up(mys.conn()); err != nil {
-			end, err = true, mys.Errors().ApplyMigration.Bind(err)
+			end, err = true, mys.Errors().ApplyMigration.Bind(next.Source, err)
 			continue
 		}
 	}
