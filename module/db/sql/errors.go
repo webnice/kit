@@ -26,6 +26,7 @@ const (
 	cUnknownDialect        = "Применение миграций базы данных, настройка диалекта %q прервано ошибкой: %s."
 )
 
+// Error Структура справочника ошибок.
 type Error struct {
 	dic.Errors
 

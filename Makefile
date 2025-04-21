@@ -78,7 +78,7 @@ dep-dev: dep-init
 ## Кодогенерация (run only during development).
 ## All generating files are included in a .gogenerate file.
 gen: dep-init
-	@for PKGNAME in $(GOGENERATE); do DB2STRUCT_DRV='$(MIGRATION_DRV_MYSQL)' DB2STRUCT_DSN='$(MIGRATION_DSN_MYSQL)' go generate -v "${APP_PACKAGE}/$${PKGNAME}"; done
+	@for PKGNAME in $(GOGENERATE); do DB2STRUCT_DRV='$(MIGRATION_DRV_MYSQL)' DB2STRUCT_DSN='$(MIGRATION_DSN_MYSQL)' go generate -v "$${PKGNAME}"; done
 .PHONY: gen
 
 ## Project building for environment architecture.

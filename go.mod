@@ -52,6 +52,7 @@ require (
 	golang.org/x/net v0.34.0 // indirect
 	golang.org/x/sync v0.11.0 // indirect
 	golang.org/x/text v0.22.0 // indirect
+	gopkg.in/webnice/lin.v1 v1.0.0-20200319081247-050a97f5ba4e // indirect
 )
 
 replace self => /Users/kallisto/Projects/lib/github.com/webnice/kit
