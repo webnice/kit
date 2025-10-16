@@ -27,7 +27,7 @@ type Interface interface {
 	Load(request *http.Request, variable any) (err error)
 }
 
-// Объект сущности, реализующий интерфейс Interface.
+// Объект сущности пакета.
 type impl struct {
 }
 

@@ -10,7 +10,7 @@ import (
 
 // Возвращает MAC адрес сетевой карты.
 func defaultHWAddrFunc() (ret net.HardwareAddr, err error) {
-	const errNotFound = `MAC HW address found`
+	const errNotFound = "MAC HW address found"
 	var (
 		ifaces []net.Interface
 		iface  net.Interface

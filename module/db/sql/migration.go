@@ -10,7 +10,6 @@ import (
 	// Обязательно наличие зарегистрированных драйверов баз данных.
 	_ "github.com/go-sql-driver/mysql" // mysql.
 	_ "github.com/jackc/pgx/v4"        // postgre, cockroach, redshift.
-	_ "github.com/mattn/go-sqlite3"    // sqlite3.
 )
 
 // MigrationUp Применение миграций базы данных.

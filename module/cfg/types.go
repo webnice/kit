@@ -30,7 +30,7 @@ var (
 // Regexp коррекции печати конфигурации приложения.
 var rexUnionStructureHeader = regexp.MustCompile(`(?im)\*struct\s+({[^}]+})`)
 
-// Объект сущности, интерфейс Interface.
+// Объект сущности пакета.
 type impl struct {
 	bootstrapConfiguration    *kitTypes.BootstrapConfiguration           // Минимальная, стартовая конфигурация приложения.
 	loadableConfiguration     *kitTypes.BootstrapConfiguration           // Загружаемая из файла, временная конфигурация.

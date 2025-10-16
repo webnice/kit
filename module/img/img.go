@@ -15,7 +15,9 @@ import (
 	"golang.org/x/image/tiff"
 )
 
-// New Конструктор.
+// New Конструктор объекта сущности пакета, возвращается интерфейс пакета.
+//
+//goland:noinspection GoUnusedExportedFunction
 func New() Interface {
 	var img = new(impl)
 	return img

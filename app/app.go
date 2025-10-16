@@ -20,7 +20,9 @@ func newApp() Interface {
 	}
 }
 
-// Get Функция возвращает интерфейс объекта пакета.
+// Get Получение объекта сущности пакета, возвращается интерфейс пакета.
+//
+//goland:noinspection GoUnusedExportedFunction
 func Get() Interface { return singleton }
 
 // Cfg Возвращает интерфейс конфигурации приложения.

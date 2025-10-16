@@ -6,6 +6,8 @@ import (
 )
 
 // Get Получение объекта сущности пакета, возвращается интерфейс пакета.
+//
+//goland:noinspection GoUnusedExportedFunction
 func Get() Interface {
 	if singleton == nil {
 		singleton = newObject()

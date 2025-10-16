@@ -42,7 +42,7 @@ type Session interface {
 	Do() (ret *bytes.Buffer, err error)
 }
 
-// Объект сущности, реализующий интерфейс Interface.
+// Объект сущности пакета.
 type impl struct {
 	src    string             // Исходный шаблон.
 	chunks []*chunk           // Куски исходного шаблона.

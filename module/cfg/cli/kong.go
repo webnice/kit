@@ -170,19 +170,19 @@ func (cli *impl) KongDynamicFlag() (err error) {
 // KongVars Создание переменных для аргументов помощи и команд командной строки.
 func (cli *impl) KongVars() (ret []kitModuleCfgCliKong.Option) {
 	const (
-		varApplicationTargetlevel = `ApplicationTargetlevel`
-		varApplicationDebug       = `ApplicationDebug`
-		varApplicationName        = `ApplicationName`
-		varHomeDirectory          = `HomeDirectory`
-		varWorkingDirectory       = `WorkingDirectory`
-		varTempDirectory          = `TempDirectory`
-		varCacheDirectory         = `CacheDirectory`
-		varConfigDirectory        = `ConfigDirectory`
-		varConfigFile             = `ConfigFile`
-		varPidFile                = `PidFile`
-		varStateFile              = `StateFile`
-		varSocketFile             = `SocketFile`
-		varLogLevel               = `LogLevel`
+		varApplicationTargetlevel = "ApplicationTargetlevel"
+		varApplicationDebug       = "ApplicationDebug"
+		varApplicationName        = "ApplicationName"
+		varHomeDirectory          = "HomeDirectory"
+		varWorkingDirectory       = "WorkingDirectory"
+		varTempDirectory          = "TempDirectory"
+		varCacheDirectory         = "CacheDirectory"
+		varConfigDirectory        = "ConfigDirectory"
+		varConfigFile             = "ConfigFile"
+		varPidFile                = "PidFile"
+		varStateFile              = "StateFile"
+		varSocketFile             = "SocketFile"
+		varLogLevel               = "LogLevel"
 	)
 
 	ret = append(ret, kitModuleCfgCliKong.Vars{

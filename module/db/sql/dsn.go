@@ -7,7 +7,7 @@ import (
 
 // Создание DSN для подключения к базе данных.
 func (mys *impl) makeDsn() (err error) {
-	const keyTcp, keySocket = `tcp`, `socket`
+	const keyTcp, keySocket = "tcp", "socket"
 	var (
 		n     int
 		found bool
@@ -30,10 +30,10 @@ func (mys *impl) makeDsn() (err error) {
 		return
 	}
 	// Самая простая конфигурация: sqlite
-	if mys.cfg.Driver == driverSqlite {
-		mys.dsn = fmt.Sprintf("%s?%s", mys.cfg.Name, dsnTimeSettings)
-		return
-	}
+	//if mys.cfg.Driver == driverSqlite {
+	//	mys.dsn = fmt.Sprintf("%s?%s", mys.cfg.Name, dsnTimeSettings)
+	//	return
+	//}
 	// Имя пользователя.
 	if mys.cfg.Login == "" {
 		err = mys.Errors().UsernameIsEmpty.Bind()

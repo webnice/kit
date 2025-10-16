@@ -14,7 +14,7 @@ type Interface interface {
 	Stop() Interface
 }
 
-// Объект сущности, реализующий интерфейс Interface.
+// Объект сущности пакета.
 type impl struct {
 	doExitUp   chan struct{}  // Канал сигнала о завершении горутины.
 	doExitDone chan struct{}  // Канал сигнала "горутина завершена".

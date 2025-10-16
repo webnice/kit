@@ -76,7 +76,7 @@ type Result interface {
 	ErrGet(e ...error) []error
 }
 
-// Объект сущности, реализующий интерфейс Interface, бассейн объектов.
+// Объект сущности пакета.
 type impl struct {
 	sync.Pool
 	debug     bool       // Флаг режима отладки.

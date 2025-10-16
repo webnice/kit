@@ -12,7 +12,7 @@ import (
 	kitTypes "github.com/webnice/kit/v4/types"
 )
 
-// Структура объекта компоненты.
+// Объект сущности пакета.
 type impl struct {
 	Ctx       context.Context    // Контекст для прерывания работы горутины.
 	Cfn       context.CancelFunc // Функция контекста для прерывания работы.

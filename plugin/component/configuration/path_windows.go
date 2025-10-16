@@ -11,8 +11,8 @@ import (
 // Функция вернёт список путей, в порядке приоритета, по которым необходимо искать файл конфигурации
 func getPath(appName, dirHome, dirWork string, other ...string) (ret []string) {
 	const (
-		pDotConfig          = `.config`
-		pConf               = `conf`
+		pDotConfig          = ".config"
+		pConf               = "conf"
 		eSYSTEMROOT         = "SYSTEMROOT"
 		ePROGRAMFILES       = "PROGRAMFILES"
 		eCOMMONPROGRAMFILES = "COMMONPROGRAMFILES"

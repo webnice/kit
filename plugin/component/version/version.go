@@ -8,7 +8,7 @@ import (
 	kitTypes "github.com/webnice/kit/v4/types"
 )
 
-// Структура объекта компоненты.
+// Объект сущности пакета.
 type impl struct {
 }
 

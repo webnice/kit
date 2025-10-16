@@ -7,6 +7,8 @@ import (
 )
 
 // New Конструктор объекта сущности пакета, возвращается интерфейс пакета.
+//
+//goland:noinspection GoUnusedExportedFunction
 func New() Interface {
 	var fif = new(impl)
 	return fif

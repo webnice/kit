@@ -12,7 +12,7 @@ const tplBadParam = "не верный параметр %q"
 
 var rexHexColor = regexp.MustCompile(`(?im)^(#[0-9a-f]{6})$`)
 
-// Объект сущности, реализующий интерфейс Interface.
+// Объект сущности пакета.
 type impl struct {
 	isBackground bool            // Флаг установки следующего цвета как цвета фона.
 	isBright     bool            // Флаг установки следующего цвета как яркого цвета.

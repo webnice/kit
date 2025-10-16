@@ -156,10 +156,10 @@ func (s *scanner) itemToString(item any) (ret string, err error) {
 // Парсинг значений для некоторых стандартизированных типов golang.
 func (s *scanner) scanKnownType(src string) (ok bool, err error) {
 	const (
-		typeTimeDuration  = `time.Duration`
-		typeTimeDurationA = `*time.Duration`
-		typeTimeLocation  = `time.Location`
-		typeTimeLocationA = `*time.Location`
+		typeTimeDuration  = "time.Duration"
+		typeTimeDurationA = "*time.Duration"
+		typeTimeLocation  = "time.Location"
+		typeTimeLocationA = "*time.Location"
 	)
 	var (
 		svts            string

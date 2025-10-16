@@ -14,23 +14,22 @@ import (
 )
 
 const (
-	driverMySQL         = `mysql`
-	driverPostgreSQL    = `postgres`
-	driverSqlite        = `sqlite`
-	dsnTimeSettings     = `?parseTime=%t`
-	dsnLocationSettings = `&loc=%s`
-	dsnUnixTpl          = `@unix(%s)`
-	dsnCharsetTpl       = `&charset=%s`
+	driverMySQL         = "mysql"
+	driverPostgreSQL    = "postgres"
+	dsnTimeSettings     = "?parseTime=%t"
+	dsnLocationSettings = "&loc=%s"
+	dsnUnixTpl          = "@unix(%s)"
+	dsnCharsetTpl       = "&charset=%s"
 )
 
 const (
-	keyContextLogLevel = `log_level`
-	keyLogSilent       = `silent`
+	keyContextLogLevel = "log_level"
+	keyLogSilent       = "silent"
 )
 
 var (
 	singleton      *impl
-	supportDrivers = []string{driverMySQL, driverPostgreSQL, driverSqlite}
+	supportDrivers = []string{driverMySQL, driverPostgreSQL}
 )
 
 // Interface Интерфейс пакета.
@@ -67,7 +66,7 @@ type Interface interface {
 	Errors() *Error
 }
 
-// Объект сущности, реализующий интерфейс Interface.
+// Объект сущности пакета.
 type impl struct {
 	databaseSql *kitTypesDb.DatabaseSqlConfiguration // Конфигурация для подключения к базе данных.
 	cfg         *kitModuleDbSqlTypes.Configuration   // Сегмент конфигурации для подключения к базе данных.

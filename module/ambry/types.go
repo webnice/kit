@@ -32,7 +32,7 @@ type Interface interface {
 	GetAll(key any) []any
 }
 
-// Объект сущности пакета, реализующий интерфейс Interface.
+// Объект сущности пакета.
 type impl struct {
 	sync.RWMutex
 	items map[key][]*item

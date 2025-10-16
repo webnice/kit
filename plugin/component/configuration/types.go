@@ -4,10 +4,10 @@ import kitModuleCfg "github.com/webnice/kit/v4/module/cfg"
 
 const (
 	osWindows       = "windows"
-	symbolSlash     = `/`
-	symbolBackslash = `\`
-	pathParent      = `..`
-	extensionYaml   = `.yml`
+	symbolSlash     = "/"
+	symbolBackslash = "\\"
+	pathParent      = ".."
+	extensionYaml   = ".yml"
 )
 
 const (
@@ -21,7 +21,7 @@ const (
 	tplCommandNotImplemented = "команда %q не реализована"
 )
 
-// Структура объекта компоненты.
+// Объект сущности пакета.
 type impl struct {
 	cfg kitModuleCfg.Interface
 	cmd *cmd

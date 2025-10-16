@@ -31,11 +31,11 @@ ${-spc-:1}${-spc-}
 
 ${#: Ключи: }${-spc-:1}${dye:text:#0087FF}${keys}`
 
-// Interface is an interface of package.
+// Interface Интерфейс пакета.
 type Interface interface {
 }
 
-// Структура объекта компоненты.
+// Объект сущности пакета.
 type impl struct {
 	err            error
 	cfg            kitModuleCfg.Interface

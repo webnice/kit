@@ -12,10 +12,10 @@ import (
 // Функция загрузки настроек компонента.
 func (app *impl) preferencesFn(c *kitTypes.ComponentInfo) (ret *kitTypes.ComponentInfo, err error) {
 	const (
-		cBefore   = `before`
-		cAfter    = `after`
-		cRequire  = `require`
-		cConflict = `conflict`
+		cBefore   = "before"
+		cAfter    = "after"
+		cRequire  = "require"
+		cConflict = "conflict"
 	)
 	var (
 		preferences kitTypes.ComponentPreferences

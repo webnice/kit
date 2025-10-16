@@ -779,7 +779,7 @@ func (c *Context) PrintUsage(summary bool) error {
 }
 
 func checkMissingFlags(flags []*Flag) (err error) {
-	const delimiterOr = ` or `
+	const delimiterOr = " or "
 	var (
 		flag         *Flag
 		missing, fgs []string

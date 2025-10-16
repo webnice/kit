@@ -27,7 +27,7 @@ func (c chunk) String() (ret string) {
 }
 
 func (c chunk) makeCallFnWithArgs(numberArgs int) (ret string) {
-	const prefix, tplarg, suffix = `{{ %s `, `%q `, `}}`
+	const prefix, tplarg, suffix = "{{ %s ", "%q ", "}}"
 	var n int
 
 	for ret, n = prefix, 0; n < numberArgs; n++ {

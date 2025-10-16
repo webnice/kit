@@ -65,7 +65,7 @@ func reflectStructObject(c any) (crv reflect.Value, crt reflect.Type, err error)
 
 // Удаление всех тегов, кроме перечисленных.
 func reflectCleanStructTag(src reflect.StructTag, tags ...string) (ret reflect.StructTag) {
-	const tpl = ` %s:"%s"`
+	const tpl = " %s:\"%s\""
 	var (
 		val string
 		buf *strings.Builder

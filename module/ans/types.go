@@ -16,7 +16,7 @@ type Essence interface {
 	Debug(debug bool) Essence
 }
 
-// Объект сущности, реализующий интерфейс Interface.
+// Объект сущности пакета.
 type impl struct {
 	debug   bool            // Флаг режима отладки.
 	essence Essence         // Объект интерфейса Essence.

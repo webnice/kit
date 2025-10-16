@@ -54,7 +54,7 @@ func (essence *gist) AppName(name string) Essence {
 // Version Присвоение версии и номера сборки приложения в семантике "Semantic Versioning 2.0.0".
 // Согласно документации https://semver.org/
 func (essence *gist) Version(version string, build string) Essence {
-	const keyBuild = `+build.`
+	const keyBuild = "+build."
 	var (
 		tmp string
 		err error

@@ -8,7 +8,7 @@ import (
 	kitTypes "github.com/webnice/kit/v4/types"
 )
 
-// Interface Интерфейс объекта сущности.
+// Interface Интерфейс пакета.
 type Interface interface {
 	// Subscribe Регистрация потребителя данных.
 	// Вернётся ошибка, если:

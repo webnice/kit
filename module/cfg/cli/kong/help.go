@@ -521,8 +521,8 @@ func formatFlag(haveShort bool, flag *Flag) string {
 // CommandTree creates a tree with the given node name as root and its children's arguments and sub commands as leaves.
 func (h *HelpOptions) CommandTree(node *Node, prefix string) (rows [][2]string) {
 	const (
-		openTriangularBracket  = `<`
-		closeTriangularBracket = `>`
+		openTriangularBracket  = "<"
+		closeTriangularBracket = ">"
 	)
 	var (
 		nodeName string
@@ -580,19 +580,19 @@ func TreeIndenter(prefix string) string {
 }
 
 func defaultUsageHelperFunc(name string, summary string) (ret string) {
-	const defaultUsageHelperTemplate = `Usage: %s %s`
+	const defaultUsageHelperTemplate = "Usage: %s %s"
 	ret = fmt.Sprintf(oneSpace(defaultUsageHelperTemplate, name, summary))
 	return
 }
 
 func defaultRunArgumentHelperFunc(name string, argument string) (ret string) {
-	const defaultUsageHelperTemplate = `Run "%s --%s" for more information.`
+	const defaultUsageHelperTemplate = "Run \"%s --%s\" for more information."
 	ret = fmt.Sprintf(oneSpace(defaultUsageHelperTemplate, name, argument))
 	return
 }
 
 func defaultRunCommandArgumentHelperFunc(name string, argument string) (ret string) {
-	const defaultUsageHelperTemplate = `Run "%s <command> --%s" for more information on a command.`
+	const defaultUsageHelperTemplate = "Run \"%s <command> --%s\" for more information on a command."
 	ret = fmt.Sprintf(oneSpace(defaultUsageHelperTemplate, name, argument))
 	return
 }

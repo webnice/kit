@@ -78,7 +78,7 @@ type UUID interface {
 	MarshalJSON() (ret []byte, err error)
 }
 
-// Объект сущности, интерфейс Interface.
+// Объект сущности пакета.
 type impl struct {
 	clockSequenceOnce sync.Once
 	hardwareAddrOnce  sync.Once

@@ -60,7 +60,7 @@ func defaultApplicationName() (ret string) {
 
 // Описание приложения или сервиса, отображаемое в строке помощи.
 func defaultApplicationDescription() (ret string) {
-	const tpl = `--- ### %s ### ---`
+	const tpl = "--- ### %s ### ---"
 
 	ret = fmt.Sprintf(tpl, defaultApplicationName())
 
@@ -69,7 +69,7 @@ func defaultApplicationDescription() (ret string) {
 
 // Домашняя директория пользователя, от имени которого выполняется приложение.
 func defaultHomeDirectory() (ret string) {
-	const homePathSymbol = `~`
+	const homePathSymbol = "~"
 	var err error
 
 	if ret, err = os.UserHomeDir(); err != nil || ret == "" {
@@ -81,7 +81,7 @@ func defaultHomeDirectory() (ret string) {
 
 // Рабочая директория приложения.
 func defaultWorkingDirectory() (ret string) {
-	const defaultRootPath = `/`
+	const defaultRootPath = "/"
 	var err error
 
 	if defaultWorkingDirectoryOriginal == "" {
@@ -118,10 +118,10 @@ func defaultTempDirectory() (ret string) {
 // Директория для файлов кеширования.
 func defaultCacheDirectory() (ret string) {
 	const (
-		windowsName    = `windows`
-		homePathSymbol = `~`
-		unixPath       = `/var/cache`
-		windowsPath    = `AppData\Local\Packages`
+		windowsName    = "windows"
+		homePathSymbol = "~"
+		unixPath       = "/var/cache"
+		windowsPath    = "AppData\\Local\\Packages"
 	)
 	var err error
 
@@ -144,10 +144,10 @@ func defaultCacheDirectory() (ret string) {
 // Директория конфигурации в домашней директории пользователя.
 func defaultConfigDirectory() (ret string) {
 	const (
-		windowsName    = `windows`
-		homePathSymbol = `~`
-		unixPath       = `.config`
-		windowsPath    = `AppData\Roaming`
+		windowsName    = "windows"
+		homePathSymbol = "~"
+		unixPath       = ".config"
+		windowsPath    = "AppData\\Roaming"
 	)
 	var err error
 

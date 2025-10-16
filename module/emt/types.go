@@ -39,7 +39,7 @@ type Interface interface {
 	BodyImageEmbed(tpl *Template, fn ImageEmbedFn) (err error)
 }
 
-// Объект сущности, реализующий интерфейс пакета.
+// Объект сущности пакета.
 type impl struct {
 	cfg kitModuleCfg.Interface // Конфигурация приложения.
 }

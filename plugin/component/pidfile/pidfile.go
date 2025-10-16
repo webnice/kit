@@ -28,7 +28,7 @@ const (
 	tplPidEnd             = "Завершена работа с PID файлом приложения."
 )
 
-// Структура объекта компоненты.
+// Объект сущности пакета.
 type impl struct {
 	id    int
 	pfnm  string
@@ -155,7 +155,7 @@ func (pid *impl) Finalize() (err error) {
 }
 
 func (pid *impl) isSkip() (ret bool) {
-	const cmdVersion, cmdConfig = `version`, `config`
+	const cmdVersion, cmdConfig = "version", "config"
 
 	// Для стандартной команды версии приложения миграцию не запускаем.
 	switch {

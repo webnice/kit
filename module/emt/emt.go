@@ -6,6 +6,8 @@ import (
 )
 
 // New Конструктор объекта сущности пакета, возвращается интерфейс пакета.
+//
+//goland:noinspection GoUnusedExportedFunction
 func New() Interface {
 	var emt = &impl{
 		cfg: kitModuleCfg.Get(),

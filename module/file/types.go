@@ -31,7 +31,7 @@ type Interface interface {
 	LoadFile(filename string) (data *bytes.Buffer, info os.FileInfo, err error)
 }
 
-// Объект сущности, реализующий интерфейс Interface.
+// Объект сущности пакета.
 type impl struct {
 }
 

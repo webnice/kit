@@ -18,7 +18,7 @@ import (
 
 const tplApplicationFullStart = "Приложение полностью инициализировано."
 
-// Структура объекта компоненты.
+// Объект сущности пакета.
 type impl struct {
 	cfg kitModuleCfg.Interface
 }

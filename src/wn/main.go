@@ -20,7 +20,7 @@ var (
 	//   -X main.build="20211001.100001"
 	// Если аргумент с номером версии не передан, тогда используется значение по умолчанию.
 	// Значение по умолчанию: "dev".
-	build = `dev`
+	build = "dev"
 )
 
 func main() { cfg.RegistrationMain(app.Get().Main).Gist().Version(version, build).Cfg().Gist().App() }

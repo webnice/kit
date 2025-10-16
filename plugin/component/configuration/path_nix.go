@@ -7,12 +7,12 @@ import "path"
 // Функция вернёт список путей, в порядке приоритета, по которым необходимо искать файл конфигурации
 func getPath(appName, dirHome, dirWork string, other ...string) (ret []string) {
 	const (
-		pEtc       = `/etc`
-		pOpt       = `/opt`
-		pLocEtc    = `/usr/local/etc`
-		pShare     = `/usr/share`
-		pDotConfig = `.config`
-		pConf      = `conf`
+		pEtc       = "/etc"
+		pOpt       = "/opt"
+		pLocEtc    = "/usr/local/etc"
+		pShare     = "/usr/share"
+		pDotConfig = ".config"
+		pConf      = "conf"
 	)
 	var n int
 

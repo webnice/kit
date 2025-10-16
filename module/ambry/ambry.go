@@ -1,6 +1,8 @@
 package ambry
 
-// New Конструктор.
+// New Конструктор объекта сущности пакета, возвращается интерфейс пакета.
+//
+//goland:noinspection GoUnusedExportedFunction
 func New() Interface {
 	var aby = new(impl)
 	aby.items = map[key][]*item{}

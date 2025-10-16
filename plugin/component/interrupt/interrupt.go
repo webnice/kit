@@ -17,7 +17,7 @@ const (
 	sigInterrupt         = "interrupt"
 )
 
-// Структура объекта компоненты.
+// Объект сущности пакета.
 type impl struct {
 	i7t kitModuleInterrupt.Interface
 }

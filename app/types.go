@@ -12,7 +12,7 @@ const (
 // Единичный экземпляр объекта пакета.
 var singleton *impl
 
-// Interface is an interface of package.
+// Interface Интерфейс пакета.
 type Interface interface {
 	// Main Точка запуска, выполнения и завершения приложения.
 	// Функция возвращает код ошибки, который передаётся в операционную систему и может быть считан запускающим
@@ -23,7 +23,7 @@ type Interface interface {
 	Cfg() kitModuleCfg.Interface
 }
 
-// Объект сущности, интерфейс Interface.
+// Объект сущности пакета.
 type impl struct {
 	finalize chan struct{}          // Канал ожидания окончания выполнения Finalize() перед завершением приложения.
 	cfg      kitModuleCfg.Interface // Интерфейс конфигурации приложения.

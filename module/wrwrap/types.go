@@ -33,7 +33,7 @@ type Interface interface {
 	Essence() http.ResponseWriter
 }
 
-// Объект сущности, реализующий интерфейс Interface.
+// Объект сущности пакета.
 type impl struct {
 	debug          bool                // Флаг режима отладки.
 	essence        http.ResponseWriter // Оригинальный объект интерфейса http.ResponseWriter.

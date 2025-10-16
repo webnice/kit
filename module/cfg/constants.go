@@ -8,10 +8,10 @@ const (
 )
 
 const (
-	tagYaml         = `yaml`
-	tagDefaultValue = `default-value`
-	tagEnvName      = `env-name`
-	tagDescription  = `description`
+	tagYaml         = "yaml"
+	tagDefaultValue = "default-value"
+	tagEnvName      = "env-name"
+	tagDescription  = "description"
 )
 
 const (

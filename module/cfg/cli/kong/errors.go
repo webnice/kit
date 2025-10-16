@@ -127,7 +127,7 @@ func (e *Error) HelperErrorDidYouMean(err error, hypothesis string) Err {
 
 // HelperErrorDidYouMeanOneOf ..., did you mean one of ...?
 func (e *Error) HelperErrorDidYouMeanOneOf(err error, hypothesis []string) Err {
-	const hypothesisDelimiter = `, `
+	const hypothesisDelimiter = ", "
 	return newErr(&errHelperErrorDidYouMeanOneOf, err, strings.Join(hypothesis, hypothesisDelimiter))
 }
 

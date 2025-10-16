@@ -10,7 +10,7 @@ import (
 	kitTypesDb "github.com/webnice/kit/v4/types/db"
 )
 
-// Структура объекта компоненты.
+// Объект сущности пакета.
 type impl struct {
 	cfg         kitModuleCfg.Interface
 	databaseSql *kitTypesDb.DatabaseSqlConfiguration
@@ -98,7 +98,7 @@ func (m8s *impl) Do() (levelDone bool, levelExit bool, err error) {
 func (m8s *impl) Finalize() (err error) { return }
 
 func (m8s *impl) isSkip() (ret bool) {
-	const cmdVersion, cmdConfig = `version`, `config`
+	const cmdVersion, cmdConfig = "version", "config"
 
 	// Для стандартной команды версии приложения миграцию не запускаем.
 	switch {

@@ -36,7 +36,7 @@ type Interface interface {
 	Errors() *Error
 }
 
-// Объект сущности, интерфейс Interface
+// Объект сущности пакета.
 type impl struct {
 	env                   ConstantEnvironmentName          // Названия специальных переменных окружения.
 	bootstrap             *kitTypes.BootstrapConfiguration // Базовая конфигурация приложения.

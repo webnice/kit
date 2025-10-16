@@ -46,7 +46,7 @@ func (u *uuid) MarshalBinary() (data []byte, err error) { data = u.Bytes(); retu
 
 // UnmarshalBinary Реализация интерфейса encoding.BinaryUnmarshaler.
 func (u *uuid) UnmarshalBinary(data []byte) (err error) {
-	const lengthError = `uuid должен быть длинной 16 байт`
+	const lengthError = "uuid должен быть длинной 16 байт"
 
 	if len(data) != size {
 		err = errors.New(lengthError)
@@ -108,7 +108,7 @@ func (u *uuid) MarshalJSON() ([]byte, error) { return u.MarshalText() }
 
 // Декодирование UUID из формата: "6ba7b810-9dad-11d1-80b4-00c04fd430c8".
 func (u *uuid) decodeCanonical(t []byte) (err error) {
-	const formatError = `не верный формат UUID`
+	const formatError = "не верный формат UUID"
 	var (
 		src       []byte
 		dst       []byte
@@ -151,7 +151,7 @@ func (u *uuid) decodeHashLike(t []byte) (err error) {
 
 // Декодирование UUID из формата: "{6ba7b810-9dad-11d1-80b4-00c04fd430c8}" или "{6ba7b8109dad11d180b400c04fd430c8}".
 func (u *uuid) decodeBraced(t []byte) (err error) {
-	const formatError = `не верный формат UUID`
+	const formatError = "не верный формат UUID"
 	var (
 		l int
 	)
@@ -167,7 +167,7 @@ func (u *uuid) decodeBraced(t []byte) (err error) {
 
 // Декодирование UUID из формата: "6ba7b810-9dad-11d1-80b4-00c04fd430c8" или "6ba7b8109dad11d180b400c04fd430c8".
 func (u *uuid) decodePlain(t []byte) (err error) {
-	const formatError = `не верный формат UUID`
+	const formatError = "не верный формат UUID"
 
 	switch len(t) {
 	case 32:
@@ -184,7 +184,7 @@ func (u *uuid) decodePlain(t []byte) (err error) {
 // Декодирование UUID из формата: "urn:uuid:6ba7b810-9dad-11d1-80b4-00c04fd430c8" или
 // "urn:uuid:6ba7b8109dad11d180b400c04fd430c8".
 func (u *uuid) decodeURN(t []byte) (err error) {
-	const formatError = `не верный формат UUID`
+	const formatError = "не верный формат UUID"
 	var (
 		total           int
 		urn_uuid_prefix []byte

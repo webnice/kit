@@ -49,7 +49,7 @@ type Essence interface {
 	Debug(debug bool) Essence
 }
 
-// Объект сущности, реализующий интерфейс Interface.
+// Объект сущности пакета.
 type impl struct {
 	debug     bool                     // Флаг режима отладки.
 	logger    kitTypes.Logger          // Интерфейс менеджера логирования.

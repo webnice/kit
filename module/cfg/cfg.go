@@ -17,7 +17,9 @@ import (
 	kitTypes "github.com/webnice/kit/v4/types"
 )
 
-// Get Функция возвращает интерфейс объекта пакета.
+// Get Получение объекта сущности пакета, возвращается интерфейс пакета.
+//
+//goland:noinspection GoUnusedExportedFunction
 func Get() Interface { return singleton }
 
 // RegistrationMain Регистрация основной функции приложения.
@@ -191,7 +193,7 @@ func (cfg *impl) FileSocket() string { return cfg.bootstrapConfiguration.SocketF
 
 // ConfigurationUnionSprintf Печать объединённой конфигурации приложения в строку.
 func (cfg *impl) ConfigurationUnionSprintf() (ret string) {
-	const structName = `*struct.UnionConfiguration`
+	const structName = "*struct.UnionConfiguration"
 
 	if cfg.conf != nil && cfg.conf.Union != nil {
 		ret = rexUnionStructureHeader.ReplaceAllString(debug.DumperString(cfg.conf.Union), structName)
