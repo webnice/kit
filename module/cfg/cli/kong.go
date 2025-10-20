@@ -208,7 +208,7 @@ func (cli *impl) KongVars() (ret []kitModuleCfgCliKong.Option) {
 func (cli *impl) KongHelpHelper() (ret []kitModuleCfgCliKong.Option) {
 	ret = append(ret, kitModuleCfgCliKong.ShortUsageOnError())
 	ret = append(ret, kitModuleCfgCliKong.HelpDisplaySetup(
-		helpKey, helpDescription, helpDescription, helpShorkKey, false),
+		helpKey, helpDescription, helpDescription, helpShortKey, false),
 	)
 	ret = append(ret, kitModuleCfgCliKong.UsageHelperFunc(func(name string, summary string) string {
 		return fmt.Sprintf(usageHelperTemplate, name, strings.TrimSpace(summary))

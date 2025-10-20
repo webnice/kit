@@ -13,7 +13,7 @@ type Configuration struct {
 	// Host Хост базы данных.
 	Host string `yaml:"Host"                                                        default-value:"localhost"`
 	// Port Порт подключения по протоколу tcp/ip.
-	Port int16 `yaml:"Port"                                                         default-value:"3306"`
+	Port uint16 `yaml:"Port"                                                        default-value:"3306"`
 	// Type Тип подключения к базе данных socket | tcp.
 	Type string `yaml:"Type"                                                        default-value:"tcp"`
 	// Socket Путь к socket файлу.
@@ -27,7 +27,7 @@ type Configuration struct {
 	// Migration Путь к папке с файлами миграций базы данных.
 	Migration string `yaml:"Migration"                                              default-value:"-"`
 
-	// Настройки соединения и библиотек.
+	// НАСТРОЙКИ СОЕДИНЕНИЯ И БИБЛИОТЕК
 
 	// Charset Кодировка данных.
 	Charset string `yaml:"Charset"                                                  default-value:"utf8"`
@@ -64,7 +64,7 @@ type Configuration struct {
 	// протокол.
 	PostgreSQLPreferSimpleProtocol bool `yaml:"PostgreSQLPreferSimpleProtocol"      default-value:"true"`
 
-	// Логирование запросов.
+	// ЖУРНАЛИРОВАНИЕ ЗАПРОСОВ
 
 	// Loglevel Уровень логирования SQL запросов.
 	// Драйвером базы данных и ОРМ используется ограниченное количество уровней логирования, все остальные уровни
