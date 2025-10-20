@@ -6,6 +6,7 @@ import (
 	"sync"
 
 	kitModuleCfg "github.com/webnice/kit/v4/module/cfg"
+	kitModuleDbSqlTypes "github.com/webnice/kit/v4/module/db/sql/types"
 	kitTypes "github.com/webnice/kit/v4/types"
 	kitTypesDb "github.com/webnice/kit/v4/types/db"
 
@@ -42,23 +43,15 @@ func Free() { singleton = nil }
 
 // Создание нового объекта подключения к базе данных.
 func constructor() (mys *impl) {
-	var onDone chan struct{}
+	var config *kitTypesDb.DatabaseSqlConfiguration
 
-	mys = &impl{
-		databaseSql: new(kitTypesDb.DatabaseSqlConfiguration),
-		connectMux:  new(sync.RWMutex),
-	}
+	mys = new(impl)
+	config = new(kitTypesDb.DatabaseSqlConfiguration)
 	if mys.error = kitModuleCfg.Get().
-		ConfigurationCopyByObject(mys.databaseSql); mys.error != nil {
+		ConfigurationCopyByObject(config); mys.error != nil {
 		return mys
 	}
-	mys.cfg = &mys.databaseSql.SqlDB
-	// Запуск подключения в отдельном процессе.
-	onDone = make(chan struct{})
-	go mys.makeConnect(onDone)
-	// Ожидание запуска процесса подключения и настройки соединения.
-	<-onDone
-	close(onDone)
+	mys.error = mys.newConfigurationSet(&config.SqlDB)
 	runtime.SetFinalizer(mys, destructor)
 
 	return
@@ -70,6 +63,21 @@ func destructor(mys *impl) {
 		return
 	}
 	_ = mys.Close()
+}
+
+// Установка конфигурации подключения к базе данных и выполнение установки соединения.
+func (mys *impl) newConfigurationSet(cfg *kitModuleDbSqlTypes.Configuration) (err error) {
+	var onDone chan struct{}
+
+	mys.connectMux, mys.cfg = new(sync.RWMutex), cfg
+	// Запуск подключения в отдельном процессе.
+	onDone = make(chan struct{})
+	go mys.makeConnect(onDone)
+	// Ожидание запуска процесса подключения и настройки соединения.
+	<-onDone
+	close(onDone)
+
+	return
 }
 
 // Выполнение подключения к базе данных и настройки соединения.

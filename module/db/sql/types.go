@@ -7,7 +7,6 @@ import (
 
 	kitModuleDbSqlTypes "github.com/webnice/kit/v4/module/db/sql/types"
 	kmll "github.com/webnice/kit/v4/module/log/level"
-	kitTypesDb "github.com/webnice/kit/v4/types/db"
 
 	"github.com/jmoiron/sqlx"
 	"gorm.io/gorm"
@@ -68,12 +67,11 @@ type Interface interface {
 
 // Объект сущности пакета.
 type impl struct {
-	databaseSql *kitTypesDb.DatabaseSqlConfiguration // Конфигурация для подключения к базе данных.
-	cfg         *kitModuleDbSqlTypes.Configuration   // Сегмент конфигурации для подключения к базе данных.
-	dsn         string                               // Строка в формате DSN для подключения к базе данных.
-	error       error                                // Последняя ошибка, возникшая при работе с соединением или драйвером базы данных.
-	connect     *sql.DB                              // Установленное соединение с базой данных.
-	connectMux  *sync.RWMutex                        // Блокировка доступа на время установки соединения или переподключения.
+	cfg        *kitModuleDbSqlTypes.Configuration // Конфигурация подключения к базе данных.
+	dsn        string                             // Строка в формате DSN для подключения к базе данных.
+	error      error                              // Последняя ошибка, возникшая при работе с соединением или драйвером базы данных.
+	connect    *sql.DB                            // Установленное соединение с базой данных.
+	connectMux *sync.RWMutex                      // Блокировка доступа на время установки соединения или переподключения.
 }
 
 // Implementation Встраиваемая структура в модель базы данных, для лёгкого подключения "по требованию" к базе данных.

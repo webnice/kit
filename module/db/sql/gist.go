@@ -2,6 +2,9 @@ package sql
 
 import (
 	"context"
+	"runtime"
+
+	kitModuleDbSqlTypes "github.com/webnice/kit/v4/module/db/sql/types"
 
 	"github.com/jmoiron/sqlx"
 	"gorm.io/gorm"
@@ -27,6 +30,20 @@ func (db *Implementation) Gorm(opts ...*Option) (ret *gorm.DB) {
 // Sqlx Настроенный и готовый к работе объект обёртки над соединением с БД github.com/jmoiron/sqlx.
 func (db *Implementation) Sqlx() *sqlx.DB { return db.getParent().SqlxDB() }
 
+// OptionSilent Полное отключение логирования запросов к базе данных.
+func (db *Implementation) OptionSilent() *Option {
+	return &Option{ctx: context.WithValue(context.Background(), keyContextLogLevel, keyLogSilent)}
+}
+
+// NewConfigurationSet Установка новой конфигурации подключения к базе данных.
+func (db *Implementation) NewConfigurationSet(cfg *kitModuleDbSqlTypes.Configuration) {
+	var mys = new(impl)
+
+	mys.error = mys.newConfigurationSet(cfg)
+	runtime.SetFinalizer(mys, destructor)
+	db.parent = mys
+}
+
 // Возвращает объект родителя, с запоминанием объекта.
 func (db *Implementation) getParent() Interface {
 	if db.parent != nil {
@@ -35,9 +52,4 @@ func (db *Implementation) getParent() Interface {
 	db.parent = Get()
 
 	return db.parent
-}
-
-// OptionSilent Полное отключение логирования запросов к базе данных.
-func (db *Implementation) OptionSilent() *Option {
-	return &Option{ctx: context.WithValue(context.Background(), keyContextLogLevel, keyLogSilent)}
 }
