@@ -43,7 +43,10 @@ func Free() { singleton = nil }
 
 // Создание нового объекта подключения к базе данных.
 func constructor() (mys *impl) {
-	var config *kitTypesDb.DatabaseSqlConfiguration
+	var (
+		config *kitTypesDb.DatabaseSqlConfiguration
+		onDone chan struct{}
+	)
 
 	mys = new(impl)
 	config = new(kitTypesDb.DatabaseSqlConfiguration)
@@ -51,8 +54,12 @@ func constructor() (mys *impl) {
 		ConfigurationCopyByObject(config); mys.error != nil {
 		return mys
 	}
-	mys.error = mys.newConfigurationSet(&config.SqlDB)
+	onDone = make(chan struct{})
+	mys.error = mys.newConfigurationSet(onDone, &config.SqlDB)
 	runtime.SetFinalizer(mys, destructor)
+	// Ожидание запуска процесса подключения и настройки соединения.
+	<-onDone
+	close(onDone)
 
 	return
 }
@@ -66,16 +73,9 @@ func destructor(mys *impl) {
 }
 
 // Установка конфигурации подключения к базе данных и выполнение установки соединения.
-func (mys *impl) newConfigurationSet(cfg *kitModuleDbSqlTypes.Configuration) (err error) {
-	var onDone chan struct{}
-
+func (mys *impl) newConfigurationSet(onDone chan<- struct{}, cfg *kitModuleDbSqlTypes.Configuration) (err error) {
 	mys.connectMux, mys.cfg = new(sync.RWMutex), cfg
-	// Запуск подключения в отдельном процессе.
-	onDone = make(chan struct{})
 	go mys.makeConnect(onDone)
-	// Ожидание запуска процесса подключения и настройки соединения.
-	<-onDone
-	close(onDone)
 
 	return
 }
@@ -86,6 +86,8 @@ func (mys *impl) makeConnect(onDone chan<- struct{}) {
 
 	mys.connectMux.Lock()
 	defer mys.connectMux.Unlock()
+	// После выставления блокировки можно отпускать родительский поток,
+	// так как преждевременный повторный вызов упрётся в блокировку.
 	onDone <- struct{}{}
 	// Создание DSN для подключения к базе данных.
 	if mys.error = mys.makeDsn(); mys.error != nil {

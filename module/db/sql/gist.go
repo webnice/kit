@@ -37,10 +37,16 @@ func (db *Implementation) OptionSilent() *Option {
 
 // NewConfigurationSet Установка новой конфигурации подключения к базе данных.
 func (db *Implementation) NewConfigurationSet(cfg *kitModuleDbSqlTypes.Configuration) {
-	var mys = new(impl)
+	var (
+		mys    *impl
+		onDone chan struct{}
+	)
 
-	mys.error = mys.newConfigurationSet(cfg)
+	mys, onDone = new(impl), make(chan struct{})
+	mys.error = mys.newConfigurationSet(onDone, cfg)
 	runtime.SetFinalizer(mys, destructor)
+	<-onDone
+	close(onDone)
 	db.parent = mys
 }
 
