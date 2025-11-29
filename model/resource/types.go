@@ -6,8 +6,6 @@ import (
 	"time"
 )
 
-var singleton *Implementation
-
 // Interface Интерфейс пакета.
 type Interface interface {
 	// Add Добавление ресурса в группу ресурсов.
@@ -29,8 +27,8 @@ type Interface interface {
 
 // Implementation Встраиваемая структура в модель ресурсов.
 type Implementation struct {
-	res     map[string]map[string]*Resource // Карта ресурсов, map[название группы]map[название ресурса]*resource
-	resLock sync.RWMutex                    // Защита карты от конкурентного доступа на запись.
+	Res     map[string]map[string]*Resource // Карта ресурсов, map[название группы]map[название ресурса]*resource
+	ResLock sync.RWMutex                    // Защита карты от конкурентного доступа на запись.
 }
 
 // Resource Описание ресурса.

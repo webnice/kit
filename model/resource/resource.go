@@ -7,11 +7,9 @@ import (
 	"fmt"
 )
 
-func init() { singleton = constructor() }
-
-// Конструктор сущности пакета.
-func constructor() *Implementation {
-	var r6e = &Implementation{res: make(map[string]map[string]*Resource)}
+// Constructor Конструктор сущности пакета.
+func Constructor() *Implementation {
+	var r6e = &Implementation{Res: make(map[string]map[string]*Resource)}
 	return r6e
 }
 
@@ -22,23 +20,23 @@ func (r6e *Implementation) Add(group string, name string, resource Resource) (er
 		n  int
 	)
 
-	r6e.resLock.Lock()
-	defer r6e.resLock.Unlock()
-	if _, ok = r6e.res[group]; !ok {
-		r6e.res[group] = make(map[string]*Resource)
+	r6e.ResLock.Lock()
+	defer r6e.ResLock.Unlock()
+	if _, ok = r6e.Res[group]; !ok {
+		r6e.Res[group] = make(map[string]*Resource)
 	}
-	if _, ok = r6e.res[group][name]; ok {
+	if _, ok = r6e.Res[group][name]; ok {
 		err = fmt.Errorf("ресурс %q в группе ресурсов %q уже существует", name, group)
 		return
 	}
-	r6e.res[group][name] = &Resource{
+	r6e.Res[group][name] = &Resource{
 		Size:        resource.Size,
 		Time:        resource.Time,
 		ContentType: resource.ContentType,
 		Content:     make([]byte, len(resource.Content)),
 	}
-	n = copy(r6e.res[group][name].Content, resource.Content)
-	if uint64(n) != r6e.res[group][name].Size {
+	n = copy(r6e.Res[group][name].Content, resource.Content)
+	if uint64(n) != r6e.Res[group][name].Size {
 		err = errors.New("размер контента в описании не соответствует фактическому размеру контента")
 		return
 	}
@@ -50,10 +48,10 @@ func (r6e *Implementation) Add(group string, name string, resource Resource) (er
 func (r6e *Implementation) Group() (ret []string) {
 	var group string
 
-	r6e.resLock.RLock()
-	defer r6e.resLock.RUnlock()
-	ret = make([]string, 0, len(r6e.res))
-	for group = range r6e.res {
+	r6e.ResLock.RLock()
+	defer r6e.ResLock.RUnlock()
+	ret = make([]string, 0, len(r6e.Res))
+	for group = range r6e.Res {
 		ret = append(ret, group)
 	}
 
@@ -67,13 +65,13 @@ func (r6e *Implementation) ResourceByGroup(group string) (ret []string) {
 		ok bool
 	)
 
-	r6e.resLock.RLock()
-	defer r6e.resLock.RUnlock()
-	if _, ok = r6e.res[group]; !ok {
+	r6e.ResLock.RLock()
+	defer r6e.ResLock.RUnlock()
+	if _, ok = r6e.Res[group]; !ok {
 		return
 	}
-	ret = make([]string, 0, len(r6e.res[group]))
-	for rn = range r6e.res[group] {
+	ret = make([]string, 0, len(r6e.Res[group]))
+	for rn = range r6e.Res[group] {
 		ret = append(ret, rn)
 	}
 
@@ -85,21 +83,21 @@ func (r6e *Implementation) ResourceByGroup(group string) (ret []string) {
 func (r6e *Implementation) ResourceData(group string, resource string) (ret *Resource) {
 	var ok bool
 
-	r6e.resLock.RLock()
-	defer r6e.resLock.RUnlock()
-	if _, ok = r6e.res[group]; !ok {
+	r6e.ResLock.RLock()
+	defer r6e.ResLock.RUnlock()
+	if _, ok = r6e.Res[group]; !ok {
 		return
 	}
-	if _, ok = r6e.res[group][resource]; !ok {
+	if _, ok = r6e.Res[group][resource]; !ok {
 		return
 	}
 	ret = &Resource{
-		Size:        r6e.res[group][resource].Size,
-		Time:        r6e.res[group][resource].Time,
-		ContentType: r6e.res[group][resource].ContentType,
-		Content:     make([]byte, len(r6e.res[group][resource].Content)),
+		Size:        r6e.Res[group][resource].Size,
+		Time:        r6e.Res[group][resource].Time,
+		ContentType: r6e.Res[group][resource].ContentType,
+		Content:     make([]byte, len(r6e.Res[group][resource].Content)),
 	}
-	copy(ret.Content, r6e.res[group][resource].Content)
+	copy(ret.Content, r6e.Res[group][resource].Content)
 
 	return
 }

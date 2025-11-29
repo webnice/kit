@@ -16,14 +16,7 @@ import kitModelResource "github.com/webnice/kit/v4/model/resource"
 // EMBEDDER_STATIC_BASE_DIR  - Корневая директория статических ресурсов.
 // EMBEDDER_STATIC_RESOURCES - Группы ресурсов и папками самих ресурсов.
 //                             Формат: group_name1:path/to/folder1,group_name2:path/to/folder2
-//go:generate go run "github.com/webnice/kit/v4/model/resource/embedder/embedder.go" --package "resource" --path "."
-
-// Создаются .go файлы по шаблону имени файла:
-// resource_content_{{ groupName }}_{{ resourceNumber }}.go
-// Где:
-// groupName      - строка приведённая к нижнему регистру не содержащая пробелы.
-// resourceNumber - порядковый номер ресурса в формате %020d.
-// Пример: resource_content_test_group_00000000000000000001.go
+//go:generate go run "github.com/webnice/kit/v4/model/resource/embedder" --package "resource" --path "."
 
 var singleton *impl
 
@@ -32,7 +25,7 @@ type impl struct {
 	kitModelResource.Implementation
 }
 
-func init() { singleton = new(impl) }
+func init() { singleton = &impl{Implementation: *kitModelResource.Constructor()} }
 
 // Get Получение объекта сущности пакета, возвращается интерфейс пакета.
 //
