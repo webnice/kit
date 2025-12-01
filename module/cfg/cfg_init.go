@@ -79,6 +79,7 @@ func (cfg *impl) initMainConfiguration() {
 		TempDirectory:          defaultTempDirectory,                // Директория для создания временных файлов (очищаемая системой).
 		CacheDirectory:         defaultCacheDirectory,               // Директория для кеша (не очищаемая системой).
 		ConfigDirectory:        defaultConfigDirectory,              // Директория конфигурации в домашней директории пользователя.
+		LogDirectory:           defaultLogDirectory,                 // Директория для файлов журнала приложения.
 		ConfigFile:             empty,                               // Путь и имя конфигурационного файла по умолчанию.
 		PidFile:                empty,                               // Путь и имя PID файла по умолчанию.
 		StateFile:              empty,                               // Файл состояния.

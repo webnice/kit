@@ -178,6 +178,7 @@ func (cli *impl) KongVars() (ret []kitModuleCfgCliKong.Option) {
 		varTempDirectory          = "TempDirectory"
 		varCacheDirectory         = "CacheDirectory"
 		varConfigDirectory        = "ConfigDirectory"
+		varLogDirectory           = "LogDirectory"
 		varConfigFile             = "ConfigFile"
 		varPidFile                = "PidFile"
 		varStateFile              = "StateFile"
@@ -194,6 +195,7 @@ func (cli *impl) KongVars() (ret []kitModuleCfgCliKong.Option) {
 		varTempDirectory:          cli.bootstrapDefaultValue.TempDirectory(),
 		varCacheDirectory:         cli.bootstrapDefaultValue.CacheDirectory(),
 		varConfigDirectory:        cli.bootstrapDefaultValue.ConfigDirectory(),
+		varLogDirectory:           cli.bootstrapDefaultValue.LogDirectory(),
 		varConfigFile:             cli.bootstrapDefaultValue.ConfigFile(),
 		varPidFile:                cli.bootstrapDefaultValue.PidFile(),
 		varStateFile:              cli.bootstrapDefaultValue.StateFile(),

@@ -101,6 +101,9 @@ func (essence *gist) UpdateBootstrapConfigurationPathValue() Essence {
 	if essence.parent.bootstrapConfiguration.ConfigDirectory != defaultConfigDirectory() {
 		essence.parent.AbsolutePathAndUpdate(&essence.parent.bootstrapConfiguration.ConfigDirectory)
 	}
+	if essence.parent.bootstrapConfiguration.LogDirectory != defaultLogDirectory() {
+		essence.parent.AbsolutePathAndUpdate(&essence.parent.bootstrapConfiguration.LogDirectory)
+	}
 
 	return essence
 }
@@ -277,6 +280,12 @@ func (essence *gist) DirectoryCache(acd string) Essence {
 // DirectoryConfig Установка значения директории для подключаемых или дополнительных конфигураций приложения.
 func (essence *gist) DirectoryConfig(afd string) Essence {
 	essence.parent.bootstrapConfiguration.ConfigDirectory = strings.TrimSpace(afd)
+	return essence
+}
+
+// DirectoryLog Установка значения директории для файлов журнала приложения.
+func (essence *gist) DirectoryLog(ald string) Essence {
+	essence.parent.bootstrapConfiguration.LogDirectory = strings.TrimSpace(ald)
 	return essence
 }
 

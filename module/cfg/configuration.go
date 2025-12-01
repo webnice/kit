@@ -292,6 +292,10 @@ func (essence *gist) configurationCopyBootstrapConfiguration() {
 	if dc.ConfigDirectory == defaultConfigDirectory() && sc.ConfigDirectory != "" {
 		dc.ConfigDirectory = essence.parent.AbsolutePath(sc.ConfigDirectory)
 	}
+	// Директория для файлов журнала приложения.
+	if dc.LogDirectory == defaultLogDirectory() && sc.LogDirectory != "" {
+		dc.LogDirectory = essence.parent.AbsolutePath(sc.LogDirectory)
+	}
 	// Путь и имя PID файла приложения.
 	if dc.PidFile == "" && sc.PidFile != "" {
 		dc.PidFile = essence.parent.AbsolutePath(sc.PidFile)

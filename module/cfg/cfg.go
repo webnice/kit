@@ -2,8 +2,10 @@ package cfg
 
 import (
 	"fmt"
+	"io"
 	"os"
 	"os/user"
+	"path"
 	"reflect"
 	"strings"
 
@@ -177,6 +179,11 @@ func (cfg *impl) DirectoryConfig() string {
 	return cfg.AbsolutePathAndUpdate(&cfg.bootstrapConfiguration.ConfigDirectory)
 }
 
+// DirectoryLog Значение директории для файлов журнала.
+func (cfg *impl) DirectoryLog() string {
+	return cfg.AbsolutePathAndUpdate(&cfg.bootstrapConfiguration.LogDirectory)
+}
+
 // FileConfig Значение пути и имени конфигурационного файла приложения.
 func (cfg *impl) FileConfig() string {
 	return cfg.AbsolutePathAndUpdate(&cfg.bootstrapConfiguration.ConfigFile)
@@ -190,6 +197,30 @@ func (cfg *impl) FileState() string { return cfg.bootstrapConfiguration.StateFil
 
 // FileSocket Значение пути и имени сокет файла коммуникаций с приложением.
 func (cfg *impl) FileSocket() string { return cfg.bootstrapConfiguration.SocketFile }
+
+// FileLogWithName Создание или открытие на запись файла журнала, в директории для журналов, с указанием
+// названия файла журнала. Возвращается писатель, который необходимо закрыть, после окончания записи данных в журнал.
+func (cfg *impl) FileLogWithName(logName string) (ret io.WriteCloser, err error) {
+	const dirMode, fileMode = os.FileMode(0750), os.FileMode(0640)
+	var (
+		directoryName string
+		fileName      string
+		fileHandle    *os.File
+	)
+
+	directoryName = cfg.DirectoryLog()
+	switch err = os.MkdirAll(directoryName, dirMode); {
+	case err == nil:
+	default:
+		return
+	}
+	fileName = path.Join(cfg.DirectoryLog(), logName)
+	if fileHandle, err = os.OpenFile(fileName, os.O_APPEND|os.O_CREATE|os.O_WRONLY, fileMode); err == nil {
+		ret = fileHandle
+	}
+
+	return
+}
 
 // ConfigurationUnionSprintf Печать объединённой конфигурации приложения в строку.
 func (cfg *impl) ConfigurationUnionSprintf() (ret string) {

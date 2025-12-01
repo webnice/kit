@@ -33,6 +33,7 @@ const (
 	envNameAnchorForTempDirectory                  = "APPLICATION_TEMP_DIRECTORY"
 	envNameAnchorForCacheDirectory                 = "APPLICATION_CACHE_DIRECTORY"
 	envNameAnchorForConfigDirectory                = "APPLICATION_CONF_DIRECTORY"
+	envNameAnchorForLogDirectory                   = "APPLICATION_LOG_DIRECTORY"
 	envNameAnchorForConfigFile                     = "APPLICATION_CONFIGURATION"
 	envNameAnchorForPidFile                        = "APPLICATION_PID"
 	envNameAnchorForStateFile                      = "APPLICATION_STATE"

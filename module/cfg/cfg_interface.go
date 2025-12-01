@@ -1,6 +1,7 @@
 package cfg
 
 import (
+	"io"
 	"os/user"
 	"reflect"
 
@@ -114,6 +115,9 @@ type Interface interface {
 	// DirectoryConfig Значение директории для подключаемых или дополнительных конфигураций приложения.
 	DirectoryConfig() string
 
+	// DirectoryLog Значение директории для файлов журнала.
+	DirectoryLog() string
+
 	// FileConfig Значение пути и имени конфигурационного файла приложения.
 	FileConfig() string
 
@@ -125,6 +129,10 @@ type Interface interface {
 
 	// FileSocket Значение пути и имени сокет файла коммуникаций с приложением.
 	FileSocket() string
+
+	// FileLogWithName Создание или открытие на запись файла журнала, в директории для журналов, с указанием
+	// названия файла журнала. Возвращается писатель, который необходимо закрыть, после окончания записи данных в журнал.
+	FileLogWithName(logName string) (ret io.WriteCloser, err error)
 
 	// КОНФИГУРАЦИЯ.
 

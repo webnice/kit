@@ -43,14 +43,13 @@ func defaultApplicationDebugString() string { return strconv.FormatBool(defaultA
 
 // Название приложения.
 func defaultApplicationName() (ret string) {
-	const osWindows = "windows"
 	var tmp []string
 
 	if tmp = strings.Split(os.Args[0], string(os.PathSeparator)); len(tmp) > 0 {
 		ret = tmp[len(tmp)-1]
 	}
 	switch runtime.GOOS {
-	case osWindows:
+	case keyOsWindows:
 		tmp = strings.Split(filepath.Base(ret), `.`)
 		ret = tmp[len(tmp)-2]
 	}
@@ -118,7 +117,6 @@ func defaultTempDirectory() (ret string) {
 // Директория для файлов кеширования.
 func defaultCacheDirectory() (ret string) {
 	const (
-		windowsName    = "windows"
 		homePathSymbol = "~"
 		unixPath       = "/var/cache"
 		windowsPath    = "AppData\\Local\\Packages"
@@ -128,7 +126,7 @@ func defaultCacheDirectory() (ret string) {
 	if defaultCacheDirectoryOriginal == "" {
 		if defaultCacheDirectoryOriginal, err = os.UserCacheDir(); err != nil {
 			switch runtime.GOOS {
-			case windowsName:
+			case keyOsWindows:
 				defaultCacheDirectoryOriginal = path.Join(homePathSymbol, windowsPath, defaultApplicationName())
 			default:
 				defaultCacheDirectoryOriginal = path.Join(unixPath, defaultApplicationName())
@@ -144,7 +142,6 @@ func defaultCacheDirectory() (ret string) {
 // Директория конфигурации в домашней директории пользователя.
 func defaultConfigDirectory() (ret string) {
 	const (
-		windowsName    = "windows"
 		homePathSymbol = "~"
 		unixPath       = ".config"
 		windowsPath    = "AppData\\Roaming"
@@ -154,7 +151,7 @@ func defaultConfigDirectory() (ret string) {
 	if defaultConfigDirectoryOriginal == "" {
 		if defaultConfigDirectoryOriginal, err = os.UserConfigDir(); err != nil {
 			switch runtime.GOOS {
-			case windowsName:
+			case keyOsWindows:
 				defaultConfigDirectoryOriginal = path.Join(homePathSymbol, windowsPath, defaultApplicationName())
 			default:
 				defaultConfigDirectoryOriginal = path.Join(`~`, unixPath, defaultApplicationName())
@@ -163,6 +160,31 @@ func defaultConfigDirectory() (ret string) {
 		defaultConfigDirectoryOriginal = AbsolutePath(defaultConfigDirectoryOriginal)
 	}
 	ret = defaultConfigDirectoryOriginal
+
+	return
+}
+
+// Директория для файлов журнала приложения.
+func defaultLogDirectory() (ret string) {
+	const (
+		homePathSymbol = "~"
+		unixPath       = "/var/log"
+		windowsPath    = "AppData\\Local"
+	)
+	var err error
+
+	if defaultLogDirectoryOriginal == "" {
+		if defaultLogDirectoryOriginal, err = os.UserHomeDir(); err != nil {
+			switch runtime.GOOS {
+			case keyOsWindows:
+				defaultLogDirectoryOriginal = path.Join(homePathSymbol, windowsPath, defaultApplicationName())
+			default:
+				defaultLogDirectoryOriginal = path.Join(unixPath, defaultApplicationName())
+			}
+		}
+		defaultLogDirectoryOriginal = AbsolutePath(defaultLogDirectoryOriginal)
+	}
+	ret = defaultLogDirectoryOriginal
 
 	return
 }
@@ -208,6 +230,7 @@ func defaultConstantEnvironment() (ret kitModuleCfgCli.ConstantEnvironmentName) 
 		{kitModuleCfgConst.EnvironmentTempDirectory, envNameAnchorForTempDirectory},
 		{kitModuleCfgConst.EnvironmentCacheDirectory, envNameAnchorForCacheDirectory},
 		{kitModuleCfgConst.EnvironmentConfigDirectory, envNameAnchorForConfigDirectory},
+		{kitModuleCfgConst.EnvironmentLogDirectory, envNameAnchorForLogDirectory},
 		{kitModuleCfgConst.EnvironmentConfigFile, envNameAnchorForConfigFile},
 		{kitModuleCfgConst.EnvironmentPidFile, envNameAnchorForPidFile},
 		{kitModuleCfgConst.EnvironmentStateFile, envNameAnchorForStateFile},
