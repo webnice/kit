@@ -73,7 +73,7 @@ func init() {
 
 var (
 	templateEmbed      = template.Must(template.New("").Parse(tpl))
-	rexResourcePattern = regexp.MustCompile(`(?mi)^resource_content_.*_\d{20}\.go`)
+	rexResourcePattern = regexp.MustCompile(`(?mi)^resource_content_(.*)_(\d{20})\.go$`)
 )
 
 type (
@@ -82,6 +82,7 @@ type (
 		Path    string                   // Директория размещения создаваемых файлов.
 		WorkDir string                   // Текущая рабочая директория.
 		BaseDir string                   // Корневая директория статических ресурсов.
+		Source  []string                 // Обрабатываемые в настоящий момент группы ресурсов.
 		Sources map[string]resourceGroup // Встраиваемые ресурсы.
 	}
 	resourceGroup struct {
@@ -156,6 +157,7 @@ func getArg() (cfg *configuration, err error) {
 			continue
 		}
 		source = strings.ToLower(tmp[0])
+		cfg.Source = append(cfg.Source, source)
 		tmp[1] = abs(cfg.BaseDir, tmp[1])
 		cfg.Sources[source] = resourceGroup{Path: tmp[1]}
 	}
@@ -302,11 +304,13 @@ func getSliceOfBytesAsString(bytes []byte) (ret *strings.Builder) {
 	return
 }
 
-// Удаление старых ресурсов.
+// Удаление старых ресурсов. но только групп ресурсов которые сейчас обрабатываются.
 func cleanResourceContent(cfg *configuration) (err error) {
 	var (
-		fid []fs.DirEntry
-		n   int
+		fid   []fs.DirEntry
+		n, j  int
+		tmp   []string
+		found bool
 	)
 
 	if fid, err = os.ReadDir(cfg.Path); err != nil {
@@ -317,7 +321,16 @@ func cleanResourceContent(cfg *configuration) (err error) {
 		if fid[n].IsDir() {
 			continue
 		}
-		if !rexResourcePattern.MatchString(fid[n].Name()) {
+		if tmp = rexResourcePattern.FindStringSubmatch(fid[n].Name()); len(tmp) <= 2 {
+			continue
+		}
+		found = false
+		for j = range cfg.Source {
+			if cfg.Source[j] == tmp[1] {
+				found = true
+			}
+		}
+		if !found {
 			continue
 		}
 		if err = os.Remove(path.Join(cfg.Path, fid[n].Name())); err != nil {
