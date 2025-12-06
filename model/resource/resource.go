@@ -118,6 +118,8 @@ func (r6e *Implementation) ResourceByGroupTarReader(group string) (ret *bytes.Re
 		data *Resource
 	)
 
+	r6e.ResLock.RLock()
+	defer r6e.ResLock.RUnlock()
 	buf = new(bytes.Buffer)
 	tw = tar.NewWriter(buf)
 	for _, name = range r6e.ResourceByGroup(group) {
