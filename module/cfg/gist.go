@@ -82,6 +82,17 @@ func (essence *gist) Debug(debug bool) Essence {
 	return essence
 }
 
+// NoPidFileSet Установка значения флага запрета работы плагина pidfile.
+// Используется для режима работы с коммандами в качестве утилиты коммандной строки.
+func (essence *gist) NoPidFileSet(noPidFile bool) Essence {
+	essence.parent.noPidFile = noPidFile
+
+	return essence
+}
+
+// NoPidFileGet Получение значения флага запрета работы плагина pidfile.
+func (essence *gist) NoPidFileGet() bool { return essence.parent.noPidFile }
+
 // UpdateBootstrapConfigurationPathValue Коррекция значений стартовой конфигурация приложения, если они были загружены
 // из командной строки или переменной окружения, то есть не равны значениям по умолчанию.
 func (essence *gist) UpdateBootstrapConfigurationPathValue() Essence {

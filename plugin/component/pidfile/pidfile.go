@@ -69,7 +69,10 @@ func (pid *impl) Initiate() (err error) {
 
 // Do Выполнение компонента приложения.
 func (pid *impl) Do() (levelDone bool, levelExit bool, err error) {
-	if pid.isSkip() {
+	if pid.isSkip() { // Запрет запуска плагина для команд.
+		return
+	}
+	if pid.cfg.Gist().NoPidFileGet() { // Запрет запуска плагина через флаг.
 		return
 	}
 	if pid.pfnm = pid.cfg.FilePid(); pid.pfnm == "" {
@@ -115,7 +118,10 @@ func (pid *impl) Do() (levelDone bool, levelExit bool, err error) {
 func (pid *impl) Finalize() (err error) {
 	var isRm bool
 
-	if pid.isSkip() {
+	if pid.isSkip() { // Запрет запуска плагина для команд.
+		return
+	}
+	if pid.cfg.Gist().NoPidFileGet() { // Запрет запуска плагина через флаг.
 		return
 	}
 	// Снятие блокировки с файла

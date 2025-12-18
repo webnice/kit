@@ -37,6 +37,13 @@ type Essence interface {
 	// Debug Присвоение нового значения режима отладки приложения.
 	Debug(debug bool) Essence
 
+	// NoPidFileSet Установка значения флага запрета работы плагина pidfile.
+	// Используется для режима работы с коммандами в качестве утилиты коммандной строки.
+	NoPidFileSet(noPidFile bool) Essence
+
+	// NoPidFileGet Получение значения флага запрета работы плагина pidfile.
+	NoPidFileGet() bool
+
 	// UpdateBootstrapConfigurationPathValue Коррекция значений стартовой конфигурация приложения, если они были загружены
 	// из командной строки или переменной окружения, то есть не равны значениям по умолчанию
 	UpdateBootstrapConfigurationPathValue() Essence

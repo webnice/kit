@@ -50,6 +50,7 @@ type impl struct {
 	cacheForkWorker           *kitTypes.BootstrapConfigurationForkWorker // Параметры работы в режиме fork worker - кеш.
 	user                      *user.User                                 // Текущий пользователь операционной системы.
 	rawWriter                 kitTypes.SyncWriter                        // Интерфейс вывода потоковых сообщений.
+	noPidFile                 bool                                       // Запрет работы плагина pidfile, используется для режима утилит и комманд.
 
 	// Выделенные в отдельные сущности интерфейсы.
 
