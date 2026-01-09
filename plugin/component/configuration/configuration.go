@@ -31,7 +31,7 @@ func (ccf *impl) Preferences() kitTypes.ComponentPreferences {
 		Command: []kitTypes.ComponentCommand{
 			{}, // Компонента будет запускаться как для своих команд, так и для любой другой команды.
 			{
-				Command:          "config",
+				Command:          cmdConfig,
 				Description:      "Работа с конфигурационным файлом приложения.",
 				Value:            ccf.cmd,
 				GroupKey:         "main",
@@ -57,6 +57,11 @@ func (ccf *impl) Initiate() (err error) {
 		cmd        []string
 	)
 
+	if ccf.cfg.Command() == cmdConfig {
+		// Отключение плагинов для выполнения собственной команды.
+		ccf.cfg.Gist().NoPidFileSet(true)
+		ccf.cfg.Gist().NoDbMigrationSet(true)
+	}
 	// Инициализация конфигурационного файла приложения не выполняется для команд config create и config test
 	if ccf.cfg.Command() == cmdConfig && len(ccf.cfg.CommandFull()) > 1 {
 		switch cmd = ccf.cfg.CommandFull(); cmd[1] {

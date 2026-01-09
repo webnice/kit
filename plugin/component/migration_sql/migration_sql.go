@@ -107,6 +107,14 @@ func (m8s *impl) isSkip() (ret bool) {
 	case strings.HasPrefix(m8s.cfg.Command(), cmdConfig):
 		ret = true
 	}
+	// Если отменено создание pid файла, тогда приложение работает в режиме cli - миграцию не запускаем.
+	if m8s.cfg.Gist().NoPidFileGet() {
+		ret = true
+	}
+	// Если явно указан запрет применения миграций.
+	if m8s.cfg.Gist().NoDbMigrationGet() {
+		ret = true
+	}
 
 	return
 }

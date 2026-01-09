@@ -83,7 +83,7 @@ func (essence *gist) Debug(debug bool) Essence {
 }
 
 // NoPidFileSet Установка значения флага запрета работы плагина pidfile.
-// Используется для режима работы с коммандами в качестве утилиты коммандной строки.
+// Используется для режима работы приложения в качестве утилиты командной строки.
 func (essence *gist) NoPidFileSet(noPidFile bool) Essence {
 	essence.parent.noPidFile = noPidFile
 
@@ -92,6 +92,17 @@ func (essence *gist) NoPidFileSet(noPidFile bool) Essence {
 
 // NoPidFileGet Получение значения флага запрета работы плагина pidfile.
 func (essence *gist) NoPidFileGet() bool { return essence.parent.noPidFile }
+
+// NoDbMigrationSet Установка значения флага запрета применения миграций базы данных.
+// Используется для режима работы приложения в качестве утилиты командной строки.
+func (essence *gist) NoDbMigrationSet(noDbMigration bool) Essence {
+	essence.parent.noDbMigration = noDbMigration
+
+	return essence
+}
+
+// NoDbMigrationGet Получение значения флага запрета применения миграций базы данных.
+func (essence *gist) NoDbMigrationGet() bool { return essence.parent.noDbMigration }
 
 // UpdateBootstrapConfigurationPathValue Коррекция значений стартовой конфигурация приложения, если они были загружены
 // из командной строки или переменной окружения, то есть не равны значениям по умолчанию.

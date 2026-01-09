@@ -8,6 +8,8 @@ import (
 	kitTypes "github.com/webnice/kit/v4/types"
 )
 
+const cmdVersion = "version"
+
 // Объект сущности пакета.
 type impl struct {
 }
@@ -28,7 +30,7 @@ func (ver *impl) Preferences() kitTypes.ComponentPreferences {
 		Runlevel: 100,
 		Command: []kitTypes.ComponentCommand{
 			{
-				Command:          "version",
+				Command:          cmdVersion,
 				Description:      "Отображение версии приложения и завершение работы.",
 				GroupKey:         "main",
 				GroupTitle:       "Основные режимы работы:",
@@ -39,7 +41,15 @@ func (ver *impl) Preferences() kitTypes.ComponentPreferences {
 }
 
 // Initiate Функция инициализации компонента и подготовки компонента к запуску.
-func (ver *impl) Initiate() (err error) { return }
+func (ver *impl) Initiate() (err error) {
+	if kitModuleCfg.Get().Command() == cmdVersion {
+		// Отключение плагинов для выполнения собственной команды.
+		kitModuleCfg.Get().Gist().NoPidFileSet(true)
+		kitModuleCfg.Get().Gist().NoDbMigrationSet(true)
+	}
+
+	return
+}
 
 // Do Выполнение компонента приложения.
 func (ver *impl) Do() (levelDone bool, levelExit bool, err error) {
