@@ -22,13 +22,13 @@ func (app *impl) initiateFn(component *kitTypes.ComponentInfo) (err error) {
 				Bind(component.ComponentName, e, kitModuleTrace.StackShort())
 		}
 	}()
-	// Создание контекста контроля таймаута.
+	// Создание контекста контроля тайм-аута.
 	ctx, ctf = context.WithTimeout(context.Background(), component.InitiateTimeout)
 	defer ctf()
 	// Запуск функции Initiate() у компоненты с защитой от паники.
 	call = app.initiateCallFn(component.ComponentName, component.Component)
 	defer func() { close(call) }()
-	// Ожидание, либо таймаута, либо завершения функции Initiate().
+	// Ожидание, либо тайм-аута, либо завершения функции Initiate().
 	select {
 	case <-ctx.Done():
 		err = app.cfg.Errors().ComponentInitiateTimeout.
