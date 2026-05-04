@@ -39,6 +39,9 @@ func (tbt *impl) Printf(format string, v ...interface{}) { tbt.log().Warningf(fo
 // IsReady Флаг готовности телеграм бота к работе.
 func (tbt *impl) IsReady() bool { return tbt.botReady }
 
+// API Доступ к объекту BotAPI.
+func (tbt *impl) API() (ret *tgbotapi.BotAPI) { return tbt.api }
+
 // Установка объекта пакета в качестве менеджера журнала.
 func (tbt *impl) setLogger() {
 	if err := tgbotapi.
