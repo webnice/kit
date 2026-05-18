@@ -4,7 +4,7 @@ import (
 	"reflect"
 
 	kitModuleTrace "github.com/webnice/kit/v4/module/trace"
-	tgbotapi "github.com/webnice/tba/v9"
+	tgbotapi "github.com/webnice/tba/v10"
 )
 
 // Поиск в обновлении объекта пользователя и вызов функций подписки на событие OnTelegramUser.

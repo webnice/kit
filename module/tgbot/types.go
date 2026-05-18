@@ -12,7 +12,7 @@ import (
 
 	kitModuleCfg "github.com/webnice/kit/v4/module/cfg"
 	kitTypes "github.com/webnice/kit/v4/types"
-	tgbotapi "github.com/webnice/tba/v9"
+	tgbotapi "github.com/webnice/tba/v10"
 )
 
 // Interface Интерфейс пакета.

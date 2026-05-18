@@ -5,7 +5,7 @@ import (
 
 	"github.com/webnice/dic"
 	kitModuleTrace "github.com/webnice/kit/v4/module/trace"
-	tgbotapi "github.com/webnice/tba/v9"
+	tgbotapi "github.com/webnice/tba/v10"
 )
 
 // FindTelegramUser Поиск пользователя телеграм в объекте обновления.

@@ -2,7 +2,7 @@ package tgbot
 
 import (
 	"github.com/webnice/debug"
-	tgbotapi "github.com/webnice/tba/v9"
+	tgbotapi "github.com/webnice/tba/v10"
 )
 
 // ServeTelegram Основной стандартный обработчик обновлений телеграм.

@@ -1,6 +1,6 @@
 package tgbot
 
-import tgbotapi "github.com/webnice/tba/v9"
+import tgbotapi "github.com/webnice/tba/v10"
 
 // Chain возвращает тип промежуточного программного обеспечения из набора обработчиков
 // промежуточного программного обеспечения.

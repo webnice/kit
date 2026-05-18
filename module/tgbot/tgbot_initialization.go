@@ -12,7 +12,7 @@ import (
 	"strings"
 	"time"
 
-	tgbotapi "github.com/webnice/tba/v9"
+	tgbotapi "github.com/webnice/tba/v10"
 )
 
 // LogOut Выполнение процедуры завершения работы телеграм бота и обработки флага выхода с сервера.

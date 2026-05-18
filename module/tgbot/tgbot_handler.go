@@ -2,7 +2,7 @@ package tgbot
 
 import (
 	kitModuleTrace "github.com/webnice/kit/v4/module/trace"
-	tgbotapi "github.com/webnice/tba/v9"
+	tgbotapi "github.com/webnice/tba/v10"
 )
 
 // Handler Стандартный обработчик обновлений телеграм.

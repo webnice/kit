@@ -1,6 +1,6 @@
 package tgbot
 
-import tgbotapi "github.com/webnice/tba/v9"
+import tgbotapi "github.com/webnice/tba/v10"
 
 // IUpdatesFull Описание всех возможных методов пакета, отвечающего за функционал телеграм бота.
 // К регистрации допускаются объекты, которые удовлетворяют хотя бы один интерфейс.

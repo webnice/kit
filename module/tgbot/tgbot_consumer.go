@@ -1,6 +1,6 @@
 package tgbot
 
-import tgbotapi "github.com/webnice/tba/v9"
+import tgbotapi "github.com/webnice/tba/v10"
 
 // BusSubscribe Подписка на сообщения из шины данных.
 func (tbt *impl) BusSubscribe() {
