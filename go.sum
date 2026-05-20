@@ -171,8 +171,8 @@ github.com/webnice/migrate v1.0.2 h1:7WHsRTnbnYWVtnVtbKu0aAYqfLhUihbpBA/SyVk2sZI
 github.com/webnice/migrate v1.0.2/go.mod h1:tji21RcQoTqBg42R08tSkMWhw0Eca+bq4n9Qk30+8dQ=
 github.com/webnice/net v1.3.1 h1:X9gvk8CKV4qEFrmhPqKvI627mJ0p7byDN58RQENtwJE=
 github.com/webnice/net v1.3.1/go.mod h1:ugE2vdGbVAaaoiZJ4lgD0osc1w7cXx+jdzheATVnMDM=
-github.com/webnice/tba/v10 v10.0.0 h1:AD5qf4MyvAX+CjMCS7cMhzSBAvNeHex9Cto9bHr0Fbk=
-github.com/webnice/tba/v10 v10.0.0/go.mod h1:THAL4h/Bd+gVkUd5gfKTZSCwGkakla6i8jF9qFYq8jY=
+github.com/webnice/tba/v10 v10.0.1 h1:oRg673C0ULGU6agnnX0NE8/dZ0sIsicqU57lD7JxVCM=
+github.com/webnice/tba/v10 v10.0.1/go.mod h1:THAL4h/Bd+gVkUd5gfKTZSCwGkakla6i8jF9qFYq8jY=
 github.com/webnice/web/v3 v3.1.0 h1:FuAG5BFJIcusXmC2mEbObTBhqogBnQfTBXZxkZ6H01U=
 github.com/webnice/web/v3 v3.1.0/go.mod h1:vbm6ZEdXna9aIFzh3utJDxdaBAHFDFnKK0s0xgeeWtE=
 github.com/yuin/goldmark v1.4.13/go.mod h1:6yULJ656Px+3vBD8DxQVa3kxgyrAnzto9xy5taEt/CY=

@@ -14,7 +14,7 @@ require (
 	github.com/webnice/debug v1.1.1
 	github.com/webnice/dic v1.3.1
 	github.com/webnice/migrate v1.0.2
-	github.com/webnice/tba/v10 v10.0.0
+	github.com/webnice/tba/v10 v10.0.1
 	github.com/webnice/web/v3 v3.1.0
 	golang.org/x/image v0.40.0
 	golang.org/x/sys v0.44.0
