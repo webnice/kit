@@ -31,12 +31,16 @@ func (mys *impl) MigrationUp() (err error) {
 
 	// Соединение заблокировано, если оно находится в состоянии подключения или переподключения, необходимо подождать.
 	mys.connectMux.RLock()
-	mys.connectMux.RUnlock()
-	// Отключение таймаута на время применения миграций.
+	defer mys.connectMux.RUnlock()
+	// Отключение тайм-аута на время применения миграций.
 	if mys.connect != nil {
 		mys.connect.SetConnMaxLifetime(0)
 	}
-	defer func() { mys.connect.SetConnMaxLifetime(mys.cfg.MaxLifetimeConn) }()
+	defer func() {
+		if mys.connect != nil && mys.cfg != nil {
+			mys.connect.SetConnMaxLifetime(mys.cfg.MaxLifetimeConn)
+		}
+	}()
 	// Настройка диалекта библиотеки применения миграций.
 	if err = goose.SetDialect(mys.cfg.Driver); err != nil {
 		err = mys.Errors().UnknownDialect.Bind(mys.cfg.Driver, err)

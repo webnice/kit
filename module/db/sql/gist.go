@@ -44,6 +44,7 @@ func (db *Implementation) NewConfigurationSet(cfg *kitModuleDbSqlTypes.Configura
 
 	mys, onDone = new(impl), make(chan struct{})
 	mys.error = mys.newConfigurationSet(onDone, cfg)
+	//goland:noinspection GoDetectSetFinalizerUsages
 	runtime.SetFinalizer(mys, destructor)
 	<-onDone
 	close(onDone)

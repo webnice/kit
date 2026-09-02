@@ -56,6 +56,7 @@ func constructor() (mys *impl) {
 	}
 	onDone = make(chan struct{})
 	mys.error = mys.newConfigurationSet(onDone, &config.SqlDB)
+	//goland:noinspection GoDetectSetFinalizerUsages
 	runtime.SetFinalizer(mys, destructor)
 	// Ожидание запуска процесса подключения и настройки соединения.
 	<-onDone
