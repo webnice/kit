@@ -20,17 +20,21 @@ func New(fn CatchFn) Interface {
 		signal:     make(chan os.Signal, 100),
 	}
 	itp.isRun.Store(false)
-	runtime.SetFinalizer(itp, destructor)
+	runtime.AddCleanup(itp, destructor, cleanupResource{
+		doExitUp:   itp.doExitUp,
+		doExitDone: itp.doExitDone,
+		signal:     itp.signal,
+	})
 
 	return itp
 }
 
 // Деструктор.
-func destructor(itp *impl) {
+func destructor(res cleanupResource) {
 	defer func() { _ = recover() }()
-	close(itp.signal)
-	close(itp.doExitDone)
-	close(itp.doExitUp)
+	close(res.signal)
+	close(res.doExitDone)
+	close(res.doExitUp)
 }
 
 // Log Ссылка на менеджер логирования.
@@ -71,6 +75,7 @@ func (i7t *impl) Stop() Interface {
 	// Выход после того как убедимся что горутина остановилась.
 	i7t.doExitUp <- struct{}{}
 	<-i7t.doExitDone
+	i7t.isRun.Store(false)
 
 	return i7t
 }

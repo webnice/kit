@@ -23,5 +23,12 @@ type impl struct {
 	isRun      atomic.Value   // Флаг - горутина работает.
 }
 
+// cleanupResource Ресурсы, освобождаемые cleanup-функцией.
+type cleanupResource struct {
+	doExitUp   chan struct{}
+	doExitDone chan struct{}
+	signal     chan os.Signal
+}
+
 // CatchFn Описание функции вызываемой при поступлении прерывания от OS.
 type CatchFn func(os.Signal)
