@@ -6,18 +6,18 @@ import "os"
 const size = 16
 
 const (
-	// Варианты макета UUID
+	// Варианты макета UUID.
 	variantNCS       = VariantType(0) // NCS.
 	variantRFC4122   = VariantType(1) // RFC4122.
 	variantMicrosoft = VariantType(2) // Microsoft.
 	variantFuture    = VariantType(3) // Future.
 
-	// DCE домены для генерации UUID основанной на POSIX UID/GID.
+	// DCE домены для генерации UUID, основанной на POSIX UID/GID.
 	domainPerson = DomainType(0) // Person.
 	domainGroup  = DomainType(1) // Group.
 	domainOrg    = DomainType(2) // Org.
 
-	// Начало эпохи (15 октября 1582) и unix эпоха (1 января 1970).
+	// Начало эпохи (15 октября 1582) в 100-наносекундных интервалах.
 	epochStart = 122192928000000000
 )
 
@@ -33,7 +33,7 @@ var (
 	posixUID   = uint32(os.Getuid())
 	posixGID   = uint32(os.Getgid())
 
-	// NULL Специальный UUID состоящий из нулей, длинной 128 бит или 16 байт.
+	// NULL Специальный UUID, состоящий из нулей, длиной 128 бит или 16 байт.
 	NULL UUID = &uuid{data: [size]byte{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}}
 
 	// Version Поддерживаемые версии UUID.
@@ -45,6 +45,8 @@ var (
 		V4:      VersionType{value: 4, name: `V4`},      // V4 версия 4.
 		V5:      VersionType{value: 5, name: `V5`},      // V5 версия 5.
 		V6:      VersionType{value: 6, name: `V6`},      // V6 версия 6.
+		V7:      VersionType{value: 7, name: `V7`},      // V7 версия 7.
+		V8:      VersionType{value: 8, name: `V8`},      // V8 версия 8.
 	}
 
 	// Variant Варианты макета UUID.

@@ -25,7 +25,7 @@ func newUUID() *impl {
 // Bytes Возвращает срез байт.
 func (u *uuid) Bytes() []byte { return u.data[:] }
 
-// Version Возвращает версию алгоритма используемого при генерации UUID.
+// Version Возвращает версию алгоритма, используемого при генерации UUID.
 func (u *uuid) Version() (ret VersionType) {
 	switch u.data[6] >> 4 {
 	case Version.V1.value:
@@ -38,6 +38,12 @@ func (u *uuid) Version() (ret VersionType) {
 		ret = Version.V4
 	case Version.V5.value:
 		ret = Version.V5
+	case Version.V6.value:
+		ret = Version.V6
+	case Version.V7.value:
+		ret = Version.V7
+	case Version.V8.value:
+		ret = Version.V8
 	default:
 		ret = Version.Unknown
 	}
@@ -45,7 +51,7 @@ func (u *uuid) Version() (ret VersionType) {
 	return
 }
 
-// Variant Возвращает версию варианта макета.
+// Variant Возвращает вариант макета UUID.
 func (u *uuid) Variant() (ret VariantType) {
 	switch {
 	case (u.data[8] >> 7) == 0x00:
@@ -85,7 +91,7 @@ func (u *uuid) String() (ret string) {
 	return
 }
 
-// Equal Сравнение UUID. Возвращает истину, если переданный UUID эквивалентен UUID объекта. Иначе возвращается ложь.
+// Equal Сравнение UUID. Возвращает истину, если переданный UUID эквивалентен UUID объекта.
 func (u *uuid) Equal(uu UUID) bool { return bytes.Equal(u.data[:], uu.(*uuid).data[:]) }
 
 // SetVersion Устанавливает бит версии UUID.

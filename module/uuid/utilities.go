@@ -8,15 +8,17 @@ import (
 	"net"
 )
 
-// Возвращает MAC адрес сетевой карты.
+var netInterfaces = net.Interfaces
+
+// defaultHWAddrFunc возвращает MAC-адрес сетевой карты.
 func defaultHWAddrFunc() (ret net.HardwareAddr, err error) {
-	const errNotFound = "MAC HW address found"
+	const errNotFound = "MAC HW адрес не найден"
 	var (
 		ifaces []net.Interface
 		iface  net.Interface
 	)
 
-	if ifaces, err = net.Interfaces(); err != nil {
+	if ifaces, err = netInterfaces(); err != nil {
 		return
 	}
 	for _, iface = range ifaces {
@@ -30,10 +32,10 @@ func defaultHWAddrFunc() (ret net.HardwareAddr, err error) {
 	return
 }
 
-// Возвращает разницу между началом эпохи и текущим временем с погрешностью в 100 наносекунд.
+// getEpoch возвращает разницу между началом эпохи и текущим временем с точностью до 100 наносекунд.
 func (ui *impl) getEpoch() uint64 { return epochStart + uint64(ui.epochFunc().UnixNano()/100) }
 
-// Возвращает физический MAC адрес сетевой карты
+// getHardwareAddr возвращает физический MAC-адрес сетевой карты.
 func (ui *impl) getHardwareAddr() (ret []byte, err error) {
 	if ui.hardwareAddrOnce.Do(func() {
 		var hwAddress []byte
@@ -42,11 +44,11 @@ func (ui *impl) getHardwareAddr() (ret []byte, err error) {
 			copy(ui.hardwareAddr[:], hwAddress)
 			return
 		}
-		// Инициализация случайным значением в случае отсутствия реальных интерфейсов или не возможности доступа к ним.
+		// Инициализация случайным значением в случае отсутствия реальных интерфейсов или невозможности доступа к ним.
 		if _, err = io.ReadFull(ui.rand, ui.hardwareAddr[:]); err != nil {
 			return
 		}
-		// Установка мультикаст бита, рекомендованная в RFC 4122.
+		// Установка мультикаст-бита, рекомендованная в RFC 4122.
 		ui.hardwareAddr[0] |= 0x01
 	}); err != nil {
 		return
@@ -56,7 +58,7 @@ func (ui *impl) getHardwareAddr() (ret []byte, err error) {
 	return
 }
 
-// Возвращает текущее время и разницу времени основанную на эпохе.
+// getClockSequence возвращает текущее время и clock sequence, основанные на эпохе UUID.
 func (ui *impl) getClockSequence() (ret uint64, clockSequence uint16, err error) {
 	var buf []byte
 
@@ -80,7 +82,7 @@ func (ui *impl) getClockSequence() (ret uint64, clockSequence uint16, err error)
 	return
 }
 
-// Возвращает UUID основанный на хэше от пространства имён и названии.
+// newFromHash возвращает UUID, основанный на хеше от пространства имён и имени.
 func (ui *impl) newFromHash(h hash.Hash, namespace NamespaceType, name string) (ret *uuid) {
 	ret = &uuid{data: namespace}
 	h.Write(namespace[:])
