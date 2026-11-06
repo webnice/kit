@@ -2,7 +2,7 @@ package fmt
 
 import "fmt"
 
-// PhoneNumberFormat Форматирование номера телефона, все форматы.
+// PhoneNumberFormat форматирует телефонный номер по количеству цифр.
 func PhoneNumberFormat(src string) (ret string) {
 	const (
 		fmt23  = "%s-%s"

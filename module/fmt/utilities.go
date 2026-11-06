@@ -2,7 +2,7 @@ package fmt
 
 import "strings"
 
-// Удаление из строки всех символов кроме числовых.
+// stripNumbers оставляет в строке только цифры.
 func stripNumbers(s string) string {
 	var (
 		result strings.Builder

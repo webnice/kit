@@ -36,7 +36,7 @@ func TestPhoneNumberFormat(t *testing.T) {
 		if result != tests[key].Expected {
 			t.Log(tests[key].Expected)
 			t.Log(result)
-			t.Fatalf("Tест %q провален.", key)
+			t.Fatalf("Тест %q провален.", key)
 		}
 	}
 }

@@ -9,7 +9,7 @@ func TestStripNumbers(t *testing.T) {
 		"L:|ZXCVBNM<>?§1234567890-="
 	rsp := stripNumbers(src)
 	if rsp != expected {
-		t.Errorf("Ошибка функции stripNumbers(), ожидалось %q, получено %q", expected, rsp)
+		t.Errorf("stripNumbers(): ожидалось %q, получено %q", expected, rsp)
 		return
 	}
 }
