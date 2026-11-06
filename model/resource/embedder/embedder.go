@@ -350,13 +350,13 @@ func makeResourceContent(cfg *configuration) (err error) {
 		groupName string
 		n         int
 		info      resourceInfo
-		vars      map[string]interface{}
+		vars      map[string]any
 	)
 
 	for groupName = range cfg.Sources {
 		for n = range cfg.Sources[groupName].File {
 			info = cfg.Sources[groupName].File[n]
-			vars = make(map[string]interface{})
+			vars = make(map[string]any)
 			vars["package"] = cfg.Package
 			vars["group"] = groupName
 			vars["info"] = info
