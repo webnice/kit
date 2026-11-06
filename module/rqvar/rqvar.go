@@ -86,7 +86,7 @@ func (rqv *impl) Load(request *http.Request, variable any) (err error) {
 	// Функции вызываются после обработки всей структуры другими тегами.
 	for n = range flds {
 		field = item.FieldByName(flds[n].Name)
-		if !field.IsValid() || !field.CanSet() {
+		if !field.IsValid() || !field.CanSet() || !field.IsZero() {
 			continue
 		}
 		if tmp, ok = flds[n].Tag.Lookup(tagRqFunc); ok {

@@ -65,7 +65,7 @@ func TestGet(t *testing.T) {
 	singleton = nil
 	rqv = Get()
 	if singleton == nil {
-		t.Errorf("Не верное начальное значение singleton")
+		t.Errorf("Неверное начальное значение singleton")
 	}
 	if rqv.(*impl) != singleton {
 		t.Errorf("Ошибка в функции Get()")
@@ -353,7 +353,30 @@ func TestImpl_Load(t *testing.T) {
 		if test.responseExpected != string(test.responseData) {
 			t.Log(test.responseExpected)
 			t.Log(string(test.responseData))
-			t.Fatalf("Tест %q провален.", key)
+			t.Fatalf("Тест %q провален.", key)
 		}
+	}
+}
+
+type testCallFuncPriority struct {
+	Value string `header:"X-Value" call-func:"LoadValue"`
+}
+
+func (tcfp *testCallFuncPriority) LoadValue(rq *http.Request) string {
+	return "from-func"
+}
+
+func TestImpl_Load_CallFuncPriority(t *testing.T) {
+	var (
+		request = httptest.NewRequest(dic.Method().Get.String(), "/", nil)
+		obj     = new(testCallFuncPriority)
+	)
+	request.Header.Set("X-Value", "from-header")
+
+	if err := Get().Load(request, obj); err != nil {
+		t.Fatalf("Load() вернул ошибку: %v", err)
+	}
+	if obj.Value != "from-header" {
+		t.Fatalf("call-func перезаписал более приоритетный тег: %q", obj.Value)
 	}
 }
