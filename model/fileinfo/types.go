@@ -35,7 +35,7 @@ type Interface interface {
 	SetIsDir(isDir bool) Interface
 
 	// SetSys Установка нового значения для Sys().
-	SetSys(sys interface{}) Interface
+	SetSys(sys any) Interface
 }
 
 // Объект сущности пакета.
@@ -45,5 +45,5 @@ type impl struct {
 	mode    os.FileMode // Биты разрешения файла.
 	modTime time.Time   // Дата и время модификации файла.
 	isDir   bool        // Синоним для Mode().IsDir().
-	sys     interface{} // Базовый источник данных (может возвращать значение nil).
+	sys     any         // Базовый источник данных (может возвращать значение nil).
 }

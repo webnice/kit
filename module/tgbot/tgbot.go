@@ -31,10 +31,10 @@ func (tbt *impl) log() kitTypes.Logger { return tbt.cfg.Log() }
 func (tbt *impl) Errors() *Error { return Errors() }
 
 // Println Реализация интерфейса tgbotapi.BotLogger.
-func (tbt *impl) Println(v ...interface{}) { tbt.log().Warning(v...) }
+func (tbt *impl) Println(v ...any) { tbt.log().Warning(v...) }
 
 // Printf Реализация интерфейса tgbotapi.BotLogger.
-func (tbt *impl) Printf(format string, v ...interface{}) { tbt.log().Warningf(format, v...) }
+func (tbt *impl) Printf(format string, v ...any) { tbt.log().Warningf(format, v...) }
 
 // IsReady Флаг готовности телеграм бота к работе.
 func (tbt *impl) IsReady() bool { return tbt.botReady }

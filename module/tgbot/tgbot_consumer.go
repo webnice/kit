@@ -30,8 +30,8 @@ func (tbt *impl) BusUnsubscribe() {
 
 // KnownType Функция вызывается один раз, при регистрации подписчика в шине данных и должна вернуть срез структур
 // данных, которые готов получать подписчик. Для получения данных любого типа, необходимо вернуть срез нулевой длины.
-func (tbt *impl) KnownType() (ret []interface{}) {
-	return []interface{}{
+func (tbt *impl) KnownType() (ret []any) {
+	return []any{
 		new(tgbotapi.Update), // Новое сообщение от сервера телеграм.
 	}
 }
@@ -40,7 +40,7 @@ func (tbt *impl) KnownType() (ret []interface{}) {
 // В функцию передаются объекты, типы структур которых были получены через вызов функции KnownType()
 // Для синхронного вызова, функция должна вернуть ответа, он будет передан издателю.
 // Для асинхронного вызова, функция не должна возвращать никакие данные, ничего не будет передаваться издателю.
-func (tbt *impl) Consumer(_ bool, data interface{}) (ret []interface{}, errs []error) {
+func (tbt *impl) Consumer(_ bool, data any) (ret []any, errs []error) {
 	switch d := data.(type) {
 	// Новое обновление от сервера телеграм.
 	case *tgbotapi.Update:

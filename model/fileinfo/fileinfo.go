@@ -30,7 +30,7 @@ func (fif *impl) ModTime() time.Time { return fif.modTime }
 func (fif *impl) IsDir() bool { return fif.isDir }
 
 // Sys Базовый источник данных (может возвращать значение nil).
-func (fif *impl) Sys() interface{} { return fif.sys }
+func (fif *impl) Sys() any { return fif.sys }
 
 // CopyFrom Копирование значений из интерфейса переданного объекта и присваивание собственному объекту.
 func (fif *impl) CopyFrom(src os.FileInfo) Interface {
@@ -60,4 +60,4 @@ func (fif *impl) SetModTime(modTime time.Time) Interface { fif.modTime = modTime
 func (fif *impl) SetIsDir(isDir bool) Interface { fif.isDir = isDir; return fif }
 
 // SetSys Установка нового значения для Sys().
-func (fif *impl) SetSys(sys interface{}) Interface { fif.sys = sys; return fif }
+func (fif *impl) SetSys(sys any) Interface { fif.sys = sys; return fif }
