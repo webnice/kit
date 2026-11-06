@@ -50,8 +50,11 @@ func (ans *impl) Verify(variable any) (ret RestErrorInterface) {
 	default:
 		field, err = ans.verifyValidatorV10(variable)
 	}
-	// Если ошибок не найдено.
+	// Если ошибок полей не найдено, но была ошибка верификации, возвращается внутренняя ошибка.
 	if len(field) <= 0 {
+		if err != nil {
+			ret = ans.NewRestError(dic.Status().InternalServerError, err)
+		}
 		return
 	}
 	// Если ошибки есть, сбор всех ошибок в объект интерфейса RestErrorInterface.

@@ -1,6 +1,9 @@
 package ans
 
 import (
+	"encoding/json"
+	"io"
+
 	"github.com/webnice/dic"
 	kitTypes "github.com/webnice/kit/v4/types"
 )
@@ -9,6 +12,8 @@ const (
 	errEncode   = "сериализация в JSON прервана ошибкой: %s"
 	errResponse = "передача HTTP ответа прервана ошибкой: %s"
 )
+
+var jsonEncode = func(wr io.Writer, obj any) error { return json.NewEncoder(wr).Encode(obj) }
 
 // Essence Служебный публичный интерфейс.
 type Essence interface {

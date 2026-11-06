@@ -16,6 +16,7 @@ import (
 func (ans *impl) RqBytes(rq *http.Request) (ret *bytes.Buffer, err error) {
 	const (
 		errHttpRequest = "в качестве адреса *http.Request был передан nil"
+		errHttpBody    = "в качестве тела HTTP запроса был передан nil"
 		errIoCopy      = "чтение тела HTTP запроса прервано ошибкой: %s"
 		errLength      = "размер тела HTTP запроса (байт): %d, загружено (байт): %d"
 	)
@@ -23,6 +24,10 @@ func (ans *impl) RqBytes(rq *http.Request) (ret *bytes.Buffer, err error) {
 
 	if rq == nil {
 		err = errors.New(errHttpRequest)
+		return
+	}
+	if rq.Body == nil {
+		err = errors.New(errHttpBody)
 		return
 	}
 	defer func() {

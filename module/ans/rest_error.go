@@ -2,7 +2,6 @@ package ans
 
 import (
 	"bytes"
-	"encoding/json"
 	"errors"
 	"fmt"
 	"net/http"
@@ -70,11 +69,8 @@ func (reo *RestError) AddWithKey(field string, value string, msg string, key str
 
 // JsonBytes Сериализация в JSON.
 func (reo *RestError) JsonBytes() (ret *bytes.Buffer, err error) {
-	var enc *json.Encoder
-
 	ret = &bytes.Buffer{}
-	enc = json.NewEncoder(ret)
-	if err = enc.Encode(reo); err != nil {
+	if err = jsonEncode(ret, reo); err != nil {
 		ret, err = nil, fmt.Errorf(errEncode, err)
 		return
 	}

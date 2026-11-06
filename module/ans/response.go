@@ -71,7 +71,7 @@ func (ans *impl) BadRequestBytes(wr http.ResponseWriter, data []byte) Interface 
 // InternalServerError Ответ на запрос с кодом ошибки 500 и структурой описывающей ошибку.
 func (ans *impl) InternalServerError(wr http.ResponseWriter, err error) Interface {
 	if err != nil {
-		ans.logErrorf(err.Error())
+		ans.logErrorf("%s", err)
 	}
 	ans.
 		NewRestError(dic.Status().InternalServerError, err).
@@ -165,9 +165,10 @@ func (ans *impl) Json(wr http.ResponseWriter, status dic.IStatus, obj any) Inter
 		isSlice bool
 	)
 
-	// Для среза получаем длину.
-	switch reflect.TypeOf(obj).Kind() {
-	case reflect.Slice:
+	switch rvo = reflect.ValueOf(obj); {
+	case !rvo.IsValid():
+		length = 0
+	case rvo.Kind() == reflect.Slice:
 		isSlice, rvo = true, reflect.ValueOf(obj)
 		length = rvo.Len()
 	default:
