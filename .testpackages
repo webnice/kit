@@ -5,5 +5,10 @@ github.com/webnice/kit/v4/model/resource/embedder
 github.com/webnice/kit/v4/module/ambry
 github.com/webnice/kit/v4/module/ans
 github.com/webnice/kit/v4/module/bus
-github.com/webnice/kit/v4/module/pdw
 github.com/webnice/kit/v4/module/fmt
+github.com/webnice/kit/v4/module/interrupt
+github.com/webnice/kit/v4/module/lock
+github.com/webnice/kit/v4/module/pdw
+github.com/webnice/kit/v4/module/rqvar
+github.com/webnice/kit/v4/module/utility
+github.com/webnice/kit/v4/module/uuid
