@@ -22,18 +22,9 @@ func (aby *impl) Set(k any, v any) {
 // Если у ключа key не было значения, тогда устанавливается единственное значение.
 // Если у ключа key было значение, тогда новое значение добавляется в срез значений.
 func (aby *impl) Add(k any, v any) {
-	var ok bool
-
-	aby.RLock()
-	_, ok = aby.items[key(k)]
-	aby.RUnlock()
-	if ok {
-		aby.Lock()
-		aby.items[key(k)] = append(aby.items[key(k)], &item{Value: v})
-		aby.Unlock()
-	} else {
-		aby.Set(k, v)
-	}
+	aby.Lock()
+	aby.items[key(k)] = append(aby.items[key(k)], &item{Value: v})
+	aby.Unlock()
 }
 
 // Has Возвращается булево значение "истина", если ключ key, имеет хотя бы одно значение.
@@ -54,11 +45,10 @@ func (aby *impl) Get(k any) (ret any) {
 
 	aby.RLock()
 	value, ok = aby.items[key(k)]
-	aby.RUnlock()
-	if !ok {
-		return
+	if ok && len(value) > 0 {
+		ret = value[0].Value
 	}
-	ret = value[0].Value
+	aby.RUnlock()
 
 	return
 }
@@ -70,16 +60,14 @@ func (aby *impl) Del(k any) (ret any) {
 		ok    bool
 	)
 
-	aby.RLock()
-	value, ok = aby.items[key(k)]
-	aby.RUnlock()
-	if !ok {
-		return
-	}
 	aby.Lock()
-	delete(aby.items, key(k))
+	if value, ok = aby.items[key(k)]; ok {
+		delete(aby.items, key(k))
+		if len(value) > 0 {
+			ret = value[0].Value
+		}
+	}
 	aby.Unlock()
-	ret = value[0].Value
 
 	return
 }
@@ -90,6 +78,7 @@ func (aby *impl) Keys() (ret []any) {
 	var i key
 
 	aby.RLock()
+	ret = make([]any, 0, len(aby.items))
 	for i = range aby.items {
 		ret = append(ret, i)
 	}
@@ -109,13 +98,13 @@ func (aby *impl) GetAll(k any) (ret []any) {
 
 	aby.RLock()
 	value, ok = aby.items[key(k)]
+	ret = make([]any, 0, len(value))
+	if ok {
+		for n = range value {
+			ret = append(ret, value[n].Value)
+		}
+	}
 	aby.RUnlock()
-	if !ok {
-		return
-	}
-	for n = range value {
-		ret = append(ret, value[n].Value)
-	}
 
 	return
 }
