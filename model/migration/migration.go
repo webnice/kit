@@ -3,6 +3,8 @@ package migration
 import (
 	"database/sql"
 
+	kitModuleDbSql "github.com/webnice/kit/v4/module/db/sql"
+
 	"gorm.io/gorm"
 )
 
@@ -14,21 +16,33 @@ func New() Interface {
 	return mmn
 }
 
+func newWithDB(dbi kitModuleDbSql.Interface) Interface { return &impl{db: dbi} }
+
 // Errors Справочник всех ошибок пакета.
 func (mmn *impl) Errors() *Error { return Errors() }
+
+func (mmn *impl) gist() kitModuleDbSql.Interface {
+	if mmn.db != nil {
+		return mmn.db
+	}
+
+	return mmn.Gist()
+}
 
 // CurrentVersion Возвращается текущая версия схемы базы данных.
 func (mmn *impl) CurrentVersion() (ver *DbVersion, err error) {
 	var (
 		dbi *sql.DB
 		orm *gorm.DB
+		db  kitModuleDbSql.Interface
 	)
 
-	if orm = mmn.Gist().GormDB(); orm == nil {
+	db = mmn.gist()
+	if orm = db.GormDB(); orm == nil {
 		err = mmn.Errors().DatabaseIsNotInUse.Bind()
 		return
 	}
-	if dbi, err = mmn.Gist().GormDB().DB(); err != nil {
+	if dbi, err = orm.DB(); err != nil {
 		err = mmn.Errors().DatabaseIsNotInUse.Bind()
 		return
 	}
@@ -37,7 +51,7 @@ func (mmn *impl) CurrentVersion() (ver *DbVersion, err error) {
 		return
 	}
 	ver = new(DbVersion)
-	if err = mmn.Gorm().
+	if err = orm.
 		Where("`is_applied` = 1").
 		Order("`tstamp` DESC, `id` DESC").
 		Take(ver).

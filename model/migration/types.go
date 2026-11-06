@@ -16,4 +16,7 @@ type Interface interface {
 // Объект сущности пакета.
 type impl struct {
 	kitModuleDbSql.Implementation
+
+	// Переопределение подключения к базе данных, используется для тестирования.
+	db kitModuleDbSql.Interface
 }
