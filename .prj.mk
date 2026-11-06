@@ -21,6 +21,8 @@ endef
 
 ## Создание дополнительных директорий проекта, вызывается в make dep
 define PROJECT_FOLDERS
+	@mkdir -p ${DIR}/bin; true
+	@mkdir -p ${DIR}/pkg; true
 endef
 
 ## Сборка проекта

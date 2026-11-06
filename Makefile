@@ -1,10 +1,12 @@
-## Project tooling makefile.
-## Version: 03.04.2023.
+## Инструментарий проекта - Makefile.
+## Версия: 06.11.2026.
 
 ## Вычисление текущей директории проекта.
-export DIR   := $(strip $(shell dirname $(realpath $(lastword $(MAKEFILE_LIST)))))
+export DIR          := $(strip $(shell dirname $(realpath $(lastword $(MAKEFILE_LIST)))))
 ## Определение директории размещения бинарных файлов.
-export GOBIN := $(DIR)/bin
+export GOBIN        := $(DIR)/bin
+## Флаги для создание бинарника (производственный режим).
+export LDFLAGS_MODE  = $(shell if [ ! "${GO_SERVER_URL}" == "" ]; then echo '-s -w'; fi)
 ## Подключение переменных окружения проекта.
 ifneq ("$(wildcard $(DIR)/.env.mk)","")
 include $(DIR)/.env.mk
@@ -18,12 +20,12 @@ APP                 ?= $(shell basename $(DIR))
 APP_PACKAGE         ?= $(shell cat go.mod | grep -E '^module\s+(.*)' | awk -F ' ' '{ print $$2 }')
 GOPATH              := $(GOPATH)
 DATE                := $(shell date -u +%Y%m%d.%H%M%S.%Z)
-LDFLAGS              = -X main.build=$(DATE) $(PROJECT_LDFLAGS:'')
+LDFLAGS              = -X main.build=$(DATE) $(LDFLAGS_MODE)
 GOGENERATE           = $(shell if [ -f .gogenerate ]; then cat .gogenerate; fi)
 TESTPACKETS          = $(shell if [ -f .testpackages ]; then cat .testpackages; fi)
 BENCHPACKETS         = $(shell if [ -f .benchpackages ]; then cat .benchpackages; fi)
 LOCALPACKAGES        = $(shell if [ -f .localpackages ]; then cat .localpackages; fi)
-PACKAGES_LOCK_VER    = $(shell if [ -f .packages_lock_version ]; then cat .packages_lock_version; fi)
+PACKAGES_LOCK        = $(shell if [ -f .packages_lock ]; then cat .packages_lock; fi)
 
 BIN01               := $(DIR)/bin/$(APP)
 BINVERSION          := $(shell ${BIN01} version 2>/dev/null; true)
@@ -46,7 +48,7 @@ update: upd
 upd:
 	@go clean -cache -modcache
 	@go get -u ./...
-	@for item in $(PACKAGES_LOCK_VER); do \
+	@for item in $(PACKAGES_LOCK); do \
 	  go get -u "$${item}"; \
 		true; \
 	done
@@ -60,8 +62,6 @@ dep: dep-init
 	@go mod edit -replace self=${DIR}
 	@go mod download
 	@go mod tidy
-	@# go mod vendor
-	@# rm -rf ${DIR}/vendor/self; cd ${DIR}/vendor; #ln -s ${DIR} self; #true
 	$(call PROJECT_DEPENDENCIES)
 .PHONY: dep
 dep-dev: dep-init
@@ -78,8 +78,17 @@ dep-dev: dep-init
 ## Кодогенерация (run only during development).
 ## All generating files are included in a .gogenerate file.
 gen: dep-init
-	@for PKGNAME in $(GOGENERATE); do DB2STRUCT_DRV='$(MIGRATION_DRV_MYSQL)' DB2STRUCT_DSN='$(MIGRATION_DSN_MYSQL)' go generate -v "$${PKGNAME}"; done
+	@for PKGNAME in $(GOGENERATE); do \
+		DB2STRUCT_DRV='$(MIGRATION_DRV_MYSQL)' \
+		DB2STRUCT_DSN='$(MIGRATION_DSN_MYSQL)' \
+		go generate -v "${APP_PACKAGE}/$${PKGNAME}"; \
+	done
 .PHONY: gen
+
+## Встраивание статических ресурсов в приложение.
+#embed:
+#	$(call PROJECT_EMBED)
+#.PHONY: embed
 
 ## Project building for environment architecture.
 build:
@@ -102,6 +111,8 @@ kill:
 		sudo kill -KILL "$(PIDN01)" 2>/dev/null; \
 		if [ $$? -ne 0 ]; then echo "No such process ID: $(PIDN01)"; \
 		else rm "$(PIDF01)" 2>/dev/null; true; fi; \
+	else \
+	  echo "файл '$(PIDF01)', PID -> пустой."; \
 	fi
 .PHONY: kill
 
@@ -116,6 +127,9 @@ v:
 RPMBUILD_OS ?= $(RPMBUILD_OS:leap)
 RPMBUILD_OS ?= $(RPMBUILD_OS:tumbleweed)
 ## Создание RPM пакета.
+## новые "подставы" и их решения:
+## 1) по умолчанию создаются дополнительные пакеты debuginfo debugsource
+## отключение debuginfo debugsource: --define "debug_package %{nil}" либо внутри SPEC файла
 rpm:
 	@## Подготовка папок для утилиты создания RPM пакета.
 	@mkdir -p ${DIR}/rpmbuild/{BUILD,BUILDROOT,RPMS,SOURCES,SPECS,SRPMS}; true
@@ -137,6 +151,7 @@ rpm:
 	@## Build the RPM package.
 	@RPMBUILD_OS="${RPMBUILD_OS}" rpmbuild \
 		--target x86_64 \
+		--define "debug_package %{nil}" \
 		--define "_topdir ${DIR}/rpmbuild" \
 		--define "_app_version_number $(VERN01)" \
 		--define "_app_version_build $(VERB01)" \
@@ -182,23 +197,23 @@ $(MTARGETS): migration-mkdir
 .PHONY: migration-commands $(MTARGETS)
 ####################################
 
-## Testing one or multiple packages as well as applications with reporting on the percentage of test coverage.
-## All testing files are included in a .testpackages file.
-# test:
-# 	@echo "mode: set" > $(DIR)/log/coverage.log
-# 	@for PACKET in $(TESTPACKETS); do \
-# 		touch coverage-tmp.log; \
-# 		GOPATH=${GOPATH} go test -v -covermode=count -coverprofile=$(DIR)/log/coverage-tmp.log $$PACKET; \
-# 		if [ "$$?" -ne "0" ]; then exit $$?; fi; \
-# 		tail -n +2 $(DIR)/log/coverage-tmp.log | sort -r | awk '{if($$1 != last) {print $$0;last=$$1}}' >> $(DIR)/log/coverage.log; \
-# 		rm -f $(DIR)/log/coverage-tmp.log; true; \
-# 	done
-# .PHONY: test
+## Тестирование одного или нескольких пакетов, а также приложений с отчетами о проценте охвата тестированием.
+## Все файлы тестирования включены в файл .testpackages.
+test:
+	@echo "mode: set" > $(DIR)/log/coverage.log
+	@for PACKET in $(TESTPACKETS); do \
+		touch coverage-tmp.log; \
+		GOPATH=${GOPATH} go test -v -covermode=count -coverprofile=$(DIR)/log/coverage-tmp.log $$PACKET; \
+		if [ "$$?" -ne "0" ]; then exit $$?; fi; \
+		tail -n +2 $(DIR)/log/coverage-tmp.log | sort -r | awk '{if($$1 != last) {print $$0;last=$$1}}' >> $(DIR)/log/coverage.log; \
+		rm -f $(DIR)/log/coverage-tmp.log; true; \
+	done
+.PHONY: test
 
-## Displaying in the browser coverage of tested code, on the html report (run only during development).
-# cover: test
-# 	@GOPATH=${GOPATH} go tool cover -html=$(DIR)/log/coverage.log
-# .PHONY: cover
+## Отображение в браузере степени покрытия кода тестами в html-отчете (запускается только во время разработки).
+cover: test
+	@GOPATH=${GOPATH} go tool cover -html=$(DIR)/log/coverage.log
+.PHONY: cover
 
 ## Performance testing.
 ## All testing files are included in a .benchpackages file.
@@ -206,7 +221,7 @@ $(MTARGETS): migration-mkdir
 # 	@for PACKET in $(BENCHPACKETS); do GOPATH=${GOPATH} go test -race -bench=. -benchmem $$PACKET; done
 # .PHONY: bench
 
-## Cleaning console screen.
+## Очистка экрана консоли.
 clear:
 	@clear
 .PHONY: clear
@@ -221,6 +236,7 @@ clean:
 	@rm -rf ${DIR}/run/*.pid; true
 	@rm -rf ${DIR}/log/*.log; true
 	@rm -rf ${DIR}/rpmbuild; true
+	@rm -rf ${DIR}/vendor; true
 	@rm -rf ${DIR}/*.log; true
 	@export DIR=
 .PHONY: clean
@@ -229,17 +245,17 @@ clean:
 help:
 	@echo "Usage: make [target]"
 	@echo "  target is:"
-	@echo "    upd или update       - Обновление всех зависимостей до последних версий."
+	@echo "    dep-init             - Создание директорий проекта."
 	@echo "    dep                  - Загрузка и обновление зависимостей проекта."
 	@echo "    dep-dev              - Загрузка и обновление зависимостей проекта для среды разработки."
-	@#echo "    gen                  - Кодогенерация с использованием go generate."
+	@echo "    upd или update       - Обновление всех зависимостей до последних версий."
+	@echo "    gen                  - Кодогенерация с использованием go generate."
 	@echo "    build                - Компиляция приложения."
-	@#echo "    build-i386           - Компиляция приложения для архитектуры i386."
 	@echo "    run                  - Запуск приложения в продакшн режиме."
 	@echo "    dev                  - Запуск приложения в режиме разработки."
 	@echo "    kill                 - Отправка приложению сигнала kill -HUP, используется в случае зависания."
 	@echo "    m-[driver]-[command] - Работа с миграциями базы данных."
-	@echo "                           Используемые базы данных (driver) описываются в файле .env."
+	@echo "                           Используемые базы данных (driver) описываются в файле .env.mk."
 	@echo "                           Доступные драйверы баз данных: mysql clickhouse sqlite3 postgres redshift tidb."
 	@echo "                           Доступные команды: up, down, create, status, redo, version."
 	@echo "                           Пример команд при включённой базе данных mysql:"
@@ -251,12 +267,10 @@ help:
 	@echo "                             make m-mysql-version - Отображение версии базы данных (применённой миграции)."
 	@echo "                           Подробная информаци по командам доступна в документации утилиты gsmigrate."
 	@echo "    version              - Вывод на экран версии приложения."
-	@#echo "    rpm                  - Создание RPM пакета."
-	@#echo "    rpm-i386             - Создание RPM пакета для архитектуры i386."
+	@echo "    rpm                  - Создание RPM пакета."
 	@#echo "    bench                - Запуск тестов производительности проекта."
-	@#echo "    test                 - Запуск тестов проекта."
-	@#echo "    cover                - Запуск тестов проекта с отображением процента покрытия кода тестами."
-	@#echo "    lint                 - Запуск проверки кода с помощью gometalinter."
+	@echo "    test                 - Запуск тестов проекта."
+	@echo "    cover                - Запуск тестов проекта с отображением процента покрытия кода тестами."
 	@echo "    clean                - Очистка директории проекта от временных файлов."
 	@$(call PROJECT_HELP)
 .PHONY: help
