@@ -5,6 +5,7 @@ import (
 	"bytes"
 	"errors"
 	"fmt"
+	"sort"
 )
 
 // Constructor Конструктор сущности пакета.
@@ -15,31 +16,32 @@ func Constructor() *Implementation {
 
 // Add Добавление ресурса в группу ресурсов.
 func (r6e *Implementation) Add(group string, name string, resource Resource) (err error) {
+	const (
+		errGroupExists  = "ресурс %q в группе ресурсов %q уже существует"
+		errResourceSize = "размер контента в описании не соответствует фактическому размеру контента"
+	)
 	var (
-		ok bool
-		n  int
+		items       map[string]*Resource
+		groupExists bool
 	)
 
 	r6e.ResLock.Lock()
 	defer r6e.ResLock.Unlock()
-	if _, ok = r6e.Res[group]; !ok {
-		r6e.Res[group] = make(map[string]*Resource)
+	if items, groupExists = r6e.Res[group]; groupExists {
+		if _, ok := items[name]; ok {
+			err = fmt.Errorf(errGroupExists, name, group)
+			return
+		}
 	}
-	if _, ok = r6e.Res[group][name]; ok {
-		err = fmt.Errorf("ресурс %q в группе ресурсов %q уже существует", name, group)
+	if uint64(len(resource.Content)) != resource.Size {
+		err = errors.New(errResourceSize)
 		return
 	}
-	r6e.Res[group][name] = &Resource{
-		Size:        resource.Size,
-		Time:        resource.Time,
-		ContentType: resource.ContentType,
-		Content:     make([]byte, len(resource.Content)),
+	if !groupExists {
+		items = make(map[string]*Resource)
+		r6e.Res[group] = items
 	}
-	n = copy(r6e.Res[group][name].Content, resource.Content)
-	if uint64(n) != r6e.Res[group][name].Size {
-		err = errors.New("размер контента в описании не соответствует фактическому размеру контента")
-		return
-	}
+	items[name] = resourceCopy(&resource)
 
 	return
 }
@@ -81,23 +83,20 @@ func (r6e *Implementation) ResourceByGroup(group string) (ret []string) {
 // ResourceData Получение ресурса по имени группы и ресурсу.
 // Если ресурса нет, возвращается nil.
 func (r6e *Implementation) ResourceData(group string, resource string) (ret *Resource) {
-	var ok bool
+	var (
+		item *Resource
+		ok   bool
+	)
 
 	r6e.ResLock.RLock()
 	defer r6e.ResLock.RUnlock()
 	if _, ok = r6e.Res[group]; !ok {
 		return
 	}
-	if _, ok = r6e.Res[group][resource]; !ok {
+	if item, ok = r6e.Res[group][resource]; !ok || item == nil {
 		return
 	}
-	ret = &Resource{
-		Size:        r6e.Res[group][resource].Size,
-		Time:        r6e.Res[group][resource].Time,
-		ContentType: r6e.Res[group][resource].ContentType,
-		Content:     make([]byte, len(r6e.Res[group][resource].Content)),
-	}
-	copy(ret.Content, r6e.Res[group][resource].Content)
+	ret = resourceCopy(item)
 
 	return
 }
@@ -110,38 +109,54 @@ func (r6e *Implementation) ResourceByGroupTarReader(group string) (ret *bytes.Re
 		errBodyWrite   = "запись тела файла %q прервана ошибкой: %s"
 		errCreateClose = "создание tar контейнера, в момент закрытия, прервано ошибкой: %s"
 	)
-	var (
-		buf  *bytes.Buffer
+	type tarSource struct {
 		name string
-		th   *tar.Header
-		tw   *tar.Writer
 		data *Resource
+	}
+	var (
+		buf    *bytes.Buffer
+		th     *tar.Header
+		tw     *tar.Writer
+		source []tarSource
+		items  map[string]*Resource
+		ok     bool
+		src    tarSource
 	)
 
 	r6e.ResLock.RLock()
-	defer r6e.ResLock.RUnlock()
+	items, ok = r6e.Res[group]
+	source = make([]tarSource, 0, len(items))
+	if ok {
+		for name, data := range items {
+			if data == nil {
+				continue
+			}
+			source = append(source, tarSource{name: name, data: resourceCopy(data)})
+		}
+	}
+	r6e.ResLock.RUnlock()
+	sort.Slice(source, func(i, j int) bool { return source[i].name < source[j].name })
 	buf = new(bytes.Buffer)
+	//goland:noinspection GoResourceLeak
 	tw = tar.NewWriter(buf)
-	for _, name = range r6e.ResourceByGroup(group) {
-		// Получение даты и времени модификации самого свежего файла.
-		data = r6e.ResourceData(group, name)
+	for _, src = range source {
 		// Заголовок файла в tar контейнере.
 		th = &tar.Header{
-			Name:       name,
+			Name:       src.name,
 			Mode:       0600,
-			Size:       int64(data.Size),
-			ModTime:    data.Time,
-			AccessTime: data.Time,
-			ChangeTime: data.Time,
+			Size:       int64(src.data.Size),
+			ModTime:    src.data.Time,
+			AccessTime: src.data.Time,
+			ChangeTime: src.data.Time,
 		}
 		// Запись заголовка файла в tar контейнер.
 		if err = tw.WriteHeader(th); err != nil {
-			err = fmt.Errorf(errHeaderWrite, name, err)
+			err = fmt.Errorf(errHeaderWrite, src.name, err)
 			return
 		}
 		// Запись тела файла в tar контейнер.
-		if _, err = tw.Write(data.Content); err != nil {
-			err = fmt.Errorf(errBodyWrite, name, err)
+		if _, err = tw.Write(src.data.Content); err != nil {
+			err = fmt.Errorf(errBodyWrite, src.name, err)
 			return
 		}
 	}
@@ -150,6 +165,18 @@ func (r6e *Implementation) ResourceByGroupTarReader(group string) (ret *bytes.Re
 		return
 	}
 	ret = bytes.NewReader(buf.Bytes())
+
+	return
+}
+
+// resourceCopy Создание копии описания ресурса.
+func resourceCopy(src *Resource) (ret *Resource) {
+	ret = &Resource{
+		Size:        src.Size,
+		Time:        src.Time,
+		ContentType: src.ContentType,
+		Content:     append([]byte(nil), src.Content...),
+	}
 
 	return
 }

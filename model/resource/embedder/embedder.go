@@ -2,19 +2,19 @@
 
 Генератор кода встраиваемых ресурсов.
 Аргументы:
-	--package - Название пакета для генерации .go файлов.
-	--path    - Путь создания .go файлов с ресурсами. Если пусто, файлы создаются в текущей папке.
+	--package	- Название пакета для генерации .go файлов.
+	--path		- Путь создания .go файлов с ресурсами. Если пусто, файлы создаются в текущей папке.
 
 Так же ожидаются переменные окружения:
-EMBEDDER_STATIC_BASE_DIR  - Корневая директория статических ресурсов.
-EMBEDDER_STATIC_RESOURCES - Группы ресурсов и папками самих ресурсов.
-                            Формат: group_name1:path/to/folder1,group_name2:path/to/folder2
+EMBEDDER_STATIC_BASE_DIR	- Корневая директория статических ресурсов.
+EMBEDDER_STATIC_RESOURCES	- Группы ресурсов и папками самих ресурсов.
+							Формат: group_name1:path/to/folder1,group_name2:path/to/folder2
 
 Создаются .go файлы по шаблону имени файла:
 	resource_content_{{ groupName }}_{{ resourceNumber }}.go
 Где:
-	groupName      - строка приведённая к нижнему регистру не содержащая пробелы.
-	resourceNumber - порядковый номер ресурса в формате %020d.
+	groupName		- строка, приведённая к нижнему регистру, не содержащая пробелы.
+	resourceNumber	- порядковый номер ресурса в формате %020d.
 
 Пример: resource_content_test_group_00000000000000000001.go
 
@@ -228,6 +228,7 @@ func getSourceInfo(base string, p string) (ret []resourceInfo, err error) {
 		}
 		if mime == nil {
 			err = fmt.Errorf("неизвестный тип контента, расширение имени файла %q", filepath.Ext(fn))
+			return
 		}
 		if fi.Size() > limitSize {
 			log.Printf("Файл %q пропущен, размер файла %d, больше лимита %d байт.", fn, fi.Size(), limitSize)
@@ -258,8 +259,9 @@ func getFileContentType(content []byte) (ret string, err error) {
 	buf = make([]byte, 512)
 	if n = copy(buf, content); n == 0 {
 		err = fmt.Errorf("контент пустой")
+		return
 	}
-	ret = http.DetectContentType(buf)
+	ret = http.DetectContentType(buf[:n])
 
 	return
 }
