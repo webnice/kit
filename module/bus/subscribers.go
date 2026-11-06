@@ -74,10 +74,10 @@ func (sss *subscribers) Delete(databuserName string) (err error) {
 func (sss *subscribers) IsExistSubscriber(rt reflect.Type) (ret bool) {
 	sss.sync.RLock()
 	_, ret = sss.mapOfTypes[rt]
-	sss.sync.RUnlock()
 	if !ret {
 		ret = sss.isAny
 	}
+	sss.sync.RUnlock()
 
 	return
 }
@@ -92,7 +92,9 @@ func (sss *subscribers) GetSubscriber(rt reflect.Type) (ret []*subscriber) {
 	)
 
 	sss.sync.RLock()
-	ret, ok = sss.mapOfTypes[rt]
+	if items, ok := sss.mapOfTypes[rt]; ok {
+		ret = append(ret, items...)
+	}
 	for elm = sss.items.Front(); elm != nil; elm = elm.Next() {
 		if item, ok = elm.Value.(*subscriber); !ok {
 			continue

@@ -4,3 +4,5 @@ github.com/webnice/kit/v4/model/resource
 github.com/webnice/kit/v4/model/resource/embedder
 github.com/webnice/kit/v4/module/ambry
 github.com/webnice/kit/v4/module/ans
+github.com/webnice/kit/v4/module/bus
+github.com/webnice/kit/v4/module/pdw

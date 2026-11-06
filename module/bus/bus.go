@@ -3,7 +3,6 @@ package bus
 import (
 	"context"
 	"reflect"
-	"runtime"
 	"time"
 
 	kitModulePdw "github.com/webnice/kit/v4/module/pdw"
@@ -16,11 +15,11 @@ import (
 //
 //	равный 1000000 сообщений.
 //
-// workerCount  - Количество запускаемых обработчиков сообщений шины данных. Если указано 0 или отрицательное число,
+// workerCount	- Количество запускаемых обработчиков сообщений шины данных. Если указано 0 или отрицательное число,
 //
 //	используется значение по умолчанию, равное 1000 обработчиков.
 //
-// isDebug      - Флаг отладки.
+// isDebug		- Флаг отладки.
 func New(bufferLength int, workerCount int, isDebug bool) Interface {
 	var (
 		data *databus
@@ -39,24 +38,9 @@ func New(bufferLength int, workerCount int, isDebug bool) Interface {
 		Bus:         make(chan kitModulePdw.Data, bufferLength),
 	}
 	bus.databus = data
-	//goland:noinspection GoDetectSetFinalizerUsages
-	runtime.SetFinalizer(bus, destructorBus)
 	bus.essence = newEssence(bus).WorkerStart(workerCount)
 
 	return bus
-}
-
-// Деструктор объекта *impl.
-func destructorBus(bus *impl) {
-	defer func() { _ = recover() }()
-	bus.essence = nil
-	destructorSafeCloseDatabusBus(bus.databus.Bus)
-	safeCloseSignalChannel(bus.workerOnDone)
-}
-
-func destructorSafeCloseDatabusBus(c chan kitModulePdw.Data) {
-	defer func() { _ = recover() }()
-	close(c)
 }
 
 // Gist Интерфейс к служебным методам.
@@ -206,8 +190,12 @@ func (bus *impl) publishSync(ctx context.Context, data any) (ret []any, errs []e
 		errs = make([]error, 0, n)
 		errs = append(errs, wdi.Result().ErrGet()...)
 	}
-	// Возвращение объртки обратно в бассейн.
-	bus.databus.Wrappers.Put(wdi)
+	// Возвращение обёртки обратно в бассейн.
+	// При прерывании по контексту медленные потребители могут ещё работать с объектом,
+	// поэтому такой объект не возвращается в бассейн и будет собран сборщиком мусора.
+	if ctx.Err() == nil {
+		bus.databus.Wrappers.Put(wdi)
+	}
 
 	return
 }
@@ -249,10 +237,12 @@ func (bus *impl) publishDataCheck(data any) (err error) {
 }
 
 func (bus *impl) publish(wdi kitModulePdw.Data) {
+	var isSync = wdi.IsSync()
+
 	// Передача данных в шину данных.
 	bus.databus.Bus <- wdi
 	// Для синхронных данных, ожидание готовности результата.
-	if wdi.IsSync() {
+	if isSync {
 		<-wdi.Done()
 	}
 

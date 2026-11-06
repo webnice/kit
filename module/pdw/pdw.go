@@ -2,7 +2,6 @@ package pdw
 
 import (
 	"context"
-	"runtime"
 	"sync"
 	"sync/atomic"
 )
@@ -31,20 +30,11 @@ func (pdw *impl) constructorWrapperData() any {
 		ctx:      context.Background(),
 	}
 
-	runtime.SetFinalizer(wdo, pdw.destructorWrapperData)
 	if pdw.debug {
 		atomic.AddInt64(&pdw.statistic.Constructor, 1)
 	}
 
 	return wdo
-}
-
-// Деструктор объектов бассейна.
-func (pdw *impl) destructorWrapperData(wdo *data) {
-	safeCloseSignalChannel(wdo.done)
-	if pdw.debug {
-		atomic.AddInt64(&pdw.statistic.Destructor, 1)
-	}
 }
 
 // Закрытие канала с защитой от паники (закрытие закрытого канала).
@@ -94,7 +84,6 @@ func (pdw *impl) Statistic() (ret *Statistic) {
 	// для возможности сохранения значений на момент считывания, на стороне запрашивающего.
 	ret = &Statistic{
 		Constructor: pdw.statistic.Constructor,
-		Destructor:  pdw.statistic.Destructor,
 		GetObject:   pdw.statistic.GetObject,
 		PutObject:   pdw.statistic.PutObject,
 	}

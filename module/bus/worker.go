@@ -20,11 +20,19 @@ func (bus *impl) worker() {
 		if end && len(bus.databus.Bus) == 0 {
 			break
 		}
-		select {
-		case <-bus.workerContext.Done():
-			end = true
-			continue
-		case wdi = <-bus.databus.Bus:
+		if end {
+			select {
+			case wdi = <-bus.databus.Bus:
+			default:
+				continue
+			}
+		} else {
+			select {
+			case <-bus.workerContext.Done():
+				end = true
+				continue
+			case wdi = <-bus.databus.Bus:
+			}
 		}
 		// Отбор потребителей подписанных на тип данных.
 		ss = bus.databus.Subscribers.GetSubscriber(wdi.Type())
@@ -118,7 +126,6 @@ func (bus *impl) workerCallerSync(wdi kitModulePdw.Data, ss []*subscriber) {
 			end = true
 		}
 	}
-	close(ssRsp)
 	// Подготовка результата.
 	for n = range asrsp {
 		if asrsp[n].Err != nil {

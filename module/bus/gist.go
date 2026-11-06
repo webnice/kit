@@ -3,7 +3,6 @@ package bus
 import (
 	"context"
 	"runtime"
-	"sync/atomic"
 
 	kitModulePdw "github.com/webnice/kit/v4/module/pdw"
 )
@@ -27,7 +26,7 @@ func (essence *gist) WorkerStart(workerCount int) Essence {
 	var n int
 
 	// Если обработчики уже выполняются, выходим.
-	if essence.parent.workerContext != nil || essence.parent.workerCount > 0 {
+	if essence.parent.workerContext != nil || essence.parent.workerCount.Load() > 0 {
 		return essence
 	}
 	if workerCount <= 0 {
@@ -39,7 +38,7 @@ func (essence *gist) WorkerStart(workerCount int) Essence {
 	essence.parent.workerOnDone = make(chan struct{}, workerCount)
 	// Запуск обработчиков.
 	for n = 0; n < workerCount; n++ {
-		atomic.AddInt64(&essence.parent.workerCount, 1)
+		essence.parent.workerCount.Add(1)
 		go essence.parent.worker()
 	}
 	runtime.Gosched()
@@ -59,15 +58,16 @@ func (essence *gist) WorkerStop() Essence {
 	essence.parent.workerCancel()
 	// Ожидание завершения всех обработчиков.
 	for {
-		if end && essence.parent.workerCount <= 0 {
+		if end && essence.parent.workerCount.Load() <= 0 {
 			break
 		}
 		<-essence.parent.workerOnDone
-		atomic.AddInt64(&essence.parent.workerCount, -1)
+		essence.parent.workerCount.Add(-1)
 		end = true
 	}
 	safeCloseSignalChannel(essence.parent.workerOnDone)
-	essence.parent.workerContext, essence.parent.workerCancel, essence.parent.workerCount = nil, nil, 0
+	essence.parent.workerContext, essence.parent.workerCancel = nil, nil
+	essence.parent.workerCount.Store(0)
 
 	return essence
 }

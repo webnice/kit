@@ -35,7 +35,7 @@ func getFuncFullName(obj any) (ret string) {
 }
 
 func indirect(rv reflect.Value) reflect.Value {
-	for rv.Kind() == reflect.Ptr {
+	for rv.Kind() == reflect.Pointer {
 		rv = rv.Elem()
 	}
 
@@ -43,7 +43,7 @@ func indirect(rv reflect.Value) reflect.Value {
 }
 
 func indirectType(rt reflect.Type) reflect.Type {
-	for rt.Kind() == reflect.Ptr || rt.Kind() == reflect.Slice {
+	for rt.Kind() == reflect.Pointer || rt.Kind() == reflect.Slice {
 		rt = rt.Elem()
 	}
 

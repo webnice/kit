@@ -9,6 +9,7 @@ package bus
 import (
 	"context"
 	"reflect"
+	"sync/atomic"
 
 	kitModulePdw "github.com/webnice/kit/v4/module/pdw"
 	kitTypes "github.com/webnice/kit/v4/types"
@@ -22,7 +23,7 @@ const (
 // Объект сущности пакета.
 type impl struct {
 	debug         bool               // Флаг отладки.
-	workerCount   int64              // Счётчик выполняющихся обработчиков шины данных.
+	workerCount   atomic.Int64       // Счётчик выполняющихся обработчиков шины данных.
 	workerContext context.Context    // Контекст остановки обработчиков шины данных.
 	workerCancel  context.CancelFunc // Функция прерывания работы обработчиков шины данных.
 	workerOnDone  chan struct{}      // Канал подтверждения остановки обработчика шины данных.
