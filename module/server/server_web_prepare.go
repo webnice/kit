@@ -42,7 +42,7 @@ func (iweb *implWeb) callBefore() (err error) {
 	}()
 	// Запуск функции Before.
 	for n = range iweb.res {
-		if iweb.res[n].Resource == nil {
+		if iweb.res[n] == nil {
 			continue
 		}
 		resource = iweb.res[n].Resource(nil)
@@ -87,6 +87,9 @@ func (iweb *implWeb) makeRouting(wc *kitTypesServer.WebConfiguration) (err error
 	// Группировка ресурсов по базовому пути URN.
 	grp = make(map[string][]*kitTypesServer.Web)
 	for n = range iweb.res {
+		if iweb.res[n] == nil {
+			continue
+		}
 		res = iweb.res[n].Resource(wc)
 		grp[res.Path] = append(grp[res.Path], res)
 	}
@@ -109,16 +112,14 @@ func (iweb *implWeb) makeRouting(wc *kitTypesServer.WebConfiguration) (err error
 		if pattern == "" {
 			continue
 		}
-		if err = iweb.addResources(pattern, grp[pattern]); err != nil {
-			return
-		}
+		iweb.addResources(pattern, grp[pattern])
 	}
 
 	return
 }
 
 // Создание роутинга для зарегистрированных ресурсов.
-func (iweb *implWeb) addResources(pattern string, res []*kitTypesServer.Web) (err error) {
+func (iweb *implWeb) addResources(pattern string, res []*kitTypesServer.Web) {
 	var n, m, c int
 
 	// Группа ресурсов привязанная к одному паттерну пути.

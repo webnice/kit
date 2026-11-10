@@ -53,6 +53,11 @@ func (sri *impl) Start() (err error) {
 	)
 
 	serverAdded = uint64(len(sri.server))
+	// Не зарегистрирован ни один сервер.
+	if serverAdded == 0 {
+		err = sri.Errors().ServersNotRegistered.Bind()
+		return
+	}
 	// Подготовка зарегистрированных ресурсов веб сервера.
 	for n = range sri.server {
 		switch sri.server[n].T {
@@ -111,6 +116,11 @@ func (sri *impl) Start() (err error) {
 func (sri *impl) Stop() (err error) {
 	var n int
 
+	// Не зарегистрирован ни один сервер.
+	if len(sri.server) == 0 {
+		err = sri.Errors().ServersNotRegistered.Bind()
+		return
+	}
 	// Остановка всех зарегистрированных серверов.
 	for n = range sri.server {
 		switch sri.server[n].T {

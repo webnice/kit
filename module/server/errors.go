@@ -12,6 +12,7 @@ const (
 	eBeforeExitWithError
 	eServerByIdAlreadyStarted
 	eServerByIdNotStarted
+	eServersNotRegistered
 )
 
 // Текстовые значения кодов ошибок на основном языке приложения.
@@ -22,6 +23,7 @@ const (
 	cBeforeExitWithError          = "Функция Before() завершилась с ошибкой: %s"
 	cServerByIdAlreadyStarted     = "Сервер с идентификатором %q уже запущен."
 	cServerByIdNotStarted         = "Сервер с идентификатором %q не был запущен."
+	cServersNotRegistered         = "Не зарегистрирован ни один сервер."
 )
 
 type Error struct {
@@ -44,6 +46,9 @@ type Error struct {
 
 	// ServerByIdNotStarted Сервер с идентификатором ... не был запущен.
 	ServerByIdNotStarted dic.IError
+
+	// ServersNotRegistered Не зарегистрирован ни один сервер.
+	ServersNotRegistered dic.IError
 }
 
 var (
@@ -55,6 +60,7 @@ var (
 		BeforeExitWithError:          dic.NewError(cBeforeExitWithError, "ошибка").CodeU8().Set(eBeforeExitWithError),
 		ServerByIdAlreadyStarted:     dic.NewError(cServerByIdAlreadyStarted, "идентификатор").CodeU8().Set(eServerByIdAlreadyStarted),
 		ServerByIdNotStarted:         dic.NewError(cServerByIdNotStarted, "идентификатор").CodeU8().Set(eServerByIdNotStarted),
+		ServersNotRegistered:         dic.NewError(cServersNotRegistered).CodeU8().Set(eServersNotRegistered),
 	}
 
 	// Errors Справочник ошибок.

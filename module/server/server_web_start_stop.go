@@ -56,6 +56,7 @@ func (iweb *implWeb) Start(serverID string) (err error) {
 		}
 	}
 	if iweb.server.Control[serverKey].Configuration == nil {
+		delete(iweb.server.Control, serverKey)
 		err = iweb.parent.Errors().ServerByIdNotFound.Bind(serverKey)
 		return
 	}
@@ -72,6 +73,7 @@ func (iweb *implWeb) Start(serverID string) (err error) {
 		Server.
 		ListenAndServeWithConfig(&iweb.server.Control[serverKey].Configuration.Web.Server).
 		Error(); err != nil {
+		delete(iweb.server.Control, serverKey)
 		return
 	}
 	iweb.info(patternEnd, iweb.server.Control[serverKey].Server.ID())

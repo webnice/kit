@@ -53,6 +53,10 @@ func (iwl *implWebLib) logHandler(beginTime time.Time, wrw kitModuleWrWrap.Inter
 		codeColorEnd string
 	)
 
+	// Режим "продакшн" - игнорируются все запросы со штатным HTTP кодом ответа (коды от 200 до 299 включительно).
+	if !iwl.parent.debug && wrw.StatusCode() >= 200 && wrw.StatusCode() <= 299 {
+		return
+	}
 	// Режим "продакшн" - пишем в журнал только коды ошибок больше 499.
 	if !iwl.parent.debug && wrw.StatusCode() <= 499 {
 		return
@@ -94,10 +98,6 @@ func (iwl *implWebLib) logHandler(beginTime time.Time, wrw kitModuleWrWrap.Inter
 		logLevel = kitModuleLogLevel.Warning
 	default:
 		logLevel = kitModuleLogLevel.Info
-	}
-	// Режим "продакшн" - игнорируются все запросы со штатным HTTP кодом ответа.
-	if !iwl.parent.debug && logLevel.Int() >= 200 && logLevel.Int() < 300 {
-		return
 	}
 	// Запись в журнал с разбивкой по полям, для возможности работы с GrayLog.
 	log = iwl.parent.log().
