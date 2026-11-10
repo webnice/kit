@@ -19,6 +19,7 @@ type Interface interface {
 	http.Pusher
 	http.Flusher
 	io.StringWriter
+	io.ReaderFrom
 
 	// StatusCode Статуса HTTP ответа.
 	StatusCode() int
@@ -31,6 +32,9 @@ type Interface interface {
 
 	// Essence Возвращает оригинальный объект http.ResponseWriter.
 	Essence() http.ResponseWriter
+
+	// Unwrap Возвращает оригинальный объект http.ResponseWriter для http.ResponseController.
+	Unwrap() http.ResponseWriter
 }
 
 // Объект сущности пакета.

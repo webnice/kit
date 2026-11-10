@@ -7,9 +7,12 @@ import (
 	"net/http"
 )
 
+// writerOnly скрывает io.ReaderFrom у целевого writer, чтобы io.Copy не вызывал ReadFrom рекурсивно.
+type writerOnly struct{ io.Writer }
+
 // New Конструктор объекта сущности пакета, возвращается интерфейс пакета.
-// responseWriter - Объект интерфейса http.ResponseWriter.
-// isDebug        - Флаг режима отладки.
+// responseWriter	- Объект интерфейса http.ResponseWriter.
+// isDebug			- Флаг режима отладки.
 func New(responseWriter http.ResponseWriter, isDebug bool) Interface {
 	var wrw = &impl{
 		debug:   isDebug,
@@ -35,6 +38,9 @@ func (wrw *impl) Tee(tee io.Writer) Interface { wrw.tee = tee; return wrw }
 
 // Essence Возвращает оригинальный объект http.ResponseWriter.
 func (wrw *impl) Essence() http.ResponseWriter { return wrw.essence }
+
+// Unwrap Возвращает оригинальный объект http.ResponseWriter для http.ResponseController.
+func (wrw *impl) Unwrap() http.ResponseWriter { return wrw.essence }
 
 // Header Возвращает адрес объекта заголовков, которые будет отправлены клиенту.
 func (wrw *impl) Header() http.Header { return wrw.essence.Header() }
@@ -81,9 +87,8 @@ func (wrw *impl) Hijack() (con net.Conn, buf *bufio.ReadWriter, err error) {
 		err = http.ErrHijacked
 		return
 	}
-	con, buf, err = hji.Hijack()
 
-	return nil, nil, nil
+	return hji.Hijack()
 }
 
 // Push Реализация интерфейса http.Pusher.
@@ -120,6 +125,28 @@ func (wrw *impl) WriteString(s string) (n int, err error) {
 		_, err = wrw.tee.Write([]byte(s[:n]))
 	}
 	wrw.responseLength += uint64(n)
+
+	return
+}
+
+// ReadFrom Реализация интерфейса io.ReaderFrom.
+func (wrw *impl) ReadFrom(r io.Reader) (n int64, err error) {
+	var (
+		ok bool
+		rf io.ReaderFrom
+	)
+
+	wrw.WriteHeader(http.StatusOK)
+	// Если установлен Tee, данные должны пройти через wrw.Write, чтобы копия тоже записалась.
+	if wrw.tee == nil {
+		if rf, ok = wrw.essence.(io.ReaderFrom); ok {
+			if n, err = rf.ReadFrom(r); err == nil || n > 0 {
+				wrw.responseLength += uint64(n)
+			}
+			return
+		}
+	}
+	n, err = io.Copy(writerOnly{wrw}, r)
 
 	return
 }
