@@ -29,7 +29,7 @@ func (i *imgItem) ReadFrom(r io.Reader) (n int64, err error) {
 
 	defer func() {
 		if e := recover(); e != nil {
-			err = fmt.Errorf("panic recovery:\n%v\n%s", e.(error), string(runtimeDebug.Stack()))
+			err = fmt.Errorf("panic recovery:\n%v\n%s", e, string(runtimeDebug.Stack()))
 		}
 	}()
 	if _, ok = r.(*bytes.Buffer); ok {
@@ -46,8 +46,8 @@ func (i *imgItem) ReadFrom(r io.Reader) (n int64, err error) {
 	i.SetImage(im).
 		SetType(Type(strings.ToLower(tpe))).
 		SetConfig(image.Config{
-			Width:      i.image.Bounds().Max.X,
-			Height:     i.image.Bounds().Max.Y,
+			Width:      i.image.Bounds().Dx(),
+			Height:     i.image.Bounds().Dy(),
 			ColorModel: i.image.ColorModel(),
 		})
 

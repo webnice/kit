@@ -54,6 +54,7 @@ func (img *impl) Open(filename string) (ret Image, err error) {
 	} else if err != nil {
 		return
 	}
+	defer func() { _ = fh.Close() }()
 	i = img.New().(*imgItem)
 	if _, err = i.ReadFrom(fh); err != nil {
 		return

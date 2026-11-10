@@ -59,6 +59,9 @@ func Encode(w io.Writer, im image.Image) (err error) {
 	)
 
 	b = im.Bounds()
+	if b.Dx() < 1 || b.Dy() < 1 || b.Dx() > 256 || b.Dy() > 256 {
+		return FormatError("unsupported image size")
+	}
 	m = image.NewRGBA(b)
 	draw.Draw(m, b, im, b.Min, draw.Src)
 	id, ide, pngBb = newIcondir(), newIcondirentry(), &bytes.Buffer{}
@@ -70,8 +73,12 @@ func Encode(w io.Writer, im image.Image) (err error) {
 	ide.sizeInBytes = uint32(len(pngBb.Bytes()))
 	bounds = m.Bounds()
 	ide.imageWidth, ide.imageHeight, bb = uint8(bounds.Dx()), uint8(bounds.Dy()), &bytes.Buffer{}
-	_ = binary.Write(bb, binary.LittleEndian, id)
-	_ = binary.Write(bb, binary.LittleEndian, ide)
+	if err = binary.Write(bb, binary.LittleEndian, id); err != nil {
+		return
+	}
+	if err = binary.Write(bb, binary.LittleEndian, ide); err != nil {
+		return
+	}
 	if _, err = w.Write(bb.Bytes()); err != nil {
 		return
 	}

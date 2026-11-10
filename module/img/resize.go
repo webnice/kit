@@ -21,6 +21,9 @@ func (img *impl) Resize(im Image, w, h uint) (ret Image) {
 		newImg  image.Image
 	)
 
+	if im == nil || im.Image() == nil {
+		return im
+	}
 	if w != h {
 		newImg, minSize = imaging.New(int(w), int(h), color.Transparent), int(w)
 		if w > h {
@@ -34,8 +37,8 @@ func (img *impl) Resize(im Image, w, h uint) (ret Image) {
 		SetImage(newImg).
 		SetType(im.Type()).
 		SetConfig(image.Config{
-			Width:      newImg.Bounds().Max.X,
-			Height:     newImg.Bounds().Max.Y,
+			Width:      newImg.Bounds().Dx(),
+			Height:     newImg.Bounds().Dy(),
 			ColorModel: newImg.ColorModel(),
 		}).
 		SetFileInfo(im.FileInfo()).

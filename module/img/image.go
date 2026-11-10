@@ -68,6 +68,17 @@ func (i *imgItem) SetOptionsGIF(opt *gif.Options) Image { i.optGIF = opt; return
 // SetOptionsJPEG Установка опций сохранения для формата JPEG.
 func (i *imgItem) SetOptionsJPEG(opt *jpeg.Options) Image { i.optJPEG = opt; return i }
 
+type countWriter struct {
+	w io.Writer
+	n int64
+}
+
+func (cw *countWriter) Write(p []byte) (int, error) {
+	n, err := cw.w.Write(p)
+	cw.n += int64(n)
+	return n, err
+}
+
 // WriteTo Реализация интерфейса io.WriterTo.
 func (i *imgItem) WriteTo(w io.Writer) (n int64, err error) {
 	const (
@@ -83,22 +94,24 @@ func (i *imgItem) WriteTo(w io.Writer) (n int64, err error) {
 		err = errors.New(errEmpty)
 		return
 	}
+	cw := &countWriter{w: w}
 	switch i.tpe {
 	case TypeICO:
-		err = ico.Encode(w, i.image)
+		err = ico.Encode(cw, i.image)
 	case TypeBMP:
-		err = bmp.Encode(w, i.image)
+		err = bmp.Encode(cw, i.image)
 	case TypeTIFF:
-		err = tiff.Encode(w, i.image, i.optTIFF)
+		err = tiff.Encode(cw, i.image, i.optTIFF)
 	case TypeGIF:
-		err = gif.Encode(w, i.image, i.optGIF)
+		err = gif.Encode(cw, i.image, i.optGIF)
 	case TypeJPEG:
-		err = jpeg.Encode(w, i.image, i.optJPEG)
+		err = jpeg.Encode(cw, i.image, i.optJPEG)
 	case TypePNG:
-		err = png.Encode(w, i.image)
+		err = png.Encode(cw, i.image)
 	default:
 		err = fmt.Errorf(errType, i.tpe.String())
 	}
+	n = cw.n
 
 	return
 }

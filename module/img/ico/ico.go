@@ -6,7 +6,7 @@ import (
 )
 
 func init() {
-	image.RegisterFormat("ico", "", Decode, DecodeConfig)
+	image.RegisterFormat("ico", "\x00\x00\x01\x00", Decode, DecodeConfig)
 }
 
 // Decode Декодирование картинки в image.Image.

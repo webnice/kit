@@ -63,6 +63,9 @@ func (d *decoder) readHeader() (err error) {
 	if second != 1 {
 		return FormatError(fmt.Sprintf("second byte is %d instead of 1", second))
 	}
+	if d.num == 0 {
+		return FormatError("no images in ICO")
+	}
 
 	return
 }
@@ -101,12 +104,15 @@ func (d *decoder) parseImage(e entry) (ret image.Image, err error) {
 		alpha        byte
 	)
 
+	if e.Size == 0 || e.Size > 1<<30 {
+		return nil, FormatError(fmt.Sprintf("invalid image size %d", e.Size))
+	}
 	data = make([]byte, e.Size)
 	if _, err = io.ReadFull(d.r, data); err != nil {
 		return
 	}
 	// Проверка, является ли изображение форматом PNG, по первым 8 байтам данных изображения.
-	if string(data[:len(pngHeader)]) == pngHeader {
+	if len(data) >= len(pngHeader) && string(data[:len(pngHeader)]) == pngHeader {
 		return png.Decode(bytes.NewReader(data))
 	}
 	// Декодирование как BMP.
@@ -160,7 +166,10 @@ func (d *decoder) parseConfig(e entry) (cfg image.Config, err error) {
 		return
 	}
 	if cfg, err = png.DecodeConfig(bytes.NewReader(tmp)); err != nil {
-		tmp, _, _, _ = d.setupBMP(e, tmp)
+		var bmpErr error
+		if tmp, _, _, bmpErr = d.setupBMP(e, tmp); bmpErr != nil {
+			return image.Config{}, bmpErr
+		}
 		cfg, err = bmp.DecodeConfig(bytes.NewReader(tmp))
 	}
 
@@ -170,35 +179,42 @@ func (d *decoder) parseConfig(e entry) (cfg image.Config, err error) {
 func (d *decoder) setupBMP(e entry, data []byte) ([]byte, []byte, int, error) {
 	const errSize = "прочитано %d байт из %d байт"
 	var (
-		err                 error
-		offset              uint32
-		imageSize, maskSize int
-		rowSize             int
-		numColors           uint32
-		n                   int
-		dibSize, w, h       uint32
-		bpp                 uint16
-		size                uint32
-		numColorsSize       = d.setupBMPColors(e, numColors, dibSize)
-		img, mask           []byte
-		iccSize             uint32
+		err           error
+		offset        uint32
+		imageSize     int
+		maskSize      int
+		rowSize       int
+		numColors     uint32
+		n             int
+		dibSize, w, h uint32
+		bpp           uint16
+		size          uint32
+		numColorsSize uint32
+		img, mask     []byte
+		iccSize       uint32
 	)
 
 	// Вычисление размера изображения.
 	// Документация: en.wikipedia.org/wiki/BMP_file_format.
-	if imageSize = len(data); int(e.Size) < len(data) {
+	imageSize = len(data)
+	if int(e.Size) < len(data) {
 		imageSize = int(e.Size)
+	}
+	if imageSize < 40 {
+		return nil, nil, 0, FormatError(fmt.Sprintf("invalid BMP data size %d", imageSize))
 	}
 	if e.Bits != 32 {
 		rowSize = (1 * (int(e.Width) + 31) / 32) * 4
 		maskSize = rowSize * int(e.Height)
 		imageSize -= maskSize
+		if imageSize < 40 {
+			return nil, nil, 0, FormatError(fmt.Sprintf("invalid BMP data size %d", imageSize))
+		}
 	}
 	img = make([]byte, 14+imageSize)
 	mask = make([]byte, maskSize)
 	// Копирование изображения.
-	n = copy(img[14:], data[:imageSize])
-	if n != imageSize {
+	if n = copy(img[14:], data[:imageSize]); n != imageSize {
 		return nil, nil, 0, FormatError(fmt.Sprintf(errSize, n, imageSize))
 	}
 	// Копирование маски.
@@ -209,6 +225,9 @@ func (d *decoder) setupBMP(e entry, data []byte) ([]byte, []byte, int, error) {
 	_ = binary.Read(bytes.NewReader(img[14+4:14+8]), binary.LittleEndian, &w)
 	if err = binary.Read(bytes.NewReader(img[14+8:14+12]), binary.LittleEndian, &h); err != nil {
 		return nil, nil, 0, FormatError(fmt.Sprintf("only %d of %d bytes read.", n, maskSize))
+	}
+	if dibSize < 40 {
+		return nil, nil, 0, FormatError(fmt.Sprintf("unsupported BMP DIB header size %d", dibSize))
 	}
 	if h > w {
 		binary.LittleEndian.PutUint32(img[14+8:14+12], h/2)
@@ -227,8 +246,12 @@ func (d *decoder) setupBMP(e entry, data []byte) ([]byte, []byte, int, error) {
 		return img, mask, int(offset), err
 	}
 	e.Size = size
+	numColorsSize = d.setupBMPColors(e, numColors, dibSize)
 	offset = 14 + dibSize + numColorsSize
 	if dibSize > 40 {
+		if dibSize < 8 || int(dibSize)-8 > imageSize {
+			return img, mask, int(offset), FormatError(fmt.Sprintf("invalid BMP DIB header size %d", dibSize))
+		}
 		err = binary.Read(bytes.NewReader(img[14+dibSize-8:14+dibSize-4]), binary.LittleEndian, &iccSize)
 		if err != nil {
 			return img, mask, int(offset), err
