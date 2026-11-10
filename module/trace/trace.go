@@ -13,14 +13,22 @@ func Short(ti *kitTypes.TraceInfo, stackBack int) {
 	const isFullStack = false
 	var buf *buffer
 
-	// Сброс заполняемого объекта.
-	ti.Reset()
-	// Установка блокировки доступа к объекту.
+	// Установка блокировки доступа к объекту и сброс состояния под блокировкой.
 	ti.Mux.Lock()
+	defer ti.Mux.Unlock()
+	ti.StackTrace.Reset()
+	ti.FilenameLong.Reset()
+	ti.FilenameShort.Reset()
+	ti.Function.Reset()
+	ti.Package.Reset()
+	ti.Line = 0
 	// Получение буфера из бассейна.
 	buf = getBuffer()
 	// Поиск первого пакета в стеке вызовов, до первого вызова текущего пакета.
 	stackBack += getStackBack(buf)
+	if stackBack < 1 {
+		stackBack = 1
+	}
 	if buf.UintPtr, buf.String1, ti.Line, buf.Ok = runtime.Caller(stackBack - 1); buf.Ok {
 		_, _ = ti.FilenameLong.WriteString(buf.String1)
 		// Название функции вызова.
@@ -38,8 +46,6 @@ func Short(ti *kitTypes.TraceInfo, stackBack int) {
 	}
 	// Возвращение буфера в бассейн.
 	putBuffer(buf)
-	// Снятие блокировки доступа к объекту.
-	ti.Mux.Unlock()
 
 	return
 }
@@ -115,6 +121,9 @@ func getStack(ti *kitTypes.TraceInfo, stackBack int, isFullStack bool, buf *buff
 		ti.StackTrace.Reset()
 		if end = 1 + (stackBack * 2); end < 0 {
 			end = 0
+		}
+		if end > len(buf.SliceString) {
+			end = len(buf.SliceString)
 		}
 		_, _ = ti.StackTrace.WriteString(strings.Join(
 			append(buf.SliceString[0:1], buf.SliceString[end:]...),

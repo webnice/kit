@@ -3,32 +3,19 @@ package trace
 import "runtime"
 
 // StackShort Загрузка короткого стека текущей горутины.
-func StackShort() (ret []byte) {
-	var n int
-
-	ret = make([]byte, defaultBufferLength)
-	for {
-		if n = runtime.Stack(ret, false); n < len(ret) {
-			ret = ret[:n]
-			break
-		}
-		ret = make([]byte, len(ret)*2)
-	}
-
-	return
-}
+func StackShort() (ret []byte) { return stack(make([]byte, defaultBufferLength), false) }
 
 // StackFull Загрузка полного стека вызовов всех горутин приложения.
-func StackFull() (ret []byte) {
-	var n int
+func StackFull() (ret []byte) { return stack(make([]byte, defaultBufferLength), true) }
 
-	ret = make([]byte, defaultBufferLength)
+// Загрузка стека с увеличением буфера до тех пор, пока весь стек не поместится в буфер.
+func stack(buf []byte, all bool) (ret []byte) {
 	for {
-		if n = runtime.Stack(ret, true); n < len(ret) {
-			ret = ret[:n]
+		if n := runtime.Stack(buf, all); n < len(buf) {
+			ret = buf[:n]
 			break
 		}
-		ret = make([]byte, len(ret)*2)
+		buf = make([]byte, len(buf)*2)
 	}
 
 	return
