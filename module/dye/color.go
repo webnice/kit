@@ -115,6 +115,7 @@ func (dye *impl) HexRgb(hexRgb string) (err error) {
 		return
 	}
 	dye.seq = append(dye.seq, dye.profile.Color(arr[1]).Sequence(dye.isBackground))
+	dye.isBright, dye.isBackground = false, false
 
 	return
 }

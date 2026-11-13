@@ -21,12 +21,16 @@ func (cfg *impl) runlevelChangeFunc(ch chan *runLevelUp) {
 	var (
 		msg                *runLevelUp
 		oldLevel, newLevel uint16
+		isEqual            bool
 	)
 
-	cfg.runLevelChangeChan = ch
 	// Цикл чтения канала, цикл завершится с закрытием канала.
-	for msg = range cfg.runLevelChangeChan {
-		if newLevel = msg.newLever; newLevel == cfg.runLevel {
+	for msg = range ch {
+		newLevel = msg.newLever
+		cfg.runLevelMutex.RLock()
+		isEqual = newLevel == cfg.runLevel
+		cfg.runLevelMutex.RUnlock()
+		if isEqual {
 			msg.done <- struct{}{}
 			continue
 		}
@@ -35,12 +39,17 @@ func (cfg *impl) runlevelChangeFunc(ch chan *runLevelUp) {
 			cfg.comp.IsClose = true
 		}
 		// Применение изменения уровня работы приложения.
+		cfg.runLevelMutex.Lock()
 		oldLevel, cfg.runLevel = cfg.runLevel, newLevel
+		cfg.runLevelMutex.Unlock()
 		// Для режима отладки, печать в лог информации о переключении режима работы приложения в состояние завершения.
-		if cfg.Debug() && cfg.runLevel != defaultRunlevelExit && newLevel == defaultRunlevelExit {
+		if cfg.Debug() && oldLevel != defaultRunlevelExit && newLevel == defaultRunlevelExit {
 			cfg.Log().Info(tplRunlevelExit)
 		}
 		// Вызов функций подписчиков на изменение уровня работы приложения.
+		//
+		// Список подписчиков копируется под runLevelSubscribersMutex, после чего функции вызываются вне блокировки.
+		// Это допускает подписку/отписку из callback-ов и защищает container/list от параллельной модификации.
 		cfg.runlevelCallSubscribers(oldLevel, newLevel)
 		// Подтверждение изменения уровня работы приложения.
 		msg.done <- struct{}{}
@@ -50,13 +59,19 @@ func (cfg *impl) runlevelChangeFunc(ch chan *runLevelUp) {
 // Вызов функций подписчиков на изменение уровня работы приложения.
 func (cfg *impl) runlevelCallSubscribers(oldLevel, newLevel uint16) {
 	var (
-		err     error
-		element *list.Element
-		item    RunlevelSubscriberFn
+		err        error
+		item       RunlevelSubscriberFn
+		subscriber []RunlevelSubscriberFn
 	)
 
-	for element = cfg.runLevelSubscribers.Front(); element != nil; element = element.Next() {
-		item = element.Value.(RunlevelSubscriberFn)
+	cfg.runLevelSubscribersMutex.RLock()
+	for element := cfg.runLevelSubscribers.Front(); element != nil; element = element.Next() {
+		subscriber = append(subscriber, element.Value.(RunlevelSubscriberFn))
+	}
+	cfg.runLevelSubscribersMutex.RUnlock()
+
+	for n := range subscriber {
+		item = subscriber[n]
 		if err = cfg.runlevelSafeCallSubscriber(item, oldLevel, newLevel); err != nil {
 			cfg.Gist().ErrorAppend(err)
 		}
@@ -80,12 +95,27 @@ func (cfg *impl) runlevelSafeCallSubscriber(fn RunlevelSubscriberFn, oldLevel ui
 }
 
 // Runlevel Возвращает текущее значение уровня работы приложения.
-func (cfg *impl) Runlevel() uint16 { return cfg.runLevel }
+func (cfg *impl) Runlevel() (ret uint16) {
+	cfg.runLevelMutex.RLock()
+	ret = cfg.runLevel
+	cfg.runLevelMutex.RUnlock()
+
+	return
+}
 
 // RunlevelMap Возвращает карту, описывающую план переключения уровней работы приложения.
-func (cfg *impl) RunlevelMap() []uint16 { return cfg.mapRunLevel }
+func (cfg *impl) RunlevelMap() (ret []uint16) {
+	cfg.runLevelMutex.RLock()
+	ret = append(ret, cfg.mapRunLevel...)
+	cfg.runLevelMutex.RUnlock()
+
+	return
+}
 
 // RunlevelSubscribe Подписка на события изменения уровня работы приложения.
+//
+// Подписчик идентифицируется полным именем функции. Повторная подписка той же функции запрещена и возвращает ошибку
+// RunlevelAlreadySubscribedFunction. Список подписчиков защищён отдельным mutex.
 func (cfg *impl) RunlevelSubscribe(fn RunlevelSubscriberFn) (err error) {
 	var (
 		element      *list.Element
@@ -100,6 +130,8 @@ func (cfg *impl) RunlevelSubscribe(fn RunlevelSubscriberFn) (err error) {
 		return
 	}
 	funcFullName = getFuncFullName(fn)
+	cfg.runLevelSubscribersMutex.Lock()
+	defer cfg.runLevelSubscribersMutex.Unlock()
 	// Поиск подписчика среди существующих подписчиков
 	for element = cfg.runLevelSubscribers.Front(); element != nil; element = element.Next() {
 		item = element.Value.(RunlevelSubscriberFn)
@@ -119,6 +151,9 @@ func (cfg *impl) RunlevelSubscribe(fn RunlevelSubscriberFn) (err error) {
 }
 
 // RunlevelUnsubscribe Отписка от событий изменения уровня работы приложения.
+//
+// Удаляются все элементы списка подписчиков, чьё полное имя функции совпадает с именем fn. Если подписчик не найден,
+// возвращается ошибка RunlevelSubscriptionNotFound. Операция потокобезопасна.
 func (cfg *impl) RunlevelUnsubscribe(fn RunlevelSubscriberFn) (err error) {
 	var (
 		element      *list.Element
@@ -134,6 +169,8 @@ func (cfg *impl) RunlevelUnsubscribe(fn RunlevelSubscriberFn) (err error) {
 		return
 	}
 	funcFullName = getFuncFullName(fn)
+	cfg.runLevelSubscribersMutex.Lock()
+	defer cfg.runLevelSubscribersMutex.Unlock()
 	// Поиск подписчика среди существующих подписчиков
 	for element = cfg.runLevelSubscribers.Front(); element != nil; element = element.Next() {
 		item = element.Value.(RunlevelSubscriberFn)
@@ -155,4 +192,10 @@ func (cfg *impl) RunlevelUnsubscribe(fn RunlevelSubscriberFn) (err error) {
 }
 
 // RunlevelAutoincrement Режим работы автоматического увеличения уровня работы приложения.
-func (cfg *impl) RunlevelAutoincrement() (ret bool) { return !cfg.runLevelStopAutoincrement }
+func (cfg *impl) RunlevelAutoincrement() (ret bool) {
+	cfg.runLevelMutex.RLock()
+	ret = !cfg.runLevelStopAutoincrement
+	cfg.runLevelMutex.RUnlock()
+
+	return
+}

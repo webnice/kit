@@ -144,29 +144,48 @@ func (essence *gist) ForkWorkerMode(isForkWorker bool) Essence {
 }
 
 // ErrorAppend Добавление ошибки в стек ошибок приложения.
+//
+// Операция потокобезопасна и защищена errorMutex. Метод можно вызывать из runlevel-подписчиков,
+// компонентов и служебных goroutine; ошибки публикуются в общий список и выводятся при завершении приложения.
 func (essence *gist) ErrorAppend(err error) Essence {
+	essence.parent.errorMutex.Lock()
 	essence.parent.error = append(essence.parent.error, err)
+	essence.parent.errorMutex.Unlock()
 	return essence
 }
 
 // IsError Возвращает истину, если есть ошибки приложения.
-func (essence *gist) IsError() bool { return len(essence.parent.error) > 0 }
+//
+// Чтение списка ошибок защищено errorMutex и безопасно для конкурентного ErrorAppend.
+func (essence *gist) IsError() bool {
+	essence.parent.errorMutex.RLock()
+	defer essence.parent.errorMutex.RUnlock()
+	return len(essence.parent.error) > 0
+}
 
 // Runlevel Установка или увеличение значения уровня работы приложения.
+//
+// Функция отправляет запрос в runlevel-диспетчер и блокируется до подтверждения применения нового уровня.
 // Поведение функции в зависимости от значения аргумента runlevel:
-// * runlevel>0 - будет выполнена установка нового значения, новое значение не может быть меньше текущего значения.
-// * runlevel=0 - значение Runlevel будет увеличено на единицу.
+//   - runlevel>0: выполняется установка нового значения; новое значение не может быть меньше текущего;
+//   - runlevel=0: значение Runlevel увеличивается на единицу относительно текущего уровня.
+//
+// Попытка установить уровень меньше текущего добавляет ошибку RunlevelCantLessCurrentLevel и не меняет уровень.
 func (essence *gist) Runlevel(runlevel uint16) Essence {
-	var msg *runLevelUp
+	var (
+		current uint16
+		msg     *runLevelUp
+	)
 
-	if runlevel > 0 && essence.parent.runLevel > runlevel {
+	current = essence.parent.Runlevel()
+	if runlevel > 0 && current > runlevel {
 		essence.ErrorAppend(
-			essence.parent.Errors().RunlevelCantLessCurrentLevel.Bind(essence.parent.runLevel, runlevel),
+			essence.parent.Errors().RunlevelCantLessCurrentLevel.Bind(current, runlevel),
 		)
 		return essence
 	}
 	if runlevel == 0 {
-		runlevel = essence.parent.runLevel + 1
+		runlevel = current + 1
 	}
 	// Отправка сообщения об изменении уровня работы приложения
 	msg = &runLevelUp{
@@ -187,21 +206,27 @@ func (essence *gist) Runlevel(runlevel uint16) Essence {
 // От 10 до 65535 переключается согласно карте уровней, если текущий уровень не входит в карту - последовательно.
 // На уровне 65535 переключение останавливается, вызов функции не меняет уровень.
 func (essence *gist) RunlevelNext() Essence {
-	var n, next int
+	var (
+		current  uint16
+		mapLevel []uint16
+		n, next  int
+	)
 
+	current = essence.parent.Runlevel()
+	mapLevel = essence.parent.RunlevelMap()
 	// Если достигли максимального значения, тогда выход
-	if essence.parent.runLevel == math.MaxUint16 {
+	if current == math.MaxUint16 {
 		return essence
 	}
 	// Поиск текущего уровня в карте переключения уровней
-	for n = range essence.parent.mapRunLevel {
-		if essence.parent.mapRunLevel[n] == essence.parent.runLevel {
+	for n = range mapLevel {
+		if mapLevel[n] == current {
 			next = n + 1
 			break
 		}
 	}
 	// Если не найден текущий уровень в карте переключения уровней, тогда следующий берётся не из карты, увеличением +1
-	if next > len(essence.parent.mapRunLevel)-1 {
+	if next > len(mapLevel)-1 {
 		next = 0
 	}
 	// Для всех уровней, не входящих в карту переключения уровней, увеличение последовательно на единицу
@@ -209,7 +234,7 @@ func (essence *gist) RunlevelNext() Essence {
 		return essence.Runlevel(0)
 	}
 
-	return essence.Runlevel(essence.parent.mapRunLevel[next])
+	return essence.Runlevel(mapLevel[next])
 }
 
 // RunlevelNextAsync Асинхронное переключение значения уровня работы приложения на следующий уровень.
@@ -220,13 +245,17 @@ func (essence *gist) RunlevelDefault() uint16 { return defaultRunlevel }
 
 // RunlevelAutoincrementStop Отключение режима автоматического увеличения уровня работы приложения.
 func (essence *gist) RunlevelAutoincrementStop() Essence {
+	essence.parent.runLevelMutex.Lock()
 	essence.parent.runLevelStopAutoincrement = true
+	essence.parent.runLevelMutex.Unlock()
 	return essence
 }
 
 // RunlevelAutoincrementStart Включение режима автоматического увеличения уровня работы приложения.
 func (essence *gist) RunlevelAutoincrementStart() Essence {
+	essence.parent.runLevelMutex.Lock()
 	essence.parent.runLevelStopAutoincrement = false
+	essence.parent.runLevelMutex.Unlock()
 	return essence
 }
 

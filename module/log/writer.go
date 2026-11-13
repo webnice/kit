@@ -27,7 +27,8 @@ func (log *logger) Write(b []byte) (n int, err error) {
 	msg.Level = findLoglevel()
 	msg.Fatality = msg.Level == kitModuleLogLevel.Fatal
 	kitModuleTrace.Short(msg.Trace, stackBack)
-	n, err = msg.Pattern.
+	// bytes.Buffer.Write() не возвращает ошибок.
+	_, _ = msg.Pattern.
 		Write(rexSpaceLast.ReplaceAll(rexSpaceFirst.ReplaceAll(buf, []byte{}), []byte{}))
 	log.Message(msg)
 
@@ -50,8 +51,10 @@ func (log *logger) WriteString(s string) (n int, err error) {
 	msg.Level = findLoglevel()
 	msg.Fatality = msg.Level == kitModuleLogLevel.Fatal
 	kitModuleTrace.Short(msg.Trace, stackBack)
-	n, err = msg.Pattern.
+	// bytes.Buffer.WriteString() не возвращает ошибок.
+	_, _ = msg.Pattern.
 		WriteString(rexSpaceLast.ReplaceAllString(rexSpaceFirst.ReplaceAllString(string(buf), ``), ``))
+	n = len(s)
 	log.Message(msg)
 
 	return

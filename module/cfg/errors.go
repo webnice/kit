@@ -75,6 +75,7 @@ const (
 	eConfigurationObjectCopy                                    // 062
 	eConfigurationCallbackAlreadyRegistered                     // 063
 	eConfigurationCallbackSubscriptionNotFound                  // 064
+	eComponentSortCyclicDependency                              // 065
 )
 
 // Текстовые значения кодов ошибок.
@@ -146,6 +147,7 @@ const (
 	cConfigurationObjectCopy                   = "Копирование объекта конфигурации с типом %q прервано ошибкой: %s."
 	cConfigurationCallbackAlreadyRegistered    = "Подписка функции обратного вызова на изменение конфигурации с типом %q для функции %q уже существует."
 	cConfigurationCallbackSubscriptionNotFound = "Подписка функции обратного вызова на изменение конфигурации с типом %q для функции %q не существует."
+	cComponentSortCyclicDependency             = "Циклическая зависимость в правилах сортировки (before) и (after) для компонент %q и %q."
 )
 
 var errSingleton = &Error{
@@ -217,6 +219,7 @@ var errSingleton = &Error{
 	ConfigurationObjectCopy:                   dic.NewError(cConfigurationObjectCopy, "тип", "ошибка").CodeU8().Set(eConfigurationObjectCopy),
 	ConfigurationCallbackAlreadyRegistered:    dic.NewError(cConfigurationCallbackAlreadyRegistered, "тип", "функция").CodeU8().Set(eConfigurationCallbackAlreadyRegistered),
 	ConfigurationCallbackSubscriptionNotFound: dic.NewError(cConfigurationCallbackSubscriptionNotFound, "тип", "функция").CodeU8().Set(eConfigurationCallbackSubscriptionNotFound),
+	ComponentSortCyclicDependency:             dic.NewError(cComponentSortCyclicDependency, "название компоненты", "название компоненты").CodeU8().Set(eComponentSortCyclicDependency),
 }
 
 // Error Структура справочника ошибок.
@@ -356,6 +359,8 @@ type Error struct {
 	ConfigurationCallbackAlreadyRegistered dic.IError
 	// ConfigurationCallbackSubscriptionNotFound Подписка функции обратного вызова на изменение конфигурации с типом ... для функции ... не существует.
 	ConfigurationCallbackSubscriptionNotFound dic.IError
+	// ComponentSortCyclicDependency Циклическая зависимость в правилах сортировки (before) и (after) для компонент ... и ....
+	ComponentSortCyclicDependency dic.IError
 }
 
 // Errors Справочник ошибок.

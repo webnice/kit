@@ -1,7 +1,6 @@
 package emt
 
 import (
-	"mime"
 	"os"
 	"strings"
 
@@ -86,12 +85,28 @@ func (fn filename) IsPathPrefix(prefix string) (ret bool) {
 func (fn filename) IsPathMacos() (ret bool) { return fn.IsPathPrefix(keyPathMacos) }
 
 // ContentType Определение типа контента по расширению.
+// Если расширение неизвестно справочнику MIME типов, возвращается application/octet-stream.
 func (fn filename) ContentType() (ret string) {
-	if ret = dic.Mime().ApplicationOctetStream.String(); fn.Extension != "" {
-		ret = mime.TypeByExtension("." + fn.Extension)
+	var mme dic.IMime
+
+	ret = dic.Mime().ApplicationOctetStream.String()
+	if fn.Extension == "" {
+		return
+	}
+	if mme = dic.File().MimeByExtension(keyExt + fn.Extension); mme != nil {
+		ret = mme.String()
 	}
 
 	return
+}
+
+// Нормализация разделителей пути. В ZIP имена файлов разделяются символом '/', даже в Windows.
+func normalizeFilenamePath(s string) string {
+	if os.PathSeparator == '/' {
+		return s
+	}
+
+	return strings.ReplaceAll(s, "/", string(os.PathSeparator))
 }
 
 // Разбор строки в структуру имени файла.
@@ -99,6 +114,7 @@ func parseFilename(s string) (ret *filename) {
 	var tmp []string
 
 	ret = new(filename)
+	s = normalizeFilenamePath(s)
 	if tmp = strings.Split(s, string(os.PathSeparator)); len(tmp) == 0 {
 		return
 	}

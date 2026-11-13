@@ -26,7 +26,6 @@ import (
 	runtimeDebug "runtime/debug"
 	"strings"
 
-	kitModuleCfgCliKong "github.com/webnice/kit/v4/module/cfg/cli/kong"
 	kitModuleCfgConst "github.com/webnice/kit/v4/module/cfg/const"
 	kitTypes "github.com/webnice/kit/v4/types"
 )
@@ -63,7 +62,7 @@ func (cli *impl) Bootstrap(b *kitTypes.BootstrapDefaultValue) (err error) {
 // Эта говно-поделка=kong паникует вместо возврата ошибки, ловим панику.
 func (cli *impl) newKong(bs *kitTypes.BootstrapConfiguration) (err error) {
 	var (
-		option []kitModuleCfgCliKong.Option
+		option []Option
 		e      any
 	)
 
@@ -75,7 +74,7 @@ func (cli *impl) newKong(bs *kitTypes.BootstrapConfiguration) (err error) {
 	// Подготовка опций.
 	option = cli.KongBuildOption()
 	// Инициализация CLI.
-	if cli.k2g, err = kitModuleCfgCliKong.New(bs, option...); err != nil {
+	if cli.k2g, err = NewKong(bs, option...); err != nil {
 		return
 	}
 	// Добавление динамических глобальных флагов приложения.
@@ -101,34 +100,34 @@ func (cli *impl) Init() (help *bytes.Buffer, description string, err error) {
 	cli.ctx, err = cli.k2g.Parse(os.Args[1:])
 	// Разбор полученных ошибок, преобразование в более структурированных ошибки которые можно сравнивать.
 	if err != nil {
-		if e, ok := err.(*kitModuleCfgCliKong.ParseError); ok {
+		if e, ok := err.(*ParseError); ok {
 			switch e.MustErr().Anchor() {
-			case kitModuleCfgCliKong.Errors().Expected("").Anchor():
+			case KongErrors().Expected("").Anchor():
 				description = fmt.Sprintf("%s", e.MustErr().Args()...)
 				err = cli.Errors().RequiredCommand.Bind()
-			case kitModuleCfgCliKong.Errors().ExpectedOneOf("").Anchor():
+			case KongErrors().ExpectedOneOf("").Anchor():
 				description = fmt.Sprintf("%s", e.MustErr().Args()...)
 				err = cli.Errors().RequiredCommand.Bind()
-			case kitModuleCfgCliKong.Errors().UnexpectedArgument("").Anchor():
+			case KongErrors().UnexpectedArgument("").Anchor():
 				description = fmt.Sprintf("%q", e.MustErr().Args()...)
 				err = cli.Errors().UnknownCommand.Bind()
-			case kitModuleCfgCliKong.Errors().UnknownFlag("").Anchor():
+			case KongErrors().UnknownFlag("").Anchor():
 				description = fmt.Sprintf("%q", e.MustErr().Args()[0])
 				err = cli.Errors().UnknownCommand.Bind()
-			case kitModuleCfgCliKong.Errors().UnexpectedArgument("").Anchor():
+			case KongErrors().UnexpectedArgument("").Anchor():
 				description = fmt.Sprintf("%q", e.MustErr().Args()[1])
 				err = cli.Errors().UnknownArgument.Bind()
-			case kitModuleCfgCliKong.Errors().DecodeValueError("", nil).Anchor(),
-				kitModuleCfgCliKong.Errors().DecodeValueEnv(nil, "", "").Anchor():
+			case KongErrors().DecodeValueError("", nil).Anchor(),
+				KongErrors().DecodeValueEnv(nil, "", "").Anchor():
 				description = err.Error()
 				err = cli.Errors().NotCorrectArgument.Bind()
-			case kitModuleCfgCliKong.Errors().HelperErrorDidYouMean(nil, "").Anchor(),
-				kitModuleCfgCliKong.Errors().HelperErrorDidYouMeanOneOf(nil, []string{}).Anchor():
+			case KongErrors().HelperErrorDidYouMean(nil, "").Anchor(),
+				KongErrors().HelperErrorDidYouMeanOneOf(nil, []string{}).Anchor():
 				description = fmt.Sprintf(
 					perhapsYouWantedTo, e.MustErr().Args()[0], fmt.Sprintf("%s", e.MustErr().Args()[1:]...),
 				)
 				err = cli.Errors().UnknownArgument.Bind()
-			case kitModuleCfgCliKong.Errors().MissingFlags("").Anchor():
+			case KongErrors().MissingFlags("").Anchor():
 				description = fmt.Sprintf("%q", e.MustErr().Args()[0])
 				err = cli.Errors().RequiredFlag.Bind()
 			default:

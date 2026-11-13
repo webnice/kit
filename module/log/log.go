@@ -46,6 +46,9 @@ func (log *logger) Debug(d bool) Logger { log.debug = d; return log }
 // Errors Все ошибки известного состояния, которые может вернуть приложение или функция.
 func (log *logger) Errors() *Error { return Errors() }
 
+// Флаг отключения приёма новых сообщений лога.
+func (log *logger) isDone() bool { return log.doEnd.Load() }
+
 // Перехват сообщений из стандартного пакета log.
 func (log *logger) stdLogInterceptions() {
 	log.originalLogWriter = standardLog.Writer()
@@ -88,7 +91,7 @@ func (log *logger) Message(msg *Message) {
 		fatality bool
 	)
 
-	if log.doEnd {
+	if log.isDone() {
 		return
 	}
 	atomic.AddInt64(&log.waitCounter, 1)
@@ -96,6 +99,7 @@ func (log *logger) Message(msg *Message) {
 	// Если в шине данных отсутствует потребитель сообщений, вывод сообщения через обработчик по умолчанию.
 	if !log.bus.IsSubscriber(msg) {
 		log.defaultLogHandler(msg)
+		log.MessagePut(msg)
 		return
 	}
 	// Отправка сообщения в шину данных.
@@ -127,7 +131,7 @@ func (log *logger) FlushAndClose() {
 	var err error
 
 	// Отключение приёма новых сообщений в лог.
-	log.doEnd = true
+	log.doEnd.Store(true)
 	// Ожидание обработки всех принятых в обработку сообщений.
 	for {
 		if atomic.LoadInt64(&log.waitCounter) == 0 {
@@ -170,6 +174,8 @@ func (log *logger) HandlerSubscribe(handler Handler, min, max kitModuleLogLevel.
 	)
 
 	name = getFuncFullName(handler)
+	log.subscribersLock.Lock()
+	defer log.subscribersLock.Unlock()
 	for elm = log.subscribers.Front(); elm != nil; elm = elm.Next() {
 		if item, ok = elm.Value.(*subscriber); !ok {
 			continue
@@ -206,6 +212,8 @@ func (log *logger) HandlerUnsubscribe(handler Handler) (err error) {
 	)
 
 	name = getFuncFullName(handler)
+	log.subscribersLock.Lock()
+	defer log.subscribersLock.Unlock()
 	for elm = log.subscribers.Front(); elm != nil; elm = elm.Next() {
 		if item, ok = elm.Value.(*subscriber); !ok {
 			continue

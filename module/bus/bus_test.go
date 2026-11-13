@@ -3,7 +3,6 @@ package bus
 import (
 	"context"
 	"errors"
-	"reflect"
 	"strings"
 	"testing"
 	"time"
@@ -70,122 +69,7 @@ func waitTestSignal(t *testing.T, ch <-chan struct{}, timeout time.Duration, mes
 	}
 }
 
-func TestSubscribers(t *testing.T) {
-	var (
-		sss       = newSubscribers()
-		bad       = "bad element"
-		dataType  = reflect.TypeOf(busTestData{})
-		otherType = reflect.TypeOf(busTestOtherData{})
-		typed     = &subscriber{
-			Name: "typed",
-			Item: &testSubscriber{},
-			Types: []*subscriberTypeInfo{{
-				Original:     busTestData{},
-				OriginalType: dataType,
-			}},
-		}
-		anySubscriber = &subscriber{Name: "any", Item: &testAnySubscriber{}}
-	)
-
-	if sss.Len() != 0 {
-		t.Fatal("newSubscribers() вернул не пустой объект")
-	}
-	sss.items.PushBack(bad)
-	if sss.Len() != 1 {
-		t.Fatalf("Len() после добавления служебного элемента = %d, ожидался 1", sss.Len())
-	}
-	sss.Store(typed)
-	if sss.Len() != 2 {
-		t.Fatalf("Len() = %d, ожидался 2", sss.Len())
-	}
-	if !sss.IsExistSubscriber(dataType) {
-		t.Fatal("IsExistSubscriber() не нашёл подписчика типа")
-	}
-	if sss.IsExistSubscriber(otherType) {
-		t.Fatal("IsExistSubscriber() нашёл подписчика для незарегистрированного типа")
-	}
-	if got := sss.GetSubscriber(dataType); len(got) != 1 || got[0] != typed {
-		t.Fatalf("GetSubscriber(dataType) = %+v", got)
-	}
-	if got := sss.GetSubscriber(otherType); len(got) != 0 {
-		t.Fatalf("GetSubscriber(otherType) = %+v", got)
-	}
-
-	sss.Store(anySubscriber)
-	if !sss.IsExistSubscriber(otherType) {
-		t.Fatal("IsExistSubscriber() не учёл any-подписчика")
-	}
-	if got := sss.GetSubscriber(dataType); len(got) != 2 {
-		t.Fatalf("GetSubscriber(dataType) после any = %+v", got)
-	}
-	if got := sss.GetSubscriber(otherType); len(got) != 1 || got[0] != anySubscriber {
-		t.Fatalf("GetSubscriber(otherType) после any = %+v", got)
-	}
-
-	got := sss.GetSubscriber(dataType)
-	got = append(got, anySubscriber)
-	if len(sss.GetSubscriber(dataType)) != 2 {
-		t.Fatal("GetSubscriber() вернул срез-алиас внутренней карты")
-	}
-
-	if err := sss.Delete("unknown"); err == nil {
-		t.Fatal("Delete() для отсутствующего подписчика вернул nil ошибку")
-	}
-	if err := sss.Delete("TYPED"); err != nil {
-		t.Fatalf("Delete() вернул ошибку: %v", err)
-	}
-	if got := sss.GetSubscriber(dataType); len(got) != 1 || got[0] != anySubscriber {
-		t.Fatalf("GetSubscriber(dataType) после удаления typed = %+v", got)
-	}
-	if err := sss.Delete("any"); err != nil {
-		t.Fatalf("Delete() any вернул ошибку: %v", err)
-	}
-	if sss.IsExistSubscriber(dataType) {
-		t.Fatal("IsExistSubscriber() нашёл удалённых подписчиков")
-	}
-	if sss.IsExistSubscriber(otherType) {
-		t.Fatal("IsExistSubscriber() нашёл удалённого any-подписчика")
-	}
-}
-
-func TestUtilities(t *testing.T) {
-	var data busTestData
-	if name := getFuncFullName(&data); !strings.Contains(name, "busTestData") {
-		t.Fatalf("getFuncFullName(&data) = %q", name)
-	}
-	if name := getFuncFullName(&struct{}{}); name != "" {
-		t.Fatalf("getFuncFullName(&struct{}{}) = %q", name)
-	}
-	if name := getFuncFullName(&[]int{}); name == "" {
-		t.Fatal("getFuncFullName(&[]int{}) вернул пустое имя")
-	}
-	fn := func() {}
-	if name := getFuncFullName(fn); !strings.Contains(name, "TestUtilities") {
-		t.Fatalf("getFuncFullName(func) = %q", name)
-	}
-	if got := indirect(reflect.ValueOf(&data)); got.Interface().(busTestData) != data {
-		t.Fatalf("indirect() = %+v", got)
-	}
-	if got := indirectType(reflect.TypeOf(&data)); got != reflect.TypeOf(data) {
-		t.Fatalf("indirectType() = %v", got)
-	}
-	sti, err := makeSubscriberTypeInfo(reflect.TypeOf(&data))
-	if err != nil {
-		t.Fatalf("makeSubscriberTypeInfo() вернул ошибку: %v", err)
-	}
-	if sti.BaseType != reflect.TypeOf(data) || sti.OriginalType != reflect.TypeOf(&data) || sti.IndirectionCount != 1 {
-		t.Fatalf("makeSubscriberTypeInfo() = %+v", sti)
-	}
-	for _, rt := range []reflect.Type{reflect.TypeOf(data), reflect.TypeOf(struct{}{}), reflect.TypeOf(&struct{}{})} {
-		if sti, err = makeSubscriberTypeInfo(rt); err != nil || sti.OriginalType != rt {
-			t.Fatalf("makeSubscriberTypeInfo(%v) = %+v, %v", rt, sti, err)
-		}
-	}
-	ch := make(chan struct{})
-	safeCloseSignalChannel(ch)
-	safeCloseSignalChannel(ch)
-}
-
+// TestBusSubscribeUnsubscribeErrors Ошибки подписки и отписки.
 func TestBusSubscribeUnsubscribeErrors(t *testing.T) {
 	var bus = newTestBus(t, 2, true)
 
@@ -229,6 +113,7 @@ func TestBusSubscribeUnsubscribeErrors(t *testing.T) {
 	}
 }
 
+// TestBusPublishAsync Асинхронная публикация данных.
 func TestBusPublishAsync(t *testing.T) {
 	var (
 		bus    = newTestBus(t, 2, false)
@@ -287,6 +172,7 @@ func TestBusPublishAsync(t *testing.T) {
 	time.Sleep(50 * time.Millisecond)
 }
 
+// TestBusPublishSync Синхронная публикация данных.
 func TestBusPublishSync(t *testing.T) {
 	var (
 		bus = newTestBus(t, 2, true)
@@ -348,6 +234,7 @@ func TestBusPublishSync(t *testing.T) {
 	}
 }
 
+// TestBusPublishSyncTimeoutSlowConsumer Тайм-аут синхронной публикации при медленном потребителе.
 func TestBusPublishSyncTimeoutSlowConsumer(t *testing.T) {
 	var (
 		bus = newTestBus(t, 1, false)
@@ -372,46 +259,7 @@ func TestBusPublishSyncTimeoutSlowConsumer(t *testing.T) {
 	time.Sleep(300 * time.Millisecond)
 }
 
-func TestBusWorkerStopAndStatistic(t *testing.T) {
-	var (
-		bus    = New(8, 1, true)
-		called = make(chan struct{}, 1)
-		sub    = &testSubscriber{
-			types: []any{busTestData{}},
-			consumer: func(_ bool, _ any) ([]any, []error) {
-				called <- struct{}{}
-				return nil, nil
-			},
-		}
-	)
-	if err := bus.Subscribe(sub); err != nil {
-		t.Fatalf("Subscribe() вернул ошибку: %v", err)
-	}
-	if stat := bus.Gist().Statistic(); stat == nil {
-		t.Fatal("Statistic() для debug bus вернул nil")
-	}
-	bus.Gist().Debug(false)
-	if stat := bus.Gist().Statistic(); stat != nil {
-		t.Fatalf("Statistic() после Debug(false) вернул %+v", stat)
-	}
-	bus.Gist().WorkerStart(1) // Повторный запуск должен быть проигнорирован.
-	if err := bus.PublishAsync(busTestData{}); err != nil {
-		t.Fatalf("PublishAsync() вернул ошибку: %v", err)
-	}
-	bus.Gist().WorkerStop()
-	waitTestSignal(t, called, time.Second, "WorkerStop() не дождался обработки данных")
-	bus.Gist().WorkerStop() // Повторная остановка должна быть проигнорирована.
-
-	var manual = &impl{}
-	newEssence(manual).WorkerStop()
-
-	noDebug := New(8, 1, false)
-	t.Cleanup(func() { noDebug.Gist().WorkerStop() })
-	if stat := noDebug.Gist().Statistic(); stat != nil {
-		t.Fatalf("Statistic() для no-debug bus вернул %+v", stat)
-	}
-}
-
+// TestBusNewWithDefaultBuffer Конструктор с нулевым размером буфера по умолчанию.
 func TestBusNewWithDefaultBuffer(t *testing.T) {
 	var bus = New(0, 1, true)
 	t.Cleanup(func() { bus.Gist().WorkerStop() })

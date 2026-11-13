@@ -2,6 +2,7 @@ package colorful
 
 import (
 	"fmt"
+	"math"
 	"testing"
 )
 
@@ -61,5 +62,36 @@ func TestConstraint(t *testing.T) {
 		if l > 0.5 || a > 0.0 || b > 0.0 {
 			t.Errorf("Color %v in constrained palette violates the constraint: %v (lab: %v)", icol, col, [3]float64{l, a, b})
 		}
+	}
+}
+
+// TestSoftPaletteExactCount Запрошено ровно столько цветов, сколько доступно образцов.
+func TestSoftPaletteExactCount(t *testing.T) {
+	// Ограничение выбирает ровно 2 тёмно-серых образца.
+	onlyGray := func(l, a, b float64) bool {
+		return l > 0.15 && l < 0.25 && math.Abs(a) < 0.01 && math.Abs(b) < 0.01
+	}
+	palette, err := SoftPaletteEx(2, SoftPaletteSettings{onlyGray, 1, false})
+	if err != nil {
+		t.Fatalf("SoftPaletteEx(): неожиданная ошибка: %v", err)
+	}
+	if len(palette) != 2 {
+		t.Fatalf("SoftPaletteEx(): ожидалось 2 цвета, получено %d", len(palette))
+	}
+}
+
+// TestSoftPaletteMedoid Среднее кластера выходит за пределы допустимого пространства, режим medoid.
+func TestSoftPaletteMedoid(t *testing.T) {
+	// Разрешаем только тёмные и светлые цвета, среднее всех образцов попадает в запрещённую середину.
+	noMiddleL := func(l, a, b float64) bool { return l < 0.3 || l > 0.7 }
+	palette, err := SoftPaletteEx(1, SoftPaletteSettings{noMiddleL, 2, false})
+	if err != nil {
+		t.Fatalf("SoftPaletteEx(): неожиданная ошибка: %v", err)
+	}
+	if len(palette) != 1 {
+		t.Fatalf("SoftPaletteEx(): ожидался 1 цвет, получено %d", len(palette))
+	}
+	if !palette[0].IsValid() {
+		t.Fatalf("SoftPaletteEx(): невалидный цвет %v", palette[0])
 	}
 }

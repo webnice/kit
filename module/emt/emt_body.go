@@ -2,8 +2,6 @@ package emt
 
 import (
 	"bytes"
-	"mime"
-	"path"
 
 	"github.com/webnice/dic"
 )
@@ -22,13 +20,15 @@ func (emt *impl) BodyImageUri(tpl *Template, fn ImageUriFn) (err error) {
 
 	// Обход.
 	for n = range tpl.BodyImgUri {
+		newUri = ""
 		// Всю ссылку нельзя распознавать, мешает urn-param часть.
-		cts = mime.TypeByExtension(path.Ext(tpl.BodyImgUri[n].Path))
-		if mme = dic.ParseMime(cts); mme == nil {
+		cts = parseFilename(tpl.BodyImgUri[n].Path).ContentType()
+		if mme = dic.ParseMime(cts); mme == nil || mme.IsEqual(dic.Mime().ApplicationOctetStream) {
 			continue
 		}
 		if err = emt.safeCall(func() { newUri = fn(mme, tpl.BodyImgUri[n]) }); err != nil {
 			emt.log().Warning(err.Error())
+			err = nil
 			continue
 		}
 		if newUri == "" {
@@ -60,10 +60,15 @@ func (emt *impl) BodyImageEmbed(tpl *Template, fn ImageEmbedFn) (err error) {
 	)
 
 	for n = range tpl.Embedded {
+		newUri = ""
 		mme = dic.ParseMime(tpl.Embedded[n].Type)
+		if mme == nil || mme.IsEqual(dic.Mime().ApplicationOctetStream) {
+			continue
+		}
 		buf = bytes.NewBuffer(tpl.Embedded[n].ValueGet())
 		if err = emt.safeCall(func() { newUri = fn(mme, buf) }); err != nil {
 			emt.log().Warning(err.Error())
+			err = nil
 			continue
 		}
 		if newUri == "" {

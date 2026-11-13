@@ -16,6 +16,10 @@ func (app *impl) conflictFn(components []*kitTypes.ComponentInfo) (err error) {
 		for c = range components[n].Conflict {
 			// Всех других компонент.
 			for i = range components {
+				// Пропуск самой компоненты, конфликт с самой собой не проверяется.
+				if i == n {
+					continue
+				}
 				// На вхождение в список конфликта.
 				if components[n].Conflict[c].MatchString(components[i].ComponentName) {
 					err = app.cfg.Errors().ComponentConflict.

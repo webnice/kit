@@ -209,9 +209,7 @@ func defaultFinalizeTimeoutBeforeWarning() (ret time.Duration) {
 
 // Уровень логирования по умолчанию до загрузки конфигурации.
 func defaultLogLevel() (ret kitModuleLogLevel.Level) {
-	const defaultLogLevel = kitModuleLogLevel.Off
-
-	ret = defaultLogLevel
+	ret = kitModuleLogLevel.Off
 
 	return
 }
@@ -219,23 +217,23 @@ func defaultLogLevel() (ret kitModuleLogLevel.Level) {
 // Имена переменных окружения приложения по умолчанию.
 func defaultConstantEnvironment() (ret kitModuleCfgCli.ConstantEnvironmentName) {
 	ret = kitModuleCfgCli.ConstantEnvironmentName{
-		{kitModuleCfgConst.EnvironmentApplicationForkWorkerMaster, envNameAnchorForApplicationForkWorkerMaster},
-		{kitModuleCfgConst.EnvironmentApplicationForkWorkerComponent, envNameAnchorForApplicationForkWorkerComponent},
-		{kitModuleCfgConst.EnvironmentApplicationForkWorkerTarget, envNameAnchorForApplicationForkWorkerTarget},
-		{kitModuleCfgConst.EnvironmentApplicationTargetlevel, envNameAnchorForApplicationTargetlevel},
-		{kitModuleCfgConst.EnvironmentApplicationDebug, envNameAnchorForApplicationDebug},
-		{kitModuleCfgConst.EnvironmentApplicationName, envNameAnchorForApplicationName},
-		{kitModuleCfgConst.EnvironmentHomeDirectory, envNameAnchorForHomeDirectory},
-		{kitModuleCfgConst.EnvironmentWorkingDirectory, envNameAnchorForWorkingDirectory},
-		{kitModuleCfgConst.EnvironmentTempDirectory, envNameAnchorForTempDirectory},
-		{kitModuleCfgConst.EnvironmentCacheDirectory, envNameAnchorForCacheDirectory},
-		{kitModuleCfgConst.EnvironmentConfigDirectory, envNameAnchorForConfigDirectory},
-		{kitModuleCfgConst.EnvironmentLogDirectory, envNameAnchorForLogDirectory},
-		{kitModuleCfgConst.EnvironmentConfigFile, envNameAnchorForConfigFile},
-		{kitModuleCfgConst.EnvironmentPidFile, envNameAnchorForPidFile},
-		{kitModuleCfgConst.EnvironmentStateFile, envNameAnchorForStateFile},
-		{kitModuleCfgConst.EnvironmentSocketFile, envNameAnchorForSocketFile},
-		{kitModuleCfgConst.EnvironmentLogLevel, envNameAnchorForLogLevel},
+		{Anchor: kitModuleCfgConst.EnvironmentApplicationForkWorkerMaster, Destination: envNameAnchorForApplicationForkWorkerMaster},
+		{Anchor: kitModuleCfgConst.EnvironmentApplicationForkWorkerComponent, Destination: envNameAnchorForApplicationForkWorkerComponent},
+		{Anchor: kitModuleCfgConst.EnvironmentApplicationForkWorkerTarget, Destination: envNameAnchorForApplicationForkWorkerTarget},
+		{Anchor: kitModuleCfgConst.EnvironmentApplicationTargetlevel, Destination: envNameAnchorForApplicationTargetlevel},
+		{Anchor: kitModuleCfgConst.EnvironmentApplicationDebug, Destination: envNameAnchorForApplicationDebug},
+		{Anchor: kitModuleCfgConst.EnvironmentApplicationName, Destination: envNameAnchorForApplicationName},
+		{Anchor: kitModuleCfgConst.EnvironmentHomeDirectory, Destination: envNameAnchorForHomeDirectory},
+		{Anchor: kitModuleCfgConst.EnvironmentWorkingDirectory, Destination: envNameAnchorForWorkingDirectory},
+		{Anchor: kitModuleCfgConst.EnvironmentTempDirectory, Destination: envNameAnchorForTempDirectory},
+		{Anchor: kitModuleCfgConst.EnvironmentCacheDirectory, Destination: envNameAnchorForCacheDirectory},
+		{Anchor: kitModuleCfgConst.EnvironmentConfigDirectory, Destination: envNameAnchorForConfigDirectory},
+		{Anchor: kitModuleCfgConst.EnvironmentLogDirectory, Destination: envNameAnchorForLogDirectory},
+		{Anchor: kitModuleCfgConst.EnvironmentConfigFile, Destination: envNameAnchorForConfigFile},
+		{Anchor: kitModuleCfgConst.EnvironmentPidFile, Destination: envNameAnchorForPidFile},
+		{Anchor: kitModuleCfgConst.EnvironmentStateFile, Destination: envNameAnchorForStateFile},
+		{Anchor: kitModuleCfgConst.EnvironmentSocketFile, Destination: envNameAnchorForSocketFile},
+		{Anchor: kitModuleCfgConst.EnvironmentLogLevel, Destination: envNameAnchorForLogLevel},
 	}
 
 	return

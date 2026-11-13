@@ -190,7 +190,7 @@ func readNextResponse(fd *os.File) (response string, isOSC bool, err error) {
 		return
 	}
 	for {
-		if b, err = readNextByte(os.Stdout); err != nil {
+		if b, err = readNextByte(fd); err != nil {
 			return
 		}
 		switch response += string(b); oscResponse {
@@ -214,43 +214,55 @@ func readNextResponse(fd *os.File) (response string, isOSC bool, err error) {
 }
 
 func termStatusReport(sequence int) (ret string, err error) {
+	return termStatusReportFile(os.Stdout, sequence)
+}
+
+// termStatusReportFile Запрос отчёта статуса терминала через файловый дескриптор.
+func termStatusReportFile(f *os.File, sequence int) (ret string, err error) {
 	var (
 		term   string
 		noEcho unix.Termios
 		t      *unix.Termios
 		isOSC  bool
+		fd     = int(f.Fd())
 	)
 
 	if term = os.Getenv(envTerm); strings.HasPrefix(term, keyScreen) {
 		err = errStatusReport
 		return
 	}
-	if !isForeground(unix.Stdout) {
+	if !isForeground(fd) {
 		err = errStatusReport
 		return
 	}
-	if t, err = unix.IoctlGetTermios(unix.Stdout, tcgetattr); err != nil {
+	if t, err = unix.IoctlGetTermios(fd, tcgetattr); err != nil {
 		err = errStatusReport
 		return
 	}
-	defer func() { _ = unix.IoctlSetTermios(unix.Stdout, tcsetattr, t) }()
+	defer func() { _ = unix.IoctlSetTermios(fd, tcsetattr, t) }()
 	noEcho = *t
 	noEcho.Lflag = noEcho.Lflag &^ unix.ECHO
 	noEcho.Lflag = noEcho.Lflag &^ unix.ICANON
-	if err = unix.IoctlSetTermios(unix.Stdout, tcsetattr, &noEcho); err != nil {
+	if err = unix.IoctlSetTermios(fd, tcsetattr, &noEcho); err != nil {
 		err = errStatusReport
 		return
 	}
-	fmt.Printf("\033]%d;?\033\\", sequence)
-	fmt.Printf("\033[6n")
-	if ret, isOSC, err = readNextResponse(os.Stdout); err != nil {
+	if _, err = fmt.Fprintf(f, "\033]%d;?\033\\", sequence); err != nil {
+		err = errStatusReport
+		return
+	}
+	if _, err = fmt.Fprintf(f, "\033[6n"); err != nil {
+		err = errStatusReport
+		return
+	}
+	if ret, isOSC, err = readNextResponse(f); err != nil {
 		return
 	}
 	if !isOSC {
 		err = errStatusReport
 		return
 	}
-	if _, _, err = readNextResponse(os.Stdout); err != nil {
+	if _, _, err = readNextResponse(f); err != nil {
 		return
 	}
 

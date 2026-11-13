@@ -29,7 +29,7 @@ func (app *impl) doFn(component *kitTypes.ComponentInfo) (err error) {
 func (app *impl) doSafeCall(componentName string, cpt kitTypes.Component) (
 	levelDone bool, // Отключение автоматического переключения уровня работы приложения.
 	levelExit bool, // Переключение работы приложения на уровень завершения работы.
-	err error,      // ____ Ошибка.
+	err error, // ____ Ошибка.
 ) {
 	// Функция защиты от паники.
 	defer func() {

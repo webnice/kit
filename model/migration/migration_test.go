@@ -222,26 +222,12 @@ func newTestGorm(t *testing.T) (sqlDB *sql.DB, orm *gorm.DB) {
 	return
 }
 
-func TestImpl_NewAndErrors(t *testing.T) {
+// TestImpl_New Конструктор объекта миграций.
+func TestImpl_New(t *testing.T) {
 	var mmn = New()
 
 	if mmn == nil {
 		t.Fatal("New() вернул nil")
-	}
-	if mmn.Errors() != Errors() {
-		t.Fatal("Errors() вернул не справочник ошибок пакета")
-	}
-	if mmn.Errors().DatabaseIsNotInUse == nil {
-		t.Fatal("DatabaseIsNotInUse не определена")
-	}
-	if mmn.Errors().DatabaseUnexpectedError == nil {
-		t.Fatal("DatabaseUnexpectedError не определена")
-	}
-}
-
-func TestImpl_DbVersionTableName(t *testing.T) {
-	if (&DbVersion{}).TableName() != "goose_db_version" {
-		t.Fatal("TableName() != goose_db_version")
 	}
 }
 

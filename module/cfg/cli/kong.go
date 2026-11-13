@@ -5,23 +5,22 @@ import (
 	"reflect"
 	"strings"
 
-	kitModuleCfgCliKong "github.com/webnice/kit/v4/module/cfg/cli/kong"
 	kitTypes "github.com/webnice/kit/v4/types"
 )
 
 // KongBuildOption Подготовка опций.
-func (cli *impl) KongBuildOption() (ret []kitModuleCfgCliKong.Option) {
+func (cli *impl) KongBuildOption() (ret []Option) {
 	ret = append(ret, cli.KongExit())
-	ret = append(ret, kitModuleCfgCliKong.Name(cli.applicationName))
-	ret = append(ret, kitModuleCfgCliKong.Description(cli.bootstrapDefaultValue.ApplicationDescription()))
-	ret = append(ret, kitModuleCfgCliKong.ExplicitGroups(cli.KongBuildCommandGroups()))
+	ret = append(ret, Name(cli.applicationName))
+	ret = append(ret, Description(cli.bootstrapDefaultValue.ApplicationDescription()))
+	ret = append(ret, ExplicitGroups(cli.KongBuildCommandGroups()))
 	ret = append(ret, cli.KongVars()...)
 	// Настройка локализованной помощи.
 	ret = append(ret, cli.KongHelpHelper()...)
 	// Добавление динамических команд в опции.
 	ret = append(ret, cli.KongDynamicCommand()...)
 	// Перехват вывода в STDOUT, STDERR в буфер реализующий интерфейс io.Writer.
-	ret = append(ret, kitModuleCfgCliKong.Writers(cli.k2gOut, cli.k2gErr))
+	ret = append(ret, Writers(cli.k2gOut, cli.k2gErr))
 	// Другие опции, частично или полностью не работающие в этой поделке.
 	//option = append(option, kong.NoDefaultHelp())
 	//option = append(option, kong.UsageOnError())
@@ -32,7 +31,7 @@ func (cli *impl) KongBuildOption() (ret []kitModuleCfgCliKong.Option) {
 }
 
 // KongBuildCommandGroups Подготовка групп команд.
-func (cli *impl) KongBuildCommandGroups() (ret []kitModuleCfgCliKong.Group) {
+func (cli *impl) KongBuildCommandGroups() (ret []Group) {
 	var (
 		commandGroup []kitTypes.CommandGroup
 		n            int
@@ -40,12 +39,12 @@ func (cli *impl) KongBuildCommandGroups() (ret []kitModuleCfgCliKong.Group) {
 
 	if cli.bootstrapDefaultValue.CommandGroup != nil {
 		if commandGroup = cli.bootstrapDefaultValue.CommandGroup(); len(commandGroup) > 0 {
-			ret = make([]kitModuleCfgCliKong.Group, 0, len(commandGroup))
+			ret = make([]Group, 0, len(commandGroup))
 			for n = range commandGroup {
 				if commandGroup[n].Description == "" {
 					continue
 				}
-				ret = append(ret, kitModuleCfgCliKong.Group{
+				ret = append(ret, Group{
 					Key:         commandGroup[n].Key,
 					Title:       commandGroup[n].Title,
 					Description: commandGroup[n].Description,
@@ -58,8 +57,8 @@ func (cli *impl) KongBuildCommandGroups() (ret []kitModuleCfgCliKong.Group) {
 }
 
 // KongExit Функция завершения приложения.
-func (cli *impl) KongExit() (ret kitModuleCfgCliKong.Option) {
-	ret = kitModuleCfgCliKong.Exit(func(i int) {
+func (cli *impl) KongExit() (ret Option) {
+	ret = Exit(func(i int) {
 		cli.k2gIsExit = true
 		cli.k2gExitCode = i
 		return
@@ -70,7 +69,7 @@ func (cli *impl) KongExit() (ret kitModuleCfgCliKong.Option) {
 
 // KongDynamicCommand Создание динамических команд командной строки в обёртке kong.
 // В kong теги работают частично...
-func (cli *impl) KongDynamicCommand() (ret []kitModuleCfgCliKong.Option) {
+func (cli *impl) KongDynamicCommand() (ret []Option) {
 	const (
 		defaultCommandTag = "default"
 		hiddenCommand     = "hidden"
@@ -94,7 +93,7 @@ func (cli *impl) KongDynamicCommand() (ret []kitModuleCfgCliKong.Option) {
 		if cli.command[n].IsHidden {
 			tags = append(tags, hiddenCommand)
 		}
-		ret = append(ret, kitModuleCfgCliKong.DynamicCommand(
+		ret = append(ret, DynamicCommand(
 			cli.command[n].Command,
 			cli.command[n].Description,
 			cli.command[n].GroupKey,
@@ -114,7 +113,7 @@ func (cli *impl) KongDynamicFlag() (err error) {
 		errDuplicateFlagName = "Флаг с именем %q уже зарегистрирован."
 	)
 	var (
-		flg      *kitModuleCfgCliKong.Flag
+		flg      *KongFlag
 		rv       reflect.Value
 		n, i     int
 		typeName string
@@ -137,12 +136,12 @@ func (cli *impl) KongDynamicFlag() (err error) {
 		}
 		rv = reflect.ValueOf(cli.flag[n].Value).Elem()
 		typeName = rv.Type().Name()
-		flg = &kitModuleCfgCliKong.Flag{
+		flg = &KongFlag{
 			Short:       cli.flag[n].ShortKey,
 			Env:         cli.flag[n].Environment,
 			PlaceHolder: cli.flag[n].Placeholder,
 			Hidden:      cli.flag[n].IsHidden,
-			Value: &kitModuleCfgCliKong.Value{
+			Value: &Value{
 				Name:         cli.flag[n].Flag,
 				Help:         cli.flag[n].Description,
 				OrigHelp:     cli.flag[n].Description,
@@ -150,7 +149,7 @@ func (cli *impl) KongDynamicFlag() (err error) {
 				Default:      fmt.Sprintf("%s", cli.flag[n].Value),
 				DefaultValue: reflect.ValueOf(cli.flag[n].Value),
 				Mapper:       cli.k2g.Registry.ForValue(rv),
-				Tag: &kitModuleCfgCliKong.Tag{
+				Tag: &Tag{
 					Name:     cli.flag[n].Flag,
 					Help:     cli.flag[n].Description,
 					TypeName: typeName,
@@ -168,7 +167,7 @@ func (cli *impl) KongDynamicFlag() (err error) {
 }
 
 // KongVars Создание переменных для аргументов помощи и команд командной строки.
-func (cli *impl) KongVars() (ret []kitModuleCfgCliKong.Option) {
+func (cli *impl) KongVars() (ret []Option) {
 	const (
 		varApplicationTargetlevel = "ApplicationTargetlevel"
 		varApplicationDebug       = "ApplicationDebug"
@@ -186,7 +185,7 @@ func (cli *impl) KongVars() (ret []kitModuleCfgCliKong.Option) {
 		varLogLevel               = "LogLevel"
 	)
 
-	ret = append(ret, kitModuleCfgCliKong.Vars{
+	ret = append(ret, Vars{
 		varApplicationTargetlevel: cli.bootstrapDefaultValue.ApplicationTargetlevel(),
 		varApplicationDebug:       cli.bootstrapDefaultValue.ApplicationDebug(),
 		varApplicationName:        cli.bootstrapDefaultValue.ApplicationName(),
@@ -207,23 +206,23 @@ func (cli *impl) KongVars() (ret []kitModuleCfgCliKong.Option) {
 }
 
 // KongHelpHelper Настройка отображения помощи по командам командной строки.
-func (cli *impl) KongHelpHelper() (ret []kitModuleCfgCliKong.Option) {
-	ret = append(ret, kitModuleCfgCliKong.ShortUsageOnError())
-	ret = append(ret, kitModuleCfgCliKong.HelpDisplaySetup(
+func (cli *impl) KongHelpHelper() (ret []Option) {
+	ret = append(ret, ShortUsageOnError())
+	ret = append(ret, HelpDisplaySetup(
 		helpKey, helpDescription, helpDescription, helpShortKey, false),
 	)
-	ret = append(ret, kitModuleCfgCliKong.UsageHelperFunc(func(name string, summary string) string {
+	ret = append(ret, UsageHelperFunc(func(name string, summary string) string {
 		return fmt.Sprintf(usageHelperTemplate, name, strings.TrimSpace(summary))
 	}))
-	ret = append(ret, kitModuleCfgCliKong.RunArgumentHelperFunc(func(name string, summary string) string {
+	ret = append(ret, RunArgumentHelperFunc(func(name string, summary string) string {
 		return fmt.Sprintf(runArgumentHelperTemplate, name, strings.TrimSpace(summary))
 	}))
-	ret = append(ret, kitModuleCfgCliKong.RunCommandArgumentHelperFunc(func(name string, summary string) string {
+	ret = append(ret, RunCommandArgumentHelperFunc(func(name string, summary string) string {
 		return fmt.Sprintf(runCommandArgumentHelperTemplate, name, strings.TrimSpace(summary))
 	}))
-	ret = append(ret, kitModuleCfgCliKong.HelpCommandsLabelSetup(helpCommandsLabel))
-	ret = append(ret, kitModuleCfgCliKong.HelpFlagsLabelSetup(helpFlagsLabel))
-	ret = append(ret, kitModuleCfgCliKong.HelpArgumentsLabelSetup(helpArgumentsLabel))
+	ret = append(ret, HelpCommandsLabelSetup(helpCommandsLabel))
+	ret = append(ret, HelpFlagsLabelSetup(helpFlagsLabel))
+	ret = append(ret, HelpArgumentsLabelSetup(helpArgumentsLabel))
 
 	return
 }

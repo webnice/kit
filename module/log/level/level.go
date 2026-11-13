@@ -61,8 +61,8 @@ var level = map[Level]struct {
 type Level int8
 
 // String Представление уровня логирования в виде строки, реализация интерфейса Stringer.
-func (l Level) String() (ret string) {
-	if lvs, ok := level[l]; ok {
+func (l *Level) String() (ret string) {
+	if lvs, ok := level[*l]; ok {
 		ret = lvs.Name
 	}
 
@@ -70,8 +70,8 @@ func (l Level) String() (ret string) {
 }
 
 // Bytes Представление уровня логирования в виде среза байт.
-func (l Level) Bytes() (ret []byte) {
-	if lvs, ok := level[l]; ok {
+func (l *Level) Bytes() (ret []byte) {
+	if lvs, ok := level[*l]; ok {
 		ret = []byte(lvs.Name)
 	}
 
@@ -79,8 +79,8 @@ func (l Level) Bytes() (ret []byte) {
 }
 
 // Short Представление уровня логирования в виде одной прописной буквы.
-func (l Level) Short() (ret rune) {
-	if lvs, ok := level[l]; ok {
+func (l *Level) Short() (ret rune) {
+	if lvs, ok := level[*l]; ok {
 		ret = lvs.Short
 	}
 
@@ -88,10 +88,10 @@ func (l Level) Short() (ret rune) {
 }
 
 // Int Представление уровня логирования в виде числа.
-func (l Level) Int() int { return int(l) }
+func (l *Level) Int() int { return int(*l) }
 
 // MarshalText Реализация интерфейса encoding.TextMarshaler.
-func (l Level) MarshalText() (ret []byte, err error) { ret = []byte(l.String()); return }
+func (l *Level) MarshalText() (ret []byte, err error) { ret = []byte(l.String()); return }
 
 // UnmarshalText Реализация интерфейса encoding.TextUnmarshaler.
 func (l *Level) UnmarshalText(b []byte) (err error) {
@@ -109,7 +109,7 @@ func (l *Level) UnmarshalText(b []byte) (err error) {
 	}
 	eI64 = fmt.Errorf(tplWrongLevel, string(b), eI64)
 	for key = range level {
-		if src == level[key].Name || src == string(level[key].Short) {
+		if src == level[key].Name || src == strings.ToLower(string(level[key].Short)) {
 			*l = key
 			return
 		}

@@ -2,7 +2,7 @@ package sql
 
 import (
 	"database/sql"
-	"runtime"
+	"errors"
 	"sync"
 
 	kitModuleCfg "github.com/webnice/kit/v4/module/cfg"
@@ -39,7 +39,12 @@ func Get() Interface {
 // Объект работы с базой данных полностью удаляется из памяти.
 //
 //goland:noinspection GoUnusedExportedFunction
-func Free() { singleton = nil }
+func Free() {
+	if singleton != nil {
+		_ = singleton.Close()
+	}
+	singleton = nil
+}
 
 // Создание нового объекта подключения к базе данных.
 func constructor() (mys *impl) {
@@ -56,21 +61,11 @@ func constructor() (mys *impl) {
 	}
 	onDone = make(chan struct{})
 	mys.error = mys.newConfigurationSet(onDone, &config.SqlDB)
-	//goland:noinspection GoDetectSetFinalizerUsages
-	runtime.SetFinalizer(mys, destructor)
 	// Ожидание запуска процесса подключения и настройки соединения.
 	<-onDone
 	close(onDone)
 
 	return
-}
-
-// Деструктор объекта. Закрывает соединение с базой данных.
-func destructor(mys *impl) {
-	if mys.connect == nil {
-		return
-	}
-	_ = mys.Close()
 }
 
 // Установка конфигурации подключения к базе данных и выполнение установки соединения.
@@ -108,6 +103,13 @@ func (mys *impl) makeConnect(onDone chan<- struct{}) {
 
 // Close Закрытие соединения с базой данных.
 func (mys *impl) Close() (err error) {
+	if mys.connectMux == nil {
+		if mys.connect != nil {
+			err = mys.connect.Close()
+			mys.connect = nil
+		}
+		return
+	}
 	mys.connectMux.Lock()
 	defer mys.connectMux.Unlock()
 	if mys.connect == nil {
@@ -123,6 +125,9 @@ func (mys *impl) Close() (err error) {
 func (mys *impl) conn() *sql.DB {
 	var onDone chan struct{}
 
+	if mys.connectMux == nil {
+		return nil
+	}
 	if mys.connect != nil {
 		return mys.connect
 	}
@@ -140,6 +145,9 @@ func (mys *impl) conn() *sql.DB {
 
 // Возвращает последнюю ошибку работы с соединением базы данных с проверкой блокировки.
 func (mys *impl) err() error {
+	if mys.connectMux == nil {
+		return mys.error
+	}
 	mys.connectMux.RLock()
 	defer mys.connectMux.RUnlock()
 	return mys.error
@@ -162,10 +170,16 @@ func (mys *impl) Errors() *Error { return Errors() }
 // Если err==nil - база данных доступна, соединение активно, ошибок нет.
 // Если err!=nil - есть проблема с соединением с базой данных.
 func (mys *impl) E() (err error) {
+	var db *sql.DB
+
 	if err = mys.err(); err != nil {
 		return
 	}
-	if err = mys.conn().Ping(); err != nil {
+	if db = mys.conn(); db == nil {
+		err = mys.Errors().ConnectError.Bind(errors.New("database connection is nil"))
+		return
+	}
+	if err = db.Ping(); err != nil {
 		return
 	}
 
@@ -174,9 +188,15 @@ func (mys *impl) E() (err error) {
 
 // Status Возвращает состояние подключения к базе данных.
 func (mys *impl) Status() (ret *sql.DBStats) {
-	var stats sql.DBStats
+	var (
+		db    *sql.DB
+		stats sql.DBStats
+	)
 
-	stats = mys.conn().Stats()
+	if db = mys.conn(); db == nil {
+		return
+	}
+	stats = db.Stats()
 	ret = &stats
 
 	return
@@ -184,22 +204,36 @@ func (mys *impl) Status() (ret *sql.DBStats) {
 
 // SqlDB Настроенный и готовый к работе бассейн соединений database/sql.
 // Если возвращается nil - есть ошибки, ошибка доступна в функции E()
-func (mys *impl) SqlDB() (ret *sql.DB) { ret = mys.conn(); return }
+func (mys *impl) SqlDB() (ret *sql.DB) {
+	if mys.err() != nil {
+		return
+	}
+	ret = mys.conn()
+
+	return
+}
 
 // GormDB Настроенный и готовый к работе объект ORM gorm.io/gorm.
 // Если возвращается nil - есть ошибки, ошибка доступна в функции E()
 func (mys *impl) GormDB() (ret *gorm.DB) {
+	var db *sql.DB
+
 	if mys.err() != nil {
+		return
+	}
+	if db = mys.conn(); db == nil {
+		mys.error = mys.Errors().ConnectError.Bind(errors.New("database connection is nil"))
 		return
 	}
 	switch mys.cfg.Driver {
 	case driverMySQL:
 		ret, mys.error = gorm.Open(mysql.New(mysql.Config{
-			DriverName:               mys.cfg.Driver,
-			DSN:                      mys.dsn,
-			Conn:                     mys.conn(),
-			DefaultStringSize:        mys.cfg.DefaultStringSize,
-			DisableDatetimePrecision: mys.cfg.DisableDatetimePrecision,
+			DriverName:                mys.cfg.Driver,
+			DSN:                       mys.dsn,
+			Conn:                      db,
+			DefaultStringSize:         mys.cfg.DefaultStringSize,
+			DisableDatetimePrecision:  mys.cfg.DisableDatetimePrecision,
+			SkipInitializeWithVersion: true,
 		}), &gorm.Config{
 			SkipDefaultTransaction: mys.cfg.SkipDefaultTransaction,
 			DisableAutomaticPing:   mys.cfg.DisableAutomaticPing,
@@ -211,7 +245,7 @@ func (mys *impl) GormDB() (ret *gorm.DB) {
 		ret, mys.error = gorm.Open(postgres.New(postgres.Config{
 			DriverName:           mys.cfg.Driver,
 			DSN:                  mys.dsn,
-			Conn:                 mys.conn(),
+			Conn:                 db,
 			PreferSimpleProtocol: mys.cfg.PostgreSQLPreferSimpleProtocol,
 		}), &gorm.Config{
 			SkipDefaultTransaction: mys.cfg.SkipDefaultTransaction,
@@ -231,10 +265,15 @@ func (mys *impl) GormDB() (ret *gorm.DB) {
 // SqlxDB Настроенный и готовый к работе объект обёртки над соединением с БД github.com/jmoiron/sqlx.
 // Если возвращается nil - есть ошибки, ошибка доступна в функции E()
 func (mys *impl) SqlxDB() (ret *sqlx.DB) {
+	var db *sql.DB
+
 	if mys.err() != nil {
 		return
 	}
-	ret = sqlx.NewDb(mys.conn(), mys.cfg.Driver)
+	if db = mys.conn(); db == nil {
+		return
+	}
+	ret = sqlx.NewDb(db, mys.cfg.Driver)
 
 	return
 }

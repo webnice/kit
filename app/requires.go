@@ -19,6 +19,10 @@ func (app *impl) requiresFn(components []*kitTypes.ComponentInfo) (err error) {
 			// Поиск зависимости.
 			reqOk = false
 			for j = range components {
+				// Пропуск самой компоненты, зависимость от самой себя не засчитывается.
+				if j == n {
+					continue
+				}
 				if components[n].Require[i].MatchString(components[j].ComponentName) {
 					reqOk = true
 					break

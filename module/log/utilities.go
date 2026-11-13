@@ -41,25 +41,19 @@ func findLoglevel() (ret kitModuleLogLevel.Level) {
 // Получение полного названия функции.
 func getFuncFullName(obj any) (ret string) {
 	var (
-		rv   reflect.Value
-		rt   reflect.Type
-		star string
+		rv reflect.Value
+		rt reflect.Type
 	)
 
 	if rv = indirect(reflect.ValueOf(obj)); !rv.CanAddr() {
 		ret = runtime.FuncForPC(rv.Pointer()).Name()
 	} else {
 		rt = indirectType(reflect.TypeOf(obj))
-		if rt.Name() == "" {
-			if rt.Kind() == reflect.Pointer {
-				star = "*"
-			}
-		}
 		if rt.Name() != "" {
 			if rt.PkgPath() == "" {
-				ret = star + rt.Name()
+				ret = rt.Name()
 			} else {
-				ret = star + rt.PkgPath() + "." + rt.Name()
+				ret = rt.PkgPath() + "." + rt.Name()
 			}
 		}
 	}

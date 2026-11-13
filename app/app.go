@@ -46,6 +46,15 @@ func (app *impl) Main() (code uint8, err error) {
 		end  bool
 	)
 
+	// Регистрация очистки в самом начале, чтобы она выполнялась и при раннем выходе с ошибкой.
+	defer func() {
+		runtime.Gosched()
+		// Остановка шины данных приложения.
+		app.Cfg().Bus().Gist().WorkerStop()
+		runtime.Gosched()
+		// Остановка менеджера логирования.
+		app.Cfg().Gist().Logger().FlushAndClose()
+	}()
 	for {
 		if end {
 			break
@@ -123,14 +132,6 @@ func (app *impl) Main() (code uint8, err error) {
 			end = true
 		}
 	}
-	defer func() {
-		runtime.Gosched()
-		// Остановка шины данных приложения.
-		app.Cfg().Bus().Gist().WorkerStop()
-		runtime.Gosched()
-		// Остановка менеджера логирования.
-		app.Cfg().Gist().Logger().FlushAndClose()
-	}()
 	// Ожидание сигнала об окончании выполнения функций Finalize() всех зарегистрированных компонентов приложения.
 	<-app.finalize
 	// Удаление регистрации функции mainRunlevelDo.

@@ -2,6 +2,7 @@ package colorful
 
 import (
 	"encoding/json"
+	"errors"
 	"reflect"
 	"testing"
 )
@@ -52,4 +53,92 @@ func TestHexColorCompositeJson(t *testing.T) {
 		t.Errorf("json.Unmarshal(json.Marsrhall(obj)) != obj")
 	}
 
+}
+
+// TestHexColorScan Сканирование значения базы данных.
+func TestHexColorScan(t *testing.T) {
+	var hc HexColor
+	if err := hc.Scan(123); err == nil {
+		t.Error("Scan(): ожидалась ошибка неподдерживаемого типа")
+	} else {
+		var e errUnsupportedType
+		if !errors.As(err, &e) {
+			t.Errorf("Scan(): неожиданная ошибка: %v", err)
+		}
+		if msg := e.Error(); msg == "" {
+			t.Error("Error(): ожидалось непустое сообщение об ошибке")
+		}
+	}
+	if err := hc.Scan("#xyz"); err == nil {
+		t.Error("Scan(): ожидалась ошибка разбора цвета")
+	}
+	if err := hc.Scan("#ff8000"); err != nil {
+		t.Fatalf("Scan(): неожиданная ошибка: %v", err)
+	}
+	if got := Color(hc).Hex(); got != "#ff8000" {
+		t.Errorf("Scan(): ожидался цвет #ff8000, получено %v", got)
+	}
+}
+
+// TestHexColorUnmarshalJSON Десериализация JSON.
+func TestHexColorUnmarshalJSON(t *testing.T) {
+	var hc HexColor
+	if err := hc.UnmarshalJSON([]byte("{invalid json")); err == nil {
+		t.Error("UnmarshalJSON(): ожидалась ошибка JSON")
+	}
+	if err := hc.UnmarshalJSON([]byte("\"#xyz\"")); err == nil {
+		t.Error("UnmarshalJSON(): ожидалась ошибка разбора цвета")
+	}
+	if err := hc.UnmarshalJSON([]byte("\"#ff8000\"")); err != nil {
+		t.Fatalf("UnmarshalJSON(): неожиданная ошибка: %v", err)
+	}
+	if got := Color(hc).Hex(); got != "#ff8000" {
+		t.Errorf("UnmarshalJSON(): ожидался цвет #ff8000, получено %v", got)
+	}
+}
+
+// TestHexColorDecode Десериализация строки.
+func TestHexColorDecode(t *testing.T) {
+	var hc HexColor
+	if err := hc.Decode("#xyz"); err == nil {
+		t.Error("Decode(): ожидалась ошибка разбора цвета")
+	}
+	if err := hc.Decode("#ff8000"); err != nil {
+		t.Fatalf("Decode(): неожиданная ошибка: %v", err)
+	}
+	if got := Color(hc).Hex(); got != "#ff8000" {
+		t.Errorf("Decode(): ожидался цвет #ff8000, получено %v", got)
+	}
+}
+
+// TestHexColorMarshalYAML Сериализация YAML.
+func TestHexColorMarshalYAML(t *testing.T) {
+	c, err := Hex("#ff8000")
+	if err != nil {
+		t.Fatalf("Hex(): неожиданная ошибка: %v", err)
+	}
+	got, err := HexColor(c).MarshalYAML()
+	if err != nil {
+		t.Fatalf("MarshalYAML(): неожиданная ошибка: %v", err)
+	}
+	if got != "#ff8000" {
+		t.Errorf("MarshalYAML(): ожидалось значение #ff8000, получено %v", got)
+	}
+}
+
+// TestHexColorUnmarshalYAML Десериализация YAML.
+func TestHexColorUnmarshalYAML(t *testing.T) {
+	var hc HexColor
+	if err := hc.UnmarshalYAML(func(any) error { return errors.New("ошибка") }); err == nil {
+		t.Error("UnmarshalYAML(): ожидалась ошибка функции разбора")
+	}
+	if err := hc.UnmarshalYAML(func(v any) error { *(v.(*string)) = "#xyz"; return nil }); err == nil {
+		t.Error("UnmarshalYAML(): ожидалась ошибка разбора цвета")
+	}
+	if err := hc.UnmarshalYAML(func(v any) error { *(v.(*string)) = "#ff8000"; return nil }); err != nil {
+		t.Fatalf("UnmarshalYAML(): неожиданная ошибка: %v", err)
+	}
+	if got := Color(hc).Hex(); got != "#ff8000" {
+		t.Errorf("UnmarshalYAML(): ожидался цвет #ff8000, получено %v", got)
+	}
 }

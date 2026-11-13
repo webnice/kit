@@ -16,6 +16,7 @@ import (
 	"io"
 	"regexp"
 	"sync"
+	"sync/atomic"
 
 	kitModuleBus "github.com/webnice/kit/v4/module/bus"
 	kitModuleLogLevel "github.com/webnice/kit/v4/module/log/level"
@@ -83,9 +84,10 @@ type logger struct {
 	waitCounter       int64                  // Обеспечение обработки всех поступивших сообщений в лог.
 	originalLogWriter io.Writer              // Оригинальный писатель логов до перехвата сообщений стандартного лога.
 	messagePool       *sync.Pool             // Бассейн объектов сообщений лога.
-	doEnd             bool                   // Флаг отключения логирования, когда установлен в "истина", прекращается приём новых сообщений лога.
+	doEnd             atomic.Bool            // Флаг отключения логирования, когда установлен в "истина", прекращается приём новых сообщений лога.
 	bus               kitModuleBus.Interface // Объект интерфейса Databus.
 	subscribers       *list.List             // Список зарегистрированных обработчиков сообщений лога. *subscriber
+	subscribersLock   sync.RWMutex           // Блокировка конкурентного доступа к списку обработчиков сообщений лога.
 }
 
 // Handler Обработчик сообщений лога.

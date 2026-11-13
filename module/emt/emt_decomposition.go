@@ -23,6 +23,7 @@ func (emt *impl) Decomposition(tpl *Template) (err error) {
 	)
 	var (
 		fn   *filename
+		mme  dic.IMime
 		tmp  []File
 		next []File
 		tags *File
@@ -49,16 +50,17 @@ func (emt *impl) Decomposition(tpl *Template) (err error) {
 			continue
 		}
 		if strings.EqualFold(fn.Filename, indexTemplate) {
-			if strings.HasPrefix(fn.ContentType(), dic.Mime().TextHtml.String()) ||
-				strings.HasPrefix(fn.ContentType(), dic.Mime().TextPlain.String()) ||
-				strings.HasPrefix(fn.ContentType(), dic.Mime().TextMarkdown.String()) {
+			mme = dic.ParseMime(fn.ContentType())
+			if mme != nil && (mme.IsEqual(dic.Mime().TextHtml) ||
+				mme.IsEqual(dic.Mime().TextPlain) ||
+				mme.IsEqual(dic.Mime().TextMarkdown)) {
 				tpl.Body = append(tpl.Body, Body{
 					Type:  tmp[n].Type,
 					Value: tmp[n].Value,
 				})
 				continue
 			}
-			if strings.HasPrefix(fn.ContentType(), dic.Mime().ApplicationJson.String()) {
+			if mme != nil && mme.IsEqual(dic.Mime().ApplicationJson) {
 				tags = &File{
 					Type:  tmp[n].Type,
 					Name:  tmp[n].Name,

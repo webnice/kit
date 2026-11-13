@@ -141,3 +141,19 @@ func TestHSLuv(t *testing.T) {
 		}
 	}
 }
+
+// TestHSLuvDistances Расстояния в цветовых пространствах HSLuv и HPLuv.
+func TestHSLuvDistances(t *testing.T) {
+	black, white := Color{0, 0, 0}, Color{1, 1, 1}
+	red, blue := Color{1, 0, 0}, Color{0, 0, 1}
+
+	if got := black.DistanceHSLuv(black); got != 0 {
+		t.Errorf("DistanceHSLuv(): ожидалось 0, получено %v", got)
+	}
+	if got := black.DistanceHPLuv(white); got <= 0 {
+		t.Errorf("DistanceHPLuv(): ожидалось значение больше 0, получено %v", got)
+	}
+	if got := red.DistanceHSLuv(blue); got <= 0 {
+		t.Errorf("DistanceHSLuv(): ожидалось значение больше 0, получено %v", got)
+	}
+}

@@ -9,6 +9,13 @@ import (
 	"os"
 )
 
+// fileStat Безопасное получение атрибутов открытого файла.
+func fileStat(f *os.File) (fi os.FileInfo) {
+	fi, _ = f.Stat()
+
+	return
+}
+
 // Copy Копирует один файл в другой.
 func (fl *impl) Copy(dst string, src string) (size int64, err error) {
 	const defaultFileMode = os.FileMode(0644)
@@ -22,6 +29,11 @@ func (fl *impl) Copy(dst string, src string) (size int64, err error) {
 		return
 	}
 	defer func() { _ = inp.Close() }()
+	// Защита от копирования файла в самого себя с потерей данных, проверка до усечения файла.
+	if di, e := os.Stat(dst); e == nil && os.SameFile(fileStat(inp), di) {
+		err = fmt.Errorf("копирование файла %q в самого себя невозможно", src)
+		return
+	}
 	if out, err = os.OpenFile(dst, os.O_CREATE|os.O_TRUNC|os.O_WRONLY, defaultFileMode); err != nil {
 		err = fmt.Errorf("создание файла %q прервано ошибкой: %s", dst, err)
 		return
@@ -59,10 +71,8 @@ func (fl *impl) CopyWithSha512Sum(dst io.Writer, src io.Reader) (written int64, 
 			break
 		}
 		if nr, er = src.Read(buf); nr > 0 {
-			if _, err = sha.Write(buf[0:nr]); err != nil {
-				err = fmt.Errorf("вычисление контрольной суммы sha-512 прервано ошибкой: %s", err)
-				return
-			}
+			// В соответствии с контрактом hash.Hash, запись в хеш ошибок не возвращает.
+			_, _ = sha.Write(buf[0:nr])
 			if nw, ew = dst.Write(buf[0:nr]); nw > 0 {
 				written += int64(nw)
 			}

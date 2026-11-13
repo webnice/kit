@@ -84,8 +84,11 @@ func (cfg *impl) initMainConfiguration() {
 		PidFile:                empty,                               // Путь и имя PID файла по умолчанию.
 		StateFile:              empty,                               // Файл состояния.
 		SocketFile:             empty,                               // Сокет файл для коммуникации серверной части с клиентской.
-		LogLevel:               defaultLogLevel().String,            // Уровень логирования по умолчанию до загрузки конфигурации.
-		CommandGroup:           cfg.initGroupOfCommand,              // Список групп команд, который сформируется при регистрации компонентов.
+		LogLevel: func() string { // Уровень логирования по умолчанию до загрузки конфигурации.
+			var lvl = defaultLogLevel()
+			return lvl.String()
+		},
+		CommandGroup: cfg.initGroupOfCommand, // Список групп команд, который сформируется при регистрации компонентов.
 	}); err != nil {
 		cfg.error = append(cfg.error, Errors().ConfigurationBootstrap.Bind(err))
 	}

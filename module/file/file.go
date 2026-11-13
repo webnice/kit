@@ -22,9 +22,7 @@ func (fl *impl) GetFilename(filename string) (ret string) {
 
 	if ch = strings.Split(filename, string(os.PathSeparator)); len(ch) > 0 {
 		ret = ch[len(ch)-1]
-		return
 	}
-	ret = filename
 
 	return
 }

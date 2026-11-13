@@ -3,14 +3,14 @@
 
 package dye
 
-func colorProfile() Profile {
-	return ANSI256
+func colorProfile() terminalProfile {
+	return terminalANSI256
 }
 
 func foregroundColor() Color {
-	return ANSIColor(7)
+	return colorAnsi(7)
 }
 
 func backgroundColor() Color {
-	return ANSIColor(0)
+	return colorAnsi(0)
 }

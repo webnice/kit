@@ -26,10 +26,7 @@ func (wdo *data) Type() reflect.Type { return wdo.dataType }
 func (wdo *data) IsSync() bool { return wdo.sync }
 
 // DoneSet Установка флага "обработка данных завершена".
-func (wdo *data) DoneSet() {
-	defer func() { _ = recover() }()
-	wdo.done <- struct{}{}
-}
+func (wdo *data) DoneSet() { safeCloseSignalChannel(wdo.done) }
 
 // Done Канал сигнала окончания обработки данных и агрегации результата.
 func (wdo *data) Done() <-chan struct{} { return wdo.done }

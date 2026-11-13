@@ -40,6 +40,8 @@ func (app *impl) finalizeFn(component *kitTypes.ComponentInfo) (err error) {
 				app.cfg.Log().Warning(warning.Error())
 			}
 			if count >= maxCount {
+				// Сброс накопленных сообщений лога перед аварийным завершением процесса.
+				app.Cfg().Gist().Logger().FlushAndClose()
 				os.Exit(errcode)
 			}
 		}

@@ -27,7 +27,6 @@ func (app *impl) initiateFn(component *kitTypes.ComponentInfo) (err error) {
 	defer ctf()
 	// Запуск функции Initiate() у компоненты с защитой от паники.
 	call = app.initiateCallFn(component.ComponentName, component.Component)
-	defer func() { close(call) }()
 	// Ожидание, либо тайм-аута, либо завершения функции Initiate().
 	select {
 	case <-ctx.Done():
@@ -42,8 +41,13 @@ func (app *impl) initiateFn(component *kitTypes.ComponentInfo) (err error) {
 
 // Запуск горутины с каналом обратной связи для получения ошибки из вызываемой функции Initiate().
 func (app *impl) initiateCallFn(componentName string, cpt kitTypes.Component) (ret chan error) {
-	ret = make(chan error)
-	go func() { ret <- app.initiateSafeCall(componentName, cpt) }()
+	// Канал с буфером 1: при тайм-ауте функция initiateFn() завершается, не дожидаясь горутины,
+	// отправка результата в буферизированный канал не блокируется и не приводит к панике.
+	ret = make(chan error, 1)
+	go func() {
+		ret <- app.initiateSafeCall(componentName, cpt)
+		close(ret)
+	}()
 
 	return
 }

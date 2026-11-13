@@ -21,22 +21,29 @@ import (
 
 // Get Получение объекта сущности пакета, возвращается интерфейс пакета.
 //
+// Пакет cfg является singleton-объектом: экземпляр создаётся при импорте пакета в cfg_init.go.
+// Функция не выполняет повторной инициализации и всегда возвращает один и тот же объект конфигурации.
+//
 //goland:noinspection GoUnusedExportedFunction
 func Get() Interface { return singleton }
 
 // RegistrationMain Регистрация основной функции приложения.
+//
+// Функция потокобезопасна: используется FnMutex, причём mutex разблокируется через defer даже при panic.
+// Повторная регистрация основной функции запрещена: в этом случае в список ошибок добавляется
+// ApplicationMainFuncAlreadyRegistered и выполняется panic. После panic mutex остаётся разблокированным,
+// чтобы верхний обработчик мог корректно завершить приложение и не получить secondary deadlock.
 func RegistrationMain(fn kitTypes.MainFn) Interface {
 	var fnName string
 
 	singleton.main.FnMutex.Lock()
+	defer singleton.main.FnMutex.Unlock()
 	if singleton.main.Fn != nil {
 		fnName = getFuncFullName(RegistrationMain)
 		singleton.error = append(singleton.error, Errors().ApplicationMainFuncAlreadyRegistered.Bind())
 		panic(fnName + "\n" + Errors().ApplicationMainFuncAlreadyRegistered.Bind().Error())
-		return singleton
 	}
 	singleton.main.Fn = fn
-	singleton.main.FnMutex.Unlock()
 
 	return singleton
 }

@@ -39,41 +39,69 @@ func (essence *gist) ComponentNames() (ret []string) {
 }
 
 // ComponentPreferences Функция-менеджер загрузки и обработки настроек компонентов.
+//
+// Функция переносит временный список зарегистрированных компонентов Registered в основной список Component.
+// Список Registered копируется под ComponentMutex, после чего пользовательская функция fn вызывается вне блокировки.
+// Это позволяет fn безопасно обращаться к ComponentNames() и другим gist-методам. Результаты фиксируются
+// в Component только после успешной обработки всех элементов снапшота; обработанные элементы удаляются из Registered
+// по указателю, чтобы не потерять возможные новые регистрации, появившиеся во время работы fn.
 func (essence *gist) ComponentPreferences(fn kitTypes.ComponentPreferencesFn) (code uint8, err error) {
 	var (
-		ierr     dic.IError
-		src, res *kitTypes.ComponentInfo
+		ierr       dic.IError
+		registered []*kitTypes.ComponentInfo
+		results    []*kitTypes.ComponentInfo
+		src, res   *kitTypes.ComponentInfo
+		n, i       int
 	)
 
 	essence.parent.comp.ComponentMutex.Lock()
-	defer essence.parent.comp.ComponentMutex.Unlock()
 	if !essence.parent.comp.IsClose {
+		essence.parent.comp.ComponentMutex.Unlock()
 		code = essence.parent.Errors().ComponentPreferencesCallBeforeCompleting.CodeU8().Get()
 		essence.ErrorAppend(essence.parent.Errors().ComponentPreferencesCallBeforeCompleting.Bind())
 		return
 	}
-	for _, src = range essence.parent.comp.Registered {
+	registered = append(registered, essence.parent.comp.Registered...)
+	essence.parent.comp.ComponentMutex.Unlock()
+
+	for _, src = range registered {
 		if res, err = fn(src); err != nil {
 			if ierr = Errors().Unbind(err); ierr != nil {
 				code = ierr.CodeU8().Get()
 			}
 			return
 		}
-		essence.parent.comp.Component = append(essence.parent.comp.Component, res)
+		results = append(results, res)
 	}
-	// Очистка значений среза временного списка зарегистрированных компонентов.
-	essence.parent.comp.Registered = essence.parent.comp.Registered[:0]
+
+	essence.parent.comp.ComponentMutex.Lock()
+	defer essence.parent.comp.ComponentMutex.Unlock()
+	essence.parent.comp.Component = append(essence.parent.comp.Component, results...)
+	// Удаляются только те компоненты, которые были обработаны в этом проходе. Если во время обработки
+	// пользовательским кодом появились новые регистрации, они сохраняются.
+	for n = range registered {
+		for i = range essence.parent.comp.Registered {
+			if essence.parent.comp.Registered[i] == registered[n] {
+				essence.parent.comp.Registered = append(essence.parent.comp.Registered[:i], essence.parent.comp.Registered[i+1:]...)
+				break
+			}
+		}
+	}
 
 	return
 }
 
 // ComponentCheckConflict Проверка конфликтов между всеми зарегистрированными компонентами.
+//
+// Передаётся снапшот списка Component, поэтому пользовательская функция fn не вызывается с удержанием ComponentMutex.
+// Снапшот защищает от self-deadlock и от паники container/list при параллельном чтении компонентов.
 func (essence *gist) ComponentCheckConflict(fn kitTypes.ComponentConflictFn) (code uint8, err error) {
-	var ierr dic.IError
+	var (
+		component = essence.componentSnapshot()
+		ierr      dic.IError
+	)
 
-	essence.parent.comp.ComponentMutex.Lock()
-	defer essence.parent.comp.ComponentMutex.Unlock()
-	if err = fn(essence.parent.comp.Component); err != nil {
+	if err = fn(component); err != nil {
 		if ierr = Errors().Unbind(err); ierr != nil {
 			code = ierr.CodeU8().Get()
 		}
@@ -84,12 +112,16 @@ func (essence *gist) ComponentCheckConflict(fn kitTypes.ComponentConflictFn) (co
 }
 
 // ComponentRequiresCheck Проверка зависимостей между всеми зарегистрированными компонентами.
+//
+// Передаётся снапшот списка Component, поэтому пользовательская функция fn не вызывается с удержанием ComponentMutex.
+// Проверка должна вернуть ошибку с кодом из справочника cfg.Errors, чтобы дирижёр мог извлечь код возврата.
 func (essence *gist) ComponentRequiresCheck(fn kitTypes.ComponentRequiresFn) (code uint8, err error) {
-	var ierr dic.IError
+	var (
+		component = essence.componentSnapshot()
+		ierr      dic.IError
+	)
 
-	essence.parent.comp.ComponentMutex.Lock()
-	defer essence.parent.comp.ComponentMutex.Unlock()
-	if err = fn(essence.parent.comp.Component); err != nil {
+	if err = fn(component); err != nil {
 		if ierr = Errors().Unbind(err); ierr != nil {
 			code = ierr.CodeU8().Get()
 		}
@@ -100,17 +132,24 @@ func (essence *gist) ComponentRequiresCheck(fn kitTypes.ComponentRequiresFn) (co
 }
 
 // ComponentSort Сортировка зарегистрированных компонентов в соответствии с настройками (before) и (after).
+//
+// Функция сортирует снапшот указателей на компоненты вне ComponentMutex и фиксирует новый порядок в Component
+// только после успешного завершения fn. Если fn вернула ошибку, исходный порядок компонентов не изменяется.
 func (essence *gist) ComponentSort(fn kitTypes.ComponentSortFn) (code uint8, err error) {
-	var ierr dic.IError
+	var (
+		component = essence.componentSnapshot()
+		ierr      dic.IError
+	)
 
-	essence.parent.comp.ComponentMutex.Lock()
-	defer essence.parent.comp.ComponentMutex.Unlock()
-	if err = fn(essence.parent.comp.Component); err != nil {
+	if err = fn(component); err != nil {
 		if ierr = Errors().Unbind(err); ierr != nil {
 			code = ierr.CodeU8().Get()
 		}
 		return
 	}
+	essence.parent.comp.ComponentMutex.Lock()
+	essence.parent.comp.Component = component
+	essence.parent.comp.ComponentMutex.Unlock()
 
 	return
 }
@@ -118,58 +157,71 @@ func (essence *gist) ComponentSort(fn kitTypes.ComponentSortFn) (code uint8, err
 // ComponentMapRunlevel Построение шагов переключения уровня выполнения приложения (runlevel).
 func (essence *gist) ComponentMapRunlevel(targetlevel uint16) (code uint8, err error) {
 	var (
-		n   int
-		l   uint16
-		tmp map[uint16]bool
+		component []*kitTypes.ComponentInfo
+		n         int
+		l         uint16
+		tmp       map[uint16]bool
+		mapLevel  []uint16
 	)
 
-	essence.parent.comp.ComponentMutex.Lock()
-	defer essence.parent.comp.ComponentMutex.Unlock()
-	// Очистка карты уровней
-	essence.parent.mapRunLevel = essence.parent.mapRunLevel[:0]
+	component = essence.componentSnapshot()
 	tmp = make(map[uint16]bool)
 	tmp[defaultRunlevel], tmp[targetlevel], tmp[math.MaxUint16] = true, true, true
 	// Обход всех зарегистрированных компонентов, получение уровня отличного от нуля
-	for n = range essence.parent.comp.Component {
-		if essence.parent.comp.Component[n].Runlevel != 0 {
-			tmp[essence.parent.comp.Component[n].Runlevel] = true
+	for n = range component {
+		if component[n].Runlevel != 0 {
+			tmp[component[n].Runlevel] = true
 		}
 	}
-	// Увеличение памяти для хранения среза карты уровней, если изначально выделено недостаточно.
-	if cap(essence.parent.mapRunLevel) < len(tmp) {
-		essence.parent.mapRunLevel = make([]uint16, 0, len(tmp))
-	}
+	mapLevel = make([]uint16, 0, len(tmp))
 	// Копирование получившейся карты из map в массив.
 	for l = range tmp {
-		essence.parent.mapRunLevel = append(essence.parent.mapRunLevel, l)
+		mapLevel = append(mapLevel, l)
 	}
 	// Сортировка по значению уровня выполнения приложения.
-	sort.Slice(essence.parent.mapRunLevel, func(i, j int) bool {
-		return essence.parent.mapRunLevel[i] < essence.parent.mapRunLevel[j]
-	})
+	sort.Slice(mapLevel, func(i, j int) bool { return mapLevel[i] < mapLevel[j] })
+	essence.parent.runLevelMutex.Lock()
+	essence.parent.mapRunLevel = mapLevel
+	essence.parent.runLevelMutex.Unlock()
+
+	return
+}
+
+// componentSnapshot возвращает копию списка компонентов для безопасного вызова пользовательского кода вне блокировки.
+//
+// Блокировка удерживается только на время копирования среза указателей. Сами объекты ComponentInfo не копируются:
+// пользовательская функция может изменять их поля состояния (IsInitiate, IsDo, IsFinalize, Runlevel) по указателю.
+func (essence *gist) componentSnapshot() (ret []*kitTypes.ComponentInfo) {
+	essence.parent.comp.ComponentMutex.Lock()
+	ret = append(ret, essence.parent.comp.Component...)
+	essence.parent.comp.ComponentMutex.Unlock()
 
 	return
 }
 
 // ComponentInitiate Вызов функции Initiate у всех зарегистрированных компонентов в прямом порядке.
+//
+// Список компонентов копируется под ComponentMutex, после чего fn вызывается вне блокировки. Пропускаются отключённые
+// компоненты (IsDisable) и уже инициализированные компоненты (IsInitiate). При ошибке выполнение останавливается,
+// а код ошибки извлекается через cfg.Errors().Unbind.
 func (essence *gist) ComponentInitiate(fn kitTypes.ComponentInitiateFn) (code uint8, err error) {
 	var (
-		ierr dic.IError
-		n    int
+		component []*kitTypes.ComponentInfo
+		ierr      dic.IError
+		n         int
 	)
 
-	essence.parent.comp.ComponentMutex.Lock()
-	defer essence.parent.comp.ComponentMutex.Unlock()
-	for n = range essence.parent.comp.Component {
+	component = essence.componentSnapshot()
+	for n = range component {
 		// Пропускаем отключённые компоненты.
-		if essence.parent.comp.Component[n].IsDisable {
+		if component[n].IsDisable {
 			continue
 		}
 		// Пропускаем уже проинициализированные компоненты.
-		if essence.parent.comp.Component[n].IsInitiate {
+		if component[n].IsInitiate {
 			continue
 		}
-		if err = fn(essence.parent.comp.Component[n]); err != nil {
+		if err = fn(component[n]); err != nil {
 			if ierr = Errors().Unbind(err); ierr != nil {
 				code = ierr.CodeU8().Get()
 			}
@@ -201,31 +253,35 @@ func (essence *gist) ComponentDoFindByCommand(n int) (ret bool) {
 }
 
 // ComponentDo Вызов функции Do у всех зарегистрированных компонентов в прямом порядке для указанного уровня приложения.
+//
+// Список компонентов копируется под ComponentMutex, пользовательская функция fn вызывается вне блокировки.
+// Фильтрация выполняется по флагам IsDisable/IsInitiate/IsDo, по runlevel компоненты, по команде приложения и режиму
+// forkWorker. Компоненты с Runlevel=0 получают текущий уровень перед вызовом fn и помечаются IsDo=true до вызова fn.
 func (essence *gist) ComponentDo(runlevel uint16, fn kitTypes.ComponentDoFn) (code uint8, err error) {
 	var (
-		bcfw *kitTypes.BootstrapConfigurationForkWorker
-		ierr dic.IError
-		n    int
+		bcfw      *kitTypes.BootstrapConfigurationForkWorker
+		component []*kitTypes.ComponentInfo
+		ierr      dic.IError
+		n         int
 	)
 
 	bcfw = essence.parent.ForkWorker()
-	essence.parent.comp.ComponentMutex.Lock()
-	defer essence.parent.comp.ComponentMutex.Unlock()
-	for n = range essence.parent.comp.Component {
+	component = essence.componentSnapshot()
+	for n = range component {
 		// Пропускаем отключённые компоненты.
-		if essence.parent.comp.Component[n].IsDisable {
+		if component[n].IsDisable {
 			continue
 		}
 		// Пропускаем не инициализированные компоненты.
-		if !essence.parent.comp.Component[n].IsInitiate {
+		if !component[n].IsInitiate {
 			continue
 		}
 		// Пропускаем ранее запущенные компоненты.
-		if essence.parent.comp.Component[n].IsDo {
+		if component[n].IsDo {
 			continue
 		}
 		// Пропускаем компоненты с уровнем запуска не равному текущему уровню работы приложения.
-		if essence.parent.comp.Component[n].Runlevel > 0 && essence.parent.comp.Component[n].Runlevel != runlevel {
+		if component[n].Runlevel > 0 && component[n].Runlevel != runlevel {
 			continue
 		}
 		// Выбор на основе флага isForkWorker.
@@ -235,7 +291,7 @@ func (essence *gist) ComponentDo(runlevel uint16, fn kitTypes.ComponentDoFn) (co
 			// Режим forkWorker и указанная компонента, имеет приоритет над командой приложения.
 			case bcfw.Component != "":
 				// Запускается только компонента указанная для запуска.
-				if !strings.EqualFold(bcfw.Component, essence.parent.comp.Component[n].ComponentName) {
+				if !strings.EqualFold(bcfw.Component, component[n].ComponentName) {
 					continue
 				}
 			default:
@@ -251,13 +307,13 @@ func (essence *gist) ComponentDo(runlevel uint16, fn kitTypes.ComponentDoFn) (co
 			}
 		}
 		// Если у компоненты уровень по умолчанию (=0), присваиваем уровень на котором был выполнен запуск компоненты.
-		if essence.parent.comp.Component[n].Runlevel == 0 {
-			essence.parent.comp.Component[n].Runlevel = runlevel
+		if component[n].Runlevel == 0 {
+			component[n].Runlevel = runlevel
 		}
 		// Помечаем то что компонента была запущена.
-		essence.parent.comp.Component[n].IsDo = true
+		component[n].IsDo = true
 		// Выполнение запуска компоненты с использованием внешней функции запуска.
-		if err = fn(essence.parent.comp.Component[n]); err != nil {
+		if err = fn(component[n]); err != nil {
 			if ierr = Errors().Unbind(err); ierr != nil {
 				code = ierr.CodeU8().Get()
 			}
@@ -276,32 +332,36 @@ func (essence *gist) ComponentFinalizeWarningTimeout() (ret time.Duration) {
 }
 
 // ComponentFinalize Вызов функции Finalize у всех зарегистрированных компонентов в обратном порядке.
+//
+// Список компонентов копируется под ComponentMutex, после чего fn вызывается вне блокировки. Обход выполняется
+// от последнего компонента к первому; пропускаются отключённые, не инициализированные, не запущенные и уже
+// финализированные компоненты. При ошибке выполнение останавливается, код ошибки извлекается через cfg.Errors().Unbind.
 func (essence *gist) ComponentFinalize(fn kitTypes.ComponentFinalizeFn) (code uint8, err error) {
 	var (
-		ierr dic.IError
-		n    int
+		component []*kitTypes.ComponentInfo
+		ierr      dic.IError
+		n         int
 	)
 
-	essence.parent.comp.ComponentMutex.Lock()
-	defer essence.parent.comp.ComponentMutex.Unlock()
-	for n = len(essence.parent.comp.Component) - 1; n >= 0; n-- {
+	component = essence.componentSnapshot()
+	for n = len(component) - 1; n >= 0; n-- {
 		// Пропускаем отключённые компоненты.
-		if essence.parent.comp.Component[n].IsDisable {
+		if component[n].IsDisable {
 			continue
 		}
 		// Пропускаем не инициализированные компоненты.
-		if !essence.parent.comp.Component[n].IsInitiate {
+		if !component[n].IsInitiate {
 			continue
 		}
 		// Пропускаем не запущенные компоненты.
-		if !essence.parent.comp.Component[n].IsDo {
+		if !component[n].IsDo {
 			continue
 		}
 		// Пропускаем ранее "финализированные" компоненты.
-		if essence.parent.comp.Component[n].IsFinalize {
+		if component[n].IsFinalize {
 			continue
 		}
-		if err = fn(essence.parent.comp.Component[n]); err != nil {
+		if err = fn(component[n]); err != nil {
 			if ierr = Errors().Unbind(err); ierr != nil {
 				code = ierr.CodeU8().Get()
 			}

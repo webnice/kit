@@ -3,6 +3,7 @@ package sql
 import (
 	"errors"
 	"math"
+	"sync"
 
 	//kitModuleCfg "github.com/webnice/kit/v4/module/cfg"
 	"github.com/webnice/migrate/goose"
@@ -29,6 +30,13 @@ func (mys *impl) MigrationUp() (err error) {
 		end       bool
 	)
 
+	if mys.cfg == nil {
+		err = mys.Errors().ConfigurationIsEmpty.Bind()
+		return
+	}
+	if mys.connectMux == nil {
+		mys.connectMux = new(sync.RWMutex)
+	}
 	// Соединение заблокировано, если оно находится в состоянии подключения или переподключения, необходимо подождать.
 	mys.connectMux.RLock()
 	defer mys.connectMux.RUnlock()

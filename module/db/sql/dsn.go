@@ -3,6 +3,9 @@ package sql
 import (
 	"fmt"
 	"strings"
+	"time"
+
+	"github.com/go-sql-driver/mysql"
 )
 
 // Создание DSN для подключения к базе данных.
@@ -29,41 +32,93 @@ func (mys *impl) makeDsn() (err error) {
 		err = mys.Errors().UnknownDatabaseDriver.Bind(mys.cfg.Driver)
 		return
 	}
-	// Самая простая конфигурация: sqlite
-	//if mys.cfg.Driver == driverSqlite {
-	//	mys.dsn = fmt.Sprintf("%s?%s", mys.cfg.Name, dsnTimeSettings)
-	//	return
-	//}
-	// Имя пользователя.
+
+	switch mys.cfg.Driver {
+	case driverMySQL:
+		err = mys.makeDsnMySQL(keyTcp, keySocket)
+	case driverPostgreSQL:
+		err = mys.makeDsnPostgreSQL(keyTcp, keySocket)
+	}
+
+	return
+}
+
+// Создание DSN для подключения к серверу MySQL.
+func (mys *impl) makeDsnMySQL(keyTcp, keySocket string) (err error) {
+	var (
+		cfgMySQL = mysql.NewConfig()
+		loc      *time.Location
+	)
+
 	if mys.cfg.Login == "" {
 		err = mys.Errors().UsernameIsEmpty.Bind()
 		return
 	}
-	// Имя пользователя и пароль можно добавлять в DSN.
-	mys.dsn = fmt.Sprintf("%s:%s", mys.cfg.Login, mys.cfg.Password)
-	// Тип подключения.
+	cfgMySQL.User = mys.cfg.Login
+	cfgMySQL.Passwd = mys.cfg.Password
+	cfgMySQL.DBName = mys.cfg.Name
+	cfgMySQL.ParseTime = mys.cfg.ParseTime
+	cfgMySQL.Params = make(map[string]string)
+	if mys.cfg.Charset != "" {
+		cfgMySQL.Params["charset"] = mys.cfg.Charset
+	}
+	if mys.cfg.TimezoneLocation != "" {
+		if loc, err = time.LoadLocation(mys.cfg.TimezoneLocation); err != nil {
+			err = mys.Errors().ConnectError.Bind(err)
+			return
+		}
+		cfgMySQL.Loc = loc
+	}
 	switch strings.ToLower(mys.cfg.Type) {
 	case keyTcp:
-		mys.dsn += fmt.Sprintf("@%s(%s:%d)", keyTcp, mys.cfg.Host, mys.cfg.Port)
+		cfgMySQL.Net = keyTcp
+		cfgMySQL.Addr = fmt.Sprintf("%s:%d", mys.cfg.Host, mys.cfg.Port)
 	case keySocket:
-		mys.dsn += fmt.Sprintf(dsnUnixTpl, mys.cfg.Socket)
+		cfgMySQL.Net = "unix"
+		cfgMySQL.Addr = mys.cfg.Socket
 	default:
 		err = mys.Errors().WrongConnectionType.Bind(mys.cfg.Type)
 		return
 	}
 	mys.cfg.Type = strings.ToLower(mys.cfg.Type)
-	// Название базы данных.
-	mys.dsn += fmt.Sprintf("/%s", mys.cfg.Name)
-	// Парсинг времени.
-	mys.dsn += fmt.Sprintf(dsnTimeSettings, mys.cfg.ParseTime)
-	// Зона времени.
-	if mys.cfg.TimezoneLocation != "" {
-		mys.dsn += fmt.Sprintf(dsnLocationSettings, mys.cfg.TimezoneLocation)
+	mys.dsn = cfgMySQL.FormatDSN()
+
+	return
+}
+
+// Создание DSN для подключения к серверу PostgreSQL.
+func (mys *impl) makeDsnPostgreSQL(keyTcp, keySocket string) (err error) {
+	var (
+		host string
+		keys = make([]string, 0, 6)
+	)
+
+	switch strings.ToLower(mys.cfg.Type) {
+	case keyTcp:
+		host = mys.cfg.Host
+	case keySocket:
+		host = mys.cfg.Socket
+	default:
+		err = mys.Errors().WrongConnectionType.Bind(mys.cfg.Type)
+		return
 	}
-	// Кодировка соединения с базой данных.
-	if mys.cfg.Charset != "" {
-		mys.dsn += fmt.Sprintf(dsnCharsetTpl, mys.cfg.Charset)
-	}
+	mys.cfg.Type = strings.ToLower(mys.cfg.Type)
+	keys = append(keys,
+		fmt.Sprintf("host=%s", postgresQuoteValue(host)),
+		fmt.Sprintf("port=%d", mys.cfg.Port),
+		fmt.Sprintf("user=%s", postgresQuoteValue(mys.cfg.Login)),
+		fmt.Sprintf("password=%s", postgresQuoteValue(mys.cfg.Password)),
+		fmt.Sprintf("dbname=%s", postgresQuoteValue(mys.cfg.Name)),
+	)
+	mys.dsn = strings.Join(keys, " ")
+
+	return
+}
+
+// Экранирование значения keyword DSN PostgreSQL.
+func postgresQuoteValue(value string) (ret string) {
+	ret = strings.ReplaceAll(value, `\`, `\\`)
+	ret = strings.ReplaceAll(ret, `'`, `\'`)
 
 	return
 }

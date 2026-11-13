@@ -3,7 +3,6 @@ package cli
 import (
 	"bytes"
 
-	kitModuleCfgCliKong "github.com/webnice/kit/v4/module/cfg/cli/kong"
 	kitTypes "github.com/webnice/kit/v4/types"
 )
 
@@ -43,12 +42,12 @@ type impl struct {
 	bootstrapDefaultValue *kitTypes.BootstrapDefaultValue  // Минимальные начальные данные необходимые для работы приложения.
 	applicationName       string                           // Название приложения.
 	applicationCommand    []string                         // Полученная команда приложения.
-	k2g                   *kitModuleCfgCliKong.Kong        // Объект библиотеки kong.
+	k2g                   *Kong                            // Объект библиотеки kong.
 	k2gOut                *bytes.Buffer                    // kong stdout.
 	k2gErr                *bytes.Buffer                    // kong stderr.
 	k2gIsExit             bool                             // Флаг устанавливается в истина, если cli вызвала функцию завершения.
 	k2gExitCode           int                              // Код завершения, возвращённый cli.
-	ctx                   *kitModuleCfgCliKong.Context     // Контекст библиотеки kong.
+	ctx                   *Context                         // Контекст библиотеки kong.
 	command               []*Command                       // Динамические команды приложения.
 	flag                  []*Flag                          // Динамические глобальные флаги приложения.
 }

@@ -266,8 +266,8 @@ func BenchmarkFastLinearToColor(bench *testing.B) {
 	bench_result = c.R + c.G + c.B
 }
 
-/// XYZ ///
-///////////
+// / XYZ ///
+// /////////
 func TestXyzCreation(t *testing.T) {
 	for i, tt := range vals {
 		c := Xyz(tt.xyz[0], tt.xyz[1], tt.xyz[2])
@@ -286,8 +286,8 @@ func TestXyzConversion(t *testing.T) {
 	}
 }
 
-/// xyY ///
-///////////
+// / xyY ///
+// /////////
 func TestXyyCreation(t *testing.T) {
 	for i, tt := range vals {
 		c := Xyy(tt.xyy[0], tt.xyy[1], tt.xyy[2])
@@ -306,8 +306,8 @@ func TestXyyConversion(t *testing.T) {
 	}
 }
 
-/// L*a*b* ///
-//////////////
+// / L*a*b* ///
+// ////////////
 func TestLabCreation(t *testing.T) {
 	for i, tt := range vals {
 		c := Lab(tt.lab[0], tt.lab[1], tt.lab[2])
@@ -344,8 +344,8 @@ func TestLabWhiteRefConversion(t *testing.T) {
 	}
 }
 
-/// L*u*v* ///
-//////////////
+// / L*u*v* ///
+// ////////////
 func TestLuvCreation(t *testing.T) {
 	for i, tt := range vals {
 		c := Luv(tt.luv[0], tt.luv[1], tt.luv[2])
@@ -382,8 +382,8 @@ func TestLuvWhiteRefConversion(t *testing.T) {
 	}
 }
 
-/// HCL ///
-///////////
+// / HCL ///
+// /////////
 // CIE-L*a*b* in polar coordinates.
 func TestHclCreation(t *testing.T) {
 	for i, tt := range vals {
@@ -642,6 +642,123 @@ func TestInterpolation(t *testing.T) {
 		res := interp_angle(tt.a1, tt.a0, 1.0-tt.t)
 		if !almosteq_eps(res, tt.at, 1e-15) {
 			t.Errorf("%v. interp_angle(%v, %v, %v) => (%v), want %v", i, tt.a1, tt.a0, 1.0-tt.t, res, tt.at)
+		}
+	}
+}
+
+// TestDistances Расстояния между цветами в разных цветовых пространствах.
+func TestDistances(t *testing.T) {
+	black, white := Color{0, 0, 0}, Color{1, 1, 1}
+	red, blue := Color{1, 0, 0}, Color{0, 0, 1}
+
+	if got := black.DistanceRgb(white); got != math.Sqrt(3) {
+		t.Errorf("DistanceRgb(): ожидалось %v, получено %v", math.Sqrt(3), got)
+	}
+	if got := red.DistanceRgb(red); got != 0 {
+		t.Errorf("DistanceRgb(): ожидалось 0, получено %v", got)
+	}
+	if got := black.DistanceLinearRgb(white); got != math.Sqrt(3) {
+		t.Errorf("DistanceLinearRgb(): ожидалось %v, получено %v", math.Sqrt(3), got)
+	}
+	if d1, d2 := red.DistanceLinearRgb(blue), red.DistanceLinearRGB(blue); d1 != d2 {
+		t.Errorf("DistanceLinearRGB() != DistanceLinearRgb(): %v != %v", d2, d1)
+	}
+	// Метрика Римерсма: для красного и чёрного rAvg=0.5, dR=1.
+	if got, want := red.DistanceRiemersma(black), math.Sqrt(2.5); math.Abs(got-want) > delta {
+		t.Errorf("DistanceRiemersma(): ожидалось %v, получено %v", want, got)
+	}
+	// Расстояние в Luv между чёрным и белым равно 1.
+	if got := black.DistanceLuv(white); math.Abs(got-1) > delta {
+		t.Errorf("DistanceLuv(): ожидалось 1, получено %v", got)
+	}
+}
+
+// TestHsvNegativeHue Оттенок с отрицательным промежуточным значением, ветка h < 0.
+func TestHsvNegativeHue(t *testing.T) {
+	h, _, _ := Color{1.0, 0.0, 0.5}.Hsv()
+	if math.Abs(h-330.0) > delta {
+		t.Errorf("Hsv(): ожидался оттенок 330, получено %v", h)
+	}
+}
+
+// TestBlendHsvAchromatic Смешивание с ахроматическим цветом (нулевая насыщенность).
+func TestBlendHsvAchromatic(t *testing.T) {
+	gray, colored := Color{0.5, 0.5, 0.5}, Color{1.0, 0.0, 0.0}
+	for _, tt := range []struct{ c1, c2 Color }{
+		{gray, colored},
+		{colored, gray},
+	} {
+		blended := tt.c1.BlendHsv(tt.c2, 0.5)
+		if !blended.IsValid() {
+			t.Errorf("BlendHsv(%v, %v): получен невалидный цвет %v", tt.c1, tt.c2, blended)
+		}
+	}
+}
+
+// TestHslLowLightness Насыщенность цвета с яркостью меньше 0.5, ветка l < 0.5.
+func TestHslLowLightness(t *testing.T) {
+	h, s, _ := Color{0.2, 0.4, 0.6}.Hsl()
+	if math.Abs(s-0.5) > delta {
+		t.Errorf("Hsl(): ожидалась насыщенность 0.5, получено %v", s)
+	}
+	if math.Abs(h-210.0) > delta {
+		t.Errorf("Hsl(): ожидался оттенок 210, получено %v", h)
+	}
+	// Обратное преобразование.
+	if c := Hsl(h, s, 0.4); !c.AlmostEqualRgb(Color{0.2, 0.4, 0.6}) {
+		t.Errorf("Hsl(): ожидался цвет %v, получено %v", Color{0.2, 0.4, 0.6}, c)
+	}
+}
+
+// TestHslCreationSweep Создание цвета Hsl для широкого диапазона оттенков, все ветки переноса.
+func TestHslCreationSweep(t *testing.T) {
+	for h := -360.0; h <= 720.0; h += 7 {
+		for _, l := range []float64{0.2, 0.5, 0.8} {
+			for _, s := range []float64{0.0, 0.5, 1.0} {
+				Hsl(h, s, l)
+			}
+		}
+	}
+}
+
+// TestHexErrors Ошибки разбора HEX строки цвета.
+func TestHexErrors(t *testing.T) {
+	for _, s := range []string{"", "#xy", "#gggggg", "000000"} {
+		if _, err := Hex(s); err == nil {
+			t.Errorf("Hex(%q): ожидалась ошибка", s)
+		}
+	}
+}
+
+// TestXyyToXyzBlack Конвертация xyY в XYZ для чёрного цвета, ветка y ≈ 0.
+func TestXyyToXyzBlack(t *testing.T) {
+	X, Y, Z := XyyToXyz(0.3, 0.0, 1.0)
+	if X != 0 || Y != 1 || Z != 0 {
+		t.Errorf("XyyToXyz(): ожидалось (0, 1, 0), получено (%v, %v, %v)", X, Y, Z)
+	}
+}
+
+// TestXyyWhiteRef Конвертация цвета в CIE xyY с заданным референсным белым.
+func TestXyyWhiteRef(t *testing.T) {
+	x, y, Y := Color{0.5, 0.5, 0.5}.XyyWhiteRef(D50)
+	if Y <= 0 {
+		t.Errorf("XyyWhiteRef(): ожидалась положительная яркость, получено %v", Y)
+	}
+	if x <= 0 || y <= 0 {
+		t.Errorf("XyyWhiteRef(): ожидались положительные координаты, получено (%v, %v)", x, y)
+	}
+}
+
+// TestBlendHclAchromatic Смешивание с ахроматическим цветом (нулевая chroma).
+func TestBlendHclAchromatic(t *testing.T) {
+	gray, colored := Color{0.5, 0.5, 0.5}, Color{1.0, 0.0, 0.0}
+	for _, tt := range []struct{ c1, c2 Color }{
+		{gray, colored},
+		{colored, gray},
+	} {
+		blended := tt.c1.BlendHcl(tt.c2, 0.5)
+		if !blended.IsValid() {
+			t.Errorf("BlendHcl(%v, %v): получен невалидный цвет %v", tt.c1, tt.c2, blended)
 		}
 	}
 }

@@ -38,13 +38,16 @@ type impl struct {
 	isForkWorker              bool                                       // Режим forkWorker.
 	command                   []string                                   // Команда с которой было запущено приложение.
 	error                     []error                                    // Список ошибок возникших при выполнении компонентов приложения.
+	errorMutex                sync.RWMutex                               // Защита списка ошибок приложения.
 	main                      *mainApplication                           // Основная функция приложения.
 	comp                      *mainComponent                             // Регистр компонентов приложения.
 	conf                      *mainConfiguration                         // Регистр объектов конфигураций.
 	runLevel                  uint16                                     // Текущий уровень работы приложения.
+	runLevelMutex             sync.RWMutex                               // Защита текущего уровня работы приложения.
 	mapRunLevel               []uint16                                   // Карта переключения уровней работы приложения, построенная по уровням компонентов.
 	runLevelChangeChan        chan *runLevelUp                           // Канал изменения уровня работы приложения.
 	runLevelSubscribers       *list.List                                 // Список подписчиков на события изменения уровня работы приложения.
+	runLevelSubscribersMutex  sync.RWMutex                               // Защита списка подписчиков на события изменения уровня работы приложения.
 	runLevelStopAutoincrement bool                                       // Остановка автоматического переключения уровня работы приложения.
 	finalizeWarningTimeout    time.Duration                              // Время отводимое на выполнение функции Finalize() до печали в лог warning сообщения.
 	cacheForkWorker           *kitTypes.BootstrapConfigurationForkWorker // Параметры работы в режиме fork worker - кеш.

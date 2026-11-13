@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"io"
 	"net/url"
-	"regexp"
 
 	"github.com/webnice/dic"
 	kitModuleCfg "github.com/webnice/kit/v4/module/cfg"
@@ -16,8 +15,6 @@ const (
 	keyPathMacos = "__MACOSX"             // Техническое имя macOS.
 
 )
-
-var rexExt = regexp.MustCompile(`(?i)^.+\.(.+)?$`)
 
 // Interface Интерфейс пакета.
 type Interface interface {

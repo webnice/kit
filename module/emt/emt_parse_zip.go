@@ -5,9 +5,6 @@ import (
 	"bytes"
 	"fmt"
 	"io"
-	"mime"
-
-	"github.com/webnice/dic"
 )
 
 // ParseZip Загрузка и разбор шаблона из ZIP файла.
@@ -16,8 +13,9 @@ func (emt *impl) ParseZip(file io.Reader) (ret *Template, err error) {
 		errRead  = "загрузка файла прервана ошибкой: %s"
 		errOpen  = "открытие ZIP файла прервано ошибкой: %s"
 		errFile  = "извлечение файла %q прервано ошибкой: %s"
-		errUnzip = "распаковка файла %q прервана ошибкой: %s"
+		errUnzip = "распаковка файла %q прервано ошибкой: %s"
 		errSize  = "размер файла %q не верный"
+		errLimit = "размер файла %q превышает допустимый лимит %d байт"
 	)
 	var (
 		buf *bytes.Buffer
@@ -27,7 +25,6 @@ func (emt *impl) ParseZip(file io.Reader) (ret *Template, err error) {
 		att *File
 		n   int
 		dat []byte
-		tmp []string
 	)
 
 	buf = &bytes.Buffer{}
@@ -46,18 +43,29 @@ func (emt *impl) ParseZip(file io.Reader) (ret *Template, err error) {
 		err = fmt.Errorf(errOpen, err)
 		return
 	}
-	dat = make([]byte, 0, size1gb)
 	defer func() {
 		dat = dat[:0]
 		brr.Reset([]byte{})
 	}()
 	for n = range zrc.File {
+		if zrc.File[n].FileInfo().IsDir() {
+			continue
+		}
+		if zrc.File[n].UncompressedSize64 > size1gb {
+			err = fmt.Errorf(errLimit, zrc.File[n].Name, uint64(size1gb))
+			return
+		}
 		if frc, err = zrc.File[n].Open(); err != nil {
 			err = fmt.Errorf(errFile, zrc.File[n].Name, err)
 			return
 		}
-		dat = dat[:0]
+		dat = make([]byte, 0, int(min(zrc.File[n].UncompressedSize64, 64*1024)))
 		if dat, err = io.ReadAll(frc); err != nil {
+			_ = frc.Close()
+			err = fmt.Errorf(errUnzip, zrc.File[n].Name, err)
+			return
+		}
+		if err = frc.Close(); err != nil {
 			err = fmt.Errorf(errUnzip, zrc.File[n].Name, err)
 			return
 		}
@@ -71,11 +79,7 @@ func (emt *impl) ParseZip(file io.Reader) (ret *Template, err error) {
 	}
 	// Определение Content-Type по расширению имени файла.
 	for n = range ret.Attach {
-		tmp = rexExt.FindStringSubmatch(ret.Attach[n].Name)
-		ret.Attach[n].Type = dic.Mime().ApplicationOctetStream.String()
-		if len(tmp) > 1 {
-			ret.Attach[n].Type = mime.TypeByExtension("." + tmp[1])
-		}
+		ret.Attach[n].Type = parseFilename(ret.Attach[n].Name).ContentType()
 	}
 	// Раскладывание найденных кусочков по полочкам.
 	if err = emt.Decomposition(ret); err != nil {

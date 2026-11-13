@@ -23,6 +23,8 @@ func (log *logger) Consumer(isSync bool, data any) (ret []any, errs []error) {
 	if message, ok = data.(*Message); !ok {
 		return
 	}
+	log.subscribersLock.RLock()
+	defer log.subscribersLock.RUnlock()
 	if chlen = log.subscribers.Len(); chlen == 0 {
 		chlen = 1
 	}
@@ -35,13 +37,13 @@ func (log *logger) Consumer(isSync bool, data any) (ret []any, errs []error) {
 	// Одно сообщение, множество получателей, выдаём всем одно сообщение параллельно.
 	default:
 		// Передача сообщения лога, всем зарегистрированным обработчикам по очереди, с фильтрацией
-		// по уровню логирования.
+		// по уровню логирования. В режиме отладки приложения, фильтрация по уровню не применяется.
 		for elm = log.subscribers.Front(); elm != nil; elm = elm.Next() {
 			if item, ok = elm.Value.(*subscriber); !ok {
 				continue
 			}
 			// Если уровень сообщения лога меньше минимального или больше максимального, пропускаем обработчик.
-			if message.Level < item.Min || message.Level > item.Max {
+			if !log.debug && (message.Level < item.Min || message.Level > item.Max) {
 				continue
 			}
 			childCount++

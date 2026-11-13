@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"net/url"
 	"path"
-	"strings"
 )
 
 // Template Структура объекта электронного сообщения.
@@ -71,6 +70,7 @@ func (tfo *File) Filename() (ret string) {
 }
 
 // FilenameExtension Выделение из названия объекта расширения наименование файла.
+// Для файлов вида ".hidden" расширение не выделяется, имя целиком считается именем скрытого файла.
 func (tfo *File) FilenameExtension() string {
-	return strings.TrimPrefix(path.Ext(tfo.Filename()), ".")
+	return parseFilename(tfo.Name).Extension
 }

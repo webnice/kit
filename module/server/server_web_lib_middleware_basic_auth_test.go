@@ -30,7 +30,9 @@ func TestBasicAuthHandlerWithoutAuthorization(t *testing.T) {
 	)
 
 	var handler = iwl.BasicAuthHandler(kitTypesServer.BasicAuthConfiguration{
-		AuthFunc: func(string, string) kitTypesServer.BasicAuthResponse { return kitTypesServer.BasicAuthResponse{IsCorrect: true} },
+		AuthFunc: func(string, string) kitTypesServer.BasicAuthResponse {
+			return kitTypesServer.BasicAuthResponse{IsCorrect: true}
+		},
 	})(http.HandlerFunc(func(http.ResponseWriter, *http.Request) { ok = true }))
 	handler.ServeHTTP(rsp, rq)
 	if ok {
@@ -54,10 +56,12 @@ func TestBasicAuthHandlerCustomRequest(t *testing.T) {
 	)
 
 	var handler = iwl.BasicAuthHandler(kitTypesServer.BasicAuthConfiguration{
-		AuthFunc: func(string, string) kitTypesServer.BasicAuthResponse { return kitTypesServer.BasicAuthResponse{IsCorrect: true} },
-		Request:  "Custom realm message",
-		Header:   map[dic.IHeader]string{dic.Header().ContentType: "text/plain"},
-		Body:     body,
+		AuthFunc: func(string, string) kitTypesServer.BasicAuthResponse {
+			return kitTypesServer.BasicAuthResponse{IsCorrect: true}
+		},
+		Request: "Custom realm message",
+		Header:  map[dic.IHeader]string{dic.Header().ContentType: "text/plain"},
+		Body:    body,
 	})(http.HandlerFunc(func(http.ResponseWriter, *http.Request) {}))
 	handler.ServeHTTP(rsp, rq)
 	if rsp.Code != http.StatusUnauthorized {

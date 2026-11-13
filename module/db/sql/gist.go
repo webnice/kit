@@ -2,7 +2,6 @@ package sql
 
 import (
 	"context"
-	"runtime"
 
 	kitModuleDbSqlTypes "github.com/webnice/kit/v4/module/db/sql/types"
 
@@ -17,7 +16,9 @@ func (db *Implementation) Gist() Interface { return db.getParent() }
 func (db *Implementation) Gorm(opts ...*Option) (ret *gorm.DB) {
 	var n int
 
-	ret = db.getParent().GormDB()
+	if ret = db.getParent().GormDB(); ret == nil {
+		return
+	}
 	for n = range opts {
 		if opts[n] != nil && opts[n].ctx != nil {
 			ret = ret.Session(&gorm.Session{Context: opts[n].ctx})
@@ -42,10 +43,11 @@ func (db *Implementation) NewConfigurationSet(cfg *kitModuleDbSqlTypes.Configura
 		onDone chan struct{}
 	)
 
+	if db.parent != nil {
+		_ = db.parent.Close()
+	}
 	mys, onDone = new(impl), make(chan struct{})
 	mys.error = mys.newConfigurationSet(onDone, cfg)
-	//goland:noinspection GoDetectSetFinalizerUsages
-	runtime.SetFinalizer(mys, destructor)
 	<-onDone
 	close(onDone)
 	db.parent = mys

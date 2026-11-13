@@ -7,8 +7,8 @@ import (
 
 func TestSafeCall(t *testing.T) {
 	var (
-		srv  = New(&testLogger{})
-		iwl  = srv.(*impl).serverWeb.lib
+		srv    = New(&testLogger{})
+		iwl    = srv.(*impl).serverWeb.lib
 		called bool
 	)
 

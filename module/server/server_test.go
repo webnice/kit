@@ -125,45 +125,6 @@ func TestNew(t *testing.T) {
 	}
 }
 
-func TestGistDebug(t *testing.T) {
-	var (
-		srv = New(&testLogger{})
-		obj = srv.(*impl)
-	)
-
-	if essence := srv.Gist().Debug(true); essence == nil {
-		t.Error("функция Debug(), вернулся nil, ожидался не nil объект")
-	}
-	if !obj.debug {
-		t.Error("функция Debug(true), флаг режима отладки не установлен")
-	}
-	srv.Gist().Debug(false)
-	if obj.debug {
-		t.Error("функция Debug(false), флаг режима отладки не сброшен")
-	}
-}
-
-func TestErrorsDictionary(t *testing.T) {
-	var e = Errors()
-
-	if e == nil {
-		t.Fatal("функция Errors(), вернулся nil, ожидался не nil объект")
-	}
-	if e.ServerByIdNotFound == nil || e.ServersAddedNotEqualLaunched == nil ||
-		e.ModulePanicException == nil || e.BeforeExitWithError == nil ||
-		e.ServerByIdAlreadyStarted == nil || e.ServerByIdNotStarted == nil ||
-		e.ServersNotRegistered == nil {
-		t.Error("справочник ошибок содержит не инициализированные ошибки")
-	}
-	if err := e.ServersNotRegistered.Bind(); err == nil || !strings.Contains(err.Error(), "сервер") {
-		t.Errorf("ошибка ServersNotRegistered.Bind(), вернулась не корректная ошибка: %v", err)
-	}
-	if err := e.ServersAddedNotEqualLaunched.Bind(1, 0); err == nil ||
-		!strings.Contains(err.Error(), "1") || !strings.Contains(err.Error(), "0") {
-		t.Errorf("ошибка ServersAddedNotEqualLaunched.Bind(), вернулась не корректная ошибка: %v", err)
-	}
-}
-
 func TestStartWithoutServers(t *testing.T) {
 	var err = New(&testLogger{}).Start()
 

@@ -20,7 +20,12 @@ func isTTY(fd uintptr) bool {
 
 // Определение поддерживаемого цвета терминала.
 func getColorProfile() terminalProfile {
-	if !isTTY(os.Stdout.Fd()) {
+	return getColorProfileFd(os.Stdout.Fd())
+}
+
+// getColorProfileFd Определение поддерживаемого цвета терминала по файловому дескриптору.
+func getColorProfileFd(fd uintptr) terminalProfile {
+	if !isTTY(fd) {
 		return terminalAscii
 	}
 

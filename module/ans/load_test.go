@@ -2,6 +2,7 @@ package ans
 
 import (
 	"bytes"
+	"context"
 	"io"
 	"log"
 	"net/http"
@@ -14,6 +15,62 @@ import (
 
 	"github.com/go-chi/chi/v5"
 )
+
+// newChiRequest Формирование тестового запроса с параметрами маршрута chi.
+func newChiRequest(params map[string]string) *http.Request {
+	var (
+		req  = httptest.NewRequest(http.MethodGet, "/", nil)
+		rctx = chi.NewRouteContext()
+	)
+	for key, value := range params {
+		rctx.URLParams.Add(key, value)
+	}
+
+	return req.WithContext(context.WithValue(req.Context(), chi.RouteCtxKey, rctx))
+}
+
+// TestImpl_RqIdsAndRqId Идентификаторы из параметров маршрута.
+func TestImpl_RqIdsAndRqId(t *testing.T) {
+	var ans = New(nil)
+
+	ids, err := ans.RqIds(httptest.NewRecorder(), newChiRequest(map[string]string{"ids": "1, 2,, 3"}), "ids")
+	if err != nil {
+		t.Fatalf("RqIds() вернул ошибку: %v", err)
+	}
+	if len(ids) != 3 || ids[0] != 1 || ids[1] != 2 || ids[2] != 3 {
+		t.Fatalf("RqIds() = %v, ожидалось [1 2 3]", ids)
+	}
+
+	var recorder = httptest.NewRecorder()
+	_, err = ans.RqIds(recorder, newChiRequest(map[string]string{"ids": "1,x"}), "ids")
+	if err == nil {
+		t.Fatal("RqIds() с невалидным значением вернул nil ошибку")
+	}
+	if recorder.Code != http.StatusBadRequest || !strings.Contains(recorder.Body.String(), `"field":"ids"`) {
+		t.Fatalf("RqIds() сформировал неверный ответ: code=%d body=%s", recorder.Code, recorder.Body.String())
+	}
+
+	id, err := ans.RqId(httptest.NewRecorder(), newChiRequest(map[string]string{"id": "42"}), "id")
+	if err != nil || id != 42 {
+		t.Fatalf("RqId() = %d, %v", id, err)
+	}
+	id, err = ans.RqId(httptest.NewRecorder(), newChiRequest(map[string]string{}), "id")
+	if err != nil || id != 0 {
+		t.Fatalf("RqId() для пустого параметра = %d, %v", id, err)
+	}
+	recorder = httptest.NewRecorder()
+	_, err = ans.RqId(recorder, newChiRequest(map[string]string{"id": "x"}), "id")
+	if err == nil || recorder.Code != http.StatusBadRequest {
+		t.Fatalf("RqId() с невалидным значением вернул ошибку %v и код %d", err, recorder.Code)
+	}
+}
+
+// TestImpl_RqVar Загрузчик переменных запроса.
+func TestImpl_RqVar(t *testing.T) {
+	if New(nil).RqVar() == nil {
+		t.Fatal("RqVar() вернул nil")
+	}
+}
 
 func TestImpl_RqLoadVerify(t *testing.T) {
 	var (
