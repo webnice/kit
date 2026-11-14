@@ -17,7 +17,7 @@ PIDN01 = $(shell if [ -f "$(PIDF01)" ]; then cat "$(PIDF01)"; fi)
 
 ## Загрузка зависимостей проекта, продакшн режим.
 define PROJECT_DEPENDENCIES
-  @#go get -d ...
+	@#go get -d ...
 endef
 
 ## Загрузка зависимостей проекта, режим разработки.
@@ -35,12 +35,12 @@ endef
 define PROJECT_BUILD
 	@mkdir -p ${DIR}/pkg 2>/dev/null; true
 	@cd "${DIR}/src/$(APP)"; go build \
-    -o ${BIN01} \
-    -gcflags=-N -gcflags=-l \
-    -ldflags "${LDFLAGS}" \
-    -pkgdir ${DIR}/pkg \
+		-o ${BIN01} \
+		-gcflags=-N -gcflags=-l \
+		-ldflags "${LDFLAGS}" \
+		-pkgdir ${DIR}/pkg \
 		-trimpath \
-    .
+		.
 endef
 export PROJECT_BUILD
 
