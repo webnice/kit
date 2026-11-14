@@ -11,7 +11,7 @@ import (
 	"testing"
 )
 
-// testImage Создание тестового изображения.
+// Создание тестового изображения.
 func testImage(width, height int) (im *image.RGBA) {
 	var x, y int
 
@@ -25,7 +25,7 @@ func testImage(width, height int) (im *image.RGBA) {
 	return
 }
 
-// encodeBytes Кодирование изображения в срез байт.
+// Кодирование изображения в срез байт.
 func encodeBytes(t *testing.T, fn func(io.Writer) error) []byte {
 	t.Helper()
 	var buf bytes.Buffer

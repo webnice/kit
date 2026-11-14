@@ -8,7 +8,7 @@ import (
 	"testing"
 )
 
-// testImage Создание тестового изображения.
+// Создание тестового изображения.
 func testImage(size int) (im *image.RGBA) {
 	var x, y int
 
@@ -27,6 +27,7 @@ type failWriter struct {
 	err error
 }
 
+// Write Реализация интерфейса io.Writer.
 func (fw *failWriter) Write([]byte) (int, error) { return 0, fw.err }
 
 // failAfterWriter Объект io.Writer возвращающий ошибку после первого вызова.
@@ -35,6 +36,7 @@ type failAfterWriter struct {
 	err   error
 }
 
+// Write Реализация интерфейса io.Writer.
 func (faw *failAfterWriter) Write([]byte) (int, error) {
 	faw.calls++
 	if faw.calls > 1 {

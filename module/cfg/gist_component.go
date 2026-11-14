@@ -189,10 +189,10 @@ func (essence *gist) ComponentMapRunlevel(targetlevel uint16) (code uint8, err e
 	return
 }
 
-// componentSnapshot возвращает копию списка компонентов для безопасного вызова пользовательского кода вне блокировки.
+// возвращает копию списка компонентов для безопасного вызова пользовательского кода вне блокировки.
 //
 // Блокировка удерживается только на время копирования среза указателей. Сами объекты ComponentInfo не копируются:
-// пользовательская функция может изменять их поля состояния (IsInitiate, IsDo, IsFinalize, Runlevel) по указателю.
+// пользовательская функция может изменять их поля состояния (IsInitiate, IsDo, IsFinalize, Runlevel) по указателю
 func (essence *gist) componentSnapshot() (ret []*kitTypes.ComponentInfo) {
 	essence.parent.comp.ComponentMutex.Lock()
 	ret = append(ret, essence.parent.comp.Component...)

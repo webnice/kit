@@ -8,8 +8,11 @@ import (
 // customColor Произвольный тип цвета, для проверки ветки неизвестного типа в Convert().
 type customColor struct{}
 
+// Sequence Реализация интерфейса Color.
 func (customColor) Sequence(bool) string { return "" }
-func (customColor) String() string       { return "" }
+
+// String Реализация интерфейса Color.
+func (customColor) String() string { return "" }
 
 // TestTerminalProfileConvert Конвертация цветов под профиль терминала.
 func TestTerminalProfileConvert(t *testing.T) {

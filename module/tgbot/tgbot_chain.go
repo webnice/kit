@@ -26,6 +26,7 @@ type ChainHandler struct {
 	Middlewares Middlewares // Срез промежуточных обработчиков цепочки.
 }
 
+// ServeTelegram Выполнение собранной цепочки промежуточных и конечного обработчиков.
 func (c *ChainHandler) ServeTelegram(api *tgbotapi.BotAPI, upd *tgbotapi.Update) {
 	c.chain.ServeTelegram(api, upd)
 }

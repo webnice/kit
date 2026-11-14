@@ -21,10 +21,12 @@ type testLogger struct {
 	errors   []string
 }
 
+// Warningf Реализация интерфейса журналирования.
 func (tl *testLogger) Warningf(pattern string, args ...any) {
 	tl.warnings = append(tl.warnings, fmt.Sprintf(pattern, args...))
 }
 
+// Errorf Реализация интерфейса журналирования.
 func (tl *testLogger) Errorf(pattern string, args ...any) {
 	tl.errors = append(tl.errors, fmt.Sprintf(pattern, args...))
 }
@@ -35,16 +37,19 @@ type testBody struct {
 	closeErr error
 }
 
+// Read Реализация интерфейса io.Reader.
 func (tb *testBody) Read(p []byte) (int, error) { return tb.reader.Read(p) }
 
+// Close Реализация интерфейса io.Closer.
 func (tb *testBody) Close() error { return tb.closeErr }
 
 // errorReader Объект io.Reader всегда возвращающий ошибку.
 type errorReader struct{ err error }
 
+// Read Реализация интерфейса io.Reader.
 func (er *errorReader) Read([]byte) (int, error) { return 0, er.err }
 
-// newRequestWithBody Формирование тестового запроса с телом и типом содержимого.
+// Формирование тестового запроса с телом и типом содержимого.
 func newRequestWithBody(body string, contentType string) (req *http.Request) {
 	req = httptest.NewRequest(http.MethodPost, "/", strings.NewReader(body))
 	req.Header.Set(dic.Header().ContentType.String(), contentType)

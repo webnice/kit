@@ -23,6 +23,7 @@ type testSyncWriter struct {
 	syncError   error
 }
 
+// Write Реализация интерфейса io.Writer.
 func (tsw *testSyncWriter) Write(p []byte) (int, error) {
 	tsw.syncProtect.Lock()
 	defer tsw.syncProtect.Unlock()
@@ -30,8 +31,10 @@ func (tsw *testSyncWriter) Write(p []byte) (int, error) {
 	return tsw.Buffer.Write(p)
 }
 
+// Sync Реализация интерфейса SyncWriter.
 func (tsw *testSyncWriter) Sync() error { return tsw.syncError }
 
+// String Реализация интерфейса fmt.Stringer.
 func (tsw *testSyncWriter) String() string {
 	tsw.syncProtect.RLock()
 	defer tsw.syncProtect.RUnlock()
@@ -39,6 +42,7 @@ func (tsw *testSyncWriter) String() string {
 	return tsw.Buffer.String()
 }
 
+// Len Длина буфера.
 func (tsw *testSyncWriter) Len() int {
 	tsw.syncProtect.RLock()
 	defer tsw.syncProtect.RUnlock()
@@ -46,6 +50,7 @@ func (tsw *testSyncWriter) Len() int {
 	return tsw.Buffer.Len()
 }
 
+// Reset Сброс буфера.
 func (tsw *testSyncWriter) Reset() {
 	tsw.syncProtect.Lock()
 	defer tsw.syncProtect.Unlock()
@@ -57,8 +62,10 @@ type testBusAsyncError struct {
 	kitModuleBus.Interface
 }
 
+// IsSubscriber Реализация интерфейса шины данных.
 func (tbae *testBusAsyncError) IsSubscriber(_ any) bool { return true }
 
+// PublishAsync Реализация интерфейса шины данных.
 func (tbae *testBusAsyncError) PublishAsync(_ any) error {
 	return errors.New(errTextPublishAsync)
 }
@@ -68,6 +75,7 @@ type testBusSubscribeError struct {
 	kitModuleBus.Interface
 }
 
+// Subscribe Реализация интерфейса шины данных.
 func (tbse *testBusSubscribeError) Subscribe(_ kitTypes.Databuser) error {
 	return errors.New(errTextSubscribeError)
 }
@@ -78,7 +86,7 @@ const (
 	errTextSubscribeError = "тестовая ошибка регистрации."
 )
 
-// newTestLogger Создание тестового объекта логирования без регистрации в шине данных.
+// Создание тестового объекта логирования без регистрации в шине данных.
 func newTestLogger() (tl *logger, bus kitModuleBus.Interface, tsw *testSyncWriter) {
 	tsw = &testSyncWriter{}
 	bus = kitModuleBus.New(16, 4, true)
@@ -87,7 +95,7 @@ func newTestLogger() (tl *logger, bus kitModuleBus.Interface, tsw *testSyncWrite
 	return
 }
 
-// waitMessage Ожидание получения сообщения лога обработчиком.
+// Ожидание получения сообщения лога обработчиком.
 func waitMessage(t *testing.T, ch chan *Message) (msg *Message) {
 	const errWaitMessageTimeout = "превышено время ожидания сообщения лога."
 
@@ -300,10 +308,10 @@ func TestHandlerSubscribeUnsubscribe(t *testing.T) {
 	}
 }
 
-// testHandlerSubscribeOne Тестовый обработчик сообщений лога.
+// Тестовый обработчик сообщений лога.
 func testHandlerSubscribeOne(_ *Message) {}
 
-// testHandlerSubscribeTwo Тестовый обработчик сообщений лога.
+// Тестовый обработчик сообщений лога.
 func testHandlerSubscribeTwo(_ *Message) {}
 
 func TestFlushAndCloseUnsubscribeError(t *testing.T) {

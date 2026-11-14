@@ -16,7 +16,7 @@ func newSyncWriter(parent *impl) kitTypes.SyncWriter {
 	return ret
 }
 
-// Интерфейс io.Writer.
+// Write Интерфейс io.Writer.
 func (sw *syncWriter) Write(buf []byte) (n int, err error) {
 	if !sw.parent.isForkWorker {
 		n, err = sw.wrh.Write(buf)

@@ -27,6 +27,7 @@ type testSubscriber struct {
 	consumer func(isSync bool, data any) (ret []any, errs []error)
 }
 
+// Consumer Реализация интерфейса потребителя шины данных.
 func (tsb *testSubscriber) Consumer(isSync bool, data any) (ret []any, errs []error) {
 	if tsb.consumer != nil {
 		return tsb.consumer(isSync, data)
@@ -35,6 +36,7 @@ func (tsb *testSubscriber) Consumer(isSync bool, data any) (ret []any, errs []er
 	return nil, nil
 }
 
+// KnownType Реализация интерфейса потребителя шины данных.
 func (tsb *testSubscriber) KnownType() (ret []any) {
 	if tsb.known != nil {
 		return tsb.known()
@@ -51,8 +53,10 @@ type testSlowSubscriber struct{ testSubscriber }
 
 type testNilSubscriber struct{}
 
+// Consumer Реализация интерфейса потребителя шины данных.
 func (tns *testNilSubscriber) Consumer(bool, any) ([]any, []error) { return nil, nil }
 
+// KnownType Реализация интерфейса потребителя шины данных.
 func (tns *testNilSubscriber) KnownType() []any { return nil }
 
 func newTestBus(t *testing.T, workerCount int, debug bool) Interface {

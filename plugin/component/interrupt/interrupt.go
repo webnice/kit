@@ -65,7 +65,7 @@ func (ipt *impl) Do() (levelDone bool, levelExit bool, err error) {
 	return
 }
 
-// Finalize Функция вызывается перед завершением компонента и приложения в целом
+// Finalize Функция вызывается перед завершением компонента и приложения в целом.
 func (ipt *impl) Finalize() (err error) {
 	if ipt.i7t == nil {
 		return

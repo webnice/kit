@@ -32,7 +32,7 @@ const (
 // Тип куска шаблона.
 type chunkType uint
 
-// Интерфейс Stringer.
+// String Интерфейс Stringer.
 func (ct chunkType) String() (ret string) {
 	const (
 		typeUnknown = "Неизвестно."

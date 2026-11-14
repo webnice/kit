@@ -54,6 +54,7 @@ func makeZip(t *testing.T, entries []testZipEntry) []byte {
 
 type testErrorReader struct{ err error }
 
+// Read Реализация интерфейса io.Reader.
 func (ter *testErrorReader) Read([]byte) (int, error) { return 0, ter.err }
 
 func TestParseZipErrors(t *testing.T) {

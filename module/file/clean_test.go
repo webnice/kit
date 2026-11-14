@@ -10,7 +10,7 @@ import (
 // testContent Тестовое содержимое файла.
 var testContent = []byte("содержимое тестового файла пакета file")
 
-// createTestFile Создание тестового файла с содержимым.
+// Создание тестового файла с содержимым.
 func createTestFile(t *testing.T, dir, name string, content []byte) (filename string) {
 	const (
 		tplFatalMkdirAll  = "MkdirAll(): неожиданная ошибка: %v."

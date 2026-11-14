@@ -24,8 +24,10 @@ func newMinimalWriter() *minimalWriter {
 	return &minimalWriter{header: make(http.Header)}
 }
 
+// Header Реализация интерфейса http.ResponseWriter.
 func (mw *minimalWriter) Header() http.Header { return mw.header }
 
+// WriteHeader Реализация интерфейса http.ResponseWriter.
 func (mw *minimalWriter) WriteHeader(status int) {
 	mw.headerCalls++
 	if mw.status == 0 {
@@ -33,10 +35,12 @@ func (mw *minimalWriter) WriteHeader(status int) {
 	}
 }
 
+// Write Реализация интерфейса io.Writer.
 func (mw *minimalWriter) Write(p []byte) (int, error) { return mw.body.Write(p) }
 
 type failTeeWriter struct{ err error }
 
+// Write Реализация интерфейса io.Writer.
 func (ftw *failTeeWriter) Write([]byte) (int, error) { return 0, ftw.err }
 
 type pusherWriter struct {
@@ -44,6 +48,7 @@ type pusherWriter struct {
 	pushed []string
 }
 
+// Push Реализация интерфейса http.Pusher.
 func (pw *pusherWriter) Push(target string, _ *http.PushOptions) error {
 	pw.pushed = append(pw.pushed, target)
 
@@ -55,6 +60,7 @@ type readerFromWriter struct {
 	called bool
 }
 
+// ReadFrom Реализация интерфейса io.ReaderFrom.
 func (rfw *readerFromWriter) ReadFrom(r io.Reader) (int64, error) {
 	rfw.called = true
 
@@ -303,6 +309,7 @@ type hijackRecorder struct {
 	err error
 }
 
+// Hijack Реализация интерфейса http.Hijacker.
 func (hr *hijackRecorder) Hijack() (net.Conn, *bufio.ReadWriter, error) {
 	return hr.con, hr.rw, hr.err
 }
@@ -404,6 +411,7 @@ type errorWriter struct {
 	err error
 }
 
+// Write Реализация интерфейса io.Writer.
 func (ew *errorWriter) Write([]byte) (int, error) { return 0, ew.err }
 
 type stringWriter struct {
@@ -411,6 +419,7 @@ type stringWriter struct {
 	err error
 }
 
+// WriteString Реализация интерфейса io.StringWriter.
 func (sw *stringWriter) WriteString(s string) (int, error) {
 	if sw.err != nil {
 		return 0, sw.err

@@ -16,7 +16,7 @@ type testEntry struct {
 	data  []byte
 }
 
-// makeICO Сборка тестового файла ICO из записей.
+// Сборка тестового файла ICO из записей.
 func makeICO(entries []testEntry) []byte {
 	var (
 		buf   bytes.Buffer
@@ -36,7 +36,7 @@ func makeICO(entries []testEntry) []byte {
 	return buf.Bytes()
 }
 
-// entryFor Формирование записи каталога ICO.
+// Формирование записи каталога ICO.
 func entryFor(data []byte, width, height uint8, bits uint16) entry {
 	return entry{Width: width, Height: height, Plane: 1, Bits: bits, Size: uint32(len(data))}
 }
@@ -160,7 +160,7 @@ func TestSetupBMPColorsBranches(t *testing.T) {
 	}
 }
 
-// dib24WithMask Формирование 24-битного DIB с маской.
+// Формирование 24-битного DIB с маской.
 func dib24WithMask() []byte {
 	data := make([]byte, 48)
 	binary.LittleEndian.PutUint32(data[0:4], 40) // dibSize

@@ -5,7 +5,7 @@ import (
 	"time"
 )
 
-// testMainFn Тестовая main функция.
+// Тестовая main функция.
 func testMainFn() (uint8, error) { return 0, nil }
 
 // TestNew Конструктор объекта конфигурации.

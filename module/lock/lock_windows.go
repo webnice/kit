@@ -54,8 +54,10 @@ func (lko *Lock) Unlock() (err error) {
 	return
 }
 
+// TryLock Попытка эксклюзивной блокировки файла без ожидания.
 func (lko *Lock) TryLock() (bool, error) { return lko.try(&lko.isLocked, winLockfileExclusiveLock) }
 
+// TryRLock Попытка разделяемой блокировки файла без ожидания.
 func (lko *Lock) TryRLock() (bool, error) { return lko.try(&lko.isReadLocked, winLockfileSharedLock) }
 
 func (lko *Lock) try(locked *bool, flag uint32) (done bool, err error) {

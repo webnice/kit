@@ -13,6 +13,7 @@ import (
 // errorReader Объект io.Reader всегда возвращающий ошибку.
 type errorReader struct{ err error }
 
+// Read Реализация интерфейса io.Reader.
 func (er *errorReader) Read([]byte) (int, error) { return 0, er.err }
 
 // byteReader Объект io.Reader читающий из среза байт.
@@ -22,6 +23,7 @@ type byteReader struct {
 	off  int
 }
 
+// Read Реализация интерфейса io.Reader.
 func (br *byteReader) Read(p []byte) (n int, err error) {
 	if br.off >= len(br.data) {
 		if br.err != nil {
@@ -35,7 +37,7 @@ func (br *byteReader) Read(p []byte) (n int, err error) {
 	return
 }
 
-// newTestImpl Конструктор тестового объекта с подменяемыми зависимостями.
+// Конструктор тестового объекта с подменяемыми зависимостями.
 func newTestImpl(rand io.Reader, epoch time.Time, hw net.HardwareAddr, hwErr error) *impl {
 	if rand == nil {
 		rand = &byteReader{}
@@ -56,10 +58,10 @@ func newTestImpl(rand io.Reader, epoch time.Time, hw net.HardwareAddr, hwErr err
 	}
 }
 
-// testEpoch Тестовая эпоха.
+// Тестовая эпоха.
 func testEpoch() time.Time { return time.Unix(1700000000, 123456789).UTC() }
 
-// testV1Data Подготовка тестовых данных аппаратного адреса и последовательности часов.
+// Подготовка тестовых данных аппаратного адреса и последовательности часов.
 func testV1Data(t *testing.T, ui *impl) []byte {
 	t.Helper()
 

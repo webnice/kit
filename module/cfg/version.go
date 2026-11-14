@@ -6,26 +6,26 @@ func newVersion(parent *impl) Version {
 	return ret
 }
 
-// Major returns the major version.
+// Major Основной номер версии.
 func (ver *version) Major() uint64 { return ver.parent.main.Version.Major() }
 
-// Minor returns the minor version.
+// Minor Дополнительный номер версии.
 func (ver *version) Minor() uint64 { return ver.parent.main.Version.Minor() }
 
-// Patch returns the patch version.
+// Patch Номер исправления версии.
 func (ver *version) Patch() uint64 { return ver.parent.main.Version.Patch() }
 
-// Prerelease returns the prerelease version.
+// Prerelease Предварительная версия.
 func (ver *version) Prerelease() string { return ver.parent.main.Version.Prerelease() }
 
-// Metadata returns the metadata on the version.
+// Metadata Метаданные версии.
 func (ver *version) Metadata() string { return ver.parent.main.Version.Metadata() }
 
-// String converts a Version object to a string.
+// String Представление версии в виде строки.
 func (ver *version) String() string { return ver.parent.main.Version.String() }
 
-// MarshalJSON implements json marshaller interface.
+// MarshalJSON Реализация интерфейса json.Marshaler.
 func (ver *version) MarshalJSON() ([]byte, error) { return ver.parent.main.Version.MarshalJSON() }
 
-// UnmarshalJSON implements json unmarshaler interface.
+// UnmarshalJSON Реализация интерфейса json.Unmarshaler.
 func (ver *version) UnmarshalJSON(b []byte) error { return ver.parent.main.Version.UnmarshalJSON(b) }

@@ -203,7 +203,7 @@ func (mys *impl) Status() (ret *sql.DBStats) {
 }
 
 // SqlDB Настроенный и готовый к работе бассейн соединений database/sql.
-// Если возвращается nil - есть ошибки, ошибка доступна в функции E()
+// Если возвращается nil - есть ошибки, ошибка доступна в функции E().
 func (mys *impl) SqlDB() (ret *sql.DB) {
 	if mys.err() != nil {
 		return
@@ -214,7 +214,7 @@ func (mys *impl) SqlDB() (ret *sql.DB) {
 }
 
 // GormDB Настроенный и готовый к работе объект ORM gorm.io/gorm.
-// Если возвращается nil - есть ошибки, ошибка доступна в функции E()
+// Если возвращается nil - есть ошибки, ошибка доступна в функции E().
 func (mys *impl) GormDB() (ret *gorm.DB) {
 	var db *sql.DB
 
@@ -263,7 +263,7 @@ func (mys *impl) GormDB() (ret *gorm.DB) {
 }
 
 // SqlxDB Настроенный и готовый к работе объект обёртки над соединением с БД github.com/jmoiron/sqlx.
-// Если возвращается nil - есть ошибки, ошибка доступна в функции E()
+// Если возвращается nil - есть ошибки, ошибка доступна в функции E().
 func (mys *impl) SqlxDB() (ret *sqlx.DB) {
 	var db *sql.DB
 

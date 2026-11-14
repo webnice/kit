@@ -63,24 +63,30 @@ func resetMigrationTestData() { setMigrationTestData(false, nil) }
 
 type migrationTestDriver struct{}
 
+// Open Реализация интерфейса driver.Driver.
 func (migrationTestDriver) Open(string) (driver.Conn, error) { return &migrationTestConn{}, nil }
 
 type migrationTestConn struct{}
 
+// Prepare Реализация интерфейса driver.Conn.
 func (conn *migrationTestConn) Prepare(query string) (driver.Stmt, error) {
 	return &migrationTestStmt{conn: conn, query: query}, nil
 }
 
+// Close Реализация интерфейса driver.Conn.
 func (conn *migrationTestConn) Close() error { return nil }
 
+// Begin Реализация интерфейса driver.Conn.
 func (conn *migrationTestConn) Begin() (driver.Tx, error) {
 	return nil, errors.New(errTextTransactionsNotImplemented)
 }
 
+// QueryContext Реализация интерфейса driver.QueryerContext.
 func (conn *migrationTestConn) QueryContext(_ context.Context, query string, _ []driver.NamedValue) (driver.Rows, error) {
 	return migrationTestQuery(query)
 }
 
+// Query Реализация интерфейса driver.Conn.
 func (conn *migrationTestConn) Query(query string, args []driver.Value) (driver.Rows, error) {
 	var (
 		named []driver.NamedValue
@@ -100,14 +106,18 @@ type migrationTestStmt struct {
 	query string
 }
 
+// Close Реализация интерфейса driver.Conn.
 func (stmt *migrationTestStmt) Close() error { return nil }
 
+// NumInput Реализация интерфейса driver.Stmt.
 func (stmt *migrationTestStmt) NumInput() int { return 0 }
 
+// Exec Реализация интерфейса driver.Stmt.
 func (stmt *migrationTestStmt) Exec([]driver.Value) (driver.Result, error) {
 	return nil, errors.New(errTextExecNotImplemented)
 }
 
+// Query Реализация интерфейса driver.Conn.
 func (stmt *migrationTestStmt) Query(args []driver.Value) (driver.Rows, error) {
 	var (
 		named []driver.NamedValue
@@ -168,10 +178,13 @@ type migrationTestRows struct {
 	index   int
 }
 
+// Columns Реализация интерфейса driver.Rows.
 func (rows *migrationTestRows) Columns() []string { return rows.columns }
 
+// Close Реализация интерфейса driver.Conn.
 func (rows *migrationTestRows) Close() error { return nil }
 
+// Next Реализация интерфейса driver.Rows.
 func (rows *migrationTestRows) Next(dest []driver.Value) error {
 	rows.index++
 	if rows.index >= len(rows.rows) {
@@ -188,6 +201,7 @@ type testDatabase struct {
 	err    error
 }
 
+// Close Реализация интерфейса driver.Conn.
 func (tdb *testDatabase) Close() (err error) {
 	if tdb.sqlDB != nil {
 		err = tdb.sqlDB.Close()
@@ -196,8 +210,10 @@ func (tdb *testDatabase) Close() (err error) {
 	return
 }
 
+// E Реализация интерфейса объекта базы данных.
 func (tdb *testDatabase) E() error { return tdb.err }
 
+// Status Реализация интерфейса объекта базы данных.
 func (tdb *testDatabase) Status() (ret *sql.DBStats) {
 	var stats sql.DBStats
 
@@ -210,30 +226,44 @@ func (tdb *testDatabase) Status() (ret *sql.DBStats) {
 	return
 }
 
-func (tdb *testDatabase) SqlDB() *sql.DB                { return tdb.sqlDB }
-func (tdb *testDatabase) GormDB() *gorm.DB              { return tdb.gormDB }
-func (tdb *testDatabase) SqlxDB() *sqlx.DB              { return nil }
-func (tdb *testDatabase) MigrationUp() error            { return nil }
+// SqlDB Реализация интерфейса объекта базы данных.
+func (tdb *testDatabase) SqlDB() *sql.DB { return tdb.sqlDB }
+
+// GormDB Реализация интерфейса объекта базы данных.
+func (tdb *testDatabase) GormDB() *gorm.DB { return tdb.gormDB }
+
+// SqlxDB Реализация интерфейса объекта базы данных.
+func (tdb *testDatabase) SqlxDB() *sqlx.DB { return nil }
+
+// MigrationUp Реализация интерфейса объекта базы данных.
+func (tdb *testDatabase) MigrationUp() error { return nil }
+
+// Errors Реализация интерфейса объекта базы данных.
 func (tdb *testDatabase) Errors() *kitModuleDbSql.Error { return kitModuleDbSql.Errors() }
 
 type testErrConnPool struct{ err error }
 
+// PrepareContext Реализация интерфейса объекта пула соединений.
 func (pool testErrConnPool) PrepareContext(context.Context, string) (*sql.Stmt, error) {
 	return nil, pool.err
 }
 
+// ExecContext Реализация интерфейса объекта пула соединений.
 func (pool testErrConnPool) ExecContext(context.Context, string, ...any) (sql.Result, error) {
 	return nil, pool.err
 }
 
+// QueryContext Реализация интерфейса driver.QueryerContext.
 func (pool testErrConnPool) QueryContext(context.Context, string, ...any) (*sql.Rows, error) {
 	return nil, pool.err
 }
 
+// QueryRowContext Реализация интерфейса объекта пула соединений.
 func (pool testErrConnPool) QueryRowContext(context.Context, string, ...any) *sql.Row {
 	return nil
 }
 
+// GetDBConn Реализация интерфейса объекта пула соединений.
 func (pool testErrConnPool) GetDBConn() (*sql.DB, error) { return nil, pool.err }
 
 func newTestGorm(t *testing.T) (sqlDB *sql.DB, orm *gorm.DB) {

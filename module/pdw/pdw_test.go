@@ -10,15 +10,32 @@ import (
 // foreignData Объект реализующий интерфейс Data, но не являющийся *data.
 type foreignData struct{}
 
+// DataPut Реализация интерфейса Data.
 func (foreignData) DataPut(any, bool, context.Context) {}
-func (foreignData) DataGet() any                       { return nil }
-func (foreignData) Type() reflect.Type                 { return nil }
-func (foreignData) IsSync() bool                       { return false }
-func (foreignData) DoneSet()                           {}
-func (foreignData) Done() <-chan struct{}              { return nil }
-func (foreignData) Result() Result                     { return nil }
-func (foreignData) Context() context.Context           { return nil }
-func (foreignData) Reset()                             {}
+
+// DataGet Реализация интерфейса Data.
+func (foreignData) DataGet() any { return nil }
+
+// Type Реализация интерфейса Data.
+func (foreignData) Type() reflect.Type { return nil }
+
+// IsSync Реализация интерфейса Data.
+func (foreignData) IsSync() bool { return false }
+
+// DoneSet Реализация интерфейса Data.
+func (foreignData) DoneSet() {}
+
+// Done Реализация интерфейса Data.
+func (foreignData) Done() <-chan struct{} { return nil }
+
+// Result Реализация интерфейса Data.
+func (foreignData) Result() Result { return nil }
+
+// Context Реализация интерфейса Data.
+func (foreignData) Context() context.Context { return nil }
+
+// Reset Реализация интерфейса Data.
+func (foreignData) Reset() {}
 
 // TestNew Конструктор бассейна.
 func TestNew(t *testing.T) {

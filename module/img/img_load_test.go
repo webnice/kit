@@ -19,6 +19,7 @@ import (
 // panicReader Объект io.Reader вызывающий панику.
 type panicReader struct{}
 
+// Read Реализация интерфейса io.Reader.
 func (panicReader) Read([]byte) (int, error) { panic("string panic") }
 
 // TestImageReadFromFormats Загрузка изображений разных форматов.

@@ -68,6 +68,7 @@ func (rsi *RequestShadowInfo) extractionDomainFromServer(s *Server) (ret string)
 	return
 }
 
+// RequestExtractionDomain Извлечение домена из объекта запроса.
 func (rsi *RequestShadowInfo) RequestExtractionDomain(rq *http.Request) (ret string) {
 	// Если домен уже был найден другим способом - выход.
 	if ret = rsi.Domain; ret != "" {

@@ -94,6 +94,7 @@ var errTestValue = errorString("тестовая ошибка.")
 
 type errorString string
 
+// Error Реализация интерфейса error.
 func (es errorString) Error() string { return string(es) }
 
 func TestWebError(t *testing.T) {

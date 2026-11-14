@@ -217,7 +217,7 @@ func termStatusReport(sequence int) (ret string, err error) {
 	return termStatusReportFile(os.Stdout, sequence)
 }
 
-// termStatusReportFile Запрос отчёта статуса терминала через файловый дескриптор.
+// Запрос отчёта статуса терминала через файловый дескриптор.
 func termStatusReportFile(f *os.File, sequence int) (ret string, err error) {
 	var (
 		term   string

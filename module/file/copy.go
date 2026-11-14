@@ -9,7 +9,7 @@ import (
 	"os"
 )
 
-// fileStat Безопасное получение атрибутов открытого файла.
+// Безопасное получение атрибутов открытого файла.
 func fileStat(f *os.File) (fi os.FileInfo) {
 	fi, _ = f.Stat()
 

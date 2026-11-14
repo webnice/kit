@@ -73,6 +73,7 @@ type countWriter struct {
 	n int64
 }
 
+// Write Реализация интерфейса io.Writer с подсчётом записанных байт.
 func (cw *countWriter) Write(p []byte) (n int, err error) {
 	n, err = cw.w.Write(p)
 	cw.n += int64(n)

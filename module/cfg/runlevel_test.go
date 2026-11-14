@@ -6,13 +6,13 @@ import (
 	"testing"
 )
 
-// testRunlevelSubscriberA Тестовый подписчик изменения уровня.
+// Тестовый подписчик изменения уровня.
 func testRunlevelSubscriberA(uint16, uint16) {}
 
-// testRunlevelSubscriberB Тестовый подписчик изменения уровня.
+// Тестовый подписчик изменения уровня.
 func testRunlevelSubscriberB(uint16, uint16) {}
 
-// testRunlevelSubscriberC Тестовый подписчик изменения уровня.
+// Тестовый подписчик изменения уровня.
 func testRunlevelSubscriberC(uint16, uint16) {}
 
 // TestRunlevelConcurrentSubscribeAndDispatch Конкурентная подписка и диспетчеризация уровней.

@@ -3,24 +3,24 @@ package cpy
 // Gist Интерфейс к служебным методам.
 func Gist() *Cpy { return singleton }
 
-// All Copy everything from one to another.
+// All Копирование всех полей из одного объекта в другой.
 func All(toObj any, fromObj any) error {
 	return singleton.Copy(toObj, fromObj, nil, nil, nil)
 }
 
-// Select Copy only the selected fields.
-// Use for struct only.
+// Select Копирование только выбранных полей.
+// Применяется только для структур.
 func Select(toObj any, fromObj any, fields ...string) error {
 	return singleton.Copy(toObj, fromObj, fields, nil, nil)
 }
 
-// Omit Copy everything from one to another, but skip listed fields.
-// Use for struct only.
+// Omit Копирование всех полей, кроме перечисленных.
+// Применяется только для структур.
 func Omit(toObj any, fromObj any, fields ...string) error {
 	return singleton.Copy(toObj, fromObj, nil, fields, nil)
 }
 
-// Filter Copy everything data which filtration, used for array, slice and map.
+// Filter Копирование данных с фильтрацией элементов, применяется для массивов, срезов и карт.
 func Filter(toObj any, fromObj any, filter FilterFn) error {
 	return singleton.Copy(toObj, fromObj, nil, nil, filter)
 }

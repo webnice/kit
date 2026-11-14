@@ -10,7 +10,7 @@ import (
 	kitModuleLogLevel "github.com/webnice/kit/v4/module/log/level"
 )
 
-// standardLogPrint Печать сообщения через стандартный пакет log.
+// Печать сообщения через стандартный пакет log.
 func standardLogPrint(msg string) { standardLog.Print(msg) }
 
 // log Тип для формирования имён функций содержащих log.fatal и log.panic.
@@ -23,7 +23,7 @@ func (l log) panic(tl Logger) { l.write(tl) }
 
 func (l log) write(tl Logger) { _, _ = tl.Write([]byte("уровень")) }
 
-// messageSnapshot Копия сообщения лога для проверки значений после возврата объекта в бассейн.
+// Копия сообщения лога для проверки значений после возврата объекта в бассейн.
 // Функция вызывается только из обработчика сообщения, до возврата объекта в бассейн.
 func messageSnapshot(msg *Message) (ret Message) {
 	ret = *msg

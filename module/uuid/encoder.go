@@ -84,7 +84,7 @@ func (u *uuid) MarshalText() (text []byte, err error) { text = []byte(u.String()
 //	hexoct := hexdig hexdig
 //	hexdig := '0' | '1' | '2' | '3' | '4' | '5' | '6' | '7' | '8' | '9' |
 //	          'a' | 'b' | 'c' | 'd' | 'e' | 'f' |
-//	          'A' | 'B' | 'C' | 'D' | 'E' | 'F'
+//	          'A' | 'B' | 'C' | 'D' | 'E' | 'F'.
 func (u *uuid) UnmarshalText(text []byte) (err error) {
 	switch len(text) {
 	case 32:
@@ -122,7 +122,7 @@ func (u *uuid) UnmarshalJSON(b []byte) (err error) {
 // MarshalJSON Реализация интерфейса json.Marshaler.
 func (u *uuid) MarshalJSON() (ret []byte, err error) { return json.Marshal(u.String()) }
 
-// decodeCanonical декодирует UUID из формата "6ba7b810-9dad-11d1-80b4-00c04fd430c8".
+// декодирует UUID из формата "6ba7b810-9dad-11d1-80b4-00c04fd430c8"
 func (u *uuid) decodeCanonical(t []byte) (err error) {
 	const formatError = "неверный формат UUID"
 	var (
@@ -150,7 +150,7 @@ func (u *uuid) decodeCanonical(t []byte) (err error) {
 	return
 }
 
-// decodeHashLike декодирует UUID из формата "6ba7b8109dad11d180b400c04fd430c8".
+// декодирует UUID из формата "6ba7b8109dad11d180b400c04fd430c8"
 func (u *uuid) decodeHashLike(t []byte) (err error) {
 	var (
 		src []byte
@@ -165,7 +165,7 @@ func (u *uuid) decodeHashLike(t []byte) (err error) {
 	return
 }
 
-// decodeBraced декодирует UUID из формата "{6ba7b810-9dad-11d1-80b4-00c04fd430c8}" или "{6ba7b8109dad11d180b400c04fd430c8}".
+// декодирует UUID из формата "{6ba7b810-9dad-11d1-80b4-00c04fd430c8}" или "{6ba7b8109dad11d180b400c04fd430c8}"
 func (u *uuid) decodeBraced(t []byte) (err error) {
 	const formatError = "неверный формат UUID"
 	var (
@@ -181,7 +181,7 @@ func (u *uuid) decodeBraced(t []byte) (err error) {
 	return
 }
 
-// decodePlain декодирует UUID из формата "6ba7b810-9dad-11d1-80b4-00c04fd430c8" или "6ba7b8109dad11d180b400c04fd430c8".
+// декодирует UUID из формата "6ba7b810-9dad-11d1-80b4-00c04fd430c8" или "6ba7b8109dad11d180b400c04fd430c8"
 func (u *uuid) decodePlain(t []byte) (err error) {
 	const formatError = "неверный формат UUID"
 
@@ -197,8 +197,8 @@ func (u *uuid) decodePlain(t []byte) (err error) {
 	return
 }
 
-// decodeURN декодирует UUID из формата "urn:uuid:6ba7b810-9dad-11d1-80b4-00c04fd430c8" или
-// "urn:uuid:6ba7b8109dad11d180b400c04fd430c8".
+// декодирует UUID из формата "urn:uuid:6ba7b810-9dad-11d1-80b4-00c04fd430c8" или
+// "urn:uuid:6ba7b8109dad11d180b400c04fd430c8"
 func (u *uuid) decodeURN(t []byte) (err error) {
 	const formatError = "неверный формат UUID"
 	var (

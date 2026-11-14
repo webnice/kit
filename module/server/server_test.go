@@ -21,60 +21,84 @@ type testLogger struct {
 	kitTypes.Logger
 }
 
+// Key Реализация интерфейса журналирования.
 func (tl *testLogger) Key(_ ...kitTypes.LoggerKey) kitTypes.Logger { return tl }
 
+// Time Реализация интерфейса журналирования.
 func (tl *testLogger) Time(_ time.Time) kitTypes.Logger { return tl }
 
+// StackBackCorrect Реализация интерфейса журналирования.
 func (tl *testLogger) StackBackCorrect(_ int) kitTypes.Logger { return tl }
 
+// Fatality Реализация интерфейса журналирования.
 func (tl *testLogger) Fatality(_ bool) kitTypes.Logger { return tl }
 
+// MessageWithLevel Реализация интерфейса журналирования.
 func (tl *testLogger) MessageWithLevel(_ kitModuleLogLevel.Level, _ string, _ ...any) {}
 
+// Fatal Реализация интерфейса журналирования.
 func (tl *testLogger) Fatal(_ ...any) {}
 
+// Fatalf Реализация интерфейса журналирования.
 func (tl *testLogger) Fatalf(_ string, _ ...any) {}
 
+// Alert Реализация интерфейса журналирования.
 func (tl *testLogger) Alert(_ ...any) {}
 
+// Alertf Реализация интерфейса журналирования.
 func (tl *testLogger) Alertf(_ string, _ ...any) {}
 
+// Critical Реализация интерфейса журналирования.
 func (tl *testLogger) Critical(_ ...any) {}
 
+// Criticalf Реализация интерфейса журналирования.
 func (tl *testLogger) Criticalf(_ string, _ ...any) {}
 
+// Error Реализация интерфейса журналирования.
 func (tl *testLogger) Error(_ ...any) {}
 
+// Errorf Реализация интерфейса журналирования.
 func (tl *testLogger) Errorf(_ string, _ ...any) {}
 
+// Warning Реализация интерфейса журналирования.
 func (tl *testLogger) Warning(_ ...any) {}
 
+// Warningf Реализация интерфейса журналирования.
 func (tl *testLogger) Warningf(_ string, _ ...any) {}
 
+// Notice Реализация интерфейса журналирования.
 func (tl *testLogger) Notice(_ ...any) {}
 
+// Noticef Реализация интерфейса журналирования.
 func (tl *testLogger) Noticef(_ string, _ ...any) {}
 
+// Info Реализация интерфейса журналирования.
 func (tl *testLogger) Info(_ ...any) {}
 
+// Infof Реализация интерфейса журналирования.
 func (tl *testLogger) Infof(_ string, _ ...any) {}
 
+// Debug Реализация интерфейса журналирования.
 func (tl *testLogger) Debug(_ ...any) {}
 
+// Debugf Реализация интерфейса журналирования.
 func (tl *testLogger) Debugf(_ string, _ ...any) {}
 
+// Trace Реализация интерфейса журналирования.
 func (tl *testLogger) Trace(_ ...any) {}
 
+// Tracef Реализация интерфейса журналирования.
 func (tl *testLogger) Tracef(_ string, _ ...any) {}
 
 // testResourceFunc Реализация интерфейса WebResource на основе функции.
 type testResourceFunc func(cfg *kitTypesServer.WebConfiguration) *kitTypesServer.Web
 
+// Resource Реализация интерфейса WebResource.
 func (trf testResourceFunc) Resource(cfg *kitTypesServer.WebConfiguration) *kitTypesServer.Web {
 	return trf(cfg)
 }
 
-// freeTCPPort Поиск свободного TCP/IP порта.
+// Поиск свободного TCP/IP порта.
 func freeTCPPort(t *testing.T) (port uint16) {
 	const (
 		tplFatalListen = "поиск свободного порта прерван ошибкой: %s."
@@ -97,7 +121,7 @@ func freeTCPPort(t *testing.T) (port uint16) {
 	return
 }
 
-// testWebConfiguration Конфигурация тестового ВЕБ сервера на свободном порту.
+// Конфигурация тестового ВЕБ сервера на свободном порту.
 func testWebConfiguration(t *testing.T) (cfg *kitTypesServer.WebConfiguration) {
 	t.Helper()
 	cfg = &kitTypesServer.WebConfiguration{}
@@ -107,7 +131,7 @@ func testWebConfiguration(t *testing.T) (cfg *kitTypesServer.WebConfiguration) {
 	return
 }
 
-// contextWith Контекст запроса с добавленной обёрткой данных контекста.
+// Контекст запроса с добавленной обёрткой данных контекста.
 func contextWith(rq *http.Request, key any, name string, value any) context.Context {
 	return context.WithValue(rq.Context(), key, &contextWrapper{Name: name, Value: value})
 }

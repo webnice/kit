@@ -37,15 +37,24 @@ func init() {
 
 type testDriver struct{}
 
+// Open Реализация интерфейса driver.Driver.
 func (testDriver) Open(string) (driver.Conn, error) { return &testConn{}, nil }
 
 type testConn struct{}
 
+// Prepare Реализация интерфейса driver.Conn.
 func (testConn) Prepare(string) (driver.Stmt, error) { return nil, driver.ErrSkip }
-func (testConn) Close() error                        { return nil }
-func (testConn) Begin() (driver.Tx, error)           { return testTx{}, nil }
-func (testConn) Ping(context.Context) error          { return testDriverPingErr }
 
+// Close Реализация интерфейса driver.Conn.
+func (testConn) Close() error { return nil }
+
+// Begin Реализация интерфейса driver.Conn.
+func (testConn) Begin() (driver.Tx, error) { return testTx{}, nil }
+
+// Ping Проверка доступности соединения.
+func (testConn) Ping(context.Context) error { return testDriverPingErr }
+
+// QueryContext Реализация интерфейса driver.QueryerContext.
 func (testConn) QueryContext(context.Context, string, []driver.NamedValue) (driver.Rows, error) {
 	if testDriverQueryErr != nil {
 		return nil, testDriverQueryErr
@@ -54,6 +63,7 @@ func (testConn) QueryContext(context.Context, string, []driver.NamedValue) (driv
 	return &testRows{data: testDriverQueryRows}, nil
 }
 
+// ExecContext Реализация интерфейса driver.ExecerContext.
 func (testConn) ExecContext(context.Context, string, []driver.NamedValue) (driver.Result, error) {
 	if testDriverExecErr != nil {
 		return nil, testDriverExecErr
@@ -65,12 +75,18 @@ func (testConn) ExecContext(context.Context, string, []driver.NamedValue) (drive
 
 type testTx struct{}
 
-func (testTx) Commit() error   { return nil }
+// Commit Реализация интерфейса driver.Tx.
+func (testTx) Commit() error { return nil }
+
+// Rollback Реализация интерфейса driver.Tx.
 func (testTx) Rollback() error { return nil }
 
 type testResult struct{}
 
+// LastInsertId Реализация интерфейса driver.Result.
 func (testResult) LastInsertId() (int64, error) { return 0, nil }
+
+// RowsAffected Реализация интерфейса driver.Result.
 func (testResult) RowsAffected() (int64, error) { return 0, nil }
 
 type testRows struct {
@@ -78,9 +94,13 @@ type testRows struct {
 	n    int
 }
 
+// Columns Реализация интерфейса driver.Rows.
 func (testRows) Columns() []string { return []string{"version_id", "is_applied"} }
-func (testRows) Close() error      { return nil }
 
+// Close Реализация интерфейса driver.Rows.
+func (testRows) Close() error { return nil }
+
+// Next Реализация интерфейса driver.Rows.
 func (rows *testRows) Next(dest []driver.Value) error {
 	if rows.n >= len(rows.data) {
 		return io.EOF
@@ -171,8 +191,13 @@ func newGormReadyImpl(t *testing.T, cfg *kitModuleDbSqlTypes.Configuration) (mys
 
 type testModelGorm struct{}
 
-func (testModelGorm) TableName() string           { return "test_table" }
+// TableName Имя таблицы модели gorm.
+func (testModelGorm) TableName() string { return "test_table" }
+
+// BeforeCreate Хук gorm перед созданием записи.
 func (testModelGorm) BeforeCreate(*gorm.DB) error { return nil }
+
+// BeforeUpdate Хук gorm перед обновлением записи.
 func (testModelGorm) BeforeUpdate(*gorm.DB) error { return nil }
 
 func TestGetFree(t *testing.T) {

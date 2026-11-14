@@ -47,6 +47,8 @@ func (app *impl) sortFn(components []*kitTypes.ComponentInfo) (err error) {
 // Построение графа зависимостей запуска компонент по правилам (before) и (after).
 // Ключ первого уровня - индекс компоненты, которая должна запуститься раньше, значение - множество индексов
 // компонент, запускаемых после неё.
+//
+//goland:noinspection DuplicatedCode
 func sortEdgesMake(components []*kitTypes.ComponentInfo) (before, after map[int]map[int]bool) {
 	var (
 		n, i, j int
@@ -91,6 +93,12 @@ func sortEdgesMake(components []*kitTypes.ComponentInfo) (before, after map[int]
 // рёбра из secondary учитываются только при отсутствии циклической зависимости с рёбрами из primary.
 // Возвращает порядок индексов компонент и истину; если сортировка невозможна из-за циклической зависимости,
 // возвращает ложь и список индексов компонент, оставшихся в цикле.
+// Особенности:
+// + транзитивность гарантирована (A→B→C работает независимо от порядка регистрации);
+// + детерминированный результат: при равных правах порядок регистрации сохраняется, sort.Slice не используется;
+// + приоритет after над before — при конфликте правил сортировка повторяется только по after;
+// + циклы по after теперь дают осмысленную ошибку ComponentSortCyclicDependency;
+// + правила, сверяющие собственное имя, рёбер не создают.
 func sortKahn(cnt int, primary, secondary map[int]map[int]bool) (ret []int, ok bool) {
 	var (
 		indegree []int
@@ -119,7 +127,7 @@ func sortKahn(cnt int, primary, secondary map[int]map[int]bool) (ret []int, ok b
 	// у которой отсутствуют неразрешённые входящие зависимости.
 	for {
 		next = -1
-		for n = 0; n < cnt; n++ {
+		for n = range cnt {
 			if !done[n] && indegree[n] == 0 {
 				next = n
 
@@ -149,7 +157,7 @@ func sortKahn(cnt int, primary, secondary map[int]map[int]bool) (ret []int, ok b
 	}
 	// Формирование списка индексов компонент, оставшихся в циклической зависимости.
 	ret = ret[:0]
-	for n = 0; n < cnt; n++ {
+	for n = range cnt {
 		if !done[n] {
 			ret = append(ret, n)
 		}

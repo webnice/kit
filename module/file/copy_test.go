@@ -15,16 +15,19 @@ import (
 // failingWriter Объект io.Writer всегда возвращающий ошибку.
 type failingWriter struct{ err error }
 
+// Write Реализация интерфейса io.Writer.
 func (fw *failingWriter) Write([]byte) (int, error) { return 0, fw.err }
 
 // shortWriter Объект io.Writer возвращающий короткую запись без ошибки.
 type shortWriter struct{}
 
+// Write Реализация интерфейса io.Writer.
 func (sw *shortWriter) Write(p []byte) (int, error) { return len(p) - 1, nil }
 
 // failingReader Объект io.Reader возвращающий ошибку.
 type failingReader struct{ err error }
 
+// Read Реализация интерфейса io.Reader.
 func (fr *failingReader) Read([]byte) (int, error) { return 0, fr.err }
 
 // TestCopy Копирование файла.

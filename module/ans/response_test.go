@@ -19,6 +19,7 @@ type failResponseWriter struct {
 	err    error
 }
 
+// Header Реализация интерфейса http.ResponseWriter.
 func (fw *failResponseWriter) Header() http.Header {
 	if fw.header == nil {
 		fw.header = make(http.Header)
@@ -27,8 +28,10 @@ func (fw *failResponseWriter) Header() http.Header {
 	return fw.header
 }
 
+// WriteHeader Реализация интерфейса http.ResponseWriter.
 func (fw *failResponseWriter) WriteHeader(status int) { fw.status = status }
 
+// Write Реализация интерфейса http.ResponseWriter.
 func (fw *failResponseWriter) Write([]byte) (int, error) { return 0, fw.err }
 
 // TestImpl_ResponseStatuses Коды состояния HTTP ответа.

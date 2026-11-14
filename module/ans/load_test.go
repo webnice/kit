@@ -16,7 +16,7 @@ import (
 	"github.com/go-chi/chi/v5"
 )
 
-// newChiRequest Формирование тестового запроса с параметрами маршрута chi.
+// Формирование тестового запроса с параметрами маршрута chi.
 func newChiRequest(params map[string]string) *http.Request {
 	var (
 		req  *http.Request

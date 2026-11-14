@@ -16,12 +16,23 @@ type testFileInfo struct {
 	sys     any
 }
 
-func (tfi testFileInfo) Name() string       { return tfi.name }
-func (tfi testFileInfo) Size() int64        { return tfi.size }
-func (tfi testFileInfo) Mode() os.FileMode  { return tfi.mode }
+// Name Реализация интерфейса os.FileInfo.
+func (tfi testFileInfo) Name() string { return tfi.name }
+
+// Size Реализация интерфейса os.FileInfo.
+func (tfi testFileInfo) Size() int64 { return tfi.size }
+
+// Mode Реализация интерфейса os.FileInfo.
+func (tfi testFileInfo) Mode() os.FileMode { return tfi.mode }
+
+// ModTime Реализация интерфейса os.FileInfo.
 func (tfi testFileInfo) ModTime() time.Time { return tfi.modTime }
-func (tfi testFileInfo) IsDir() bool        { return tfi.isDir }
-func (tfi testFileInfo) Sys() any           { return tfi.sys }
+
+// IsDir Реализация интерфейса os.FileInfo.
+func (tfi testFileInfo) IsDir() bool { return tfi.isDir }
+
+// Sys Реализация интерфейса os.FileInfo.
+func (tfi testFileInfo) Sys() any { return tfi.sys }
 
 func TestImpl_New(t *testing.T) {
 	const (

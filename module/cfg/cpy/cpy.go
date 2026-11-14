@@ -90,7 +90,7 @@ func (cpy *Cpy) Copy(toObj any, fromObj any, selected []string, omit []string, f
 	return
 }
 
-// IsSkip Return true for skip field.
+// IsSkip Возвращает истину для пропускаемого поля.
 func (cpy *Cpy) IsSkip(selected []string, omit []string, srcName string, dstName string) (ret bool) {
 	var i int
 
@@ -116,7 +116,7 @@ func (cpy *Cpy) IsSkip(selected []string, omit []string, srcName string, dstName
 	return
 }
 
-// CopyFromField Copy from field to field or method.
+// CopyFromField Копирование значения из поля в поле или метод.
 func (cpy *Cpy) CopyFromField(
 	_ reflect.Type,
 	fromT reflect.Type,
@@ -151,7 +151,7 @@ func (cpy *Cpy) CopyFromField(
 	return
 }
 
-// CopyFromMethod Copy from method to field.
+// CopyFromMethod Копирование значения из метода в поле.
 func (cpy *Cpy) CopyFromMethod(
 	toT reflect.Type,
 	_ reflect.Type,
@@ -188,7 +188,7 @@ func (cpy *Cpy) CopyFromMethod(
 	return
 }
 
-// SetToFieldOrMethod Set value to field or method.
+// SetToFieldOrMethod Установка значения полю или вызов метода.
 func (cpy *Cpy) SetToFieldOrMethod(
 	dst reflect.Value,
 	dstName string,
@@ -252,7 +252,7 @@ func (cpy *Cpy) SetToFieldOrMethod(
 	return
 }
 
-// Indirect value get.
+// Indirect Получение значения с разыменованием указателей.
 func (cpy *Cpy) Indirect(rv reflect.Value) reflect.Value {
 	for rv.Kind() == reflect.Ptr {
 		rv = rv.Elem()
@@ -261,7 +261,7 @@ func (cpy *Cpy) Indirect(rv reflect.Value) reflect.Value {
 	return rv
 }
 
-// IndirectType Indirect type get.
+// IndirectType Получение типа с разыменованием указателей.
 func (cpy *Cpy) IndirectType(reflectType reflect.Type) reflect.Type {
 	for reflectType.Kind() == reflect.Ptr || reflectType.Kind() == reflect.Slice {
 		reflectType = reflectType.Elem()
@@ -270,7 +270,7 @@ func (cpy *Cpy) IndirectType(reflectType reflect.Type) reflect.Type {
 	return reflectType
 }
 
-// Check if input objects is correct.
+// Check Проверка корректности входных объектов.
 func (cpy *Cpy) Check(to reflect.Value, from reflect.Value) (isSlice bool, size int, err error) {
 	if !from.IsValid() {
 		err = cpy.Errors().CopyFromObjectInvalid.Bind()
@@ -292,7 +292,7 @@ func (cpy *Cpy) Check(to reflect.Value, from reflect.Value) (isSlice bool, size 
 	return
 }
 
-// Set value.
+// Set Установка значения.
 func (cpy *Cpy) Set(to reflect.Value, from reflect.Value) (ok bool, err error) {
 	var scanner sql.Scanner
 
@@ -319,7 +319,7 @@ func (cpy *Cpy) Set(to reflect.Value, from reflect.Value) (ok bool, err error) {
 	return
 }
 
-// Fields to StructField.
+// Fields Список полей структуры.
 func (cpy *Cpy) Fields(rt reflect.Type) (ret []reflect.StructField) {
 	var (
 		i int
@@ -340,7 +340,7 @@ func (cpy *Cpy) Fields(rt reflect.Type) (ret []reflect.StructField) {
 	return
 }
 
-// FieldReplaceName Get field name from tag.
+// FieldReplaceName Получение имени поля из тега.
 func (cpy *Cpy) FieldReplaceName(field reflect.StructField, name string) (ret string) {
 	var (
 		tag         string

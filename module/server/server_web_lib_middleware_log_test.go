@@ -102,10 +102,13 @@ type rawWriter struct {
 
 func newRawWriter() *rawWriter { return &rawWriter{header: make(http.Header)} }
 
+// Header Реализация интерфейса http.ResponseWriter.
 func (rw *rawWriter) Header() http.Header { return rw.header }
 
+// WriteHeader Реализация интерфейса http.ResponseWriter.
 func (rw *rawWriter) WriteHeader(status int) { rw.status = status }
 
+// Write Реализация интерфейса http.ResponseWriter.
 func (rw *rawWriter) Write(p []byte) (int, error) { return rw.body.WriteString(string(p)) }
 
 func TestLogHandlerCodeOutOfRange(t *testing.T) {

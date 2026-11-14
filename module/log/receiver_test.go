@@ -206,10 +206,10 @@ func TestConsumerHandlerPanic(t *testing.T) {
 	}
 }
 
-// testHandlerPanic Тестовый обработчик сообщений лога с паникой.
+// Тестовый обработчик сообщений лога с паникой.
 func testHandlerPanic(_ *Message) { panic("паника обработчика") }
 
-// waitFor Ожидание выполнения условия в течение ограниченного времени.
+// Ожидание выполнения условия в течение ограниченного времени.
 func waitFor(t *testing.T, condition func() bool) {
 	const errWaitTimeout = "превышено время ожидания условия."
 	var n time.Time

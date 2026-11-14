@@ -26,6 +26,7 @@ type testBase64FieldDecoderToString struct {
 	ID int64 `call-func:"Base64FieldDecoder"`
 }
 
+// Base64FieldDecoder Извлечение значения поля через функцию.
 func (bfds *testBase64FieldDecoderToString) Base64FieldDecoder(rq *http.Request) (ret string) {
 	const queryParamID = "id"
 	var (
@@ -51,6 +52,7 @@ type testBase64FieldDecoderToObject struct {
 	GoodAdvice []rune `call-func:"ExtractRunes"`
 }
 
+// ExtractRunes Извлечение значения поля через функцию.
 func (bfdo *testBase64FieldDecoderToObject) ExtractRunes(rq *http.Request) (ret string) {
 	const queryParamID = "id"
 	var (
@@ -405,6 +407,7 @@ type testCallFuncPriority struct {
 	Value string `header:"X-Value" call-func:"LoadValue"`
 }
 
+// LoadValue Извлечение значения поля через функцию.
 func (tcfp *testCallFuncPriority) LoadValue(rq *http.Request) string {
 	return "from-func"
 }

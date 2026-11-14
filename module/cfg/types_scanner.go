@@ -34,7 +34,7 @@ func makeScanner(rv reflect.Value) (ret sql.Scanner) {
 	return
 }
 
-// Scan Интерфейс sql.Scanner
+// Scan Интерфейс sql.Scanner.
 func (s *scanner) Scan(src any) (err error) {
 	var (
 		srcS     string

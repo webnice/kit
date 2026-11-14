@@ -166,8 +166,10 @@ func (lko *Lock) doUnlock() (err error) {
 	return
 }
 
+// TryLock Попытка эксклюзивной блокировки файла без ожидания.
 func (lko *Lock) TryLock() (bool, error) { return lko.try(&lko.isLocked, writeLock) }
 
+// TryRLock Попытка разделяемой блокировки файла без ожидания.
 func (lko *Lock) TryRLock() (bool, error) { return lko.try(&lko.isReadLocked, readLock) }
 
 func (lko *Lock) try(locked *bool, flag lockType) (done bool, err error) {

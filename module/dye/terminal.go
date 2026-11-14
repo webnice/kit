@@ -24,7 +24,7 @@ func getColorProfile() terminalProfile {
 	return getColorProfileFd(os.Stdout.Fd())
 }
 
-// getColorProfileFd Определение поддерживаемого цвета терминала по файловому дескриптору.
+// Определение поддерживаемого цвета терминала по файловому дескриптору.
 func getColorProfileFd(fd uintptr) terminalProfile {
 	if !isTTY(fd) {
 		return terminalAscii

@@ -10,7 +10,7 @@ import (
 
 var netInterfaces = net.Interfaces
 
-// defaultHWAddrFunc возвращает MAC-адрес сетевой карты.
+// возвращает MAC-адрес сетевой карты
 func defaultHWAddrFunc() (ret net.HardwareAddr, err error) {
 	const errNotFound = "MAC HW адрес не найден"
 	var (
@@ -32,10 +32,10 @@ func defaultHWAddrFunc() (ret net.HardwareAddr, err error) {
 	return
 }
 
-// getEpoch возвращает разницу между началом эпохи и текущим временем с точностью до 100 наносекунд.
+// возвращает разницу между началом эпохи и текущим временем с точностью до 100 наносекунд
 func (ui *impl) getEpoch() uint64 { return epochStart + uint64(ui.epochFunc().UnixNano()/100) }
 
-// getHardwareAddr возвращает физический MAC-адрес сетевой карты.
+// возвращает физический MAC-адрес сетевой карты
 func (ui *impl) getHardwareAddr() (ret []byte, err error) {
 	if ui.hardwareAddrOnce.Do(func() {
 		var hwAddress []byte
@@ -58,7 +58,7 @@ func (ui *impl) getHardwareAddr() (ret []byte, err error) {
 	return
 }
 
-// getClockSequence возвращает текущее время и clock sequence, основанные на эпохе UUID.
+// возвращает текущее время и clock sequence, основанные на эпохе UUID
 func (ui *impl) getClockSequence() (ret uint64, clockSequence uint16, err error) {
 	var buf []byte
 
@@ -82,7 +82,7 @@ func (ui *impl) getClockSequence() (ret uint64, clockSequence uint16, err error)
 	return
 }
 
-// newFromHash возвращает UUID, основанный на хеше от пространства имён и имени.
+// возвращает UUID, основанный на хеше от пространства имён и имени
 func (ui *impl) newFromHash(h hash.Hash, namespace NamespaceType, name string) (ret *uuid) {
 	ret = &uuid{data: namespace}
 	h.Write(namespace[:])
