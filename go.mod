@@ -1,6 +1,6 @@
 module github.com/webnice/kit/v5
 
-go 1.26.9
+go 1.27.0
 
 require (
 	github.com/Masterminds/semver/v3 v3.5.0
@@ -14,11 +14,11 @@ require (
 	github.com/webnice/debug v1.2.0
 	github.com/webnice/dic v1.4.0
 	github.com/webnice/migrate/v2 v2.0.0
+	github.com/webnice/nix v0.0.0-20261111004726-bbda35fc39aa
 	github.com/webnice/tba/v10 v10.0.1
-	github.com/webnice/web/v3 v3.2.1
+	github.com/webnice/web/v4 v4.0.0
 	golang.org/x/image v0.48.0
 	golang.org/x/sys v0.50.0
-	gopkg.in/webnice/lin.v1 v1.0.0-20200319081247-050a97f5ba4e
 	gopkg.in/yaml.v3 v3.0.1
 	gorm.io/driver/mysql v1.6.0
 	gorm.io/driver/postgres v1.6.3

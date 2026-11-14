@@ -110,16 +110,16 @@ func (ost *OsExt) makeExecPath(buf []byte, n uintptr) (ret string) {
 func (ost *OsExt) makeExecPathOpenBSD(buf []byte, n uintptr) (execPath string) {
 	var (
 		args []string
-		argv uintptr
+		argv unsafe.Pointer
 		argp *[1048576]byte
 		i    int
 	)
 
 	// buf now contains **argv, with pointers to each of the C-style NULL terminated arguments.
-	argv = uintptr(unsafe.Pointer(&buf[0]))
+	argv = unsafe.Pointer(&buf[0])
 Loop:
 	for {
-		argp = *(**[1 << 20]byte)(unsafe.Pointer(argv))
+		argp = *(**[1 << 20]byte)(argv)
 		if argp == nil {
 			break
 		}
@@ -138,7 +138,7 @@ Loop:
 		if n < unsafe.Sizeof(argv) {
 			break
 		}
-		argv += unsafe.Sizeof(argv)
+		argv = unsafe.Add(argv, unsafe.Sizeof(argv))
 		n -= unsafe.Sizeof(argv)
 	}
 	execPath = args[0]

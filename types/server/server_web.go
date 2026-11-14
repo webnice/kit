@@ -5,7 +5,7 @@ import (
 	"net/http"
 
 	"github.com/webnice/dic"
-	"github.com/webnice/web/v3"
+	"github.com/webnice/web/v4"
 )
 
 // WebMiddlewareFn Функция "промежуточного слоя" программного обеспечения ВЕБ сервера.

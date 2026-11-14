@@ -5,7 +5,7 @@ import (
 	"strings"
 
 	kitTypesServer "github.com/webnice/kit/v5/types/server"
-	"github.com/webnice/web/v3"
+	"github.com/webnice/web/v4"
 
 	"github.com/go-chi/chi/v5"
 )

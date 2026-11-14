@@ -171,10 +171,12 @@ github.com/webnice/migrate/v2 v2.0.0 h1:9wI9em1IvG5K4bX5Cvv/br252D8Fm7YRsv8nMEx0
 github.com/webnice/migrate/v2 v2.0.0/go.mod h1:x+CjQ05D839u1hDe7iZsw2VydB/wM5EYtzqJDxkVyzE=
 github.com/webnice/net v1.4.1 h1:GcI0+ZxAOfcFmb3MaEiWFdSdBqlsCKWQmYYXcX8BTAU=
 github.com/webnice/net v1.4.1/go.mod h1:/gtCYwRLSEzFrYUJxsRZB3RgEmYHV2uw+Lb1oNT9lO4=
+github.com/webnice/nix v0.0.0-20261111004726-bbda35fc39aa h1:rcd4UkFQq4RxZBNHbJSLHggl1D2QhpPjq8sCIAnTDGg=
+github.com/webnice/nix v0.0.0-20261111004726-bbda35fc39aa/go.mod h1:7S++6rcGSuDphUceSXVavrNX40TSZemFYkdeWiTTRCE=
 github.com/webnice/tba/v10 v10.0.1 h1:oRg673C0ULGU6agnnX0NE8/dZ0sIsicqU57lD7JxVCM=
 github.com/webnice/tba/v10 v10.0.1/go.mod h1:THAL4h/Bd+gVkUd5gfKTZSCwGkakla6i8jF9qFYq8jY=
-github.com/webnice/web/v3 v3.2.1 h1:TzuNYN/qBbM05K+H3HMDRSyM3qjkCJRwCP+6AYJl0kM=
-github.com/webnice/web/v3 v3.2.1/go.mod h1:xHstXaf37u3w3p2fhNJ8ZCYg2KlfZwe6zJcHEfXSZcA=
+github.com/webnice/web/v4 v4.0.0 h1:kFI/5gc5tkI/pcKKx7xOqzcjwM7CYrLMs9oOEVMCRHo=
+github.com/webnice/web/v4 v4.0.0/go.mod h1:uMxJInsfAH2IKMD35nHVswNgPhPlpA0B4hI4DoI8Jsk=
 github.com/yuin/goldmark v1.4.13/go.mod h1:6yULJ656Px+3vBD8DxQVa3kxgyrAnzto9xy5taEt/CY=
 github.com/zenazn/goji v0.9.0/go.mod h1:7S9M489iMyHBNxwZnk9/EHS098H4/F6TATF2mIxtB1Q=
 go.uber.org/atomic v1.3.2/go.mod h1:gD2HeocX3+yG+ygLZcrzQJaqmWj9AIm7n08wl/qW/PE=
@@ -284,8 +286,6 @@ gopkg.in/check.v1 v1.0.0-20201130134442-10cb98267c6c h1:Hei/4ADfdWqJk1ZMxUNpqntN
 gopkg.in/check.v1 v1.0.0-20201130134442-10cb98267c6c/go.mod h1:JHkPIbrfpd72SG/EVd6muEfDQjcINNoR0C8j2r3qZ4Q=
 gopkg.in/errgo.v2 v2.1.0/go.mod h1:hNsd1EY+bozCKY1Ytp96fpM3vjJbqLJn88ws8XvfDNI=
 gopkg.in/inconshreveable/log15.v2 v2.0.0-20180818164646-67afb5ed74ec/go.mod h1:aPpfJ7XW+gOuirDoZ8gHhLh3kZ1B08FtV2bbmy7Jv3s=
-gopkg.in/webnice/lin.v1 v1.0.0-20200319081247-050a97f5ba4e h1:Xo86BrJlW4/+iLBw8SEgTUMpZ60fCnPR983ZCQj7Kgc=
-gopkg.in/webnice/lin.v1 v1.0.0-20200319081247-050a97f5ba4e/go.mod h1:HaHUEphcaMEGh9WBJdVb2Lzvbaal17sSDipzN+RnfGs=
 gopkg.in/yaml.v2 v2.2.2/go.mod h1:hI93XBmqTisBFMUTm0b8Fm+jr3Dg1NNxqwp+5A1VGuI=
 gopkg.in/yaml.v3 v3.0.0-20200313102051-9f266ea9e77c/go.mod h1:K4uyk7z7BCEPqu6E+C64Yfv1cQ7kz7rIZviUmN+EgEM=
 gopkg.in/yaml.v3 v3.0.1 h1:fxVm/GzAzEWqLHuvctI91KS9hhNmmWOoWu0XTYJS7CA=

@@ -10,7 +10,7 @@
 // Package migration
 package migration
 
-import nul "gopkg.in/webnice/lin.v1/nl"
+import nul "github.com/webnice/nix"
 
 // DbVersion Лог миграций
 type DbVersion struct {
