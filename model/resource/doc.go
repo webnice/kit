@@ -7,7 +7,7 @@ package resource
 //НАЧАЛО ПРИМЕРА-->
 package resource
 
-import kitModelResource "github.com/webnice/kit/v4/model/resource"
+import kitModelResource "github.com/webnice/kit/v5/model/resource"
 
 // Генератор кода встраиваемых ресурсов. Аргументы:
 // --package - Название пакета для генерации .go файлов.
@@ -16,7 +16,7 @@ import kitModelResource "github.com/webnice/kit/v4/model/resource"
 // EMBEDDER_STATIC_BASE_DIR  - Корневая директория статических ресурсов.
 // EMBEDDER_STATIC_RESOURCES - Группы ресурсов и папками самих ресурсов.
 //                             Формат: group_name1:path/to/folder1,group_name2:path/to/folder2
-//go:generate go run "github.com/webnice/kit/v4/model/resource/embedder" --package "resource" --path "."
+//go:generate go run "github.com/webnice/kit/v5/model/resource/embedder" --package "resource" --path "."
 
 var singleton *impl
 

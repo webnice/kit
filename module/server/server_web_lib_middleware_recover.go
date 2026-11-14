@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"net/http"
 
-	kitModuleTrace "github.com/webnice/kit/v4/module/trace"
+	kitModuleTrace "github.com/webnice/kit/v5/module/trace"
 )
 
 // RecoverHandler Восстановление после паники в ВЕБ сервере.

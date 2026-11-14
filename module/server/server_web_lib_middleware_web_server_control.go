@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"net/http"
 
-	kitTypesServer "github.com/webnice/kit/v4/types/server"
+	kitTypesServer "github.com/webnice/kit/v5/types/server"
 )
 
 // WebServerControlHandler Обработчик установки в контекст запросов ВЕБ сервера, объекта контроля за ВЕБ сервером.

@@ -4,8 +4,8 @@ import (
 	"bytes"
 	"time"
 
-	kitModuleLogLevel "github.com/webnice/kit/v4/module/log/level"
-	kitTypes "github.com/webnice/kit/v4/types"
+	kitModuleLogLevel "github.com/webnice/kit/v5/module/log/level"
+	kitTypes "github.com/webnice/kit/v5/types"
 )
 
 // Message Объект сообщения лога.

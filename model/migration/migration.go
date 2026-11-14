@@ -3,7 +3,7 @@ package migration
 import (
 	"database/sql"
 
-	kitModuleDbSql "github.com/webnice/kit/v4/module/db/sql"
+	kitModuleDbSql "github.com/webnice/kit/v5/module/db/sql"
 
 	"gorm.io/gorm"
 )

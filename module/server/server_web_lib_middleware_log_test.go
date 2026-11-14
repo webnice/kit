@@ -7,7 +7,7 @@ import (
 	"testing"
 	"time"
 
-	kitModuleWrWrap "github.com/webnice/kit/v4/module/wrwrap"
+	kitModuleWrWrap "github.com/webnice/kit/v5/module/wrwrap"
 )
 
 func timeNow() time.Time { return time.Now() }

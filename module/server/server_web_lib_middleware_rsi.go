@@ -5,8 +5,8 @@ import (
 	"net"
 	"net/http"
 
-	kitModuleRqVar "github.com/webnice/kit/v4/module/rqvar"
-	kitTypesServer "github.com/webnice/kit/v4/types/server"
+	kitModuleRqVar "github.com/webnice/kit/v5/module/rqvar"
+	kitTypesServer "github.com/webnice/kit/v5/types/server"
 )
 
 // RequestShadowInfoHandler Загрузка объекта информации о запросе и всех данных переданных в запросе в контекст.

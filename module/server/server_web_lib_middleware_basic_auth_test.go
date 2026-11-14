@@ -9,7 +9,7 @@ import (
 	"testing"
 
 	"github.com/webnice/dic"
-	kitTypesServer "github.com/webnice/kit/v4/types/server"
+	kitTypesServer "github.com/webnice/kit/v5/types/server"
 )
 
 func basicAuthRequest(t *testing.T, username, password string) (rq *http.Request) {

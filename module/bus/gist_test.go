@@ -1,7 +1,7 @@
 package bus
 
 import (
-	kitModulePdw "github.com/webnice/kit/v4/module/pdw"
+	kitModulePdw "github.com/webnice/kit/v5/module/pdw"
 	"testing"
 	"time"
 )

@@ -4,7 +4,7 @@ import (
 	"testing"
 	"time"
 
-	kitTypes "github.com/webnice/kit/v4/types"
+	kitTypes "github.com/webnice/kit/v5/types"
 )
 
 // TestComponentInitiateDoesNotSelfDeadlock ComponentInitiate не приводит к самоблокировке.

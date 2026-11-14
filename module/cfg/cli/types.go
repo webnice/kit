@@ -3,7 +3,7 @@ package cli
 import (
 	"bytes"
 
-	kitTypes "github.com/webnice/kit/v4/types"
+	kitTypes "github.com/webnice/kit/v5/types"
 )
 
 // Interface Интерфейс пакета.

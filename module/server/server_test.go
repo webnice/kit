@@ -11,9 +11,9 @@ import (
 	"time"
 
 	"github.com/webnice/dic"
-	kitModuleLogLevel "github.com/webnice/kit/v4/module/log/level"
-	kitTypes "github.com/webnice/kit/v4/types"
-	kitTypesServer "github.com/webnice/kit/v4/types/server"
+	kitModuleLogLevel "github.com/webnice/kit/v5/module/log/level"
+	kitTypes "github.com/webnice/kit/v5/types"
+	kitTypesServer "github.com/webnice/kit/v5/types/server"
 )
 
 // testLogger Заглушка интерфейса логирования.

@@ -1,6 +1,6 @@
 package migration
 
-import kitModuleDbSql "github.com/webnice/kit/v4/module/db/sql"
+import kitModuleDbSql "github.com/webnice/kit/v5/module/db/sql"
 
 // Interface Интерфейс пакета.
 type Interface interface {

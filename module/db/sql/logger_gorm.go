@@ -5,9 +5,9 @@ import (
 	"strings"
 	"time"
 
-	kitModuleDye "github.com/webnice/kit/v4/module/dye"
-	kmll "github.com/webnice/kit/v4/module/log/level"
-	kitTypes "github.com/webnice/kit/v4/types"
+	kitModuleDye "github.com/webnice/kit/v5/module/dye"
+	kmll "github.com/webnice/kit/v5/module/log/level"
+	kitTypes "github.com/webnice/kit/v5/types"
 
 	gormLogger "gorm.io/gorm/logger"
 )

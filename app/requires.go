@@ -1,6 +1,6 @@
 package app
 
-import kitTypes "github.com/webnice/kit/v4/types"
+import kitTypes "github.com/webnice/kit/v5/types"
 
 // Функция проверки зависимости между компонентами.
 func (app *impl) requiresFn(components []*kitTypes.ComponentInfo) (err error) {

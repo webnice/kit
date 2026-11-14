@@ -18,9 +18,9 @@ import (
 	"sync"
 	"sync/atomic"
 
-	kitModuleBus "github.com/webnice/kit/v4/module/bus"
-	kitModuleLogLevel "github.com/webnice/kit/v4/module/log/level"
-	kitTypes "github.com/webnice/kit/v4/types"
+	kitModuleBus "github.com/webnice/kit/v5/module/bus"
+	kitModuleLogLevel "github.com/webnice/kit/v5/module/log/level"
+	kitTypes "github.com/webnice/kit/v5/types"
 )
 
 const eApplicationFatality uint8 = 252 // 252 - приложение завершилось из-за печати в лог сообщения с уровнем Fatal.

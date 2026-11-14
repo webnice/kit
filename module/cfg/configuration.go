@@ -9,8 +9,8 @@ import (
 	"reflect"
 	runtimeDebug "runtime/debug"
 
-	kitModuleCfgCpy "github.com/webnice/kit/v4/module/cfg/cpy"
-	kitTypes "github.com/webnice/kit/v4/types"
+	kitModuleCfgCpy "github.com/webnice/kit/v5/module/cfg/cpy"
+	kitTypes "github.com/webnice/kit/v5/types"
 
 	"gopkg.in/yaml.v3"
 )

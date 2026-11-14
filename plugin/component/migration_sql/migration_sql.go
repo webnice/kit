@@ -3,11 +3,11 @@ package migration_sql
 import (
 	"strings"
 
-	kitModuleCfg "github.com/webnice/kit/v4/module/cfg"
-	kitModuleCfgReg "github.com/webnice/kit/v4/module/cfg/reg"
-	kitModuleDbSql "github.com/webnice/kit/v4/module/db/sql"
-	kitTypes "github.com/webnice/kit/v4/types"
-	kitTypesDb "github.com/webnice/kit/v4/types/db"
+	kitModuleCfg "github.com/webnice/kit/v5/module/cfg"
+	kitModuleCfgReg "github.com/webnice/kit/v5/module/cfg/reg"
+	kitModuleDbSql "github.com/webnice/kit/v5/module/db/sql"
+	kitTypes "github.com/webnice/kit/v5/types"
+	kitTypesDb "github.com/webnice/kit/v5/types/db"
 )
 
 // Объект сущности пакета.

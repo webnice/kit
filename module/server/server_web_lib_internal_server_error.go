@@ -5,7 +5,7 @@ import (
 	"net/http"
 
 	"github.com/webnice/dic"
-	"github.com/webnice/kit/v4/module/ans"
+	"github.com/webnice/kit/v5/module/ans"
 )
 
 // InternalServerErrorGet Получение функции для обработки внутренней ошибки ВЕБ сервера.

@@ -6,8 +6,8 @@ import (
 	"time"
 
 	"github.com/webnice/dic"
-	kitModuleTrace "github.com/webnice/kit/v4/module/trace"
-	kitTypes "github.com/webnice/kit/v4/types"
+	kitModuleTrace "github.com/webnice/kit/v5/module/trace"
+	kitTypes "github.com/webnice/kit/v5/types"
 )
 
 // Функция вызова функции Finalize() у компоненты.

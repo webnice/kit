@@ -1,6 +1,6 @@
 package ans
 
-import kitTypes "github.com/webnice/kit/v4/types"
+import kitTypes "github.com/webnice/kit/v5/types"
 
 // New Конструктор объекта сущности пакета, возвращается интерфейс пакета.
 func New(logger kitTypes.Logger) Interface {

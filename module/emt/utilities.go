@@ -5,8 +5,8 @@ import (
 	"encoding/base64"
 	"fmt"
 
-	kitModuleCfg "github.com/webnice/kit/v4/module/cfg"
-	kitModuleTrace "github.com/webnice/kit/v4/module/trace"
+	kitModuleCfg "github.com/webnice/kit/v5/module/cfg"
+	kitModuleTrace "github.com/webnice/kit/v5/module/trace"
 )
 
 // Вызов функции с защитой от паники.

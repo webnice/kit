@@ -12,7 +12,7 @@ import (
 	"testing"
 	"time"
 
-	kitModuleDbSql "github.com/webnice/kit/v4/module/db/sql"
+	kitModuleDbSql "github.com/webnice/kit/v5/module/db/sql"
 
 	"github.com/jmoiron/sqlx"
 	"gorm.io/driver/mysql"

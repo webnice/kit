@@ -11,7 +11,7 @@ import (
 	"testing"
 
 	"github.com/webnice/dic"
-	kitTypes "github.com/webnice/kit/v4/types"
+	kitTypes "github.com/webnice/kit/v5/types"
 )
 
 // testLogger Логгер фиксирующий сообщения для проверки.

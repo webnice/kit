@@ -3,7 +3,7 @@ package cli
 import (
 	"testing"
 
-	kitTypes "github.com/webnice/kit/v4/types"
+	kitTypes "github.com/webnice/kit/v5/types"
 )
 
 // TestImplRegisterCommand Регистрация команд и флагов командной строки.

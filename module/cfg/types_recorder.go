@@ -3,7 +3,7 @@ package cfg
 import (
 	"time"
 
-	kitTypes "github.com/webnice/kit/v4/types"
+	kitTypes "github.com/webnice/kit/v5/types"
 )
 
 // Recorder Интерфейс логирования.

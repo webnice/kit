@@ -5,7 +5,7 @@ import (
 	"os"
 	"testing"
 
-	"github.com/webnice/kit/v4/module/dye/colorful"
+	"github.com/webnice/kit/v5/module/dye/colorful"
 )
 
 // TestIsTTY Проверка TTY на файловом дескрипторе не являющимся терминалом.

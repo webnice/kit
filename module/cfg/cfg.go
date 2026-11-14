@@ -10,13 +10,13 @@ import (
 	"strings"
 
 	"github.com/webnice/debug"
-	kitModuleAns "github.com/webnice/kit/v4/module/ans"
-	kitModuleBus "github.com/webnice/kit/v4/module/bus"
-	kitModuleCfgCpy "github.com/webnice/kit/v4/module/cfg/cpy"
-	kitModuleLogLevel "github.com/webnice/kit/v4/module/log/level"
-	kitModuleServer "github.com/webnice/kit/v4/module/server"
-	kitModuleUuid "github.com/webnice/kit/v4/module/uuid"
-	kitTypes "github.com/webnice/kit/v4/types"
+	kitModuleAns "github.com/webnice/kit/v5/module/ans"
+	kitModuleBus "github.com/webnice/kit/v5/module/bus"
+	kitModuleCfgCpy "github.com/webnice/kit/v5/module/cfg/cpy"
+	kitModuleLogLevel "github.com/webnice/kit/v5/module/log/level"
+	kitModuleServer "github.com/webnice/kit/v5/module/server"
+	kitModuleUuid "github.com/webnice/kit/v5/module/uuid"
+	kitTypes "github.com/webnice/kit/v5/types"
 )
 
 // Get Получение объекта сущности пакета, возвращается интерфейс пакета.

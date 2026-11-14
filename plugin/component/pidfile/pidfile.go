@@ -5,10 +5,10 @@ import (
 	"os"
 	"strings"
 
-	kitModuleCfg "github.com/webnice/kit/v4/module/cfg"
-	kitModuleCfgReg "github.com/webnice/kit/v4/module/cfg/reg"
-	kitModuleLock "github.com/webnice/kit/v4/module/lock"
-	kitTypes "github.com/webnice/kit/v4/types"
+	kitModuleCfg "github.com/webnice/kit/v5/module/cfg"
+	kitModuleCfgReg "github.com/webnice/kit/v5/module/cfg/reg"
+	kitModuleLock "github.com/webnice/kit/v5/module/lock"
+	kitTypes "github.com/webnice/kit/v5/types"
 )
 
 const (

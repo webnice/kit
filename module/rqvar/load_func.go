@@ -6,7 +6,7 @@ import (
 	"reflect"
 	"strings"
 
-	kitModuleTrace "github.com/webnice/kit/v4/module/trace"
+	kitModuleTrace "github.com/webnice/kit/v5/module/trace"
 )
 
 // Безопасный вызов функции через reflect.

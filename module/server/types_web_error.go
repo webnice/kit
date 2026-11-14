@@ -1,6 +1,6 @@
 package server
 
-import "github.com/webnice/kit/v4/module/ambry"
+import "github.com/webnice/kit/v5/module/ambry"
 
 const (
 	errInternalServerError uint32 = iota + 1

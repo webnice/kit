@@ -3,7 +3,7 @@ package app
 import (
 	"regexp"
 
-	kitTypes "github.com/webnice/kit/v4/types"
+	kitTypes "github.com/webnice/kit/v5/types"
 )
 
 // Функция сортировки компонентов в соответствии с настройками (before) и (after).

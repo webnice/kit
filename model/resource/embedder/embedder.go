@@ -51,7 +51,7 @@ package {{ .package }}
 import (
 	"time"
 
-	kitModelResource "github.com/webnice/kit/v4/model/resource"
+	kitModelResource "github.com/webnice/kit/v5/model/resource"
 )
 
 func init() {

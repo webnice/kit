@@ -3,8 +3,8 @@ package tgbot
 import (
 	"sync"
 
-	kitModuleCfg "github.com/webnice/kit/v4/module/cfg"
-	kitTypes "github.com/webnice/kit/v4/types"
+	kitModuleCfg "github.com/webnice/kit/v5/module/cfg"
+	kitTypes "github.com/webnice/kit/v5/types"
 	tgbotapi "github.com/webnice/tba/v10"
 )
 

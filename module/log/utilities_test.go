@@ -5,7 +5,7 @@ import (
 	"strings"
 	"testing"
 
-	kitModuleLogLevel "github.com/webnice/kit/v4/module/log/level"
+	kitModuleLogLevel "github.com/webnice/kit/v5/module/log/level"
 )
 
 // testUtilitiesNamed Именованный тип для тестирования getFuncFullName.

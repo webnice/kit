@@ -6,9 +6,9 @@ import (
 	"strings"
 	"text/template"
 
-	kitModuleDye "github.com/webnice/kit/v4/module/dye"
-	kitModuleLog "github.com/webnice/kit/v4/module/log"
-	kitModuleTrace "github.com/webnice/kit/v4/module/trace"
+	kitModuleDye "github.com/webnice/kit/v5/module/dye"
+	kitModuleLog "github.com/webnice/kit/v5/module/log"
+	kitModuleTrace "github.com/webnice/kit/v5/module/trace"
 )
 
 // Template Представления шаблона в виде text/template.

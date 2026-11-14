@@ -6,7 +6,7 @@ import (
 	"net/http"
 
 	"github.com/webnice/dic"
-	kitTypesServer "github.com/webnice/kit/v4/types/server"
+	kitTypesServer "github.com/webnice/kit/v5/types/server"
 )
 
 // BasicAuthHandler Простая web авторизация запросов с использованием логина и пароля.

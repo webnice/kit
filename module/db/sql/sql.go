@@ -5,10 +5,10 @@ import (
 	"errors"
 	"sync"
 
-	kitModuleCfg "github.com/webnice/kit/v4/module/cfg"
-	kitModuleDbSqlTypes "github.com/webnice/kit/v4/module/db/sql/types"
-	kitTypes "github.com/webnice/kit/v4/types"
-	kitTypesDb "github.com/webnice/kit/v4/types/db"
+	kitModuleCfg "github.com/webnice/kit/v5/module/cfg"
+	kitModuleDbSqlTypes "github.com/webnice/kit/v5/module/db/sql/types"
+	kitTypes "github.com/webnice/kit/v5/types"
+	kitTypesDb "github.com/webnice/kit/v5/types/db"
 
 	// Библиотеки работы с базой данных.
 	"github.com/jmoiron/sqlx"

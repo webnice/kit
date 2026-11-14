@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"strings"
 
-	kitModuleDye "github.com/webnice/kit/v4/module/dye"
-	kmll "github.com/webnice/kit/v4/module/log/level"
+	kitModuleDye "github.com/webnice/kit/v5/module/dye"
+	kmll "github.com/webnice/kit/v5/module/log/level"
 )
 
 func (ses *session) colorByLevel() (fg kitModuleDye.Interface, bg kitModuleDye.Interface) {

@@ -1,8 +1,8 @@
 package reg
 
 import (
-	kitModuleCfg "github.com/webnice/kit/v4/module/cfg"
-	kitTypes "github.com/webnice/kit/v4/types"
+	kitModuleCfg "github.com/webnice/kit/v5/module/cfg"
+	kitTypes "github.com/webnice/kit/v5/types"
 )
 
 // Registration Регистрация компонента приложения.

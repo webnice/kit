@@ -4,7 +4,7 @@ import (
 	"context"
 	"runtime"
 
-	kitModulePdw "github.com/webnice/kit/v4/module/pdw"
+	kitModulePdw "github.com/webnice/kit/v5/module/pdw"
 )
 
 // Создание объекта и возвращение интерфейса Essence.

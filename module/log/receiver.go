@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"runtime"
 
-	kitModuleTrace "github.com/webnice/kit/v4/module/trace"
+	kitModuleTrace "github.com/webnice/kit/v5/module/trace"
 )
 
 // Consumer Интерфейс types.Databuser.

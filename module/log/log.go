@@ -9,9 +9,9 @@ import (
 	"sync/atomic"
 	"time"
 
-	kitModuleBus "github.com/webnice/kit/v4/module/bus"
-	kitModuleLogLevel "github.com/webnice/kit/v4/module/log/level"
-	kitTypes "github.com/webnice/kit/v4/types"
+	kitModuleBus "github.com/webnice/kit/v5/module/bus"
+	kitModuleLogLevel "github.com/webnice/kit/v5/module/log/level"
+	kitTypes "github.com/webnice/kit/v5/types"
 )
 
 // New Конструктор объекта интерфейса Logger.

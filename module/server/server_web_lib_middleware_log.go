@@ -7,10 +7,10 @@ import (
 	"time"
 
 	"github.com/webnice/dic"
-	kitModuleDye "github.com/webnice/kit/v4/module/dye"
-	kitModuleLogLevel "github.com/webnice/kit/v4/module/log/level"
-	kitModuleWrWrap "github.com/webnice/kit/v4/module/wrwrap"
-	kitTypes "github.com/webnice/kit/v4/types"
+	kitModuleDye "github.com/webnice/kit/v5/module/dye"
+	kitModuleLogLevel "github.com/webnice/kit/v5/module/log/level"
+	kitModuleWrWrap "github.com/webnice/kit/v5/module/wrwrap"
+	kitTypes "github.com/webnice/kit/v5/types"
 )
 
 // Record Структура собираемых данных для логирования.

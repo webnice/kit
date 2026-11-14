@@ -1,8 +1,8 @@
 package server
 
 import (
-	kitModuleTrace "github.com/webnice/kit/v4/module/trace"
-	kitTypesServer "github.com/webnice/kit/v4/types/server"
+	kitModuleTrace "github.com/webnice/kit/v5/module/trace"
+	kitTypesServer "github.com/webnice/kit/v5/types/server"
 
 	"github.com/go-chi/chi/v5"
 )

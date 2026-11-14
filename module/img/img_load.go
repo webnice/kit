@@ -10,7 +10,7 @@ import (
 	"strings"
 
 	// Регистрация поддерживаемых форматов графических изображений.
-	_ "github.com/webnice/kit/v4/module/img/ico" // Расширение image для формата ico.
+	_ "github.com/webnice/kit/v5/module/img/ico" // Расширение image для формата ico.
 	_ "golang.org/x/image/bmp"                   // Расширение image для формата bmp.
 	_ "golang.org/x/image/tiff"                  // Расширение image для формата tiff.
 	_ "image/gif"                                // Расширение image для формата gif.

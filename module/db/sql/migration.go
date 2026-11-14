@@ -4,7 +4,7 @@ import (
 	"math"
 	"sync"
 
-	//kitModuleCfg "github.com/webnice/kit/v4/module/cfg"
+	//kitModuleCfg "github.com/webnice/kit/v5/module/cfg"
 	"github.com/webnice/migrate/v2/goose"
 
 	// Обязательно наличие зарегистрированных драйверов баз данных.

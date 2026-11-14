@@ -7,9 +7,9 @@
 package server
 
 import (
-	kitModuleAns "github.com/webnice/kit/v4/module/ans"
-	kitTypes "github.com/webnice/kit/v4/types"
-	kitTypesServer "github.com/webnice/kit/v4/types/server"
+	kitModuleAns "github.com/webnice/kit/v5/module/ans"
+	kitTypes "github.com/webnice/kit/v5/types"
+	kitTypesServer "github.com/webnice/kit/v5/types/server"
 )
 
 const moduleName = "module/server"

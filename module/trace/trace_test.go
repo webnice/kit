@@ -4,7 +4,7 @@ import (
 	"strings"
 	"testing"
 
-	kitTypes "github.com/webnice/kit/v4/types"
+	kitTypes "github.com/webnice/kit/v5/types"
 )
 
 func callShort(ti *kitTypes.TraceInfo, stackBack int) { Short(ti, stackBack) }
@@ -19,7 +19,7 @@ func TestShortDetailed(t *testing.T) {
 		tplFunctionWrong   = "Function должна быть вне текущего теста: %q."
 		tplLineWrong       = "Line = %d."
 		currentTestName    = "TestShortDetailed"
-		currentPackage     = "github.com/webnice/kit/v4/module/trace"
+		currentPackage     = "github.com/webnice/kit/v5/module/trace"
 		currentFile        = "trace_test.go"
 	)
 	var ti *kitTypes.TraceInfo

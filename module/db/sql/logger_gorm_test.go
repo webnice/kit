@@ -6,7 +6,7 @@ import (
 	"testing"
 	"time"
 
-	kmll "github.com/webnice/kit/v4/module/log/level"
+	kmll "github.com/webnice/kit/v5/module/log/level"
 	gormLogger "gorm.io/gorm/logger"
 )
 

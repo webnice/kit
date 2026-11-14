@@ -1,8 +1,8 @@
 package emt
 
 import (
-	kitModuleCfg "github.com/webnice/kit/v4/module/cfg"
-	kitTypes "github.com/webnice/kit/v4/types"
+	kitModuleCfg "github.com/webnice/kit/v5/module/cfg"
+	kitTypes "github.com/webnice/kit/v5/types"
 )
 
 // New Конструктор объекта сущности пакета, возвращается интерфейс пакета.

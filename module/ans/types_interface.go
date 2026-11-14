@@ -6,7 +6,7 @@ import (
 	"time"
 
 	"github.com/webnice/dic"
-	kitModuleRqVar "github.com/webnice/kit/v4/module/rqvar"
+	kitModuleRqVar "github.com/webnice/kit/v5/module/rqvar"
 )
 
 // Interface Интерфейс пакета.

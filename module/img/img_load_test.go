@@ -11,7 +11,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/webnice/kit/v4/module/img/ico"
+	"github.com/webnice/kit/v5/module/img/ico"
 	"golang.org/x/image/bmp"
 	"golang.org/x/image/tiff"
 )

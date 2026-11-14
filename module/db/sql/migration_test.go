@@ -4,7 +4,7 @@ import (
 	"database/sql/driver"
 
 	"errors"
-	kitModuleDbSqlTypes "github.com/webnice/kit/v4/module/db/sql/types"
+	kitModuleDbSqlTypes "github.com/webnice/kit/v5/module/db/sql/types"
 	"path/filepath"
 	"strings"
 	"sync"

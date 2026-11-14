@@ -7,7 +7,7 @@ import (
 	"strings"
 
 	"github.com/webnice/dic"
-	kitModuleRqVar "github.com/webnice/kit/v4/module/rqvar"
+	kitModuleRqVar "github.com/webnice/kit/v5/module/rqvar"
 
 	"github.com/go-chi/chi/v5"
 )

@@ -5,12 +5,12 @@ import (
 	"runtime"
 	"sync"
 
-	"github.com/webnice/kit/v4/plugin/component/logger_console/tpl"
+	"github.com/webnice/kit/v5/plugin/component/logger_console/tpl"
 
-	kitModuleCfg "github.com/webnice/kit/v4/module/cfg"
-	kitModuleCfgReg "github.com/webnice/kit/v4/module/cfg/reg"
-	kitModuleLogLevel "github.com/webnice/kit/v4/module/log/level"
-	kitTypes "github.com/webnice/kit/v4/types"
+	kitModuleCfg "github.com/webnice/kit/v5/module/cfg"
+	kitModuleCfgReg "github.com/webnice/kit/v5/module/cfg/reg"
+	kitModuleLogLevel "github.com/webnice/kit/v5/module/log/level"
+	kitTypes "github.com/webnice/kit/v5/types"
 )
 
 // Регистрация компоненты в приложении.

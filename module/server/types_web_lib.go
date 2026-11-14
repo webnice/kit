@@ -4,7 +4,7 @@ import (
 	"net"
 	"net/http"
 
-	kitTypesServer "github.com/webnice/kit/v4/types/server"
+	kitTypesServer "github.com/webnice/kit/v5/types/server"
 )
 
 // InterfaceWebLib Интерфейс библиотеки функций ВЕБ сервера.

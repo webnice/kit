@@ -7,14 +7,14 @@ import (
 	"testing"
 	"time"
 
-	kitModuleLogLevel "github.com/webnice/kit/v4/module/log/level"
+	kitModuleLogLevel "github.com/webnice/kit/v5/module/log/level"
 )
 
 // Печать сообщения через стандартный пакет log.
 func standardLogPrint(msg string) { standardLog.Print(msg) }
 
 // log Тип для формирования имён функций содержащих log.fatal и log.panic.
-// Полное имя методов: github.com/webnice/kit/v4/module/log.log.fatal и ...log.log.panic.
+// Полное имя методов: github.com/webnice/kit/v5/module/log.log.fatal и ...log.log.panic.
 type log struct{}
 
 func (l log) fatal(tl Logger) { l.write(tl) }

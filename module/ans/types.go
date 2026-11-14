@@ -5,7 +5,7 @@ import (
 	"io"
 
 	"github.com/webnice/dic"
-	kitTypes "github.com/webnice/kit/v4/types"
+	kitTypes "github.com/webnice/kit/v5/types"
 )
 
 const (

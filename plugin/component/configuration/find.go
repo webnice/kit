@@ -8,7 +8,7 @@ import (
 	"runtime"
 	"strings"
 
-	"github.com/webnice/kit/v4/plugin/component/configuration/osext"
+	"github.com/webnice/kit/v5/plugin/component/configuration/osext"
 )
 
 // Поиск пути и имени файла конфигурации.

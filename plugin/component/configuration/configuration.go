@@ -6,9 +6,9 @@ import (
 	"os"
 
 	"github.com/webnice/dic"
-	kitModuleCfg "github.com/webnice/kit/v4/module/cfg"
-	kitModuleCfgReg "github.com/webnice/kit/v4/module/cfg/reg"
-	kitTypes "github.com/webnice/kit/v4/types"
+	kitModuleCfg "github.com/webnice/kit/v5/module/cfg"
+	kitModuleCfgReg "github.com/webnice/kit/v5/module/cfg/reg"
+	kitTypes "github.com/webnice/kit/v5/types"
 )
 
 // Регистрация компоненты в приложении.

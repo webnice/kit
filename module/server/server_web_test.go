@@ -3,7 +3,7 @@ package server
 import (
 	"testing"
 
-	kitTypesServer "github.com/webnice/kit/v4/types/server"
+	kitTypesServer "github.com/webnice/kit/v5/types/server"
 )
 
 func TestWebAdd(t *testing.T) {

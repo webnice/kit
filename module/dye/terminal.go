@@ -6,8 +6,8 @@ import (
 	"os"
 	"strings"
 
-	"github.com/webnice/kit/v4/module/dye/colorful"
-	"github.com/webnice/kit/v4/module/dye/isatty"
+	"github.com/webnice/kit/v5/module/dye/colorful"
+	"github.com/webnice/kit/v5/module/dye/isatty"
 )
 
 // Проверка терминала по файловому дескриптору.

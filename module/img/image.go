@@ -7,7 +7,7 @@ import (
 	"io"
 	"os"
 
-	"github.com/webnice/kit/v4/module/img/ico" // Расширение image для формата ico.
+	"github.com/webnice/kit/v5/module/img/ico" // Расширение image для формата ico.
 	"golang.org/x/image/bmp"                   // Расширение image для формата bmp.
 	"golang.org/x/image/tiff"                  // Расширение image для формата tiff.
 	"image/gif"                                // Расширение image для формата gif.

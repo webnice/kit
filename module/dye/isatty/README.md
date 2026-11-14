@@ -11,7 +11,7 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/webnice/kit/v4/module/dye/isatty"
+	"github.com/webnice/kit/v5/module/dye/isatty"
 )
 
 func main() {

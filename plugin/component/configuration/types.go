@@ -1,6 +1,6 @@
 package configuration
 
-import kitModuleCfg "github.com/webnice/kit/v4/module/cfg"
+import kitModuleCfg "github.com/webnice/kit/v5/module/cfg"
 
 const (
 	osWindows       = "windows"

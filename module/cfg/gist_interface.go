@@ -4,10 +4,10 @@ import (
 	"bytes"
 	"time"
 
-	kitModuleCfgCli "github.com/webnice/kit/v4/module/cfg/cli"
-	kitModuleLog "github.com/webnice/kit/v4/module/log"
-	kitModuleLogLevel "github.com/webnice/kit/v4/module/log/level"
-	kitTypes "github.com/webnice/kit/v4/types"
+	kitModuleCfgCli "github.com/webnice/kit/v5/module/cfg/cli"
+	kitModuleLog "github.com/webnice/kit/v5/module/log"
+	kitModuleLogLevel "github.com/webnice/kit/v5/module/log/level"
+	kitTypes "github.com/webnice/kit/v5/types"
 )
 
 // Essence Служебный публичный интерфейс.

@@ -5,9 +5,9 @@ import (
 	"reflect"
 	"time"
 
-	kitModulePdw "github.com/webnice/kit/v4/module/pdw"
-	kitModuleTrace "github.com/webnice/kit/v4/module/trace"
-	kitTypes "github.com/webnice/kit/v4/types"
+	kitModulePdw "github.com/webnice/kit/v5/module/pdw"
+	kitModuleTrace "github.com/webnice/kit/v5/module/trace"
+	kitTypes "github.com/webnice/kit/v5/types"
 )
 
 // New Конструктор объекта пакета, возвращает интерфейс Interface.

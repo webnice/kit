@@ -26,8 +26,8 @@ import (
 	runtimeDebug "runtime/debug"
 	"strings"
 
-	kitModuleCfgConst "github.com/webnice/kit/v4/module/cfg/const"
-	kitTypes "github.com/webnice/kit/v4/types"
+	kitModuleCfgConst "github.com/webnice/kit/v5/module/cfg/const"
+	kitTypes "github.com/webnice/kit/v5/types"
 )
 
 // New Конструктор объекта пакета.

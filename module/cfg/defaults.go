@@ -10,9 +10,9 @@ import (
 	"strings"
 	"time"
 
-	kitModuleCfgCli "github.com/webnice/kit/v4/module/cfg/cli"
-	kitModuleCfgConst "github.com/webnice/kit/v4/module/cfg/const"
-	kitModuleLogLevel "github.com/webnice/kit/v4/module/log/level"
+	kitModuleCfgCli "github.com/webnice/kit/v5/module/cfg/cli"
+	kitModuleCfgConst "github.com/webnice/kit/v5/module/cfg/const"
+	kitModuleLogLevel "github.com/webnice/kit/v5/module/log/level"
 )
 
 // Целевой уровень выполнения приложения.

@@ -4,7 +4,7 @@ import (
 	"container/list"
 	"reflect"
 
-	kitTypes "github.com/webnice/kit/v4/types"
+	kitTypes "github.com/webnice/kit/v5/types"
 )
 
 // Структура регистра хранения объектов конфигурации.

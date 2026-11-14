@@ -4,8 +4,8 @@ import (
 	"sync/atomic"
 	"time"
 
-	kitModuleLogLevel "github.com/webnice/kit/v4/module/log/level"
-	kitModuleTrace "github.com/webnice/kit/v4/module/trace"
+	kitModuleLogLevel "github.com/webnice/kit/v5/module/log/level"
+	kitModuleTrace "github.com/webnice/kit/v5/module/trace"
 )
 
 // Write Реализация интерфейса io.Writer.

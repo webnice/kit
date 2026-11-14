@@ -14,9 +14,9 @@ import (
 	"time"
 
 	"github.com/jmoiron/sqlx"
-	kitModuleCfg "github.com/webnice/kit/v4/module/cfg"
-	kitModuleDbSqlTypes "github.com/webnice/kit/v4/module/db/sql/types"
-	kmll "github.com/webnice/kit/v4/module/log/level"
+	kitModuleCfg "github.com/webnice/kit/v5/module/cfg"
+	kitModuleDbSqlTypes "github.com/webnice/kit/v5/module/db/sql/types"
+	kmll "github.com/webnice/kit/v5/module/log/level"
 	"gorm.io/gorm"
 )
 

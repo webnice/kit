@@ -5,8 +5,8 @@ import (
 	"testing"
 	"time"
 
-	kitModuleBus "github.com/webnice/kit/v4/module/bus"
-	kitModuleLogLevel "github.com/webnice/kit/v4/module/log/level"
+	kitModuleBus "github.com/webnice/kit/v5/module/bus"
+	kitModuleLogLevel "github.com/webnice/kit/v5/module/log/level"
 )
 
 func TestConsumerWrongType(t *testing.T) {

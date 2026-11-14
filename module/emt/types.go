@@ -6,7 +6,7 @@ import (
 	"net/url"
 
 	"github.com/webnice/dic"
-	kitModuleCfg "github.com/webnice/kit/v4/module/cfg"
+	kitModuleCfg "github.com/webnice/kit/v5/module/cfg"
 )
 
 const (

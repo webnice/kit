@@ -11,8 +11,8 @@ import (
 	"reflect"
 	"sync/atomic"
 
-	kitModulePdw "github.com/webnice/kit/v4/module/pdw"
-	kitTypes "github.com/webnice/kit/v4/types"
+	kitModulePdw "github.com/webnice/kit/v5/module/pdw"
+	kitTypes "github.com/webnice/kit/v5/types"
 )
 
 const (
