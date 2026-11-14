@@ -73,6 +73,7 @@ func (ans *impl) Verify(variable any) (ret RestErrorInterface) {
 
 // Проверка объекта через внешний верификатор. Описания проверок определяются тегами структуры данных объекта.
 func (ans *impl) verifyValidatorV10(variable any) (ret []RestErrorField, err error) {
+	const tplFieldValue = "%v"
 	var (
 		verificatorError validator.ValidationErrors
 		verificator      *validator.Validate
@@ -90,7 +91,7 @@ func (ans *impl) verifyValidatorV10(variable any) (ret []RestErrorField, err err
 	for n = range verificatorError {
 		ret = append(ret, RestErrorField{
 			Field:      verificatorError[n].StructField(),
-			FieldValue: fmt.Sprintf("%v", verificatorError[n].Value()),
+			FieldValue: fmt.Sprintf(tplFieldValue, verificatorError[n].Value()),
 			Message:    verificatorError[n].ActualTag(),
 		})
 	}

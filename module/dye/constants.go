@@ -20,6 +20,7 @@ const (
 )
 
 const (
+	envCi             = "CI"
 	envCliColorForce  = "CLICOLOR_FORCE"
 	envTerm           = "TERM"
 	envColorTerm      = "COLORTERM"

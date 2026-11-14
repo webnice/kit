@@ -16,8 +16,9 @@ type filename struct {
 
 // String Реализация интерфейса Stringify.
 func (fn filename) String() string {
-	var sb = &strings.Builder{}
+	var sb *strings.Builder
 
+	sb = &strings.Builder{}
 	_, _ = sb.WriteString(strings.Join(fn.Path, string(os.PathSeparator)))
 	if sb.Len() > 0 {
 		_ = sb.WriteByte(os.PathSeparator)
@@ -29,8 +30,9 @@ func (fn filename) String() string {
 
 // FilenameFull Имя файла с расширением.
 func (fn filename) FilenameFull() string {
-	var sb = &strings.Builder{}
+	var sb *strings.Builder
 
+	sb = &strings.Builder{}
 	if fn.Filename != "" && fn.Extension != "" {
 		_, _ = sb.WriteString(strings.Join([]string{fn.Filename, fn.Extension}, keyExt))
 	} else if fn.Filename != "" && fn.Extension == "" {
@@ -68,10 +70,12 @@ func (fn filename) IsDotFirst() (ret bool) {
 
 // IsPathPrefix Вернётся значение "истина", если любой из сегментов пути содержит строку prefix.
 func (fn filename) IsPathPrefix(prefix string) (ret bool) {
+	var n int
+
 	if len(prefix) == 0 {
 		return
 	}
-	for n := range fn.Path {
+	for n = range fn.Path {
 		if len(fn.Path[n]) > 0 && strings.HasPrefix(fn.Path[n], prefix) {
 			ret = true
 			break

@@ -1,6 +1,7 @@
 package ans
 
 import (
+	"bytes"
 	"errors"
 	"fmt"
 	"io"
@@ -44,105 +45,130 @@ type errorReader struct{ err error }
 func (er *errorReader) Read([]byte) (int, error) { return 0, er.err }
 
 // newRequestWithBody Формирование тестового запроса с телом и типом содержимого.
-func newRequestWithBody(body string, contentType string) *http.Request {
-	var req = httptest.NewRequest(http.MethodPost, "/", strings.NewReader(body))
+func newRequestWithBody(body string, contentType string) (req *http.Request) {
+	req = httptest.NewRequest(http.MethodPost, "/", strings.NewReader(body))
 	req.Header.Set(dic.Header().ContentType.String(), contentType)
 
-	return req
+	return
 }
 
 // TestImpl_RqBytesExtended Чтение тела HTTP запроса.
 func TestImpl_RqBytesExtended(t *testing.T) {
-	var ans = New(nil)
+	const (
+		errTextCloseError           = "close error"
+		errTextReadError            = "read error"
+		tplRqBytesNilError          = "RqBytes(nil) вернул ошибку %v."
+		tplRqBytesEmptyRequestError = "RqBytes(&http.Request{}) вернул ошибку %v."
+		tplRqBytesUnexpectedError   = "RqBytes() вернул ошибку: %v."
+		tplRqBytesUnexpected        = "RqBytes() = %q, ожидалось hello."
+		tplRqBytesCloseError        = "RqBytes() с ошибкой Close вернул ошибку: %v."
+		tplRqBytesCloseUnexpected   = "RqBytes() с ошибкой Close = %q, ожидалось data."
+		tplLogWarningNotRecorded    = "logWarningf() не зафиксировал ошибку Close: %#v."
+		tplRqBytesReadError         = "RqBytes() с ошибкой чтения вернул ошибку %v."
+		tplRqBytesLengthError       = "RqBytes() с неверной длиной вернул ошибку %v."
+	)
+	var (
+		ans      Interface
+		ansLog   Interface
+		logger   *testLogger
+		buf      *bytes.Buffer
+		mismatch *http.Request
+		err      error
+	)
 
-	if _, err := ans.RqBytes(nil); err == nil || !strings.Contains(err.Error(), "*http.Request") {
-		t.Fatalf("RqBytes(nil) вернул ошибку %v", err)
+	ans = New(nil)
+	if _, err = ans.RqBytes(nil); err == nil || !strings.Contains(err.Error(), "*http.Request") {
+		t.Fatalf(tplRqBytesNilError, err)
 	}
-	if _, err := ans.RqBytes(&http.Request{}); err == nil || !strings.Contains(err.Error(), "тела HTTP запроса") {
-		t.Fatalf("RqBytes(&http.Request{}) вернул ошибку %v", err)
+	if _, err = ans.RqBytes(&http.Request{}); err == nil || !strings.Contains(err.Error(), "тела HTTP запроса") {
+		t.Fatalf(tplRqBytesEmptyRequestError, err)
 	}
-
-	buf, err := ans.RqBytes(newRequestWithBody("hello", dic.Mime().ApplicationJson.String()))
+	buf, err = ans.RqBytes(newRequestWithBody("hello", dic.Mime().ApplicationJson.String()))
 	if err != nil {
-		t.Fatalf("RqBytes() вернул ошибку: %v", err)
+		t.Fatalf(tplRqBytesUnexpectedError, err)
 	}
 	if buf.String() != "hello" {
-		t.Fatalf("RqBytes() = %q, ожидалось hello", buf.String())
+		t.Fatalf(tplRqBytesUnexpected, buf.String())
 	}
-
-	var (
-		logger = &testLogger{}
-		ansLog = New(logger)
-	)
+	logger = &testLogger{}
+	ansLog = New(logger)
 	buf, err = ansLog.RqBytes(&http.Request{
-		Body: &testBody{reader: strings.NewReader("data"), closeErr: errors.New("close error")},
+		Body: &testBody{reader: strings.NewReader("data"), closeErr: errors.New(errTextCloseError)},
 	})
 	if err != nil {
-		t.Fatalf("RqBytes() с ошибкой Close вернул ошибку: %v", err)
+		t.Fatalf(tplRqBytesCloseError, err)
 	}
 	if buf.String() != "data" {
-		t.Fatalf("RqBytes() с ошибкой Close = %q, ожидалось data", buf.String())
+		t.Fatalf(tplRqBytesCloseUnexpected, buf.String())
 	}
 	if len(logger.warnings) != 1 || !strings.Contains(logger.warnings[0], "Закрытие тела HTTP запроса") {
-		t.Fatalf("logWarningf() не зафиксировал ошибку Close: %#v", logger.warnings)
+		t.Fatalf(tplLogWarningNotRecorded, logger.warnings)
 	}
-
 	_, _ = ans.RqBytes(&http.Request{
-		Body: &testBody{reader: strings.NewReader("x"), closeErr: errors.New("close error")},
+		Body: &testBody{reader: strings.NewReader("x"), closeErr: errors.New(errTextCloseError)},
 	})
-
 	_, err = ans.RqBytes(&http.Request{
-		Body: &testBody{reader: io.MultiReader(strings.NewReader("12"), &errorReader{err: errors.New("read error")})},
+		Body: &testBody{reader: io.MultiReader(strings.NewReader("12"), &errorReader{err: errors.New(errTextReadError)})},
 	})
 	if err == nil || !strings.Contains(err.Error(), "чтение тела HTTP запроса") {
-		t.Fatalf("RqBytes() с ошибкой чтения вернул ошибку %v", err)
+		t.Fatalf(tplRqBytesReadError, err)
 	}
-
-	var mismatch = newRequestWithBody("123", dic.Mime().ApplicationJson.String())
+	mismatch = newRequestWithBody("123", dic.Mime().ApplicationJson.String())
 	mismatch.ContentLength = 10
 	if _, err = ans.RqBytes(mismatch); err == nil || !strings.Contains(err.Error(), "размер тела HTTP запроса") {
-		t.Fatalf("RqBytes() с неверной длиной вернул ошибку %v", err)
+		t.Fatalf(tplRqBytesLengthError, err)
 	}
 }
 
 // TestImpl_RqDataExtended Декодирование тела HTTP запроса в переменную.
 func TestImpl_RqDataExtended(t *testing.T) {
-	var ans = New(nil)
+	const (
+		errRqDataNilNoError  = "RqData(nil) вернул nil ошибку."
+		tplRqDataJSONError   = "RqData(JSON) вернул ошибку: %v."
+		tplRqDataJSONDecoded = "RqData(JSON) декодировал %+v."
+		tplRqDataXMLError    = "RqData(XML) вернул ошибку: %v."
+		tplRqDataXMLDecoded  = "RqData(XML) декодировал %+v."
+		tplRqDataBadJSON     = "RqData() с невалидным JSON вернул ошибку %v."
+		tplRqDataBadXML      = "RqData() с невалидным XML вернул ошибку %v."
+		tplRqDataUnknownType = "RqData() с неизвестным Content-Type вернул ошибку %v."
+	)
+	var (
+		ans          Interface
+		jsonVariable struct {
+			A int `json:"a"`
+		}
+		xmlVariable struct {
+			Name string `xml:"name"`
+		}
+		err error
+	)
 
-	var jsonVariable struct {
-		A int `json:"a"`
+	ans = New(nil)
+	if err = ans.RqData(nil, &jsonVariable); err == nil {
+		t.Fatal(errRqDataNilNoError)
 	}
-	if err := ans.RqData(nil, &jsonVariable); err == nil {
-		t.Fatal("RqData(nil) вернул nil ошибку")
-	}
-
-	if err := ans.RqData(newRequestWithBody(`{"a":1}`, dic.Mime().ApplicationJson.String()), &jsonVariable); err != nil {
-		t.Fatalf("RqData(JSON) вернул ошибку: %v", err)
+	if err = ans.RqData(newRequestWithBody(`{"a":1}`, dic.Mime().ApplicationJson.String()), &jsonVariable); err != nil {
+		t.Fatalf(tplRqDataJSONError, err)
 	}
 	if jsonVariable.A != 1 {
-		t.Fatalf("RqData(JSON) декодировал %+v", jsonVariable)
+		t.Fatalf(tplRqDataJSONDecoded, jsonVariable)
 	}
-
-	var xmlVariable struct {
-		Name string `xml:"name"`
-	}
-	if err := ans.RqData(newRequestWithBody(`<data><name>test</name></data>`, dic.Mime().TextXml.String()), &xmlVariable); err != nil {
-		t.Fatalf("RqData(XML) вернул ошибку: %v", err)
+	if err = ans.RqData(newRequestWithBody(`<data><name>test</name></data>`, dic.Mime().TextXml.String()), &xmlVariable); err != nil {
+		t.Fatalf(tplRqDataXMLError, err)
 	}
 	if xmlVariable.Name != "test" {
-		t.Fatalf("RqData(XML) декодировал %+v", xmlVariable)
+		t.Fatalf(tplRqDataXMLDecoded, xmlVariable)
 	}
-
-	if err := ans.RqData(newRequestWithBody(`{"a":`, dic.Mime().ApplicationJson.String()), &jsonVariable); err == nil ||
+	if err = ans.RqData(newRequestWithBody(`{"a":`, dic.Mime().ApplicationJson.String()), &jsonVariable); err == nil ||
 		!strings.Contains(err.Error(), "ошибка декодирования") {
-		t.Fatalf("RqData() с невалидным JSON вернул ошибку %v", err)
+		t.Fatalf(tplRqDataBadJSON, err)
 	}
-	if err := ans.RqData(newRequestWithBody(`<data>`, dic.Mime().TextXml.String()), &xmlVariable); err == nil ||
+	if err = ans.RqData(newRequestWithBody(`<data>`, dic.Mime().TextXml.String()), &xmlVariable); err == nil ||
 		!strings.Contains(err.Error(), "ошибка декодирования") {
-		t.Fatalf("RqData() с невалидным XML вернул ошибку %v", err)
+		t.Fatalf(tplRqDataBadXML, err)
 	}
-	if err := ans.RqData(newRequestWithBody(`{}`, "application/octet-stream"), &jsonVariable); err == nil ||
+	if err = ans.RqData(newRequestWithBody(`{}`, "application/octet-stream"), &jsonVariable); err == nil ||
 		!strings.Contains(err.Error(), "Content-Type") {
-		t.Fatalf("RqData() с неизвестным Content-Type вернул ошибку %v", err)
+		t.Fatalf(tplRqDataUnknownType, err)
 	}
 }

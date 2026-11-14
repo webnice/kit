@@ -114,7 +114,10 @@ import (
 
 // Поиск директорий содержащих go файлы и не содержащих файл-флаг исключения.
 func findDirs(rootPath string, paths ...string) (ret []*tDir) {
-	const suffixRecursive, extGo = "/...", ".go"
+	const (
+		suffixRecursive, extGo = "/...", ".go"
+		tplReadDirError        = "чтение директории %q прервано ошибкой: %s."
+	)
 	var (
 		err  error
 		dirs []*tDir
@@ -141,7 +144,7 @@ func findDirs(rootPath string, paths ...string) (ret []*tDir) {
 		}
 		// Содержимое директории.
 		if dry, err = os.ReadDir(dirs[d].Absolute); err != nil {
-			log.Printf("чтение директории %q прервано ошибкой: %s", dirs[d].Absolute, err)
+			log.Printf(tplReadDirError, dirs[d].Absolute, err)
 			continue
 		}
 		for n = range dry {
@@ -168,7 +171,10 @@ func findDirs(rootPath string, paths ...string) (ret []*tDir) {
 
 // Поиск корневой директории проекта по файлам, которые обязательно должны быть в проекте.
 func findRootPath() (ret string) {
-	const limit, up, fn1, fn2, fn3 = 4, "..", "Makefile", ".prj.mk", "go.mod"
+	const (
+		limit, up, fn1, fn2, fn3 = 4, "..", "Makefile", ".prj.mk", "go.mod"
+		tplExecutableNameError   = "Не удалось получить имя выполняемого файла, ошибка: %s."
+	)
 	var (
 		err   error
 		fnd   []string
@@ -179,7 +185,7 @@ func findRootPath() (ret string) {
 
 	fnd = []string{fn1, fn2, fn3}
 	if tmp, err = filepath.Abs(""); err != nil {
-		log.Fatalf("Не удалось получить имя выполняемого файла, ошибка: %s", err)
+		log.Fatalf(tplExecutableNameError, err)
 		return
 	}
 	ret = path.Dir(tmp)

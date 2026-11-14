@@ -60,7 +60,7 @@ type testBusAsyncError struct {
 func (tbae *testBusAsyncError) IsSubscriber(_ any) bool { return true }
 
 func (tbae *testBusAsyncError) PublishAsync(_ any) error {
-	return errors.New("тестовая ошибка публикации")
+	return errors.New(errTextPublishAsync)
 }
 
 // testBusSubscribeError Имитация шины данных возвращающей ошибку при регистрации потребителя.
@@ -69,8 +69,14 @@ type testBusSubscribeError struct {
 }
 
 func (tbse *testBusSubscribeError) Subscribe(_ kitTypes.Databuser) error {
-	return errors.New("тестовая ошибка регистрации")
+	return errors.New(errTextSubscribeError)
 }
+
+// Строки ошибок тестовых имитаций шины данных.
+const (
+	errTextPublishAsync   = "тестовая ошибка публикации."
+	errTextSubscribeError = "тестовая ошибка регистрации."
+)
 
 // newTestLogger Создание тестового объекта логирования без регистрации в шине данных.
 func newTestLogger() (tl *logger, bus kitModuleBus.Interface, tsw *testSyncWriter) {
@@ -83,17 +89,27 @@ func newTestLogger() (tl *logger, bus kitModuleBus.Interface, tsw *testSyncWrite
 
 // waitMessage Ожидание получения сообщения лога обработчиком.
 func waitMessage(t *testing.T, ch chan *Message) (msg *Message) {
+	const errWaitMessageTimeout = "превышено время ожидания сообщения лога."
+
 	t.Helper()
 	select {
 	case msg = <-ch:
 	case <-time.After(time.Second * 5):
-		t.Fatal("превышено время ожидания сообщения лога")
+		t.Fatal(errWaitMessageTimeout)
 	}
 
 	return
 }
 
 func TestNew(t *testing.T) {
+	const (
+		errNewNil        = "функция New(), вернулся nil, ожидался не nil объект."
+		errErrorsNil     = "функция Errors(), вернулся nil, ожидался не nil объект."
+		errDebugWrong    = "функция Debug(), вернулся не верный объект."
+		errDebugNotSet   = "функция Debug(true), флаг отладки не установлен."
+		errDebugNotReset = "функция Debug(false), флаг отладки не сброшен."
+		errBusNil        = "тестовая шина данных не создана."
+	)
 	var (
 		tl  *logger
 		bus kitModuleBus.Interface
@@ -101,27 +117,32 @@ func TestNew(t *testing.T) {
 
 	tl, bus, _ = newTestLogger()
 	if tl == nil {
-		t.Fatal("функция New(), вернулся nil, ожидался не nil объект")
+		t.Fatal(errNewNil)
 	}
 	if tl.Errors() == nil {
-		t.Error("функция Errors(), вернулся nil, ожидался не nil объект")
+		t.Error(errErrorsNil)
 	}
 	if tl.Debug(true) != Logger(tl) {
-		t.Error("функция Debug(), вернулся не верный объект")
+		t.Error(errDebugWrong)
 	}
 	if !tl.debug {
-		t.Error("функция Debug(true), флаг отладки не установлен")
+		t.Error(errDebugNotSet)
 	}
 	tl.Debug(false)
 	if tl.debug {
-		t.Error("функция Debug(false), флаг отладки не сброшен")
+		t.Error(errDebugNotReset)
 	}
 	if bus == nil {
-		t.Error("тестовая шина данных не создана")
+		t.Error(errBusNil)
 	}
 }
 
 func TestMessageGetPut(t *testing.T) {
+	const (
+		errGetNil        = "функция MessageGet(), вернулся nil, ожидался не nil объект."
+		errFieldsNotInit = "функция MessageGet(), объект сообщения содержит не инициализированные поля."
+		errNotReset      = "функция MessagePut(), объект сообщения не сброшен."
+	)
 	var (
 		tl  *logger
 		msg *Message
@@ -130,10 +151,10 @@ func TestMessageGetPut(t *testing.T) {
 	tl, _, _ = newTestLogger()
 	// Получение объекта из бассейна.
 	if msg = tl.MessageGet(); msg == nil {
-		t.Fatal("функция MessageGet(), вернулся nil, ожидался не nil объект")
+		t.Fatal(errGetNil)
 	}
 	if msg.Pattern == nil || msg.Argument == nil || msg.Keys == nil || msg.Trace == nil || msg.Done == nil {
-		t.Error("функция MessageGet(), объект сообщения содержит не инициализированные поля")
+		t.Error(errFieldsNotInit)
 	}
 	// Заполнение объекта и возврат в бассейн.
 	msg.Level = kitModuleLogLevel.Error
@@ -144,13 +165,18 @@ func TestMessageGetPut(t *testing.T) {
 	tl.MessagePut(msg)
 	msg = tl.MessageGet()
 	if msg.Level != 0 || msg.Pattern.Len() != 0 || len(msg.Argument) != 0 || len(msg.Keys) != 0 || msg.Fatality {
-		t.Error("функция MessagePut(), объект сообщения не сброшен")
+		t.Error(errNotReset)
 	}
 	// Возврат nil в бассейн - паники нет.
 	tl.MessagePut(nil)
 }
 
 func TestInitialization(t *testing.T) {
+	const (
+		tplFatalInitialization = "функция Initialization(), вернула не ожидаемую ошибку: %s."
+		errNotSubscribed       = "после Initialization(), лог не зарегистрирован в шине данных."
+		errStillSubscribed     = "после FlushAndClose(), лог остался зарегистрирован в шине данных."
+	)
 	var (
 		tl  *logger
 		bus kitModuleBus.Interface
@@ -159,20 +185,46 @@ func TestInitialization(t *testing.T) {
 
 	tl, bus, _ = newTestLogger()
 	if err = tl.Initialization(); err != nil {
-		t.Fatalf("функция Initialization(), вернула не ожидаемую ошибку: %s", err)
+		t.Fatalf(tplFatalInitialization, err)
 	}
 	// Лог зарегистрирован в шине данных как потребитель сообщений.
 	if !bus.IsSubscriber(new(Message)) {
-		t.Error("после Initialization(), лог не зарегистрирован в шине данных")
+		t.Error(errNotSubscribed)
 	}
 	tl.FlushAndClose()
 	// После FlushAndClose() регистрация в шине данных удалена.
 	if bus.IsSubscriber(new(Message)) {
-		t.Error("после FlushAndClose(), лог остался зарегистрирован в шине данных")
+		t.Error(errStillSubscribed)
 	}
 }
 
 func TestMessageAfterClose(t *testing.T) {
+	const (
+		errMessageAfterClose = "функция Message() после FlushAndClose(), сообщение было обработано."
+	)
+	var (
+		tl   *logger
+		tsw  *testSyncWriter
+		msg  *Message
+		size int
+	)
+
+	tl, _, tsw = newTestLogger()
+	tl.FlushAndClose()
+	msg = tl.MessageGet()
+	msg.Pattern.WriteString("после закрытия")
+	size = tsw.Len()
+	tl.Message(msg)
+	if tsw.Len() != size {
+		t.Error(errMessageAfterClose)
+	}
+}
+
+func TestMessageDefaultHandler(t *testing.T) {
+	const (
+		tplNoTemplatePrint = "сообщение без шаблона не напечатано, лог: %q."
+		tplNoPatternPrint  = "сообщение с шаблоном не напечатано, лог: %q."
+	)
 	var (
 		tl  *logger
 		tsw *testSyncWriter
@@ -180,29 +232,12 @@ func TestMessageAfterClose(t *testing.T) {
 	)
 
 	tl, _, tsw = newTestLogger()
-	tl.FlushAndClose()
-	msg = tl.MessageGet()
-	msg.Pattern.WriteString("после закрытия")
-	size := tsw.Len()
-	tl.Message(msg)
-	if tsw.Len() != size {
-		t.Error("функция Message() после FlushAndClose(), сообщение было обработано")
-	}
-}
-
-func TestMessageDefaultHandler(t *testing.T) {
-	var (
-		tl  *logger
-		msg *Message
-	)
-
-	tl, _, tsw := newTestLogger()
 	// Сообщение без шаблона - аргументы печатаются через Fprintln().
 	msg = tl.MessageGet()
 	msg.Argument = append(msg.Argument, "тестовое сообщение")
 	tl.Message(msg)
 	if !strings.Contains(tsw.String(), "тестовое сообщение") {
-		t.Errorf("сообщение без шаблона не напечатано, лог: %q", tsw.String())
+		t.Errorf(tplNoTemplatePrint, tsw.String())
 	}
 	// Сообщение с шаблоном и аргументами.
 	tsw.Reset()
@@ -211,11 +246,19 @@ func TestMessageDefaultHandler(t *testing.T) {
 	msg.Argument = append(msg.Argument, "аргумент")
 	tl.Message(msg)
 	if !strings.Contains(tsw.String(), `шаблон "аргумент"`) {
-		t.Errorf("сообщение с шаблоном не напечатано, лог: %q", tsw.String())
+		t.Errorf(tplNoPatternPrint, tsw.String())
 	}
 }
 
 func TestHandlerSubscribeUnsubscribe(t *testing.T) {
+	const (
+		tplFatalSubscribe      = "функция HandlerSubscribe(), вернула не ожидаемую ошибку: %s."
+		tplSubscribeAgainWrong = "функция HandlerSubscribe() повторной регистрации, вернула не ожидаемую ошибку: %v."
+		tplHandlersCount       = "количество обработчиков %d, ожидалось %d."
+		tplFatalUnsubscribe    = "функция HandlerUnsubscribe(), вернула не ожидаемую ошибку: %s."
+		tplUnsubscribeAgain    = "функция HandlerUnsubscribe() повторного вызова, вернула не ожидаемую ошибку: %v."
+		errUnsubscribeNotFound = "функция HandlerUnsubscribe() не зарегистрированного обработчика, ошибка не возвращена."
+	)
 	var (
 		tl  *logger
 		err error
@@ -223,37 +266,37 @@ func TestHandlerSubscribeUnsubscribe(t *testing.T) {
 
 	tl, _, _ = newTestLogger()
 	if err = tl.HandlerSubscribe(testHandlerSubscribeOne, kitModuleLogLevel.Fatal, kitModuleLogLevel.Trace); err != nil {
-		t.Fatalf("функция HandlerSubscribe(), вернула не ожидаемую ошибку: %s", err)
+		t.Fatalf(tplFatalSubscribe, err)
 	}
 	// Повторная регистрация того же обработчика - ошибка.
 	if err = tl.HandlerSubscribe(testHandlerSubscribeOne, kitModuleLogLevel.Fatal, kitModuleLogLevel.Trace); err == nil ||
 		!strings.Contains(err.Error(), "уже зарегистрирован") {
-		t.Errorf("функция HandlerSubscribe() повторной регистрации, вернула не ожидаемую ошибку: %v", err)
+		t.Errorf(tplSubscribeAgainWrong, err)
 	}
 	if err = tl.HandlerSubscribe(testHandlerSubscribeTwo, kitModuleLogLevel.Error, kitModuleLogLevel.Error); err != nil {
-		t.Fatalf("функция HandlerSubscribe(), вернула не ожидаемую ошибку: %s", err)
+		t.Fatalf(tplFatalSubscribe, err)
 	}
 	if tl.subscribers.Len() != 2 {
-		t.Errorf("количество обработчиков %d, ожидалось 2", tl.subscribers.Len())
+		t.Errorf(tplHandlersCount, tl.subscribers.Len(), 2)
 	}
 	// Удаление регистрации обработчика.
 	if err = tl.HandlerUnsubscribe(testHandlerSubscribeOne); err != nil {
-		t.Fatalf("функция HandlerUnsubscribe(), вернула не ожидаемую ошибку: %s", err)
+		t.Fatalf(tplFatalUnsubscribe, err)
 	}
 	if tl.subscribers.Len() != 1 {
-		t.Errorf("количество обработчиков %d, ожидалось 1", tl.subscribers.Len())
+		t.Errorf(tplHandlersCount, tl.subscribers.Len(), 1)
 	}
 	// Повторное удаление регистрации - ошибка.
 	if err = tl.HandlerUnsubscribe(testHandlerSubscribeOne); err == nil ||
 		!strings.Contains(err.Error(), "не найдена") {
-		t.Errorf("функция HandlerUnsubscribe() повторного вызова, вернула не ожидаемую ошибку: %v", err)
+		t.Errorf(tplUnsubscribeAgain, err)
 	}
 	// Удаление не зарегистрированного обработчика - ошибка.
 	if err = tl.HandlerUnsubscribe(testHandlerSubscribeOne); err == nil {
-		t.Error("функция HandlerUnsubscribe() не зарегистрированного обработчика, ошибка не возвращена")
+		t.Error(errUnsubscribeNotFound)
 	}
 	if err = tl.HandlerUnsubscribe(testHandlerSubscribeTwo); err != nil {
-		t.Fatalf("функция HandlerUnsubscribe(), вернула не ожидаемую ошибку: %s", err)
+		t.Fatalf(tplFatalUnsubscribe, err)
 	}
 }
 
@@ -264,6 +307,11 @@ func testHandlerSubscribeOne(_ *Message) {}
 func testHandlerSubscribeTwo(_ *Message) {}
 
 func TestFlushAndCloseUnsubscribeError(t *testing.T) {
+	const (
+		tplFatalInitialization = "функция Initialization(), вернула не ожидаемую ошибку: %s."
+		tplFatalUnsubscribe    = "функция Unsubscribe(), вернула не ожидаемую ошибку: %s."
+		errUnsubscribeNotPrint = "ошибка отписывания от шины данных не напечатана в лог."
+	)
 	var (
 		tl  *logger
 		bus kitModuleBus.Interface
@@ -273,20 +321,23 @@ func TestFlushAndCloseUnsubscribeError(t *testing.T) {
 
 	tl, bus, tsw = newTestLogger()
 	if err = tl.Initialization(); err != nil {
-		t.Fatalf("функция Initialization(), вернула не ожидаемую ошибку: %s", err)
+		t.Fatalf(tplFatalInitialization, err)
 	}
 	// Удаление регистрации в шине данных до FlushAndClose(), ошибка отписывания
 	// печатается в лог, функция завершается без паники.
 	if err = bus.Unsubscribe(tl); err != nil {
-		t.Fatalf("функция Unsubscribe(), вернула не ожидаемую ошибку: %s", err)
+		t.Fatalf(tplFatalUnsubscribe, err)
 	}
 	tl.FlushAndClose()
 	if tsw.Len() == 0 {
-		t.Error("ошибка отписывания от шины данных не напечатана в лог")
+		t.Error(errUnsubscribeNotPrint)
 	}
 }
 
 func TestInitializationSubscribeError(t *testing.T) {
+	const (
+		tplSubscribeErrorWrong = "функция Initialization() с ошибкой регистрации, вернула не ожидаемую ошибку: %v."
+	)
 	var (
 		tl  Logger
 		err error
@@ -295,7 +346,7 @@ func TestInitializationSubscribeError(t *testing.T) {
 	tl = New(&testSyncWriter{}, &testBusSubscribeError{})
 	if err = tl.Initialization(); err == nil ||
 		!strings.Contains(err.Error(), "тестовая ошибка регистрации") {
-		t.Errorf("функция Initialization() с ошибкой регистрации, вернула не ожидаемую ошибку: %v", err)
+		t.Errorf(tplSubscribeErrorWrong, err)
 	}
 }
 
@@ -304,54 +355,80 @@ func TestInitializationSubscribeError(t *testing.T) {
 
 // TestMessageFatalityExit Фатальное сообщение приводит к завершению приложения с кодом 252.
 func TestMessageFatalityExit(t *testing.T) {
-	if os.Getenv("GO_WANT_LOG_FATAL_EXIT") == "1" {
-		var tl *logger
+	const (
+		tplFatalInitialization = "функция Initialization(), вернула не ожидаемую ошибку: %s."
+		errChildNoError        = "дочерний процесс завершился без ошибки, ожидалось завершение с кодом 252."
+		tplChildExitWrong      = "дочерний процесс завершился с ошибкой %v, ожидался код выхода %d."
+		envFatalExit           = "GO_WANT_LOG_FATAL_EXIT"
+		testName               = "TestMessageFatalityExit"
+	)
+	var (
+		tl      *logger
+		err     error
+		cmd     *exec.Cmd
+		exitErr *exec.ExitError
+	)
 
+	if os.Getenv(envFatalExit) == "1" {
 		tl, _, _ = newTestLogger()
-		if err := tl.Initialization(); err != nil {
-			t.Fatalf("функция Initialization(), вернула не ожидаемую ошибку: %s", err)
+		if err = tl.Initialization(); err != nil {
+			t.Fatalf(tplFatalInitialization, err)
 		}
 		// Обработчик прерывается паникой - ошибки синхронной публикации печатаются перед завершением.
 		_ = tl.HandlerSubscribe(func(_ *Message) { panic("паника обработчика") },
 			kitModuleLogLevel.Fatal, kitModuleLogLevel.Trace)
 		// Вызов Write из функции с именем содержащим log.fatal - уровень Fatal и флаг фатальности.
 		log{}.fatal(tl)
+
 		return
 	}
-	var err error
-	cmd := exec.Command(os.Args[0], "-test.run=TestMessageFatalityExit")
-	cmd.Env = append(os.Environ(), "GO_WANT_LOG_FATAL_EXIT=1")
+	cmd = exec.Command(os.Args[0], "-test.run="+testName)
+	cmd.Env = append(os.Environ(), envFatalExit+"=1")
 	if err = cmd.Run(); err == nil {
-		t.Fatal("дочерний процесс завершился без ошибки, ожидалось завершение с кодом 252")
+		t.Fatal(errChildNoError)
 	}
-	var exitErr *exec.ExitError
 	if !errors.As(err, &exitErr) || exitErr.ExitCode() != int(eApplicationFatality) {
-		t.Errorf("дочерний процесс завершился с ошибкой %v, ожидался код выхода %d", err, eApplicationFatality)
+		t.Errorf(tplChildExitWrong, err, eApplicationFatality)
 	}
 }
 
 // TestMessagePublishAsyncErrorExit Ошибка асинхронной публикации в шину данных приводит к завершению приложения.
 func TestMessagePublishAsyncErrorExit(t *testing.T) {
-	if os.Getenv("GO_WANT_LOG_ASYNC_ERROR_EXIT") == "1" {
-		var tl = New(&testSyncWriter{}, &testBusAsyncError{})
+	const (
+		errChildNoError   = "дочерний процесс завершился без ошибки, ожидалось завершение с кодом 252."
+		tplChildExitWrong = "дочерний процесс завершился с ошибкой %v, ожидался код выхода %d."
+		envAsyncErrorExit = "GO_WANT_LOG_ASYNC_ERROR_EXIT"
+		testName          = "TestMessagePublishAsyncErrorExit"
+	)
+	var (
+		tl      Logger
+		err     error
+		cmd     *exec.Cmd
+		exitErr *exec.ExitError
+	)
 
+	if os.Getenv(envAsyncErrorExit) == "1" {
+		tl = New(&testSyncWriter{}, &testBusAsyncError{})
 		tl.Message(tl.MessageGet())
+
 		return
 	}
-	var err error
-	cmd := exec.Command(os.Args[0], "-test.run=TestMessagePublishAsyncErrorExit")
-	cmd.Env = append(os.Environ(), "GO_WANT_LOG_ASYNC_ERROR_EXIT=1")
+	cmd = exec.Command(os.Args[0], "-test.run="+testName)
+	cmd.Env = append(os.Environ(), envAsyncErrorExit+"=1")
 	if err = cmd.Run(); err == nil {
-		t.Fatal("дочерний процесс завершился без ошибки, ожидалось завершение с кодом 252")
+		t.Fatal(errChildNoError)
 	}
-	var exitErr *exec.ExitError
 	if !errors.As(err, &exitErr) || exitErr.ExitCode() != int(eApplicationFatality) {
-		t.Errorf("дочерний процесс завершился с ошибкой %v, ожидался код выхода %d", err, eApplicationFatality)
+		t.Errorf(tplChildExitWrong, err, eApplicationFatality)
 	}
 }
 
 // TestWriteStdLogInterception Перехват стандартного лога.
 func TestWriteStdLogInterception(t *testing.T) {
+	const (
+		tplFatalInitialization = "функция Initialization(), вернула не ожидаемую ошибку: %s."
+		testMessage            = "сообщение стандартного лога."
+	)
 	var (
 		tl  *logger
 		tsw *testSyncWriter
@@ -360,16 +437,19 @@ func TestWriteStdLogInterception(t *testing.T) {
 
 	tl, _, tsw = newTestLogger()
 	if err = tl.Initialization(); err != nil {
-		t.Fatalf("функция Initialization(), вернула не ожидаемую ошибку: %s", err)
+		t.Fatalf(tplFatalInitialization, err)
 	}
-	standardLogPrint("сообщение стандартного лога")
+	standardLogPrint(testMessage)
 	waitFor(t, func() bool {
-		return strings.Contains(tsw.String(), "сообщение стандартного лога")
+		return strings.Contains(tsw.String(), testMessage)
 	})
 	tl.FlushAndClose()
 }
 
 func TestFlushAndCloseWaitInflight(t *testing.T) {
+	const (
+		errWaitTimeout = "превышено время ожидания FlushAndClose."
+	)
 	var (
 		tl   *logger
 		done chan struct{}
@@ -388,6 +468,6 @@ func TestFlushAndCloseWaitInflight(t *testing.T) {
 	select {
 	case <-done:
 	case <-time.After(time.Second * 5):
-		t.Fatal("превышено время ожидания FlushAndClose")
+		t.Fatal(errWaitTimeout)
 	}
 }

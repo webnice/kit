@@ -9,76 +9,103 @@ import (
 )
 
 func TestRequestShadowInfoHandler(t *testing.T) {
+	const (
+		errInfoNil        = "функция RequestShadowInfoHandler(), объект информации о запросе не получен из контекста."
+		tplProjectIDWrong = "ProjectID = %d, ожидалось 42."
+		tplUserAgentWrong = "UserAgent = %q, ожидалось %q."
+		errServerMismatch = "Server не совпадает с конфигурацией из объекта контроля."
+		tplIPWrong        = "IP = %v, ожидался 192.168.1.2."
+		testUserAgent     = "test-agent"
+	)
 	var (
-		srv = New(&testLogger{})
-		iwl = srv.(*impl).serverWeb.lib
-		ctl = &kitTypesServer.WebServerControl{Configuration: &kitTypesServer.Server{}}
-		rq  = httptest.NewRequest(http.MethodGet, "/api/test", nil)
+		srv Interface
+		iwl *implWebLib
+		ctl *kitTypesServer.WebServerControl
+		rq  *http.Request
 		ret *kitTypesServer.RequestShadowInfo
 	)
 
+	srv = New(&testLogger{})
+	iwl = srv.(*impl).serverWeb.lib
+	ctl = &kitTypesServer.WebServerControl{Configuration: &kitTypesServer.Server{}}
+	rq = httptest.NewRequest(http.MethodGet, "/api/test", nil)
 	rq.Header.Set("X-Project-Id", "42")
-	rq.Header.Set("User-Agent", "test-agent")
+	rq.Header.Set("User-Agent", testUserAgent)
 	rq.RemoteAddr = "192.168.1.2:1234"
 	// Цепочка промежуточных слоёв: контроль сервера, IP адрес, информация о запросе.
-	var handler = iwl.WebServerControlHandler(ctl)(
+	handler := iwl.WebServerControlHandler(ctl)(
 		iwl.IpHandler()(
 			iwl.RequestShadowInfoHandler()(http.HandlerFunc(func(_ http.ResponseWriter, r *http.Request) {
 				ret = iwl.RequestShadowInfoGetFromContext(r)
 			}))))
 	handler.ServeHTTP(httptest.NewRecorder(), rq)
 	if ret == nil {
-		t.Fatal("функция RequestShadowInfoHandler(), объект информации о запросе не получен из контекста")
+		t.Fatal(errInfoNil)
 	}
 	if ret.ProjectID != 42 {
-		t.Errorf("ProjectID = %d, ожидалось 42", ret.ProjectID)
+		t.Errorf(tplProjectIDWrong, ret.ProjectID)
 	}
-	if ret.UserAgent != "test-agent" {
-		t.Errorf("UserAgent = %q, ожидалось %q", ret.UserAgent, "test-agent")
+	if ret.UserAgent != testUserAgent {
+		t.Errorf(tplUserAgentWrong, ret.UserAgent, testUserAgent)
 	}
 	if ret.Server != ctl.Configuration {
-		t.Error("Server не совпадает с конфигурацией из объекта контроля")
+		t.Error(errServerMismatch)
 	}
 	if ret.IP == nil || ret.IP.String() != "192.168.1.2" {
-		t.Errorf("IP = %v, ожидался 192.168.1.2", ret.IP)
+		t.Errorf(tplIPWrong, ret.IP)
 	}
 }
 
 func TestRequestShadowInfoExtraction(t *testing.T) {
+	const (
+		tplNoControlWrong = "функция RequestShadowInfoExtraction() без объекта контроля, вернула %+v."
+	)
 	var (
-		srv = New(&testLogger{})
-		iwl = srv.(*impl).serverWeb.lib
-		rq  = httptest.NewRequest(http.MethodGet, "/api/test", nil)
+		srv Interface
+		iwl *implWebLib
+		rq  *http.Request
 	)
 
+	srv = New(&testLogger{})
+	iwl = srv.(*impl).serverWeb.lib
+	rq = httptest.NewRequest(http.MethodGet, "/api/test", nil)
 	rq.RemoteAddr = "192.168.1.2:1234"
 	// Извлечение без объекта контроля ВЕБ сервера в контексте.
 	if ret := iwl.RequestShadowInfoExtraction(rq); ret == nil || ret.Server != nil {
-		t.Errorf("функция RequestShadowInfoExtraction() без объекта контроля, вернула %+v", ret)
+		t.Errorf(tplNoControlWrong, ret)
 	}
 }
 
 func TestRequestShadowInfoGetFromContext(t *testing.T) {
+	const (
+		tplNoDataNotNil    = "функция RequestShadowInfoGetFromContext() без данных, вернула %v, ожидался nil."
+		tplWrongTypeNotNil = "функция RequestShadowInfoGetFromContext() с не верным типом, вернула %v, ожидался nil."
+		tplInfoWrong       = "функция RequestShadowInfoGetFromContext(), вернула %v, ожидался объект %v."
+	)
 	var (
-		srv = New(&testLogger{})
-		iwl = srv.(*impl).serverWeb.lib
-		rq  = httptest.NewRequest(http.MethodGet, "/", nil)
+		srv  Interface
+		iwl  *implWebLib
+		rq   *http.Request
+		info *kitTypesServer.RequestShadowInfo
 	)
 
+	srv = New(&testLogger{})
+	iwl = srv.(*impl).serverWeb.lib
+	rq = httptest.NewRequest(http.MethodGet, "/", nil)
 	// Объект информации отсутствует в контексте.
 	if ret := iwl.RequestShadowInfoGetFromContext(rq); ret != nil {
-		t.Errorf("функция RequestShadowInfoGetFromContext() без данных, вернула %v, ожидался nil", ret)
+		t.Errorf(tplNoDataNotNil, ret)
 	}
 	// В контексте данные не верного типа.
 	rq = rq.WithContext(contextWith(rq, cKeyRequestShadowInfo, cNameRequestShadowInfo, "wrong value"))
 	if ret := iwl.RequestShadowInfoGetFromContext(rq); ret != nil {
-		t.Errorf("функция RequestShadowInfoGetFromContext() с не верным типом, вернула %v, ожидался nil", ret)
+		t.Errorf(tplWrongTypeNotNil, ret)
 	}
 	// Корректные данные в контексте.
 	rq = httptest.NewRequest(http.MethodGet, "/", nil)
-	info := new(kitTypesServer.RequestShadowInfo)
+	info = new(kitTypesServer.RequestShadowInfo)
 	rq = rq.WithContext(contextWith(rq, cKeyRequestShadowInfo, cNameRequestShadowInfo, info))
 	if ret := iwl.RequestShadowInfoGetFromContext(rq); ret != info {
-		t.Errorf("функция RequestShadowInfoGetFromContext(), вернула %v, ожидался объект %v", ret, info)
+		t.Errorf(tplInfoWrong, ret, info)
 	}
 }

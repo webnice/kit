@@ -2,6 +2,7 @@ package dye
 
 import (
 	"bytes"
+	"fmt"
 	"strings"
 	"testing"
 )
@@ -11,52 +12,105 @@ func testImpl(profile terminalProfile) *impl { return &impl{profile: profile} }
 
 // TestNew Конструктор пакета без последовательностей.
 func TestNew(t *testing.T) {
-	d := New()
+	const tplNewNotEmpty = "New(): ожидалась пустая последовательность, получено %q."
+	var d Interface
+
+	d = New()
 	if got := d.Source(); len(got) != 0 {
-		t.Fatalf("New(): ожидалась пустая последовательность, получено %q", strings.Join(got, ";"))
+		t.Fatalf(tplNewNotEmpty, strings.Join(got, ";"))
 	}
 }
 
 // TestNewWithSequences Конструктор пакета с начальными последовательностями.
 func TestNewWithSequences(t *testing.T) {
-	d := New("1", "31")
-	if got := strings.Join(d.Source(), ";"); got != "1;31" {
-		t.Fatalf("New(1, 31): ожидалась последовательность %q, получено %q", "1;31", got)
+	const (
+		tplSeqMismatch   = "New(1, 31): ожидалась последовательность %q, получено %q."
+		tplDoneMismatch  = "Done(): ожидалась последовательность %q, получено %q."
+		sequenceExpected = "1;31"
+		sequenceDone     = "\x1b[1;31m"
+	)
+	var (
+		d   Interface
+		got string
+	)
+
+	d = New("1", "31")
+	got = strings.Join(d.Source(), ";")
+	if got != sequenceExpected {
+		t.Fatalf(tplSeqMismatch, sequenceExpected, got)
 	}
-	if got := d.Done().String(); got != "\x1b[1;31m" {
-		t.Fatalf("Done(): ожидалась последовательность %q, получено %q", "\x1b[1;31m", got)
+	got = d.Done().String()
+	if got != sequenceDone {
+		t.Fatalf(tplDoneMismatch, sequenceDone, got)
 	}
 }
 
 // TestAdd Добавление последовательностей в конец текущей последовательности.
 func TestAdd(t *testing.T) {
-	d := New()
-	if got := d.Add("1").Add("31", "32").Done().String(); got != "\x1b[1;31;32m" {
-		t.Fatalf("Add(): ожидалась последовательность %q, получено %q", "\x1b[1;31;32m", got)
+	const (
+		tplAddMismatch   = "Add(): ожидалась последовательность %q, получено %q."
+		tplCountMismatch = "Source(): ожидалось %d элемента, получено %d."
+		sequenceExpected = "\x1b[1;31;32m"
+	)
+	var (
+		d   Interface
+		got string
+	)
+
+	d = New()
+	got = d.Add("1").Add("31", "32").Done().String()
+	if got != sequenceExpected {
+		t.Fatalf(tplAddMismatch, sequenceExpected, got)
 	}
-	if got := len(d.Source()); got != 3 {
-		t.Fatalf("Source(): ожидалось %d элемента, получено %d", 3, got)
+	if got = string(rune(len(d.Source()))); len(d.Source()) != 3 {
+		t.Fatalf(tplCountMismatch, 3, len(d.Source()))
 	}
+	_ = got
 }
 
 // TestDone Завершение последовательности, в том числе пустой.
 func TestDone(t *testing.T) {
-	if got := New().Done().String(); got != "\x1b[m" {
-		t.Fatalf("Done() пустой: ожидалась последовательность %q, получено %q", "\x1b[m", got)
+	const (
+		tplDoneEmpty    = "Done() пустой: ожидалась последовательность %q, получено %q."
+		tplByteMismatch = "Byte(): ожидалась последовательность %q, получено %q."
+		seqEmpty        = "\x1b[m"
+		seqZero         = "\x1b[0m"
+	)
+	var (
+		got string
+		seq Sequence
+	)
+
+	got = New().Done().String()
+	if got != seqEmpty {
+		t.Fatalf(tplDoneEmpty, seqEmpty, got)
 	}
-	seq := New("0").Done()
-	if !bytes.Equal(seq.Byte(), []byte("\x1b[0m")) {
-		t.Fatalf("Byte(): ожидалась последовательность %q, получено %q", "\x1b[0m", seq.Byte())
+	seq = New("0").Done()
+	if !bytes.Equal(seq.Byte(), []byte(seqZero)) {
+		t.Fatalf(tplByteMismatch, seqZero, seq.Byte())
 	}
+}
+
+// Описание одного теста последовательности управления.
+type testSequenceCase struct {
+	name string
+	want string
+	fn   func(d Interface) Interface
 }
 
 // TestSwitches Переключатели текста.
 func TestSwitches(t *testing.T) {
-	var cases = []struct {
-		name string
-		want string
-		fn   func(d Interface) Interface
-	}{
+	const (
+		tplSeqCaseMismatch = "%s: ожидалась последовательность %q, получено %q."
+		seqTemplate        = "\x1b[%sm"
+	)
+	var (
+		cases []testSequenceCase
+		n     int
+		got   string
+	)
+
+	cases = []testSequenceCase{
 		{"Bold", "1", func(d Interface) Interface { return d.Bold() }},
 		{"Faded", "2", func(d Interface) Interface { return d.Faded() }},
 		{"Italic", "3", func(d Interface) Interface { return d.Italic() }},
@@ -71,10 +125,10 @@ func TestSwitches(t *testing.T) {
 		{"ResetCrossOut", "29", func(d Interface) Interface { return d.ResetCrossOut() }},
 		{"Reset", "0", func(d Interface) Interface { return d.Reset() }},
 	}
-	for _, tt := range cases {
-		t.Run(tt.name, func(t *testing.T) {
-			if got := tt.fn(New()).Done().String(); got != "\x1b["+tt.want+"m" {
-				t.Fatalf("%s: ожидалась последовательность %q, получено %q", tt.name, "\x1b["+tt.want+"m", got)
+	for n = range cases {
+		t.Run(cases[n].name, func(t *testing.T) {
+			if got = cases[n].fn(New()).Done().String(); got != fmt.Sprintf(seqTemplate, cases[n].want) {
+				t.Fatalf(tplSeqCaseMismatch, cases[n].name, fmt.Sprintf(seqTemplate, cases[n].want), got)
 			}
 		})
 	}
@@ -82,11 +136,17 @@ func TestSwitches(t *testing.T) {
 
 // TestColors Цвета текста, варианты яркости и фона.
 func TestColors(t *testing.T) {
-	var cases = []struct {
-		name string
-		want string
-		fn   func(d Interface) Interface
-	}{
+	const (
+		tplSeqCaseMismatch = "%s: ожидалась последовательность %q, получено %q."
+		seqTemplate        = "\x1b[%sm"
+	)
+	var (
+		cases []testSequenceCase
+		n     int
+		got   string
+	)
+
+	cases = []testSequenceCase{
 		{"Black", "30", func(d Interface) Interface { return d.Black() }},
 		{"Red", "31", func(d Interface) Interface { return d.Red() }},
 		{"Green", "32", func(d Interface) Interface { return d.Green() }},
@@ -120,10 +180,10 @@ func TestColors(t *testing.T) {
 		{"BrightBackgroundCyan", "106", func(d Interface) Interface { return d.Bright().Background().Cyan() }},
 		{"BrightBackgroundWhite", "107", func(d Interface) Interface { return d.Bright().Background().White() }},
 	}
-	for _, tt := range cases {
-		t.Run(tt.name, func(t *testing.T) {
-			if got := tt.fn(New()).Done().String(); got != "\x1b["+tt.want+"m" {
-				t.Fatalf("%s: ожидалась последовательность %q, получено %q", tt.name, "\x1b["+tt.want+"m", got)
+	for n = range cases {
+		t.Run(cases[n].name, func(t *testing.T) {
+			if got = cases[n].fn(New()).Done().String(); got != fmt.Sprintf(seqTemplate, cases[n].want) {
+				t.Fatalf(tplSeqCaseMismatch, cases[n].name, fmt.Sprintf(seqTemplate, cases[n].want), got)
 			}
 		})
 	}
@@ -131,21 +191,24 @@ func TestColors(t *testing.T) {
 
 // TestColorFlagsReset Флаги яркости и фона сбрасываются после добавления цвета в последовательность.
 func TestColorFlagsReset(t *testing.T) {
-	var cases = []struct {
-		name string
-		want string
-		fn   func(d Interface) Interface
-	}{
+	const tplSeqCaseMismatch = "%s: ожидалась последовательность %q, получено %q."
+	var (
+		cases []testSequenceCase
+		n     int
+		got   string
+	)
+
+	cases = []testSequenceCase{
 		{"BackgroundReset", "\x1b[41;31m", func(d Interface) Interface { return d.Background().Red().Red() }},
 		{"BrightReset", "\x1b[91;34m", func(d Interface) Interface { return d.Bright().Red().Blue() }},
 		{"Normal", "\x1b[31m", func(d Interface) Interface { return d.Bright().Normal().Red() }},
 		{"Foreground", "\x1b[31m", func(d Interface) Interface { return d.Background().Foreground().Red() }},
 		{"BrightNormal", "\x1b[31m", func(d Interface) Interface { return d.Normal().Bright().Normal().Red() }},
 	}
-	for _, tt := range cases {
-		t.Run(tt.name, func(t *testing.T) {
-			if got := tt.fn(New()).Done().String(); got != tt.want {
-				t.Fatalf("%s: ожидалась последовательность %q, получено %q", tt.name, tt.want, got)
+	for n = range cases {
+		t.Run(cases[n].name, func(t *testing.T) {
+			if got = cases[n].fn(New()).Done().String(); got != cases[n].want {
+				t.Fatalf(tplSeqCaseMismatch, cases[n].name, cases[n].want, got)
 			}
 		})
 	}
@@ -153,80 +216,163 @@ func TestColorFlagsReset(t *testing.T) {
 
 // TestHexRgb Конвертация HEX RGB цвета в цвет терминала.
 func TestHexRgb(t *testing.T) {
+	const (
+		tplFatalHexRgb      = "HexRgb(): неожиданная ошибка: %v."
+		tplHexRgbMismatch   = "HexRgb(): ожидалась последовательность %q, получено %q."
+		tplHexRgbNoError    = "HexRgb(%q): ожидалась ошибка, получено без ошибки."
+		tplHexRgbUnexpected = "HexRgb(%q): неожиданная ошибка: %v."
+		errParam            = "не верный параметр"
+	)
 	t.Run("TrueColor", func(t *testing.T) {
-		d := testImpl(terminalTrueColor)
-		if err := d.HexRgb("#ff8000"); err != nil {
-			t.Fatalf("HexRgb(): неожиданная ошибка: %v", err)
+		const (
+			hexColor   = "#ff8000"
+			seqFgColor = "\x1b[38;2;255;128;0m"
+		)
+		var (
+			d   *impl
+			got string
+		)
+
+		d = testImpl(terminalTrueColor)
+		if err := d.HexRgb(hexColor); err != nil {
+			t.Fatalf(tplFatalHexRgb, err)
 		}
-		if got := d.Done().String(); got != "\x1b[38;2;255;128;0m" {
-			t.Fatalf("HexRgb(): ожидалась последовательность %q, получено %q", "\x1b[38;2;255;128;0m", got)
+		got = d.Done().String()
+		if got != seqFgColor {
+			t.Fatalf(tplHexRgbMismatch, seqFgColor, got)
 		}
 	})
 	t.Run("TrueColorUpperCase", func(t *testing.T) {
-		d := testImpl(terminalTrueColor)
-		if err := d.HexRgb("#FF8000"); err != nil {
-			t.Fatalf("HexRgb(): неожиданная ошибка: %v", err)
+		const (
+			hexColor   = "#FF8000"
+			seqFgColor = "\x1b[38;2;255;128;0m"
+		)
+		var (
+			d   *impl
+			got string
+		)
+
+		d = testImpl(terminalTrueColor)
+		if err := d.HexRgb(hexColor); err != nil {
+			t.Fatalf(tplFatalHexRgb, err)
 		}
-		if got := d.Done().String(); got != "\x1b[38;2;255;128;0m" {
-			t.Fatalf("HexRgb(): ожидалась последовательность %q, получено %q", "\x1b[38;2;255;128;0m", got)
+		got = d.Done().String()
+		if got != seqFgColor {
+			t.Fatalf(tplHexRgbMismatch, seqFgColor, got)
 		}
 	})
 	t.Run("TrueColorBackground", func(t *testing.T) {
-		d := testImpl(terminalTrueColor)
-		if err := d.Background().HexRgb("#ff8000"); err != nil {
-			t.Fatalf("HexRgb(): неожиданная ошибка: %v", err)
+		const (
+			hexColor   = "#ff8000"
+			seqBgColor = "\x1b[48;2;255;128;0m"
+		)
+		var (
+			d   *impl
+			got string
+		)
+
+		d = testImpl(terminalTrueColor)
+		if err := d.Background().HexRgb(hexColor); err != nil {
+			t.Fatalf(tplFatalHexRgb, err)
 		}
-		if got := d.Done().String(); got != "\x1b[48;2;255;128;0m" {
-			t.Fatalf("HexRgb(): ожидалась последовательность %q, получено %q", "\x1b[48;2;255;128;0m", got)
+		got = d.Done().String()
+		if got != seqBgColor {
+			t.Fatalf(tplHexRgbMismatch, seqBgColor, got)
 		}
 	})
 	t.Run("BackgroundFlagReset", func(t *testing.T) {
-		d := testImpl(terminalTrueColor)
-		if err := d.Background().HexRgb("#ff8000"); err != nil {
-			t.Fatalf("HexRgb(): неожиданная ошибка: %v", err)
+		const (
+			hexColor       = "#ff8000"
+			seqBgFlagReset = "\x1b[48;2;255;128;0;31m"
+		)
+		var (
+			d   *impl
+			got string
+		)
+
+		d = testImpl(terminalTrueColor)
+		if err := d.Background().HexRgb(hexColor); err != nil {
+			t.Fatalf(tplFatalHexRgb, err)
 		}
 		// Флаг фона должен быть сброшен, следующий цвет - цвет текста.
 		d.Red()
-		if got := d.Done().String(); got != "\x1b[48;2;255;128;0;31m" {
-			t.Fatalf("HexRgb(): ожидалась последовательность %q, получено %q", "\x1b[48;2;255;128;0;31m", got)
+		got = d.Done().String()
+		if got != seqBgFlagReset {
+			t.Fatalf(tplHexRgbMismatch, seqBgFlagReset, got)
 		}
 	})
 	t.Run("ANSI256", func(t *testing.T) {
-		d := testImpl(terminalANSI256)
-		if err := d.HexRgb("#ff0000"); err != nil {
-			t.Fatalf("HexRgb(): неожиданная ошибка: %v", err)
+		const (
+			hexColor = "#ff0000"
+			seqColor = "\x1b[38;5;196m"
+		)
+		var (
+			d   *impl
+			got string
+		)
+
+		d = testImpl(terminalANSI256)
+		if err := d.HexRgb(hexColor); err != nil {
+			t.Fatalf(tplFatalHexRgb, err)
 		}
-		if got := d.Done().String(); got != "\x1b[38;5;196m" {
-			t.Fatalf("HexRgb(): ожидалась последовательность %q, получено %q", "\x1b[38;5;196m", got)
+		got = d.Done().String()
+		if got != seqColor {
+			t.Fatalf(tplHexRgbMismatch, seqColor, got)
 		}
 	})
 	t.Run("ANSI", func(t *testing.T) {
-		d := testImpl(terminalANSI)
-		if err := d.HexRgb("#ff0000"); err != nil {
-			t.Fatalf("HexRgb(): неожиданная ошибка: %v", err)
+		const (
+			hexColor = "#ff0000"
+			seqColor = "\x1b[91m"
+		)
+		var (
+			d   *impl
+			got string
+		)
+
+		d = testImpl(terminalANSI)
+		if err := d.HexRgb(hexColor); err != nil {
+			t.Fatalf(tplFatalHexRgb, err)
 		}
-		if got := d.Done().String(); got != "\x1b[91m" {
-			t.Fatalf("HexRgb(): ожидалась последовательность %q, получено %q", "\x1b[91m", got)
+		got = d.Done().String()
+		if got != seqColor {
+			t.Fatalf(tplHexRgbMismatch, seqColor, got)
 		}
 	})
 	t.Run("Ascii", func(t *testing.T) {
-		d := testImpl(terminalAscii)
-		if err := d.HexRgb("#ff0000"); err != nil {
-			t.Fatalf("HexRgb(): неожиданная ошибка: %v", err)
+		const (
+			hexColor = "#ff0000"
+			seqColor = "\x1b[m"
+		)
+		var (
+			d   *impl
+			got string
+		)
+
+		d = testImpl(terminalAscii)
+		if err := d.HexRgb(hexColor); err != nil {
+			t.Fatalf(tplFatalHexRgb, err)
 		}
-		if got := d.Done().String(); got != "\x1b[m" {
-			t.Fatalf("HexRgb(): ожидалась последовательность %q, получено %q", "\x1b[m", got)
+		got = d.Done().String()
+		if got != seqColor {
+			t.Fatalf(tplHexRgbMismatch, seqColor, got)
 		}
 	})
 	t.Run("BadParams", func(t *testing.T) {
-		for _, param := range []string{"", "ff0000", "#fff", "#fffff", "#fffffff", "#ff00000", "#ff000g", "#gg0000"} {
-			d := testImpl(terminalTrueColor)
-			err := d.HexRgb(param)
+		var (
+			d     *impl
+			param string
+			err   error
+		)
+
+		for _, param = range []string{"", "ff0000", "#fff", "#fffff", "#fffffff", "#ff00000", "#ff000g", "#gg0000"} {
+			d = testImpl(terminalTrueColor)
+			err = d.HexRgb(param)
 			if err == nil {
-				t.Fatalf("HexRgb(%q): ожидалась ошибка, получено без ошибки", param)
+				t.Fatalf(tplHexRgbNoError, param)
 			}
-			if !strings.Contains(err.Error(), "не верный параметр") {
-				t.Fatalf("HexRgb(%q): неожиданная ошибка: %v", param, err)
+			if !strings.Contains(err.Error(), errParam) {
+				t.Fatalf(tplHexRgbUnexpected, param, err)
 			}
 		}
 	})

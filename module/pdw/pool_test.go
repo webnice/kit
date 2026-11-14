@@ -9,49 +9,69 @@ import (
 )
 
 // Тестовая ошибка результата.
-var errTestResult = errors.New("тестовая ошибка результата")
+var errTestResult = errors.New("тестовая ошибка результата.")
 
 // TestDataMethods Методы объекта обёртки данных.
 func TestDataMethods(t *testing.T) {
+	const (
+		tplDataMismatch = "DataGet(): ожидались данные %q, получено %v."
+		tplTypeMismatch = "Type(): ожидался тип %v, получено %v."
+		errNotSync      = "IsSync(): ожидался синхронный режим."
+		errContextWrong = "Context(): ожидался переданный контекст."
+		testData        = "тестовые данные."
+	)
 	var (
-		d   = New(false).Get()
-		ctx = context.WithValue(context.Background(), struct{ k string }{"k"}, "v")
+		d   Data
+		ctx context.Context
 	)
 
+	d = New(false).Get()
+	ctx = context.WithValue(context.Background(), struct{ k string }{"k"}, "v")
 	// Загрузка данных с контекстом.
-	d.DataPut("тестовые данные", true, ctx)
-	if d.DataGet() != "тестовые данные" {
-		t.Errorf("DataGet(): ожидались данные %q, получено %v", "тестовые данные", d.DataGet())
+	d.DataPut(testData, true, ctx)
+	if d.DataGet() != testData {
+		t.Errorf(tplDataMismatch, testData, d.DataGet())
 	}
-	if d.Type() != reflect.TypeOf("тестовые данные") {
-		t.Errorf("Type(): ожидался тип %v, получено %v", reflect.TypeOf(""), d.Type())
+	if d.Type() != reflect.TypeOf(testData) {
+		t.Errorf(tplTypeMismatch, reflect.TypeOf(""), d.Type())
 	}
 	if !d.IsSync() {
-		t.Error("IsSync(): ожидался синхронный режим")
+		t.Error(errNotSync)
 	}
 	if d.Context() != ctx {
-		t.Error("Context(): ожидался переданный контекст")
+		t.Error(errContextWrong)
 	}
 }
 
 // TestDataPutNilContext Загрузка данных с пустым контекстом.
 func TestDataPutNilContext(t *testing.T) {
-	d := New(false).Get()
+	const (
+		errContextNil = "Context(): при nil контексте ожидался контекст по умолчанию."
+	)
+	var d Data
+
+	d = New(false).Get()
 	d.DataPut("данные", false, nil)
 	if d.Context() == nil {
-		t.Error("Context(): при nil контексте ожидался контекст по умолчанию")
+		t.Error(errContextNil)
 	}
 }
 
 // TestDoneSetDone Сигнал завершения обработки данных.
 func TestDoneSetDone(t *testing.T) {
-	d := New(false).Get()
+	const (
+		errNoDoneSignal   = "Done(): ожидался сигнал завершения обработки данных."
+		errDoneAfterReset = "Done(): после Reset() сигнала завершения быть не должно."
+	)
+	var d Data
+
+	d = New(false).Get()
 	d.DataPut("данные", true, nil)
 	d.DoneSet()
 	select {
 	case <-d.Done():
 	case <-time.After(time.Second):
-		t.Error("Done(): ожидался сигнал завершения обработки данных")
+		t.Error(errNoDoneSignal)
 	}
 	// Повторная установка сигнала не вызывает панику.
 	d.DoneSet()
@@ -59,42 +79,61 @@ func TestDoneSetDone(t *testing.T) {
 	d.Reset()
 	select {
 	case <-d.Done():
-		t.Error("Done(): после Reset() сигнала завершения быть не должно")
+		t.Error(errDoneAfterReset)
 	case <-time.After(50 * time.Millisecond):
 	}
 }
 
 // TestDoneSetWithoutReceiver Сигнал завершения без ожидающего получателя не блокируется.
 func TestDoneSetWithoutReceiver(t *testing.T) {
-	d := New(false).Get()
+	const (
+		errDoneBlocked = "DoneSet(): без ожидающего получателя вызов блокируется."
+	)
+	var (
+		d    Data
+		done chan struct{}
+	)
+
+	d = New(false).Get()
 	d.DataPut("данные", false, nil) // Асинхронный режим, получателя нет.
-	done := make(chan struct{})
+	done = make(chan struct{})
 	go func() { d.DoneSet(); close(done) }()
 	select {
 	case <-done:
 	case <-time.After(time.Second):
-		t.Fatal("DoneSet(): без ожидающего получателя вызов блокируется")
+		t.Fatal(errDoneBlocked)
 	}
 }
 
 // TestResult Работа с результатом обработки данных.
 func TestResult(t *testing.T) {
-	d := New(false).Get()
-	r := d.Result()
+	const (
+		tplResultDataWrong   = "DataGet(): неожиданные данные результата: %v."
+		tplResultErrWrong    = "ErrGet(): неожиданные ошибки результата: %v."
+		tplResetDataNotEmpty = "Reset(): ожидался пустой результат, получено %v."
+		tplResetErrNotEmpty  = "Reset(): ожидался пустой список ошибок, получено %v."
+	)
+	var (
+		d Data
+		r Result
+	)
+
+	d = New(false).Get()
+	r = d.Result()
 	r.DataPut("результат 1", "результат 2")
 	r.ErrPut(errTestResult)
 	if got := r.DataGet(); len(got) != 2 || got[0] != "результат 1" || got[1] != "результат 2" {
-		t.Errorf("DataGet(): неожиданные данные результата: %v", got)
+		t.Errorf(tplResultDataWrong, got)
 	}
 	if got := r.ErrGet(); len(got) != 1 || got[0] != errTestResult {
-		t.Errorf("ErrGet(): неожиданные ошибки результата: %v", got)
+		t.Errorf(tplResultErrWrong, got)
 	}
 	// Очистка результата при сбросе объекта.
 	d.Reset()
 	if got := r.DataGet(); len(got) != 0 {
-		t.Errorf("Reset(): ожидался пустой результат, получено %v", got)
+		t.Errorf(tplResetDataNotEmpty, got)
 	}
 	if got := r.ErrGet(); len(got) != 0 {
-		t.Errorf("Reset(): ожидался пустой список ошибок, получено %v", got)
+		t.Errorf(tplResetErrNotEmpty, got)
 	}
 }

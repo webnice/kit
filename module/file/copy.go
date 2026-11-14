@@ -18,29 +18,41 @@ func fileStat(f *os.File) (fi os.FileInfo) {
 
 // Copy Копирует один файл в другой.
 func (fl *impl) Copy(dst string, src string) (size int64, err error) {
-	const defaultFileMode = os.FileMode(0644)
+	const (
+		defaultFileMode = os.FileMode(0644)
+		errOpenFile     = "открытие файла %q прервано ошибкой: %s."
+		errCopySelf     = "копирование файла %q в самого себя невозможно."
+		errCreateFile   = "создание файла %q прервано ошибкой: %s."
+		errCopyData     = "копирование данных из файла %q в файл %q завершилось ошибкой: %s."
+	)
 	var (
 		inp *os.File
 		out *os.File
+		di  os.FileInfo
+		e   error
 	)
 
 	if inp, err = os.Open(src); err != nil {
-		err = fmt.Errorf("открытие файла %q прервано ошибкой: %s", src, err)
+		err = fmt.Errorf(errOpenFile, src, err)
+
 		return
 	}
 	defer func() { _ = inp.Close() }()
 	// Защита от копирования файла в самого себя с потерей данных, проверка до усечения файла.
-	if di, e := os.Stat(dst); e == nil && os.SameFile(fileStat(inp), di) {
-		err = fmt.Errorf("копирование файла %q в самого себя невозможно", src)
+	if di, e = os.Stat(dst); e == nil && os.SameFile(fileStat(inp), di) {
+		err = fmt.Errorf(errCopySelf, src)
+
 		return
 	}
 	if out, err = os.OpenFile(dst, os.O_CREATE|os.O_TRUNC|os.O_WRONLY, defaultFileMode); err != nil {
-		err = fmt.Errorf("создание файла %q прервано ошибкой: %s", dst, err)
+		err = fmt.Errorf(errCreateFile, dst, err)
+
 		return
 	}
 	defer func() { _ = out.Sync(); _ = out.Close() }()
 	if size, err = io.Copy(out, inp); err != nil {
-		err = fmt.Errorf("копирование данных из файла %q в файл %q завершилось ошибкой: %s", dst, src, err)
+		err = fmt.Errorf(errCopyData, dst, src, err)
+
 		return
 	}
 
@@ -49,6 +61,7 @@ func (fl *impl) Copy(dst string, src string) (size int64, err error) {
 
 // CopyWithSha512Sum Копирование контента с параллельным вычислением контрольной суммы алгоритмом SHA512.
 func (fl *impl) CopyWithSha512Sum(dst io.Writer, src io.Reader) (written int64, sha512sum string, err error) {
+	const errReadData = "чтение данных прервано ошибкой: %s."
 	var (
 		er, ew       error
 		size, nr, nw int
@@ -90,7 +103,7 @@ func (fl *impl) CopyWithSha512Sum(dst io.Writer, src io.Reader) (written int64, 
 		case io.EOF:
 			end, er = true, nil
 		default:
-			end, err = true, fmt.Errorf("чтение данных прервано ошибкой: %s", er)
+			end, err = true, fmt.Errorf(errReadData, er)
 		}
 	}
 	sha512sum = hex.EncodeToString(sha.Sum(nil))

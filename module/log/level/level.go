@@ -135,11 +135,17 @@ func ParseLevelInt64(l int64) (ret Level) {
 
 // ParseLevelString Преобразование строки в тип уровня логирования.
 func ParseLevelString(s string) (ret Level) {
-	var key Level
+	var (
+		key Level
+		lvs struct {
+			Name  string
+			Short rune
+		}
+	)
 
 	s, ret = strings.TrimSpace(s), Off
 	for key = range level {
-		lvs := level[key]
+		lvs = level[key]
 		if strings.EqualFold(s, lvs.Name) || strings.EqualFold(s, string(lvs.Short)) {
 			ret = key
 			break

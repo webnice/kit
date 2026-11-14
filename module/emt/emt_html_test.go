@@ -1,16 +1,26 @@
 package emt
 
 import (
+	"net/url"
 	"strings"
 	"testing"
 )
 
 func TestFindImageUriFromHTMLSkipsInvalidURL(t *testing.T) {
-	uries, err := New().(*impl).findImageUriFromHTML(strings.NewReader(`<img src="bad%url"><img src="plain.png">`))
+	const (
+		tplFatalFindUri = "findImageUriFromHTML() вернул ошибку: %v."
+		tplUries        = "findImageUriFromHTML() = %#v."
+	)
+	var (
+		uries []*url.URL
+		err   error
+	)
+
+	uries, err = New().(*impl).findImageUriFromHTML(strings.NewReader(`<img src="bad%url"><img src="plain.png">`))
 	if err != nil {
-		t.Fatalf("findImageUriFromHTML() вернул ошибку: %v", err)
+		t.Fatalf(tplFatalFindUri, err)
 	}
 	if len(uries) != 0 {
-		t.Fatalf("findImageUriFromHTML() = %#v", uries)
+		t.Fatalf(tplUries, uries)
 	}
 }

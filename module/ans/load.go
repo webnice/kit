@@ -24,7 +24,10 @@ func (ans *impl) RqVar() kitModuleRqVar.Interface { return kitModuleRqVar.Get() 
 // RqIds Загрузка числовых идентификаторов указанных в path-param под ключём {key} и перечисленных через запятую.
 // В случае возникновения ошибки формируется и отправляется HTTP ответ с кодом 400, содержащий возникшую ошибку.
 func (ans *impl) RqIds(wr http.ResponseWriter, rq *http.Request, key string) (ret []uint64, err error) {
-	const sep = ","
+	const (
+		sep              = ","
+		errConvertNumber = "конвертация значения %q в число прервана ошибкой: %s."
+	)
 	var (
 		srcIDs string
 		sIDs   []string
@@ -41,7 +44,7 @@ func (ans *impl) RqIds(wr http.ResponseWriter, rq *http.Request, key string) (re
 			continue
 		}
 		if v, err = strconv.ParseUint(tmp, 10, 64); err != nil {
-			err = fmt.Errorf("конвертация значения %q в число прервана ошибкой: %s", tmp, err)
+			err = fmt.Errorf(errConvertNumber, tmp, err)
 			ans.NewRestError(dic.Status().BadRequest, err).CodeSet(-1).
 				Add(key, tmp, err.Error()).Json(wr)
 			return
@@ -55,6 +58,7 @@ func (ans *impl) RqIds(wr http.ResponseWriter, rq *http.Request, key string) (re
 // RqId Загрузка значения указанного в path-param под ключём {key} и конвертация его в число.
 // В случае возникновения ошибки формируется и отправляется HTTP ответ с кодом 400, содержащий возникшую ошибку.
 func (ans *impl) RqId(wr http.ResponseWriter, rq *http.Request, key string) (ret uint64, err error) {
+	const errConvertNumber = "конвертация значения %q в число прервана ошибкой: %s."
 	var (
 		src string
 	)
@@ -63,7 +67,7 @@ func (ans *impl) RqId(wr http.ResponseWriter, rq *http.Request, key string) (ret
 		return
 	}
 	if ret, err = strconv.ParseUint(src, 10, 64); err != nil {
-		err = fmt.Errorf("конвертация значения %q в число прервана ошибкой: %s", src, err)
+		err = fmt.Errorf(errConvertNumber, src, err)
 		ans.NewRestError(dic.Status().BadRequest, err).CodeSet(-1).
 			Add(key, src, err.Error()).Json(wr)
 		return

@@ -62,15 +62,17 @@ func (cfg *impl) runlevelCallSubscribers(oldLevel, newLevel uint16) {
 		err        error
 		item       RunlevelSubscriberFn
 		subscriber []RunlevelSubscriberFn
+		element    *list.Element
+		n          int
 	)
 
 	cfg.runLevelSubscribersMutex.RLock()
-	for element := cfg.runLevelSubscribers.Front(); element != nil; element = element.Next() {
+	for element = cfg.runLevelSubscribers.Front(); element != nil; element = element.Next() {
 		subscriber = append(subscriber, element.Value.(RunlevelSubscriberFn))
 	}
 	cfg.runLevelSubscribersMutex.RUnlock()
 
-	for n := range subscriber {
+	for n = range subscriber {
 		item = subscriber[n]
 		if err = cfg.runlevelSafeCallSubscriber(item, oldLevel, newLevel); err != nil {
 			cfg.Gist().ErrorAppend(err)

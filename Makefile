@@ -14,15 +14,8 @@ ifneq ("$(wildcard $(DIR)/.prj.mk)","")
 include $(DIR)/.prj.mk
 endif
 
-## Тип проекта: go - репозиторий golang, web - frontend репозиторий.
-PROJECT_TYPE := $(shell if [ -f "$(DIR)/go.mod" ]; then echo "go"; elif [ -f "$(DIR)/package.json" ]; then echo "web"; fi)
-
 GOPATH := $(GOPATH)
 DATE   := $(shell date -u +%Y%m%d.%H%M%S.%Z)
-
-####################################
-## Репозитории golang.
-ifeq ($(PROJECT_TYPE),go)
 
 ## Имя приложения по умолчанию - название корневой директории проекта.
 APP ?= $(shell basename "$(DIR)")
@@ -347,87 +340,3 @@ help:
 	@echo "    clean                - Очистка директории проекта от временных файлов."
 	@$(call PROJECT_HELP)
 .PHONY: help
-
-endif
-####################################
-## Репозитории frontend.
-ifeq ($(PROJECT_TYPE),web)
-
-## Базовый путь, на котором разворачивается приложение.
-BASE_HREF ?= /
-
-## Сценарий по умолчанию - отображение доступных команд.
-default: help
-
-## Загрузка и обновление зависимостей проекта.
-dep:
-	@npm install --force
-.PHONY: dep
-
-## Запуск приложения в режиме разработки.
-dev:
-	@clear 2>/dev/null || true
-	@ng cache clean
-	NODE_OPTIONS="--max-http-header-size=10485760 --openssl-legacy-provider" ng serve \
-		--hmr \
-		--serve-path="$(BASE_HREF)" \
-		--host backend \
-		--port 8990 \
-		--disable-host-check \
-		--proxy-config proxy.conf.json \
-		--allowed-hosts="all" \
-		--live-reload
-.PHONY: dev
-
-## Сборка и запуск автосборки для библиотеки '@webnice/ngx'.
-dev-lib: clean-pre-build
-	@clear 2>/dev/null || true
-	@ng cache clean
-	NODE_OPTIONS="--max-http-header-size=10485760 --openssl-legacy-provider" ng build \
-		@webnice/ngx \
-		--watch
-.PHONY: dev-lib
-
-## Сборка библиотеки '@webnice/ngx' в директорию dist.
-build-lib: clean-pre-build
-	@clear 2>/dev/null || true
-	@ng cache clean
-	@ng build @webnice/ngx
-.PHONY: build-lib
-
-## Публикация библиотеки '@webnice/ngx' в репозиторий npm.
-pub-lib: clean-pre-build
-	@clear 2>/dev/null || true
-	@ng cache clean
-	@npm run lib:publish
-.PHONY: pub-lib
-
-## Очистка перед сборкой.
-clean-pre-build:
-	@rm -rf "$(DIR)/dist" 2>/dev/null; true
-	@rm -rf "$(DIR)/npm-debug.log" 2>/dev/null; true
-	@rm -rf "$(DIR)/ng-warnings.log" 2>/dev/null; true
-	@rm -rf "$(DIR)/ng-errors.log" 2>/dev/null; true
-.PHONY: clean-pre-build
-
-## Очистка директории проекта от временных файлов.
-clean: clean-pre-build
-	@rm -rf "$(DIR)/node_modules" 2>/dev/null; true
-	@rm -rf "$(DIR)/dist" 2>/dev/null; true
-	@rm -rf "$(DIR)/nohup.out" 2>/dev/null; true
-	@npm cache clean --force 2>/dev/null || true
-.PHONY: clean
-
-## Помощь по командам.
-help:
-	@echo "Usage: make [target]"
-	@echo "  target is:"
-	@echo "    dep                  - Загрузка и обновление зависимостей проекта."
-	@echo "    dev                  - Запуск приложения в режиме разработки."
-	@echo "    dev-lib              - Сборка и запуск автосборки библиотеки '@webnice/ngx'."
-	@echo "    build-lib            - Сборка библиотеки '@webnice/ngx' в директорию dist."
-	@echo "    pub-lib              - Публикация библиотеки '@webnice/ngx' в репозиторий npm."
-	@echo "    clean                - Очистка директории проекта от временных файлов."
-.PHONY: help
-
-endif

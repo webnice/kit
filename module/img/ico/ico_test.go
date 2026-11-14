@@ -10,65 +10,87 @@ import (
 
 // TestEncodeDecodeRoundTrip Кодирование и декодирование изображения ICO.
 func TestEncodeDecodeRoundTrip(t *testing.T) {
-	var encoded bytes.Buffer
-	if err := Encode(&encoded, testImage(2)); err != nil {
-		t.Fatalf("Encode() вернул ошибку: %v", err)
+	const (
+		tplFatalEncode    = "Encode() вернул ошибку: %v."
+		tplFatalDecode    = "Decode() вернул ошибку: %v."
+		tplBoundsMismatch = "Decode() bounds = %v."
+		tplConfigMismatch = "DecodeConfig() = %v, %v."
+		tplImageDecode    = "image.Decode() = %v, %q, %v."
+	)
+	var (
+		encoded bytes.Buffer
+		decoded image.Image
+		cfg     image.Config
+		im      image.Image
+		format  string
+		err     error
+	)
+
+	if err = Encode(&encoded, testImage(2)); err != nil {
+		t.Fatalf(tplFatalEncode, err)
 	}
-	decoded, err := Decode(bytes.NewReader(encoded.Bytes()))
+	decoded, err = Decode(bytes.NewReader(encoded.Bytes()))
 	if err != nil {
-		t.Fatalf("Decode() вернул ошибку: %v", err)
+		t.Fatalf(tplFatalDecode, err)
 	}
 	if decoded.Bounds().Dx() != 2 || decoded.Bounds().Dy() != 2 {
-		t.Fatalf("Decode() bounds = %v", decoded.Bounds())
+		t.Fatalf(tplBoundsMismatch, decoded.Bounds())
 	}
-	cfg, err := DecodeConfig(bytes.NewReader(encoded.Bytes()))
+	cfg, err = DecodeConfig(bytes.NewReader(encoded.Bytes()))
 	if err != nil || cfg.Width != 2 || cfg.Height != 2 {
-		t.Fatalf("DecodeConfig() = %v, %v", cfg, err)
+		t.Fatalf(tplConfigMismatch, cfg, err)
 	}
-	im, format, err := image.Decode(bytes.NewReader(encoded.Bytes()))
+	im, format, err = image.Decode(bytes.NewReader(encoded.Bytes()))
 	if err != nil || format != "ico" || im.Bounds().Dx() != 2 {
-		t.Fatalf("image.Decode() = %v, %q, %v", im.Bounds(), format, err)
+		t.Fatalf(tplImageDecode, im.Bounds(), format, err)
 	}
 }
 
 // TestDecodeHeaderErrors Ошибки заголовка ICO.
 func TestDecodeHeaderErrors(t *testing.T) {
+	const (
+		errEmptyDecode       = "Decode(empty) не вернул ошибку."
+		errEmptyConfig       = "DecodeConfig(empty) не вернул ошибку."
+		tplFatalBadFirst     = "Decode(bad first) = %v."
+		tplFatalBadSecond    = "Decode(bad second) = %v."
+		tplFatalNoImages     = "Decode(no images) = %v."
+		errTruncatedDirNoErr = "Decode(truncated dir) не вернул ошибку."
+	)
+	var (
+		badFirst     bytes.Buffer
+		badSecond    bytes.Buffer
+		noImages     bytes.Buffer
+		truncatedDir bytes.Buffer
+	)
+
 	if _, err := Decode(bytes.NewReader(nil)); err == nil {
-		t.Fatal("Decode(empty) не вернул ошибку")
+		t.Fatal(errEmptyDecode)
 	}
 	if _, err := DecodeConfig(bytes.NewReader(nil)); err == nil {
-		t.Fatal("DecodeConfig(empty) не вернул ошибку")
+		t.Fatal(errEmptyConfig)
 	}
-
-	var badFirst bytes.Buffer
 	_ = binary.Write(&badFirst, binary.LittleEndian, uint16(1))
 	_ = binary.Write(&badFirst, binary.LittleEndian, uint16(1))
 	_ = binary.Write(&badFirst, binary.LittleEndian, uint16(1))
 	if _, err := Decode(bytes.NewReader(badFirst.Bytes())); err == nil || !strings.Contains(err.Error(), "first byte") {
-		t.Fatalf("Decode(bad first) = %v", err)
+		t.Fatalf(tplFatalBadFirst, err)
 	}
-
-	var badSecond bytes.Buffer
 	_ = binary.Write(&badSecond, binary.LittleEndian, uint16(0))
 	_ = binary.Write(&badSecond, binary.LittleEndian, uint16(2))
 	_ = binary.Write(&badSecond, binary.LittleEndian, uint16(1))
 	if _, err := Decode(bytes.NewReader(badSecond.Bytes())); err == nil || !strings.Contains(err.Error(), "second byte") {
-		t.Fatalf("Decode(bad second) = %v", err)
+		t.Fatalf(tplFatalBadSecond, err)
 	}
-
-	var noImages bytes.Buffer
 	_ = binary.Write(&noImages, binary.LittleEndian, uint16(0))
 	_ = binary.Write(&noImages, binary.LittleEndian, uint16(1))
 	_ = binary.Write(&noImages, binary.LittleEndian, uint16(0))
 	if _, err := Decode(bytes.NewReader(noImages.Bytes())); err == nil || !strings.Contains(err.Error(), "no images") {
-		t.Fatalf("Decode(no images) = %v", err)
+		t.Fatalf(tplFatalNoImages, err)
 	}
-
-	var truncatedDir bytes.Buffer
 	_ = binary.Write(&truncatedDir, binary.LittleEndian, uint16(0))
 	_ = binary.Write(&truncatedDir, binary.LittleEndian, uint16(1))
 	_ = binary.Write(&truncatedDir, binary.LittleEndian, uint16(1))
 	if _, err := Decode(bytes.NewReader(truncatedDir.Bytes())); err == nil {
-		t.Fatal("Decode(truncated dir) не вернул ошибку")
+		t.Fatal(errTruncatedDirNoErr)
 	}
 }

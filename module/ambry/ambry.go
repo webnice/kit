@@ -4,7 +4,9 @@ package ambry
 //
 //goland:noinspection GoUnusedExportedFunction
 func New() Interface {
-	var aby = new(impl)
+	var aby *impl
+
+	aby = new(impl)
 	aby.items = map[key][]*item{}
 
 	return aby

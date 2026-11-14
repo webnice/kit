@@ -18,6 +18,8 @@ func (d *decoder) decode(r io.Reader, configOnly bool) (err error) {
 	var (
 		ok bool
 		rr reader
+		i  int
+		e  entry
 	)
 
 	if rr, ok = r.(reader); ok {
@@ -38,7 +40,7 @@ func (d *decoder) decode(r io.Reader, configOnly bool) (err error) {
 		}
 	} else {
 		d.image = make([]image.Image, d.num)
-		for i, e := range d.dir {
+		for i, e = range d.dir {
 			d.image[i], err = d.parseImage(e)
 			if err != nil {
 				return

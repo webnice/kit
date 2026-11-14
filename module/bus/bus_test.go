@@ -3,6 +3,7 @@ package bus
 import (
 	"context"
 	"errors"
+	"fmt"
 	"strings"
 	"testing"
 	"time"
@@ -30,6 +31,7 @@ func (tsb *testSubscriber) Consumer(isSync bool, data any) (ret []any, errs []er
 	if tsb.consumer != nil {
 		return tsb.consumer(isSync, data)
 	}
+
 	return nil, nil
 }
 
@@ -37,6 +39,7 @@ func (tsb *testSubscriber) KnownType() (ret []any) {
 	if tsb.known != nil {
 		return tsb.known()
 	}
+
 	return tsb.types
 }
 
@@ -54,7 +57,9 @@ func (tns *testNilSubscriber) KnownType() []any { return nil }
 
 func newTestBus(t *testing.T, workerCount int, debug bool) Interface {
 	t.Helper()
-	var bus = New(16, workerCount, debug)
+	var bus Interface
+
+	bus = New(16, workerCount, debug)
 	t.Cleanup(func() { bus.Gist().WorkerStop() })
 
 	return bus
@@ -71,188 +76,262 @@ func waitTestSignal(t *testing.T, ch <-chan struct{}, timeout time.Duration, mes
 
 // TestBusSubscribeUnsubscribeErrors Ошибки подписки и отписки.
 func TestBusSubscribeUnsubscribeErrors(t *testing.T) {
-	var bus = newTestBus(t, 2, true)
+	const (
+		errGistNil              = "Gist() вернул nil."
+		errErrorsNotPackage     = "Errors() вернул не справочник пакета."
+		errSubscribeNilNoError  = "Subscribe(nil) вернул nil ошибку."
+		tplSubscribeError       = "Subscribe() вернул ошибку: %v."
+		errIsSubscriberNotFound = "IsSubscriber() не нашёл подписчика."
+		tplUnsubscribeError     = "Unsubscribe() вернул ошибку: %v."
+		errIsSubscriberFound    = "IsSubscriber() нашёл удалённого подписчика."
+		errUnsubscribeNilNoErr  = "Unsubscribe() для отсутствующего подписчика вернул nil ошибку."
+		tplSubscribePanic       = "Subscribe() с паникой KnownType вернул %v."
+		tplSubscribeNilType     = "Subscribe() с nil типом вернул %v."
+		tplUnsubscribeTypedNil  = "Unsubscribe() с typed nil вернул %v."
+		errTextKnownPanic       = "known panic"
+	)
+	var (
+		bus               Interface
+		err               error
+		subscriber        *testSubscriber
+		panicSubscriber   *testSubscriber
+		nilTypeSubscriber *testSubscriber
+		nilSubscriber     *testNilSubscriber
+	)
 
+	bus = newTestBus(t, 2, true)
 	if bus.Gist() == nil {
-		t.Fatal("Gist() вернул nil")
+		t.Fatal(errGistNil)
 	}
 	if bus.Errors() != Errors() {
-		t.Fatal("Errors() вернул не справочник пакета")
+		t.Fatal(errErrorsNotPackage)
 	}
-	if err := bus.Subscribe(nil); err == nil {
-		t.Fatal("Subscribe(nil) вернул nil ошибку")
+	if err = bus.Subscribe(nil); err == nil {
+		t.Fatal(errSubscribeNilNoError)
 	}
-	subscriber := &testSubscriber{types: []any{busTestData{}}}
-	if err := bus.Subscribe(subscriber); err != nil {
-		t.Fatalf("Subscribe() вернул ошибку: %v", err)
+	subscriber = &testSubscriber{types: []any{busTestData{}}}
+	if err = bus.Subscribe(subscriber); err != nil {
+		t.Fatalf(tplSubscribeError, err)
 	}
 	if !bus.IsSubscriber(busTestData{}) {
-		t.Fatal("IsSubscriber() не нашёл подписчика")
+		t.Fatal(errIsSubscriberNotFound)
 	}
-	if err := bus.Unsubscribe(&testSubscriber{}); err != nil {
-		t.Fatalf("Unsubscribe() вернул ошибку: %v", err)
+	if err = bus.Unsubscribe(&testSubscriber{}); err != nil {
+		t.Fatalf(tplUnsubscribeError, err)
 	}
 	if bus.IsSubscriber(busTestData{}) {
-		t.Fatal("IsSubscriber() нашёл удалённого подписчика")
+		t.Fatal(errIsSubscriberFound)
 	}
-	if err := bus.Unsubscribe(&testSubscriber{}); err == nil {
-		t.Fatal("Unsubscribe() для отсутствующего подписчика вернул nil ошибку")
+	if err = bus.Unsubscribe(&testSubscriber{}); err == nil {
+		t.Fatal(errUnsubscribeNilNoErr)
 	}
-
-	panicSubscriber := &testSubscriber{known: func() []any { panic("known panic") }}
-	if err := bus.Subscribe(panicSubscriber); err == nil || !strings.Contains(err.Error(), "паникой") {
-		t.Fatalf("Subscribe() с паникой KnownType вернул %v", err)
+	panicSubscriber = &testSubscriber{known: func() []any { panic(errTextKnownPanic) }}
+	if err = bus.Subscribe(panicSubscriber); err == nil || !strings.Contains(err.Error(), "паникой") {
+		t.Fatalf(tplSubscribePanic, err)
 	}
-	nilTypeSubscriber := &testSubscriber{types: []any{nil}}
-	if err := bus.Subscribe(nilTypeSubscriber); err == nil || !strings.Contains(err.Error(), "паникой") {
-		t.Fatalf("Subscribe() с nil типом вернул %v", err)
+	nilTypeSubscriber = &testSubscriber{types: []any{nil}}
+	if err = bus.Subscribe(nilTypeSubscriber); err == nil || !strings.Contains(err.Error(), "паникой") {
+		t.Fatalf(tplSubscribeNilType, err)
 	}
-	var nilSubscriber *testNilSubscriber
-	if err := bus.Unsubscribe(nilSubscriber); err == nil || !strings.Contains(err.Error(), "паникой") {
-		t.Fatalf("Unsubscribe() с typed nil вернул %v", err)
+	nilSubscriber = nil
+	if err = bus.Unsubscribe(nilSubscriber); err == nil || !strings.Contains(err.Error(), "паникой") {
+		t.Fatalf(tplUnsubscribeTypedNil, err)
 	}
 }
 
 // TestBusPublishAsync Асинхронная публикация данных.
 func TestBusPublishAsync(t *testing.T) {
+	const (
+		errTextUnexpectedData  = "неожиданные данные"
+		errTextConsumerPanic   = "consumer panic"
+		errNoSubscriberNoError = "PublishAsync() без подписчика вернул nil ошибку."
+		tplSubscribeError      = "Subscribe() вернул ошибку: %v."
+		tplSubscribeAnyError   = "Subscribe(any) вернул ошибку: %v."
+		tplSubscribePanicErr   = "Subscribe(panic) вернул ошибку: %v."
+		tplPublishError        = "PublishAsync() вернул ошибку: %v."
+		errAsyncNoSignal       = "async subscriber не получил данные."
+		tplPublishAnyError     = "PublishAsync() any тип вернул ошибку: %v."
+		errPublishNilNoError   = "PublishAsync(nil) вернул nil ошибку."
+		tplPublishPanicError   = "PublishAsync() panic subscriber вернул ошибку: %v."
+	)
 	var (
-		bus    = newTestBus(t, 2, false)
-		called = make(chan struct{}, 1)
-		sub    = &testSubscriber{
-			types: []any{busTestData{}},
-			consumer: func(_ bool, data any) ([]any, []error) {
-				if data.(busTestData).Value != "async" {
-					return nil, []error{errors.New("unexpected data")}
-				}
-				called <- struct{}{}
-				return nil, nil
-			},
-		}
-		anyCalled = make(chan struct{}, 10)
-		anySub    = &testAnySubscriber{testSubscriber{
-			consumer: func(_ bool, _ any) ([]any, []error) {
-				anyCalled <- struct{}{}
-				return nil, nil
-			},
-		}}
-		panicSub = &testPanicSubscriber{testSubscriber{
-			types: []any{busTestPanicData{}},
-			consumer: func(_ bool, _ any) ([]any, []error) {
-				panic("consumer panic")
-			},
-		}}
+		bus       Interface
+		err       error
+		called    chan struct{}
+		anyCalled chan struct{}
+		sub       *testSubscriber
+		anySub    *testAnySubscriber
+		panicSub  *testPanicSubscriber
 	)
 
-	if err := bus.PublishAsync(busTestOtherData{}); err == nil {
-		t.Fatal("PublishAsync() без подписчика вернул nil ошибку")
+	bus = newTestBus(t, 2, false)
+	called = make(chan struct{}, 1)
+	sub = &testSubscriber{
+		types: []any{busTestData{}},
+		consumer: func(_ bool, data any) ([]any, []error) {
+			if data.(busTestData).Value != "async" {
+				return nil, []error{errors.New(errTextUnexpectedData)}
+			}
+			called <- struct{}{}
+
+			return nil, nil
+		},
 	}
-	if err := bus.Subscribe(sub); err != nil {
-		t.Fatalf("Subscribe() вернул ошибку: %v", err)
+	anyCalled = make(chan struct{}, 10)
+	anySub = &testAnySubscriber{testSubscriber{
+		consumer: func(_ bool, _ any) ([]any, []error) {
+			anyCalled <- struct{}{}
+
+			return nil, nil
+		},
+	}}
+	panicSub = &testPanicSubscriber{testSubscriber{
+		types: []any{busTestPanicData{}},
+		consumer: func(_ bool, _ any) ([]any, []error) {
+			panic(errTextConsumerPanic)
+		},
+	}}
+	if err = bus.PublishAsync(busTestOtherData{}); err == nil {
+		t.Fatal(errNoSubscriberNoError)
 	}
-	if err := bus.Subscribe(anySub); err != nil {
-		t.Fatalf("Subscribe(any) вернул ошибку: %v", err)
+	if err = bus.Subscribe(sub); err != nil {
+		t.Fatalf(tplSubscribeError, err)
 	}
-	if err := bus.Subscribe(panicSub); err != nil {
-		t.Fatalf("Subscribe(panic) вернул ошибку: %v", err)
+	if err = bus.Subscribe(anySub); err != nil {
+		t.Fatalf(tplSubscribeAnyError, err)
 	}
-	if err := bus.PublishAsync(busTestData{Value: "async"}); err != nil {
-		t.Fatalf("PublishAsync() вернул ошибку: %v", err)
+	if err = bus.Subscribe(panicSub); err != nil {
+		t.Fatalf(tplSubscribePanicErr, err)
 	}
-	waitTestSignal(t, called, time.Second, "async subscriber не получил данные")
-	if err := bus.PublishAsync(123); err != nil {
-		t.Fatalf("PublishAsync() any тип вернул ошибку: %v", err)
+	if err = bus.PublishAsync(busTestData{Value: "async"}); err != nil {
+		t.Fatalf(tplPublishError, err)
 	}
-	waitTestSignal(t, anyCalled, time.Second, "any subscriber не получил данные")
-	if err := bus.PublishAsync(nil); err == nil {
-		t.Fatal("PublishAsync(nil) вернул nil ошибку")
+	waitTestSignal(t, called, time.Second, errAsyncNoSignal)
+	if err = bus.PublishAsync(123); err != nil {
+		t.Fatalf(tplPublishAnyError, err)
 	}
-	if err := bus.PublishAsync(busTestPanicData{}); err != nil {
-		t.Fatalf("PublishAsync() panic subscriber вернул ошибку: %v", err)
+	waitTestSignal(t, anyCalled, time.Second, "any subscriber не получил данные.")
+	if err = bus.PublishAsync(nil); err == nil {
+		t.Fatal(errPublishNilNoError)
+	}
+	if err = bus.PublishAsync(busTestPanicData{}); err != nil {
+		t.Fatalf(tplPublishPanicError, err)
 	}
 	time.Sleep(50 * time.Millisecond)
 }
 
 // TestBusPublishSync Синхронная публикация данных.
 func TestBusPublishSync(t *testing.T) {
+	const (
+		errTextExpectedSync      = "ожидалась синхронная публикация"
+		errTextConsumerError     = "consumer error"
+		errTextSyncConsumerPanic = "sync consumer panic"
+		tplRespValue             = "resp:%s"
+		errNoSubscriberNoErr     = "PublishSync() без подписчика не вернул ошибку."
+		tplSubscribeError        = "Subscribe() вернул ошибку: %v."
+		tplSubscribePanicErr     = "Subscribe(panic) вернул ошибку: %v."
+		tplSubscribeEmptyErr     = "Subscribe(empty) вернул ошибку: %v."
+		tplPublishSyncResult     = "PublishSync() = %v, %v."
+		tplPublishCtxResult      = "PublishSyncWithContext() = %v, %v."
+		tplPublishTimeoutRes     = "PublishSyncWithTimeout() = %v, %v."
+		tplPublishEmptyResult    = "PublishSyncWithContext() с пустым результатом = %v, %v."
+		errPublishNilNoErr       = "PublishSync(nil) не вернул ошибку."
+		tplPublishPanicResult    = "PublishSync() panic subscriber = %v."
+	)
 	var (
-		bus = newTestBus(t, 2, true)
-		sub = &testSubscriber{
-			types: []any{busTestData{}},
-			consumer: func(isSync bool, data any) ([]any, []error) {
-				if !isSync {
-					return nil, []error{errors.New("expected sync")}
-				}
-				return []any{"resp:" + data.(busTestData).Value}, []error{errors.New("consumer error")}
-			},
-		}
-		panicSub = &testPanicSubscriber{testSubscriber{
-			types: []any{busTestPanicData{}},
-			consumer: func(_ bool, _ any) ([]any, []error) {
-				panic("sync consumer panic")
-			},
-		}}
-		emptySub = &testSubscriber{types: []any{busTestOtherData{}}}
+		bus      Interface
+		err      error
+		sub      *testSubscriber
+		panicSub *testPanicSubscriber
+		emptySub *testSubscriber
+		ret      []any
+		errs     []error
 	)
 
-	if _, errs := bus.PublishSync(busTestOtherData{}); len(errs) == 0 {
-		t.Fatal("PublishSync() без подписчика не вернул ошибку")
-	}
-	if err := bus.Subscribe(sub); err != nil {
-		t.Fatalf("Subscribe() вернул ошибку: %v", err)
-	}
-	if err := bus.Subscribe(panicSub); err != nil {
-		t.Fatalf("Subscribe(panic) вернул ошибку: %v", err)
-	}
-	if err := bus.Subscribe(emptySub); err != nil {
-		t.Fatalf("Subscribe(empty) вернул ошибку: %v", err)
-	}
+	bus = newTestBus(t, 2, true)
+	sub = &testSubscriber{
+		types: []any{busTestData{}},
+		consumer: func(isSync bool, data any) ([]any, []error) {
+			if !isSync {
+				return nil, []error{errors.New(errTextExpectedSync)}
+			}
 
-	ret, errs := bus.PublishSync(busTestData{Value: "one"})
-	if len(ret) != 1 || ret[0] != "resp:one" || len(errs) != 1 || errs[0].Error() != "consumer error" {
-		t.Fatalf("PublishSync() = %v, %v", ret, errs)
+			return []any{fmt.Sprintf(tplRespValue, data.(busTestData).Value)}, []error{errors.New(errTextConsumerError)}
+		},
+	}
+	panicSub = &testPanicSubscriber{testSubscriber{
+		types: []any{busTestPanicData{}},
+		consumer: func(_ bool, _ any) ([]any, []error) {
+			panic(errTextSyncConsumerPanic)
+		},
+	}}
+	emptySub = &testSubscriber{types: []any{busTestOtherData{}}}
+	if _, errs = bus.PublishSync(busTestOtherData{}); len(errs) == 0 {
+		t.Fatal(errNoSubscriberNoErr)
+	}
+	if err = bus.Subscribe(sub); err != nil {
+		t.Fatalf(tplSubscribeError, err)
+	}
+	if err = bus.Subscribe(panicSub); err != nil {
+		t.Fatalf(tplSubscribePanicErr, err)
+	}
+	if err = bus.Subscribe(emptySub); err != nil {
+		t.Fatalf(tplSubscribeEmptyErr, err)
+	}
+	ret, errs = bus.PublishSync(busTestData{Value: "one"})
+	if len(ret) != 1 || ret[0] != "resp:one" || len(errs) != 1 || errs[0].Error() != errTextConsumerError {
+		t.Fatalf(tplPublishSyncResult, ret, errs)
 	}
 	ret, errs = bus.PublishSyncWithContext(context.Background(), busTestData{Value: "ctx"})
 	if len(ret) != 1 || ret[0] != "resp:ctx" || len(errs) != 1 {
-		t.Fatalf("PublishSyncWithContext() = %v, %v", ret, errs)
+		t.Fatalf(tplPublishCtxResult, ret, errs)
 	}
 	ret, errs = bus.PublishSyncWithTimeout(time.Second, busTestData{Value: "timeout"})
 	if len(ret) != 1 || ret[0] != "resp:timeout" || len(errs) != 1 {
-		t.Fatalf("PublishSyncWithTimeout() = %v, %v", ret, errs)
+		t.Fatalf(tplPublishTimeoutRes, ret, errs)
 	}
 	ret, errs = bus.PublishSyncWithContext(context.Background(), busTestOtherData{})
 	if len(ret) != 0 || len(errs) != 0 {
-		t.Fatalf("PublishSyncWithContext() с пустым результатом = %v, %v", ret, errs)
+		t.Fatalf(tplPublishEmptyResult, ret, errs)
 	}
-
 	_, errs = bus.PublishSync(nil)
 	if len(errs) == 0 {
-		t.Fatal("PublishSync(nil) не вернул ошибку")
+		t.Fatal(errPublishNilNoErr)
 	}
 	_, errs = bus.PublishSync(busTestPanicData{})
 	if len(errs) == 0 || !strings.Contains(errs[0].Error(), "паникой") {
-		t.Fatalf("PublishSync() panic subscriber = %v", errs)
+		t.Fatalf(tplPublishPanicResult, errs)
 	}
 }
 
 // TestBusPublishSyncTimeoutSlowConsumer Тайм-аут синхронной публикации при медленном потребителе.
 func TestBusPublishSyncTimeoutSlowConsumer(t *testing.T) {
+	const (
+		tplSubscribeError = "Subscribe() вернул ошибку: %v."
+		tplSlowConsumer   = "PublishSyncWithTimeout() с медленным потребителем = %v."
+	)
 	var (
-		bus = newTestBus(t, 1, false)
-		sub = &testSlowSubscriber{testSubscriber{
-			types: []any{busTestData{}},
-			consumer: func(_ bool, _ any) ([]any, []error) {
-				time.Sleep(250 * time.Millisecond)
-				return []any{"late"}, nil
-			},
-		}}
+		bus  Interface
+		err  error
+		errs []error
+		sub  *testSlowSubscriber
 	)
 
-	if err := bus.Subscribe(sub); err != nil {
-		t.Fatalf("Subscribe() вернул ошибку: %v", err)
+	bus = newTestBus(t, 1, false)
+	sub = &testSlowSubscriber{testSubscriber{
+		types: []any{busTestData{}},
+		consumer: func(_ bool, _ any) ([]any, []error) {
+			time.Sleep(250 * time.Millisecond)
+
+			return []any{"late"}, nil
+		},
+	}}
+	if err = bus.Subscribe(sub); err != nil {
+		t.Fatalf(tplSubscribeError, err)
 	}
-	_, errs := bus.PublishSyncWithTimeout(20*time.Millisecond, busTestData{Value: "slow"})
+	_, errs = bus.PublishSyncWithTimeout(20*time.Millisecond, busTestData{Value: "slow"})
 	if len(errs) == 0 || !errors.Is(errs[0], context.DeadlineExceeded) {
-		t.Fatalf("PublishSyncWithTimeout() с медленным потребителем = %v", errs)
+		t.Fatalf(tplSlowConsumer, errs)
 	}
 	// Даём медленной горутине-потребителю завершить отправку ответа после тайм-аута.
 	// Старый код закрывал ssRsp до этого момента и падал с panic: send on closed channel.
@@ -261,9 +340,12 @@ func TestBusPublishSyncTimeoutSlowConsumer(t *testing.T) {
 
 // TestBusNewWithDefaultBuffer Конструктор с нулевым размером буфера по умолчанию.
 func TestBusNewWithDefaultBuffer(t *testing.T) {
-	var bus = New(0, 1, true)
+	const errNotFullyInitialized = "New(0, 1, true) вернул не полностью инициализированный объект."
+	var bus Interface
+
+	bus = New(0, 1, true)
 	t.Cleanup(func() { bus.Gist().WorkerStop() })
 	if bus == nil || bus.Gist() == nil {
-		t.Fatal("New(0, 1, true) вернул не полностью инициализированный объект")
+		t.Fatal(errNotFullyInitialized)
 	}
 }

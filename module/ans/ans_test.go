@@ -5,6 +5,10 @@ import (
 )
 
 func TestNew(t *testing.T) {
+	const (
+		errNewNil     = "функция New(), вернулся nil, ожидался не nil объект."
+		errEssenceNil = "функция New(), вернулся объект у которого essence = nil, ожидался не nil объект."
+	)
 	var (
 		ans Interface
 		obj *impl
@@ -12,17 +16,24 @@ func TestNew(t *testing.T) {
 
 	ans = New(nil)
 	if ans == nil {
-		t.Errorf("функция New(), вернулся nil, ожидался не nil объект")
+		t.Error(errNewNil)
+
 		return
 	}
 	obj = ans.(*impl)
 	if obj.essence == nil {
-		t.Errorf("функция New(), вернулся объект у которого essence = nil, ожидался не nil объект")
+		t.Error(errEssenceNil)
+
 		return
 	}
 }
 
 func TestImpl_Gist(t *testing.T) {
+	const (
+		errNewNil          = "функция New(), вернулся nil, ожидался не nil объект."
+		tplDebugUnexpected = "Неожиданное значение debug, ожидалось %v."
+		errDebugNotSet     = "Функция Gist().Debug() не устанавливает значение."
+	)
 	var (
 		ans Interface
 		obj *impl
@@ -30,21 +41,25 @@ func TestImpl_Gist(t *testing.T) {
 
 	ans = New(nil)
 	if ans == nil {
-		t.Errorf("функция New(), вернулся nil, ожидался не nil объект")
+		t.Error(errNewNil)
+
 		return
 	}
 	obj = ans.(*impl)
 	if obj.debug != false {
-		t.Errorf("Неожиданное значение debug, ожидалось %v", false)
+		t.Errorf(tplDebugUnexpected, false)
+
 		return
 	}
 	if obj.debug != false {
-		t.Errorf("Неожиданное значение debug, ожидалось %v", false)
+		t.Errorf(tplDebugUnexpected, false)
+
 		return
 	}
 	ans.Gist().Debug(true)
 	if obj.debug == false {
-		t.Errorf("Функция Gist().Debug() не устанавливает значение.")
+		t.Error(errDebugNotSet)
+
 		return
 	}
 }

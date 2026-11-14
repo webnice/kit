@@ -9,9 +9,10 @@ import (
 )
 
 // Constructor Конструктор сущности пакета.
-func Constructor() *Implementation {
-	var r6e = &Implementation{Res: make(map[string]map[string]*Resource)}
-	return r6e
+func Constructor() (r6e *Implementation) {
+	r6e = &Implementation{Res: make(map[string]map[string]*Resource)}
+
+	return
 }
 
 // Add Добавление ресурса в группу ресурсов.
@@ -121,13 +122,15 @@ func (r6e *Implementation) ResourceByGroupTarReader(group string) (ret *bytes.Re
 		items  map[string]*Resource
 		ok     bool
 		src    tarSource
+		name   string
+		data   *Resource
 	)
 
 	r6e.ResLock.RLock()
 	items, ok = r6e.Res[group]
 	source = make([]tarSource, 0, len(items))
 	if ok {
-		for name, data := range items {
+		for name, data = range items {
 			if data == nil {
 				continue
 			}

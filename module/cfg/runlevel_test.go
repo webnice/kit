@@ -17,16 +17,25 @@ func testRunlevelSubscriberC(uint16, uint16) {}
 
 // TestRunlevelConcurrentSubscribeAndDispatch Конкурентная подписка и диспетчеризация уровней.
 func TestRunlevelConcurrentSubscribeAndDispatch(t *testing.T) {
-	var wg sync.WaitGroup
-	cfgObj := &impl{runLevelSubscribers: list.New()}
+	const (
+		tplSubscribeAError = "RunlevelSubscribe(A) вернул ошибку: %v."
+		tplSubscribeBError = "RunlevelSubscribe(B) вернул ошибку: %v."
+	)
+	var (
+		wg     sync.WaitGroup
+		cfgObj *impl
+		n      int
+		err    error
+	)
 
-	if err := cfgObj.RunlevelSubscribe(testRunlevelSubscriberA); err != nil {
-		t.Fatalf("RunlevelSubscribe(A) вернул ошибку: %v", err)
+	cfgObj = &impl{runLevelSubscribers: list.New()}
+	if err = cfgObj.RunlevelSubscribe(testRunlevelSubscriberA); err != nil {
+		t.Fatalf(tplSubscribeAError, err)
 	}
-	if err := cfgObj.RunlevelSubscribe(testRunlevelSubscriberB); err != nil {
-		t.Fatalf("RunlevelSubscribe(B) вернул ошибку: %v", err)
+	if err = cfgObj.RunlevelSubscribe(testRunlevelSubscriberB); err != nil {
+		t.Fatalf(tplSubscribeBError, err)
 	}
-	for n := 0; n < 64; n++ {
+	for n = 0; n < 64; n++ {
 		wg.Add(3)
 		go func() {
 			defer wg.Done()

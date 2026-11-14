@@ -12,15 +12,21 @@ type chunk struct {
 
 // String Интерфейс Stringer.
 func (c chunk) String() (ret string) {
+	const (
+		tplChunkArg = "${%s:%s}"
+		tplChunk    = "${%s}"
+		chunkEmpty  = "${}"
+	)
+
 	switch {
 	case c.Type == chunkText:
 		ret = c.Src
 	case c.Src != "" && c.Arg != "":
-		ret = fmt.Sprintf("${%s:%s}", c.Src, c.Arg)
+		ret = fmt.Sprintf(tplChunkArg, c.Src, c.Arg)
 	case c.Src != "":
-		ret = fmt.Sprintf("${%s}", c.Src)
+		ret = fmt.Sprintf(tplChunk, c.Src)
 	default:
-		ret = "${}"
+		ret = chunkEmpty
 	}
 
 	return

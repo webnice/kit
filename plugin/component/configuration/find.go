@@ -13,6 +13,7 @@ import (
 
 // Поиск пути и имени файла конфигурации.
 func (ccf *impl) findConfigurationFile(appName, dirConf, dirHome, dirWork string) (ret string) {
+	const tplFilename = "%s%s"
 	var (
 		err         error
 		filename    string
@@ -44,7 +45,7 @@ func (ccf *impl) findConfigurationFile(appName, dirConf, dirHome, dirWork string
 	}
 	// Порядок директорий в массиве описывает приоритет.
 	for n = range directories {
-		filename = fmt.Sprintf("%s%s", appName, extensionYaml)
+		filename = fmt.Sprintf(tplFilename, appName, extensionYaml)
 		filename = path.Join(directories[n], filename)
 		if fi, err = os.Stat(filename); err != nil {
 			continue

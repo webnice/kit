@@ -4,14 +4,21 @@ import "testing"
 
 // TestConstantEnvironmentNameMustFindByAnchor Поиск окружения константы по якорю.
 func TestConstantEnvironmentNameMustFindByAnchor(t *testing.T) {
-	var env = ConstantEnvironmentName{{Anchor: "one", Destination: "FIRST"}}
+	const (
+		errAnchorNotFound      = "MustFindByAnchor() не нашёл существующий якорь."
+		errMissingNotEmpty     = "MustFindByAnchor() для отсутствующего якоря вернул не пустой объект."
+		errDestinationNotFound = "Destination() не нашёл существующий якорь."
+	)
+	var env ConstantEnvironmentName
+
+	env = ConstantEnvironmentName{{Anchor: "one", Destination: "FIRST"}}
 	if env.MustFindByAnchor("one").Destination != "FIRST" {
-		t.Fatal("MustFindByAnchor() не нашёл существующий якорь")
+		t.Fatal(errAnchorNotFound)
 	}
 	if env.MustFindByAnchor("missing").Anchor != "" {
-		t.Fatal("MustFindByAnchor() для отсутствующего якоря вернул не пустой объект")
+		t.Fatal(errMissingNotEmpty)
 	}
 	if env.Destination("one") != "FIRST" {
-		t.Fatal("Destination() не нашёл существующий якорь")
+		t.Fatal(errDestinationNotFound)
 	}
 }

@@ -7,64 +7,95 @@ import (
 )
 
 func TestFilenameParsingAndHelpers(t *testing.T) {
-	var sep = string(os.PathSeparator)
+	const (
+		tplPathMismatch     = "parseFilename().Path = %#v."
+		tplFilenameMismatch = "parseFilename() = %#v."
+		tplStringMismatch   = "filename.String() = %q."
+		tplHelpersWrong     = "filename helpers вернули некорректный результат: %#v."
+		tplMacosFalse       = "IsPathMacos() = false для %#v."
+		tplHiddenMismatch   = "parseFilename(.hidden) = %#v."
+		tplEmptyMismatch    = "parseFilename(пустая строка) = %#v."
+		tplDirNotDetected   = "parseFilename(dir/) не определил директорию: %#v."
+	)
+	var (
+		sep string
+		fn  *filename
+	)
 
-	fn := parseFilename("dir/sub/file.tar.gz")
+	sep = string(os.PathSeparator)
+	fn = parseFilename("dir/sub/file.tar.gz")
 	if len(fn.Path) != 2 || fn.Path[0] != "dir" || fn.Path[1] != "sub" {
-		t.Fatalf("parseFilename().Path = %#v", fn.Path)
+		t.Fatalf(tplPathMismatch, fn.Path)
 	}
 	if fn.Filename != "file.tar" || fn.Extension != "gz" {
-		t.Fatalf("parseFilename() = %#v", fn)
+		t.Fatalf(tplFilenameMismatch, fn)
 	}
 	if fn.String() != strings.Join([]string{"dir", "sub", "file.tar.gz"}, sep) {
-		t.Fatalf("filename.String() = %q", fn.String())
+		t.Fatalf(tplStringMismatch, fn.String())
 	}
 	if fn.IsPath() || fn.IsDotFirst() || !fn.IsPathPrefix("sub") || fn.IsPathMacos() {
-		t.Fatalf("filename helpers вернули некорректный результат: %#v", fn)
+		t.Fatalf(tplHelpersWrong, fn)
 	}
-
 	fn = parseFilename("dir/__MACOSX/file.txt")
 	if !fn.IsPathMacos() {
-		t.Fatalf("IsPathMacos() = false для %#v", fn.Path)
+		t.Fatalf(tplMacosFalse, fn.Path)
 	}
 	fn = parseFilename(".hidden")
 	if fn.Filename != ".hidden" || fn.Extension != "" || !fn.IsDotFirst() {
-		t.Fatalf("parseFilename(.hidden) = %#v", fn)
+		t.Fatalf(tplHiddenMismatch, fn)
 	}
 	fn = parseFilename("")
 	if !fn.IsPath() || fn.String() != "" {
-		t.Fatalf("parseFilename(пустая строка) = %#v", fn)
+		t.Fatalf(tplEmptyMismatch, fn)
 	}
 	fn = parseFilename("dir/")
 	if !fn.IsPath() {
-		t.Fatalf("parseFilename(dir/) не определил директорию: %#v", fn)
+		t.Fatalf(tplDirNotDetected, fn)
 	}
 }
 
 func TestFilenameContentTypeFallback(t *testing.T) {
-	if got := (filename{}).ContentType(); got != "application/octet-stream" {
-		t.Fatalf("ContentType() без расширения = %q", got)
+	const (
+		tplNoExtension = "ContentType() без расширения = %q."
+		tplUnknownExt  = "ContentType() с неизвестным расширением = %q."
+		tplPngMismatch = "ContentType(png) = %q."
+	)
+	var got string
+
+	if got = (filename{}).ContentType(); got != "application/octet-stream" {
+		t.Fatalf(tplNoExtension, got)
 	}
-	if got := (filename{Extension: "unknownextension"}).ContentType(); got != "application/octet-stream" {
-		t.Fatalf("ContentType() с неизвестным расширением = %q", got)
+	if got = (filename{Extension: "unknownextension"}).ContentType(); got != "application/octet-stream" {
+		t.Fatalf(tplUnknownExt, got)
 	}
-	if got := (filename{Extension: "png"}).ContentType(); !strings.HasPrefix(got, "image/png") {
-		t.Fatalf("ContentType(png) = %q", got)
+	if got = (filename{Extension: "png"}).ContentType(); !strings.HasPrefix(got, "image/png") {
+		t.Fatalf(tplPngMismatch, got)
 	}
 }
 
 func TestFilenameEdgeBranches(t *testing.T) {
+	const (
+		errPrefixTrue     = "IsPathPrefix() с пустым путём и непустым prefix вернул true."
+		errDotNotDetected = "IsDotFirst() не обнаружил точку в сегменте пути."
+		tplFilenameFull   = "FilenameFull() без имени файла = %q."
+		tplHiddenPath     = "parseFilename(dir/.hidden/file.txt) = %#v."
+	)
+	var (
+		fn  *filename
+		got string
+	)
+
 	if (filename{}).IsPathPrefix("x") {
-		t.Fatal("IsPathPrefix() с пустым путём и непустым prefix вернул true")
+		t.Fatal(errPrefixTrue)
 	}
 	if !(filename{Path: []string{".dir"}, Filename: "file.txt"}).IsDotFirst() {
-		t.Fatal("IsDotFirst() не обнаружил точку в сегменте пути")
+		t.Fatal(errDotNotDetected)
 	}
-	if got := (filename{Extension: "png"}).FilenameFull(); got != "" {
-		t.Fatalf("FilenameFull() без имени файла = %q", got)
+	if got = (filename{Extension: "png"}).FilenameFull(); got != "" {
+		t.Fatalf(tplFilenameFull, got)
 	}
-	fn := parseFilename("dir/.hidden/file.txt")
+	fn = parseFilename("dir/.hidden/file.txt")
 	if !fn.IsDotFirst() || fn.Filename != "file" || fn.Extension != "txt" {
-		t.Fatalf("parseFilename(dir/.hidden/file.txt) = %#v", fn)
+		t.Fatalf(tplHiddenPath, fn)
 	}
 }

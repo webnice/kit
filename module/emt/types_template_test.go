@@ -5,39 +5,53 @@ import (
 )
 
 func TestBodyAndFileValues(t *testing.T) {
-	var body Body
+	const (
+		tplBodyIncorrect    = "Body ValueSet/ValueGet некорректны: %#v."
+		tplBodyNilIncorrect = "Body ValueSet(nil) некорректен: %#v."
+		tplFileIncorrect    = "File ValueSet/ValueGet некорректны: %#v."
+		tplJsonUnmarshal    = "JsonUnmarshal() = %#v, %v."
+		tplJsonMarshal      = "JsonMarshal() вернул ошибку: %v."
+		tplFilenameExt      = "Filename/Extension = %q, %q."
+		tplExtHidden        = "FilenameExtension(.hidden) = %q."
+	)
+	var (
+		body    Body
+		file    File
+		decoded map[string]int
+		err     error
+	)
+
 	body.ValueSet([]byte("hello"))
 	if string(body.ValueGet()) != "hello" || body.Value == "" {
-		t.Fatalf("Body ValueSet/ValueGet некорректны: %#v", body)
+		t.Fatalf(tplBodyIncorrect, body)
 	}
 	body.ValueSet(nil)
 	if len(body.ValueGet()) != 0 || body.Value != "" {
-		t.Fatalf("Body ValueSet(nil) некорректен: %#v", body)
+		t.Fatalf(tplBodyNilIncorrect, body)
 	}
-
-	var file File
 	file.ValueSet([]byte(`{"a":1}`))
 	if string(file.ValueGet()) != `{"a":1}` {
-		t.Fatalf("File ValueSet/ValueGet некорректны: %#v", file)
+		t.Fatalf(tplFileIncorrect, file)
 	}
-	var decoded map[string]int
-	if err := file.JsonUnmarshal(&decoded); err != nil || decoded["a"] != 1 {
-		t.Fatalf("JsonUnmarshal() = %#v, %v", decoded, err)
+	if err = file.JsonUnmarshal(&decoded); err != nil || decoded["a"] != 1 {
+		t.Fatalf(tplJsonUnmarshal, decoded, err)
 	}
-	if err := file.JsonMarshal(map[string]int{"b": 2}); err != nil {
-		t.Fatalf("JsonMarshal() вернул ошибку: %v", err)
+	if err = file.JsonMarshal(map[string]int{"b": 2}); err != nil {
+		t.Fatalf(tplJsonMarshal, err)
 	}
 	if file.Name = "dir/sub/archive.tar.gz"; file.Filename() != "archive.tar.gz" || file.FilenameExtension() != "gz" {
-		t.Fatalf("Filename/Extension = %q, %q", file.Filename(), file.FilenameExtension())
+		t.Fatalf(tplFilenameExt, file.Filename(), file.FilenameExtension())
 	}
 	if file.Name = ".hidden"; file.FilenameExtension() != "" {
-		t.Fatalf("FilenameExtension(.hidden) = %q", file.FilenameExtension())
+		t.Fatalf(tplExtHidden, file.FilenameExtension())
 	}
 }
 
 func TestFileJsonMarshalError(t *testing.T) {
+	const errNoError = "JsonMarshal() с неподдерживаемым типом не вернул ошибку."
 	var file File
+
 	if err := file.JsonMarshal(make(chan int)); err == nil {
-		t.Fatal("JsonMarshal() с неподдерживаемым типом не вернул ошибку")
+		t.Fatal(errNoError)
 	}
 }

@@ -52,13 +52,14 @@ func encodeBase64(b []byte) (ret string) {
 
 // Декодирование BASE64 в срез.
 func decodeBase64(s string) (ret []byte) {
+	const tplDecodeError = "декодирование BASE64 в срез байт прерван ошибкой: %s."
 	var err error
 
 	if s == "" {
 		return
 	}
 	if ret, err = base64.StdEncoding.DecodeString(s); err != nil {
-		kitModuleCfg.Get().Log().Errorf("декодирование BASE64 в срез байт прерван ошибкой: %s", err)
+		kitModuleCfg.Get().Log().Errorf(tplDecodeError, err)
 		ret = []byte{}
 	}
 

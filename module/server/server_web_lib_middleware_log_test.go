@@ -14,13 +14,16 @@ func timeNow() time.Time { return time.Now() }
 
 func TestLogHandlerDebugMode(t *testing.T) {
 	var (
-		srv = New(&testLogger{})
-		iwl = srv.(*impl).serverWeb.lib
-		rq  = httptest.NewRequest(http.MethodGet, "/api/test", nil)
+		srv Interface
+		iwl *implWebLib
+		rq  *http.Request
 	)
 
+	srv = New(&testLogger{})
+	iwl = srv.(*impl).serverWeb.lib
+	rq = httptest.NewRequest(http.MethodGet, "/api/test", nil)
 	srv.Gist().Debug(true)
-	var handler = iwl.LogHandler()(http.HandlerFunc(func(wr http.ResponseWriter, _ *http.Request) {
+	handler := iwl.LogHandler()(http.HandlerFunc(func(wr http.ResponseWriter, _ *http.Request) {
 		wr.Header().Set("Location", "/api/moved")
 		wr.Header().Set("Content-Length", "4")
 		wr.WriteHeader(http.StatusOK)
@@ -32,23 +35,26 @@ func TestLogHandlerDebugMode(t *testing.T) {
 
 func TestLogHandlerProductionMode(t *testing.T) {
 	var (
-		srv = New(&testLogger{})
-		iwl = srv.(*impl).serverWeb.lib
-		rq  = httptest.NewRequest(http.MethodGet, "/api/test", nil)
+		srv Interface
+		iwl *implWebLib
+		rq  *http.Request
 	)
 
+	srv = New(&testLogger{})
+	iwl = srv.(*impl).serverWeb.lib
+	rq = httptest.NewRequest(http.MethodGet, "/api/test", nil)
 	// Режим "продакшн": штатные коды 200-299 в журнал не пишутся.
-	var handlerOK = iwl.LogHandler()(http.HandlerFunc(func(wr http.ResponseWriter, _ *http.Request) {
+	handlerOK := iwl.LogHandler()(http.HandlerFunc(func(wr http.ResponseWriter, _ *http.Request) {
 		wr.WriteHeader(http.StatusOK)
 	}))
 	handlerOK.ServeHTTP(httptest.NewRecorder(), rq)
 	// Режим "продакшн": коды 3xx, 4xx в журнал не пишутся.
-	var handlerNotFound = iwl.LogHandler()(http.HandlerFunc(func(wr http.ResponseWriter, _ *http.Request) {
+	handlerNotFound := iwl.LogHandler()(http.HandlerFunc(func(wr http.ResponseWriter, _ *http.Request) {
 		wr.WriteHeader(http.StatusNotFound)
 	}))
 	handlerNotFound.ServeHTTP(httptest.NewRecorder(), rq)
 	// Режим "продакшн": коды 500+ попадают в журнал.
-	var handlerError = iwl.LogHandler()(http.HandlerFunc(func(wr http.ResponseWriter, _ *http.Request) {
+	handlerError := iwl.LogHandler()(http.HandlerFunc(func(wr http.ResponseWriter, _ *http.Request) {
 		wr.WriteHeader(http.StatusInternalServerError)
 	}))
 	handlerError.ServeHTTP(httptest.NewRecorder(), rq)
@@ -56,20 +62,27 @@ func TestLogHandlerProductionMode(t *testing.T) {
 
 func TestLogHandlerCodes(t *testing.T) {
 	var (
-		srv = New(&testLogger{})
-		iwl = srv.(*impl).serverWeb.lib
+		srv   Interface
+		iwl   *implWebLib
+		codes []int
+		code  int
+		n     int
 	)
 
+	srv = New(&testLogger{})
+	iwl = srv.(*impl).serverWeb.lib
 	srv.Gist().Debug(true)
 	// Все диапазоны кодов ответов и проекция уровней логирования.
-	for _, code := range []int{
+	codes = []int{
 		http.StatusContinue,
 		http.StatusOK,
 		http.StatusMultipleChoices,
 		http.StatusBadRequest,
 		http.StatusInternalServerError,
 		http.StatusNetworkAuthenticationRequired,
-	} {
+	}
+	for n = range codes {
+		code = codes[n]
 		var (
 			rq      = httptest.NewRequest(http.MethodGet, "/api/test", nil)
 			handler = iwl.LogHandler()(http.HandlerFunc(func(wr http.ResponseWriter, _ *http.Request) {
@@ -97,12 +110,16 @@ func (rw *rawWriter) Write(p []byte) (int, error) { return rw.body.WriteString(s
 
 func TestLogHandlerCodeOutOfRange(t *testing.T) {
 	var (
-		srv = New(&testLogger{})
-		iwl = srv.(*impl).serverWeb.lib
-		rw  = newRawWriter()
-		rq  = httptest.NewRequest(http.MethodGet, "/api/test", nil)
+		srv Interface
+		iwl *implWebLib
+		rw  *rawWriter
+		rq  *http.Request
 	)
 
+	srv = New(&testLogger{})
+	iwl = srv.(*impl).serverWeb.lib
+	rw = newRawWriter()
+	rq = httptest.NewRequest(http.MethodGet, "/api/test", nil)
 	srv.Gist().Debug(true)
 	// Код ответа вне всех диапазонов - цвет записи по умолчанию.
 	var wrw = kitModuleWrWrap.New(rw, true)

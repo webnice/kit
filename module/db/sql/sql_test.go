@@ -13,12 +13,14 @@ import (
 	"testing"
 	"time"
 
+	"github.com/jmoiron/sqlx"
 	kitModuleCfg "github.com/webnice/kit/v4/module/cfg"
 	kitModuleDbSqlTypes "github.com/webnice/kit/v4/module/db/sql/types"
 	kmll "github.com/webnice/kit/v4/module/log/level"
 	"gorm.io/gorm"
 )
 
+// Имя тестового драйвера базы данных.
 const testDriverName = "kit_db_test_driver"
 
 var (
@@ -48,6 +50,7 @@ func (testConn) QueryContext(context.Context, string, []driver.NamedValue) (driv
 	if testDriverQueryErr != nil {
 		return nil, testDriverQueryErr
 	}
+
 	return &testRows{data: testDriverQueryRows}, nil
 }
 
@@ -56,6 +59,7 @@ func (testConn) ExecContext(context.Context, string, []driver.NamedValue) (drive
 		return nil, testDriverExecErr
 	}
 	testDriverQueryRows = [][]driver.Value{{int64(1), true}}
+
 	return testResult{}, nil
 }
 
@@ -87,13 +91,14 @@ func (rows *testRows) Next(dest []driver.Value) error {
 	return nil
 }
 
-func testConfig(driver string) *kitModuleDbSqlTypes.Configuration {
-	var port uint16 = 3306
+func testConfig(driver string) (cfg *kitModuleDbSqlTypes.Configuration) {
+	var port uint16
+
+	port = 3306
 	if strings.EqualFold(driver, driverPostgreSQL) {
 		port = 5432
 	}
-
-	return &kitModuleDbSqlTypes.Configuration{
+	cfg = &kitModuleDbSqlTypes.Configuration{
 		Driver:            driver,
 		Host:              "localhost",
 		Port:              port,
@@ -113,16 +118,19 @@ func testConfig(driver string) *kitModuleDbSqlTypes.Configuration {
 		MaxLifetimeConn:   time.Hour,
 		Loglevel:          kmll.Off,
 	}
+
+	return
 }
 
-func startTestImpl(t *testing.T, cfg *kitModuleDbSqlTypes.Configuration) *impl {
+func startTestImpl(t *testing.T, cfg *kitModuleDbSqlTypes.Configuration) (mys *impl) {
+	const tplFatalNewConfig = "newConfigurationSet() вернул ошибку: %v."
+	var onDone chan struct{}
+
 	t.Helper()
-	var (
-		mys    = new(impl)
-		onDone = make(chan struct{})
-	)
+	mys = new(impl)
+	onDone = make(chan struct{})
 	if err := mys.newConfigurationSet(onDone, cfg); err != nil {
-		t.Fatalf("newConfigurationSet() вернул ошибку: %v", err)
+		t.Fatalf(tplFatalNewConfig, err)
 	}
 	<-onDone
 	close(onDone)
@@ -131,23 +139,26 @@ func startTestImpl(t *testing.T, cfg *kitModuleDbSqlTypes.Configuration) *impl {
 	mys.connectMux.RUnlock()
 	t.Cleanup(func() { _ = mys.Close() })
 
-	return mys
+	return
 }
 
-func newTestSQLDB(t *testing.T) *sql.DB {
+func newTestSQLDB(t *testing.T) (db *sql.DB) {
+	const tplFatalOpen = "sql.Open() вернул ошибку: %v."
+	var err error
+
 	t.Helper()
-	db, err := sql.Open(testDriverName, "")
+	db, err = sql.Open(testDriverName, "")
 	if err != nil {
-		t.Fatalf("sql.Open() вернул ошибку: %v", err)
+		t.Fatalf(tplFatalOpen, err)
 	}
 	t.Cleanup(func() { _ = db.Close() })
 
-	return db
+	return
 }
 
-func newGormReadyImpl(t *testing.T, cfg *kitModuleDbSqlTypes.Configuration) *impl {
+func newGormReadyImpl(t *testing.T, cfg *kitModuleDbSqlTypes.Configuration) (mys *impl) {
 	t.Helper()
-	mys := &impl{
+	mys = &impl{
 		cfg:        cfg,
 		dsn:        "test-dsn",
 		connect:    newTestSQLDB(t),
@@ -155,7 +166,7 @@ func newGormReadyImpl(t *testing.T, cfg *kitModuleDbSqlTypes.Configuration) *imp
 	}
 	t.Cleanup(func() { _ = mys.Close() })
 
-	return mys
+	return
 }
 
 type testModelGorm struct{}
@@ -165,208 +176,311 @@ func (testModelGorm) BeforeCreate(*gorm.DB) error { return nil }
 func (testModelGorm) BeforeUpdate(*gorm.DB) error { return nil }
 
 func TestGetFree(t *testing.T) {
+	const (
+		errInvalidSingleton = "Get() вернул некорректный singleton."
+		errDifferentObjects = "Get() вернул разные объекты."
+		errFreeNotReset     = "Free() не сбросил singleton."
+	)
+	var first Interface
+
 	singleton = nil
 	t.Cleanup(func() { singleton = nil })
-
-	first := Get()
+	first = Get()
 	if first == nil || first != singleton {
-		t.Fatal("Get() вернул некорректный singleton")
+		t.Fatal(errInvalidSingleton)
 	}
 	if Get() != first {
-		t.Fatal("Get() вернул разные объекты")
+		t.Fatal(errDifferentObjects)
 	}
 	Free()
 	if singleton != nil {
-		t.Fatal("Free() не сбросил singleton")
+		t.Fatal(errFreeNotReset)
 	}
 }
 
 func TestImpl_ConnectionLifecycle(t *testing.T) {
-	mys := startTestImpl(t, testConfig(testDriverName))
+	const (
+		tplFatalStart      = "startTestImpl() error = %v."
+		errSqlDBNil        = "SqlDB() вернул nil."
+		errStatusNil       = "Status() вернул nil."
+		errSqlxDBNil       = "SqlxDB() вернул nil."
+		tplFatalE          = "E() вернул ошибку: %v."
+		tplFatalClose      = "Close() вернул ошибку: %v."
+		errConnectNotFreed = "Close() не освободил connect."
+		tplFatalCloseAgain = "повторный Close() вернул ошибку: %v."
+		errConnNotRestored = "conn() не восстановил соединение."
+	)
+	var mys *impl
+
+	mys = startTestImpl(t, testConfig(testDriverName))
 	if mys.err() != nil {
-		t.Fatalf("startTestImpl() error = %v", mys.err())
+		t.Fatalf(tplFatalStart, mys.err())
 	}
 	if mys.SqlDB() == nil {
-		t.Fatal("SqlDB() вернул nil")
+		t.Fatal(errSqlDBNil)
 	}
 	if mys.Status() == nil {
-		t.Fatal("Status() вернул nil")
+		t.Fatal(errStatusNil)
 	}
 	if mys.SqlxDB() == nil {
-		t.Fatal("SqlxDB() вернул nil")
+		t.Fatal(errSqlxDBNil)
 	}
 	if err := mys.E(); err != nil {
-		t.Fatalf("E() вернул ошибку: %v", err)
+		t.Fatalf(tplFatalE, err)
 	}
 	if err := mys.Close(); err != nil {
-		t.Fatalf("Close() вернул ошибку: %v", err)
+		t.Fatalf(tplFatalClose, err)
 	}
 	if mys.connect != nil {
-		t.Fatal("Close() не освободил connect")
+		t.Fatal(errConnectNotFreed)
 	}
 	if err := mys.Close(); err != nil {
-		t.Fatalf("повторный Close() вернул ошибку: %v", err)
+		t.Fatalf(tplFatalCloseAgain, err)
 	}
 	if mys.conn() == nil {
-		t.Fatal("conn() не восстановил соединение")
+		t.Fatal(errConnNotRestored)
 	}
 }
 
 func TestImpl_ConnErrorBranches(t *testing.T) {
-	bad := &impl{cfg: testConfig("unknown-driver"), connectMux: new(sync.RWMutex)}
+	const (
+		errConnNotNil   = "conn() с неверным драйвером вернул не nil."
+		errErrNil       = "err() с неверным драйвером вернул nil."
+		errENil         = "E() с неверным драйвером вернул nil."
+		errStatusNotNil = "Status() с неверным драйвером вернул не nil."
+		errSqlDBNotNil  = "SqlDB() с ошибкой вернул не nil."
+		errSqlxDBNotNil = "SqlxDB() с ошибкой вернул не nil."
+	)
+	var bad *impl
+
+	bad = &impl{cfg: testConfig("unknown-driver"), connectMux: new(sync.RWMutex)}
 	if bad.conn() != nil {
-		t.Fatal("conn() с неверным драйвером вернул не nil")
+		t.Fatal(errConnNotNil)
 	}
 	if bad.err() == nil {
-		t.Fatal("err() с неверным драйвером вернул nil")
+		t.Fatal(errErrNil)
 	}
 	if err := bad.E(); err == nil {
-		t.Fatal("E() с неверным драйвером вернул nil")
+		t.Fatal(errENil)
 	}
 	if bad.Status() != nil {
-		t.Fatal("Status() с неверным драйвером вернул не nil")
+		t.Fatal(errStatusNotNil)
 	}
 	if bad.SqlDB() != nil {
-		t.Fatal("SqlDB() с ошибкой вернул не nil")
+		t.Fatal(errSqlDBNotNil)
 	}
 	if bad.SqlxDB() != nil {
-		t.Fatal("SqlxDB() с ошибкой вернул не nil")
+		t.Fatal(errSqlxDBNotNil)
 	}
 }
 
 func TestImpl_E_PingError(t *testing.T) {
-	testDriverPingErr = errors.New("ping error")
+	const (
+		errTextPingError = "ping error"
+		tplFatalEPing    = "E() с ping error вернул %v."
+	)
+	var mys *impl
+
+	testDriverPingErr = errors.New(errTextPingError)
 	t.Cleanup(func() { testDriverPingErr = nil })
-	mys := startTestImpl(t, testConfig(testDriverName))
-	if err := mys.E(); err == nil || !strings.Contains(err.Error(), "ping error") {
-		t.Fatalf("E() с ping error вернул %v", err)
+	mys = startTestImpl(t, testConfig(testDriverName))
+	if err := mys.E(); err == nil || !strings.Contains(err.Error(), errTextPingError) {
+		t.Fatalf(tplFatalEPing, err)
 	}
 }
 
 func TestImpl_GormDB(t *testing.T) {
-	cfg := testConfig(driverMySQL)
-	cfg.DisableAutomaticPing = true
-	mys := newGormReadyImpl(t, cfg)
-	gormDB := mys.GormDB()
-	if gormDB == nil || mys.err() != nil {
-		t.Fatalf("GormDB(MySQL) = %v, err=%v", gormDB, mys.err())
-	}
+	const (
+		errTextPreviousError = "previous error"
+		tplFatalGormMySQL    = "GormDB(MySQL) = %v, err=%v."
+		tplFatalGormPgSQL    = "GormDB(PostgreSQL) = %v, err=%v."
+		tplFatalGormUnknown  = "GormDB(unknown implemented driver) = %v, err=%v."
+		errGormNotNil        = "GormDB() с предыдущей ошибкой вернул не nil."
+	)
+	var (
+		cfg    *kitModuleDbSqlTypes.Configuration
+		mys    *impl
+		gormDB *gorm.DB
+	)
 
+	cfg = testConfig(driverMySQL)
+	cfg.DisableAutomaticPing = true
+	mys = newGormReadyImpl(t, cfg)
+	gormDB = mys.GormDB()
+	if gormDB == nil || mys.err() != nil {
+		t.Fatalf(tplFatalGormMySQL, gormDB, mys.err())
+	}
 	cfg = testConfig(driverPostgreSQL)
 	cfg.DisableAutomaticPing = true
 	mys = newGormReadyImpl(t, cfg)
 	gormDB = mys.GormDB()
 	if gormDB == nil || mys.err() != nil {
-		t.Fatalf("GormDB(PostgreSQL) = %v, err=%v", gormDB, mys.err())
+		t.Fatalf(tplFatalGormPgSQL, gormDB, mys.err())
 	}
-
 	mys = newGormReadyImpl(t, testConfig(testDriverName))
 	if gormDB = mys.GormDB(); gormDB != nil || mys.err() == nil {
-		t.Fatalf("GormDB(unknown implemented driver) = %v, err=%v", gormDB, mys.err())
+		t.Fatalf(tplFatalGormUnknown, gormDB, mys.err())
 	}
-
 	mys = newGormReadyImpl(t, cfg)
-	mys.error = errors.New("previous error")
+	mys.error = errors.New(errTextPreviousError)
 	if gormDB = mys.GormDB(); gormDB != nil {
-		t.Fatal("GormDB() с предыдущей ошибкой вернул не nil")
+		t.Fatal(errGormNotNil)
 	}
 }
 
 func TestImpl_GormDB_PingError(t *testing.T) {
-	testDriverPingErr = errors.New("gorm ping error")
+	const (
+		errTextGormPingError = "gorm ping error"
+		tplFatalGormPing     = "GormDB() с ping error = %v, err=%v."
+	)
+	var (
+		cfg    *kitModuleDbSqlTypes.Configuration
+		mys    *impl
+		gormDB *gorm.DB
+	)
+
+	testDriverPingErr = errors.New(errTextGormPingError)
 	t.Cleanup(func() { testDriverPingErr = nil })
-	cfg := testConfig(driverMySQL)
-	mys := newGormReadyImpl(t, cfg)
-	gormDB := mys.GormDB()
-	if mys.err() == nil || !strings.Contains(mys.err().Error(), "gorm ping error") {
-		t.Fatalf("GormDB() с ping error = %v, err=%v", gormDB, mys.err())
+	cfg = testConfig(driverMySQL)
+	mys = newGormReadyImpl(t, cfg)
+	gormDB = mys.GormDB()
+	if mys.err() == nil || !strings.Contains(mys.err().Error(), errTextGormPingError) {
+		t.Fatalf(tplFatalGormPing, gormDB, mys.err())
 	}
 }
 
 func TestImplementation(t *testing.T) {
-	var implementation Implementation
-	mysqlCfg := testConfig(driverMySQL)
+	const (
+		errGistNil       = "Gist() вернул nil."
+		errSqlxNil       = "Sqlx() вернул nil."
+		tplFatalGormTest = "Gorm() для тестового драйвера вернул %v."
+		errGormMySQLNil  = "Gorm(MySQL) вернул nil."
+		errGlobalNotSet  = "getParent() не установил глобальный объект."
+	)
+	var (
+		implementation Implementation
+		mysqlCfg       *kitModuleDbSqlTypes.Configuration
+		gormDB         *gorm.DB
+		empty          Implementation
+	)
+
+	mysqlCfg = testConfig(driverMySQL)
 	mysqlCfg.DisableAutomaticPing = true
 	implementation.NewConfigurationSet(testConfig(testDriverName))
 	if implementation.Gist() == nil {
-		t.Fatal("Gist() вернул nil")
+		t.Fatal(errGistNil)
 	}
 	if implementation.Sqlx() == nil {
-		t.Fatal("Sqlx() вернул nil")
+		t.Fatal(errSqlxNil)
 	}
-	if gormDB := implementation.Gorm(implementation.OptionSilent()); gormDB != nil {
-		t.Fatalf("Gorm() для тестового драйвера вернул %v", gormDB)
+	if gormDB = implementation.Gorm(implementation.OptionSilent()); gormDB != nil {
+		t.Fatalf(tplFatalGormTest, gormDB)
 	}
-
 	implementation.NewConfigurationSet(mysqlCfg)
-	if gormDB := implementation.Gorm(implementation.OptionSilent()); gormDB == nil {
-		t.Fatal("Gorm(MySQL) вернул nil")
+	if gormDB = implementation.Gorm(implementation.OptionSilent()); gormDB == nil {
+		t.Fatal(errGormMySQLNil)
 	}
-
-	empty := Implementation{}
+	empty = Implementation{}
 	if empty.Gist() == nil {
-		t.Fatal("getParent() не установил глобальный объект")
+		t.Fatal(errGlobalNotSet)
 	}
 	singleton = nil
 }
 
 func TestImpl_NilMuxBranches(t *testing.T) {
-	if err := (&impl{}).Close(); err != nil {
-		t.Fatalf("Close() с nil mux вернул ошибку: %v", err)
+	const (
+		errTextStoredError    = "stored error"
+		errNilMuxClose        = "Close() с nil mux вернул ошибку: %v."
+		errNilMuxConn         = "conn() с nil mux вернул не nil."
+		errNilMuxErr          = "err() с nil mux не вернул сохранённую ошибку."
+		errNilMuxConnectClose = "Close() с nil mux и connect вернул ошибку: %v."
+		tplFatalENilMux       = "E() с nil mux вернул %v."
+		tplFatalGormNilMux    = "GormDB() с nil mux = %v, err=%v."
+		tplFatalSqlxNilMux    = "SqlxDB() с nil mux = %v."
+	)
+	var (
+		mys    *impl
+		gormDB *gorm.DB
+		sqlxDB *sqlx.DB
+		err    error
+	)
+
+	if err = (&impl{}).Close(); err != nil {
+		t.Fatalf(errNilMuxClose, err)
 	}
 	if (&impl{}).conn() != nil {
-		t.Fatal("conn() с nil mux вернул не nil")
+		t.Fatal(errNilMuxConn)
 	}
-	if err := (&impl{error: errors.New("stored error")}).err(); err == nil {
-		t.Fatal("err() с nil mux не вернул сохранённую ошибку")
+	if err = (&impl{error: errors.New(errTextStoredError)}).err(); err == nil {
+		t.Fatal(errNilMuxErr)
 	}
-	if err := (&impl{connect: newTestSQLDB(t)}).Close(); err != nil {
-		t.Fatalf("Close() с nil mux и connect вернул ошибку: %v", err)
-	}
-
-	mys := &impl{cfg: testConfig(testDriverName)}
-	if err := mys.E(); err == nil || !strings.Contains(err.Error(), "database connection is nil") {
-		t.Fatalf("E() с nil mux вернул %v", err)
-	}
-	mys = &impl{cfg: testConfig(driverMySQL)}
-	if gormDB := mys.GormDB(); gormDB != nil || mys.err() == nil {
-		t.Fatalf("GormDB() с nil mux = %v, err=%v", gormDB, mys.err())
+	if err = (&impl{connect: newTestSQLDB(t)}).Close(); err != nil {
+		t.Fatalf(errNilMuxConnectClose, err)
 	}
 	mys = &impl{cfg: testConfig(testDriverName)}
-	if sqlxDB := mys.SqlxDB(); sqlxDB != nil {
-		t.Fatalf("SqlxDB() с nil mux = %v", sqlxDB)
+	if err = mys.E(); err == nil || !strings.Contains(err.Error(), "database connection is nil") {
+		t.Fatalf(tplFatalENilMux, err)
+	}
+	mys = &impl{cfg: testConfig(driverMySQL)}
+	if gormDB = mys.GormDB(); gormDB != nil || mys.err() == nil {
+		t.Fatalf(tplFatalGormNilMux, gormDB, mys.err())
+	}
+	mys = &impl{cfg: testConfig(testDriverName)}
+	if sqlxDB = mys.SqlxDB(); sqlxDB != nil {
+		t.Fatalf(tplFatalSqlxNilMux, sqlxDB)
 	}
 }
 
 func TestImpl_MakeConnectOpenError(t *testing.T) {
-	oldSupportDrivers := supportDrivers
-	supportDrivers = append(append([]string{}, supportDrivers...), "not_registered_driver")
-	t.Cleanup(func() { supportDrivers = oldSupportDrivers })
+	const (
+		errTextNotRegisteredDriver = "not_registered_driver"
+		tplFatalMakeConnect        = "makeConnect() с незарегистрированным драйвером err=%v."
+	)
+	var (
+		oldSupportDrivers []string
+		mys               *impl
+	)
 
-	mys := startTestImpl(t, testConfig("not_registered_driver"))
+	oldSupportDrivers = supportDrivers
+	supportDrivers = append(append([]string{}, supportDrivers...), errTextNotRegisteredDriver)
+	t.Cleanup(func() { supportDrivers = oldSupportDrivers })
+	mys = startTestImpl(t, testConfig(errTextNotRegisteredDriver))
 	if mys.err() == nil || !strings.Contains(mys.err().Error(), "Подключение") {
-		t.Fatalf("makeConnect() с незарегистрированным драйвером err=%v", mys.err())
+		t.Fatalf(tplFatalMakeConnect, mys.err())
 	}
 }
 
 func TestImpl_InfoDebug(t *testing.T) {
-	oldDebug := kitModuleCfg.Get().Debug()
+	const (
+		tplDebugMessage = "debug message %s"
+		testMessage     = "ok"
+	)
+	var (
+		oldDebug bool
+		mys      *impl
+	)
+
+	oldDebug = kitModuleCfg.Get().Debug()
 	kitModuleCfg.Get().Gist().Debug(!oldDebug)
 	t.Cleanup(func() { kitModuleCfg.Get().Gist().Debug(oldDebug) })
-
-	mys := &impl{}
-	mys.info("debug message %s", "ok")
+	mys = &impl{}
+	mys.info(tplDebugMessage, testMessage)
 }
 
 func writeTestMigration(t *testing.T, dir string) {
+	const (
+		tplFatalWriteFile = "os.WriteFile() вернул ошибку: %v."
+	)
+	var content []byte
+
 	t.Helper()
-	content := []byte(`-- +goose Up
+	content = []byte(`-- +goose Up
 CREATE TABLE test_table (id INTEGER);
 
 -- +goose Down
 DROP TABLE test_table;
 `)
 	if err := os.WriteFile(filepath.Join(dir, "00001_test.sql"), content, 0644); err != nil {
-		t.Fatalf("os.WriteFile() вернул ошибку: %v", err)
+		t.Fatalf(tplFatalWriteFile, err)
 	}
 }

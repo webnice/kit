@@ -27,15 +27,22 @@ type testBase64FieldDecoderToString struct {
 }
 
 func (bfds *testBase64FieldDecoderToString) Base64FieldDecoder(rq *http.Request) (ret string) {
-	s := struct {
-		ID int `json:"id"`
-		Dt int `json:"data"`
-	}{}
-	if tmp := rq.URL.Query().Get("id"); tmp != "" {
-		buf, _ := base64.StdEncoding.DecodeString(tmp)
+	const queryParamID = "id"
+	var (
+		s struct {
+			ID int `json:"id"`
+			Dt int `json:"data"`
+		}
+		tmp string
+		buf []byte
+	)
+
+	if tmp = rq.URL.Query().Get(queryParamID); tmp != "" {
+		buf, _ = base64.StdEncoding.DecodeString(tmp)
 		_ = json.Unmarshal(buf, &s)
 		ret = strconv.FormatInt(int64(s.ID*s.Dt), 10)
 	}
+
 	return
 }
 
@@ -45,10 +52,17 @@ type testBase64FieldDecoderToObject struct {
 }
 
 func (bfdo *testBase64FieldDecoderToObject) ExtractRunes(rq *http.Request) (ret string) {
-	if tmp := rq.URL.Query().Get("id"); tmp != "" {
-		buf, _ := base64.StdEncoding.DecodeString(tmp)
+	const queryParamID = "id"
+	var (
+		tmp string
+		buf []byte
+	)
+
+	if tmp = rq.URL.Query().Get(queryParamID); tmp != "" {
+		buf, _ = base64.StdEncoding.DecodeString(tmp)
 		ret = strings.TrimSpace(string(buf))
 	}
+
 	return
 }
 
@@ -60,19 +74,27 @@ type testSessionUser struct {
 }
 
 func TestGet(t *testing.T) {
+	const (
+		errSingletonNil = "Неверное начальное значение singleton."
+		errGetWrong     = "Ошибка в функции Get()."
+	)
 	var rqv Interface
 
 	singleton = nil
 	rqv = Get()
 	if singleton == nil {
-		t.Errorf("Неверное начальное значение singleton")
+		t.Errorf(errSingletonNil)
 	}
 	if rqv.(*impl) != singleton {
-		t.Errorf("Ошибка в функции Get()")
+		t.Errorf(errGetWrong)
 	}
 }
 
 func TestImpl_Load_NotAddressable(t *testing.T) {
+	const (
+		errNoError = "Выполнение функции Load() завершилось без ошибки, ожидалась ошибка."
+	)
+	// Не адресуемый тип для передачи копии объекта.
 	type NotAddressable struct{ ID uint64 }
 	var (
 		err       error
@@ -103,18 +125,18 @@ func TestImpl_Load_NotAddressable(t *testing.T) {
 	}
 	// Ожидается ошибка: "передана копия объекта, требуется ссылка на объект".
 	if testErr == nil {
-		t.Errorf("Выполнение функции Load() завершилось без ошибки, ожидалась ошибка")
+		t.Errorf(errNoError)
+
 		return
 	}
 }
 
 func TestImpl_Load(t *testing.T) {
-	var (
-		err    error
-		server *httptest.Server
+	const (
+		errTestFailed = "Тест %q провален."
 	)
-
-	tests := map[string]struct {
+	// Описание одного теста загрузки данных.
+	type testItem struct {
 		err               error             // Ошибка загрузчика.
 		route             *chi.Mux          // Роутер ВЕБ сервера.
 		variable          any               // Объект загружаемой структуры.
@@ -130,7 +152,18 @@ func TestImpl_Load(t *testing.T) {
 		response          *http.Response    // Объект ответа.
 		responseData      []byte            // Тело ответа.
 		responseExpected  string            // Ожидаемое тело ответа.
-	}{
+	}
+	var (
+		err    error
+		server *httptest.Server
+		tests  map[string]testItem
+		key    string
+		test   testItem
+		k      string
+		n      int
+	)
+
+	tests = map[string]testItem{
 		"Тест 01": {
 			err:   nil,
 			route: chi.NewMux(),
@@ -239,10 +272,14 @@ func TestImpl_Load(t *testing.T) {
 			variable:      new(testBase64FieldDecoderToString),
 			urn:           "/",
 			serverUriPath: "/",
-			serverUriRawQuery: func() string {
-				v := url.Values{}
+			serverUriRawQuery: func() (ret string) {
+				var v url.Values
+
+				v = url.Values{}
 				v.Set("id", "eyJpZCI6LTMxOCwiZGF0YSI6MTh9")
-				return v.Encode()
+				ret = v.Encode()
+
+				return
 			}(),
 			requestMethod:    dic.Method().Get.String(),
 			requestHeaders:   map[string]string{},
@@ -259,10 +296,14 @@ func TestImpl_Load(t *testing.T) {
 			variable:      new(testBase64FieldDecoderToObject),
 			urn:           "/",
 			serverUriPath: "/",
-			serverUriRawQuery: func() string {
-				v := url.Values{}
+			serverUriRawQuery: func() (ret string) {
+				var v url.Values
+
+				v = url.Values{}
 				v.Set("id", "5a2m5L+E6K+t77yB")
-				return v.Encode()
+				ret = v.Encode()
+
+				return
 			}(),
 			requestMethod:    dic.Method().Get.String(),
 			requestHeaders:   map[string]string{},
@@ -293,7 +334,8 @@ func TestImpl_Load(t *testing.T) {
 						next.ServeHTTP(wr, rq)
 					})
 				})
-				return ret
+
+				return
 			}(),
 			variable: &struct {
 				ContextString string           `context:"Context-String-Value,myStringValue,context_string_value,,"`
@@ -315,9 +357,10 @@ func TestImpl_Load(t *testing.T) {
 				`:"login/password","ExpiresDuration":3600000000000,"ExpiresAt":"2024-08-12T01:37:00Z"},"ProjectID":819}`,
 		},
 	}
-	for key := range tests {
+
+	for key = range tests {
 		// Подготовка теста.
-		test := tests[key]
+		test = tests[key]
 		test.urnHandleFunc = func() http.HandlerFunc {
 			return func(wr http.ResponseWriter, rq *http.Request) {
 				test.err = Get().Load(rq, test.variable)
@@ -334,10 +377,10 @@ func TestImpl_Load(t *testing.T) {
 		if test.request, err = http.NewRequest(test.requestMethod, test.serverUri.String(), nil); err != nil {
 			log.Fatal(err)
 		}
-		for k := range test.requestHeaders {
+		for k = range test.requestHeaders {
 			test.request.Header.Set(k, test.requestHeaders[k])
 		}
-		for n := range test.requestCookie {
+		for n = range test.requestCookie {
 			test.request.AddCookie(test.requestCookie[n])
 		}
 		// Выполнение запроса к тестовому серверу.
@@ -353,7 +396,7 @@ func TestImpl_Load(t *testing.T) {
 		if test.responseExpected != string(test.responseData) {
 			t.Log(test.responseExpected)
 			t.Log(string(test.responseData))
-			t.Fatalf("Тест %q провален.", key)
+			t.Fatalf(errTestFailed, key)
 		}
 	}
 }
@@ -367,16 +410,22 @@ func (tcfp *testCallFuncPriority) LoadValue(rq *http.Request) string {
 }
 
 func TestImpl_Load_CallFuncPriority(t *testing.T) {
-	var (
-		request = httptest.NewRequest(dic.Method().Get.String(), "/", nil)
-		obj     = new(testCallFuncPriority)
+	const (
+		tplFatalLoad     = "Load() вернул ошибку: %v."
+		tplPriorityWrong = "call-func перезаписал более приоритетный тег: %q."
 	)
-	request.Header.Set("X-Value", "from-header")
+	var (
+		request *http.Request
+		obj     *testCallFuncPriority
+	)
 
+	request = httptest.NewRequest(dic.Method().Get.String(), "/", nil)
+	obj = new(testCallFuncPriority)
+	request.Header.Set("X-Value", "from-header")
 	if err := Get().Load(request, obj); err != nil {
-		t.Fatalf("Load() вернул ошибку: %v", err)
+		t.Fatalf(tplFatalLoad, err)
 	}
 	if obj.Value != "from-header" {
-		t.Fatalf("call-func перезаписал более приоритетный тег: %q", obj.Value)
+		t.Fatalf(tplPriorityWrong, obj.Value)
 	}
 }

@@ -4,6 +4,7 @@ import (
 	"archive/zip"
 	"bytes"
 	"errors"
+	"io"
 	"strings"
 	"testing"
 )
@@ -15,26 +16,37 @@ type testZipEntry struct {
 }
 
 func makeZip(t *testing.T, entries []testZipEntry) []byte {
+	const (
+		tplFatalCreate = "zw.Create(%q) вернул ошибку: %v."
+		tplFatalWrite  = "w.Write(%q) вернул ошибку: %v."
+		tplFatalClose  = "zw.Close() вернул ошибку: %v."
+	)
+	var (
+		buf   bytes.Buffer
+		zw    *zip.Writer
+		w     io.Writer
+		entry testZipEntry
+		err   error
+	)
+
 	t.Helper()
-	var buf bytes.Buffer
-	zw := zip.NewWriter(&buf)
-	for _, entry := range entries {
+	zw = zip.NewWriter(&buf)
+	for _, entry = range entries {
 		if entry.Dir {
-			if _, err := zw.Create(entry.Name); err != nil {
-				t.Fatalf("zw.Create(%q) вернул ошибку: %v", entry.Name, err)
+			if _, err = zw.Create(entry.Name); err != nil {
+				t.Fatalf(tplFatalCreate, entry.Name, err)
 			}
 			continue
 		}
-		w, err := zw.Create(entry.Name)
-		if err != nil {
-			t.Fatalf("zw.Create(%q) вернул ошибку: %v", entry.Name, err)
+		if w, err = zw.Create(entry.Name); err != nil {
+			t.Fatalf(tplFatalCreate, entry.Name, err)
 		}
 		if _, err = w.Write([]byte(entry.Content)); err != nil {
-			t.Fatalf("w.Write(%q) вернул ошибку: %v", entry.Name, err)
+			t.Fatalf(tplFatalWrite, entry.Name, err)
 		}
 	}
-	if err := zw.Close(); err != nil {
-		t.Fatalf("zw.Close() вернул ошибку: %v", err)
+	if err = zw.Close(); err != nil {
+		t.Fatalf(tplFatalClose, err)
 	}
 
 	return buf.Bytes()
@@ -45,19 +57,50 @@ type testErrorReader struct{ err error }
 func (ter *testErrorReader) Read([]byte) (int, error) { return 0, ter.err }
 
 func TestParseZipErrors(t *testing.T) {
-	emt := New()
-	if _, err := emt.ParseZip(&testErrorReader{err: errors.New("read error")}); err == nil ||
+	const (
+		errTextReadError   = "read error"
+		tplParseZipReadErr = "ParseZip(read error) = %v."
+		tplParseZipNotZip  = "ParseZip(not zip) = %v."
+	)
+	var (
+		emt Interface
+		err error
+	)
+
+	emt = New()
+	if _, err = emt.ParseZip(&testErrorReader{err: errors.New(errTextReadError)}); err == nil ||
 		!strings.Contains(err.Error(), "загрузка файла") {
-		t.Fatalf("ParseZip(read error) = %v", err)
+		t.Fatalf(tplParseZipReadErr, err)
 	}
-	if _, err := emt.ParseZip(bytes.NewReader([]byte("not a zip"))); err == nil ||
+	if _, err = emt.ParseZip(bytes.NewReader([]byte("not a zip"))); err == nil ||
 		!strings.Contains(err.Error(), "открытие ZIP") {
-		t.Fatalf("ParseZip(not zip) = %v", err)
+		t.Fatalf(tplParseZipNotZip, err)
 	}
 }
 
 func TestParseZipSuccessAndDecomposition(t *testing.T) {
-	data := makeZip(t, []testZipEntry{
+	const (
+		tplFatalParseZip       = "ParseZip() вернул ошибку: %v."
+		tplBodyMismatch        = "ParseZip() Body = %#v."
+		tplTagsMismatch        = "ParseZip() Tags = %#v."
+		tplEmbeddedMismatch    = "ParseZip() Embedded = %#v."
+		tplDataUriValue        = "data-uri ValueGet() = %q."
+		tplEmbeddedNotFound    = "ParseZip() не извлёк ожидаемые вложения: %#v."
+		tplBodyImgUriMismatch  = "ParseZip() BodyImgUri = %#v."
+		tplAttachMismatch      = "ParseZip() Attach = %#v."
+		tplMacOSXNotSkipped    = "ParseZip() не пропустил __MACOSX: %#v."
+		tplContentTypeFallback = "ContentType fallback для unknownext = %q."
+	)
+	var (
+		data      []byte
+		tpl       *Template
+		foundLogo bool
+		foundData bool
+		n         int
+		err       error
+	)
+
+	data = makeZip(t, []testZipEntry{
 		{Name: "emptydir/", Dir: true},
 		{Name: "index.html", Content: `<html><body><img src="images/logo.png"><img src="https://example.com/a.png"><img src="data:image/png;base64,QUJD"></body></html>`},
 		{Name: "images/logo.png", Content: "fake-png"},
@@ -67,56 +110,63 @@ func TestParseZipSuccessAndDecomposition(t *testing.T) {
 		{Name: "__MACOSX/ignore.txt", Content: "macos"},
 		{Name: "index.json", Content: `[{"key":"One","value":"1"}]`},
 	})
-	tpl, err := New().ParseZip(bytes.NewReader(data))
+	tpl, err = New().ParseZip(bytes.NewReader(data))
 	if err != nil {
-		t.Fatalf("ParseZip() вернул ошибку: %v", err)
+		t.Fatalf(tplFatalParseZip, err)
 	}
 	if len(tpl.Body) != 1 || !strings.HasPrefix(tpl.Body[0].Type, "text/html") {
-		t.Fatalf("ParseZip() Body = %#v", tpl.Body)
+		t.Fatalf(tplBodyMismatch, tpl.Body)
 	}
 	if len(tpl.Tags) != 1 || tpl.Tags[0].Key != "One" || tpl.Tags[0].Value != "1" {
-		t.Fatalf("ParseZip() Tags = %#v", tpl.Tags)
+		t.Fatalf(tplTagsMismatch, tpl.Tags)
 	}
 	if len(tpl.Embedded) != 2 {
-		t.Fatalf("ParseZip() Embedded = %#v", tpl.Embedded)
+		t.Fatalf(tplEmbeddedMismatch, tpl.Embedded)
 	}
-	var foundLogo, foundData bool
-	for n := range tpl.Embedded {
+	for n = range tpl.Embedded {
 		switch {
 		case tpl.Embedded[n].Name == "images/logo.png":
 			foundLogo = true
 		case strings.HasPrefix(tpl.Embedded[n].Name, "data:image/png;base64,"):
 			foundData = true
 			if string(tpl.Embedded[n].ValueGet()) != "ABC" {
-				t.Fatalf("data-uri ValueGet() = %q", tpl.Embedded[n].ValueGet())
+				t.Fatalf(tplDataUriValue, tpl.Embedded[n].ValueGet())
 			}
 		}
 	}
 	if !foundLogo || !foundData {
-		t.Fatalf("ParseZip() не извлёк ожидаемые вложения: %#v", tpl.Embedded)
+		t.Fatalf(tplEmbeddedNotFound, tpl.Embedded)
 	}
 	if len(tpl.BodyImgUri) != 1 || tpl.BodyImgUri[0].String() != "https://example.com/a.png" {
-		t.Fatalf("ParseZip() BodyImgUri = %#v", tpl.BodyImgUri)
+		t.Fatalf(tplBodyImgUriMismatch, tpl.BodyImgUri)
 	}
 	if len(tpl.Attach) != 3 {
-		t.Fatalf("ParseZip() Attach = %#v", tpl.Attach)
+		t.Fatalf(tplAttachMismatch, tpl.Attach)
 	}
-	for n := range tpl.Attach {
+	for n = range tpl.Attach {
 		if strings.Contains(tpl.Attach[n].Name, "__MACOSX") {
-			t.Fatalf("ParseZip() не пропустил __MACOSX: %#v", tpl.Attach[n])
+			t.Fatalf(tplMacOSXNotSkipped, tpl.Attach[n])
 		}
 		if tpl.Attach[n].Name == "file.unknownext" && tpl.Attach[n].Type != "application/octet-stream" {
-			t.Fatalf("ContentType fallback для unknownext = %q", tpl.Attach[n].Type)
+			t.Fatalf(tplContentTypeFallback, tpl.Attach[n].Type)
 		}
 	}
 }
 
 func TestParseZipInvalidTags(t *testing.T) {
-	data := makeZip(t, []testZipEntry{
+	const (
+		tplParseZipInvalidTags = "ParseZip(invalid tags) = %v."
+	)
+	var (
+		data []byte
+		err  error
+	)
+
+	data = makeZip(t, []testZipEntry{
 		{Name: "index.json", Content: `{"broken":`},
 	})
-	if _, err := New().ParseZip(bytes.NewReader(data)); err == nil ||
+	if _, err = New().ParseZip(bytes.NewReader(data)); err == nil ||
 		!strings.Contains(err.Error(), "index.json") {
-		t.Fatalf("ParseZip(invalid tags) = %v", err)
+		t.Fatalf(tplParseZipInvalidTags, err)
 	}
 }

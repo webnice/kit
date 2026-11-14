@@ -218,12 +218,13 @@ func (tbt *impl) initializationDeleteWebhook() (err error) {
 
 // Создание URI адреса получения вебхук от сервера телеграм.
 func (tbt *impl) initializationTokenSha256() (ret *url.URL, err error) {
+	const tplWebhookURI = "%s/%x"
 	var sum hash.Hash
 
 	sum = sha256.New()
 	sum.Write([]byte(tbt.botCfg.Token))
 	if ret, err = url.
-		Parse(fmt.Sprintf("%s/%x", tbt.botCfg.Webhook, sum.Sum(nil))); err != nil {
+		Parse(fmt.Sprintf(tplWebhookURI, tbt.botCfg.Webhook, sum.Sum(nil))); err != nil {
 		return
 	}
 

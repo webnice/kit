@@ -19,11 +19,15 @@ import (
 // newChiRequest Формирование тестового запроса с параметрами маршрута chi.
 func newChiRequest(params map[string]string) *http.Request {
 	var (
-		req  = httptest.NewRequest(http.MethodGet, "/", nil)
-		rctx = chi.NewRouteContext()
+		req  *http.Request
+		rctx *chi.Context
+		key  string
 	)
-	for key, value := range params {
-		rctx.URLParams.Add(key, value)
+
+	req = httptest.NewRequest(http.MethodGet, "/", nil)
+	rctx = chi.NewRouteContext()
+	for key = range params {
+		rctx.URLParams.Add(key, params[key])
 	}
 
 	return req.WithContext(context.WithValue(req.Context(), chi.RouteCtxKey, rctx))
@@ -31,54 +35,69 @@ func newChiRequest(params map[string]string) *http.Request {
 
 // TestImpl_RqIdsAndRqId Идентификаторы из параметров маршрута.
 func TestImpl_RqIdsAndRqId(t *testing.T) {
-	var ans = New(nil)
+	const (
+		tplRqIdsError       = "RqIds() вернул ошибку: %v."
+		tplRqIdsUnexpected  = "RqIds() = %v, ожидалось [1 2 3]."
+		errRqIdsNilError    = "RqIds() с невалидным значением вернул nil ошибку."
+		tplRqIdsWrongAnswer = "RqIds() сформировал неверный ответ: code=%d body=%s."
+		tplRqIdUnexpected   = "RqId() = %d, %v."
+		tplRqIdEmpty        = "RqId() для пустого параметра = %d, %v."
+		tplRqIdWrongValue   = "RqId() с невалидным значением вернул ошибку %v и код %d."
+	)
+	var (
+		ans      Interface
+		ids      []uint64
+		id       uint64
+		recorder *httptest.ResponseRecorder
+		err      error
+	)
 
-	ids, err := ans.RqIds(httptest.NewRecorder(), newChiRequest(map[string]string{"ids": "1, 2,, 3"}), "ids")
+	ans = New(nil)
+	ids, err = ans.RqIds(httptest.NewRecorder(), newChiRequest(map[string]string{"ids": "1, 2,, 3"}), "ids")
 	if err != nil {
-		t.Fatalf("RqIds() вернул ошибку: %v", err)
+		t.Fatalf(tplRqIdsError, err)
 	}
 	if len(ids) != 3 || ids[0] != 1 || ids[1] != 2 || ids[2] != 3 {
-		t.Fatalf("RqIds() = %v, ожидалось [1 2 3]", ids)
+		t.Fatalf(tplRqIdsUnexpected, ids)
 	}
-
-	var recorder = httptest.NewRecorder()
+	recorder = httptest.NewRecorder()
 	_, err = ans.RqIds(recorder, newChiRequest(map[string]string{"ids": "1,x"}), "ids")
 	if err == nil {
-		t.Fatal("RqIds() с невалидным значением вернул nil ошибку")
+		t.Fatal(errRqIdsNilError)
 	}
 	if recorder.Code != http.StatusBadRequest || !strings.Contains(recorder.Body.String(), `"field":"ids"`) {
-		t.Fatalf("RqIds() сформировал неверный ответ: code=%d body=%s", recorder.Code, recorder.Body.String())
+		t.Fatalf(tplRqIdsWrongAnswer, recorder.Code, recorder.Body.String())
 	}
-
-	id, err := ans.RqId(httptest.NewRecorder(), newChiRequest(map[string]string{"id": "42"}), "id")
+	id, err = ans.RqId(httptest.NewRecorder(), newChiRequest(map[string]string{"id": "42"}), "id")
 	if err != nil || id != 42 {
-		t.Fatalf("RqId() = %d, %v", id, err)
+		t.Fatalf(tplRqIdUnexpected, id, err)
 	}
 	id, err = ans.RqId(httptest.NewRecorder(), newChiRequest(map[string]string{}), "id")
 	if err != nil || id != 0 {
-		t.Fatalf("RqId() для пустого параметра = %d, %v", id, err)
+		t.Fatalf(tplRqIdEmpty, id, err)
 	}
 	recorder = httptest.NewRecorder()
 	_, err = ans.RqId(recorder, newChiRequest(map[string]string{"id": "x"}), "id")
 	if err == nil || recorder.Code != http.StatusBadRequest {
-		t.Fatalf("RqId() с невалидным значением вернул ошибку %v и код %d", err, recorder.Code)
+		t.Fatalf(tplRqIdWrongValue, err, recorder.Code)
 	}
 }
 
 // TestImpl_RqVar Загрузчик переменных запроса.
 func TestImpl_RqVar(t *testing.T) {
+	const errRqVarNil = "RqVar() вернул nil."
+
 	if New(nil).RqVar() == nil {
-		t.Fatal("RqVar() вернул nil")
+		t.Fatal(errRqVarNil)
 	}
 }
 
 func TestImpl_RqLoadVerify(t *testing.T) {
-	var (
-		err    error
-		server *httptest.Server
+	const (
+		errTestFailed = "Тест %q провален."
 	)
-
-	tests := map[string]struct {
+	// Описание одного теста загрузки и верификации данных.
+	type testItem struct {
 		err              error             // Ошибка загрузчика.
 		route            *chi.Mux          // Роутер ВЕБ сервера.
 		variable         any               // Объект загружаемой структуры.
@@ -92,12 +111,23 @@ func TestImpl_RqLoadVerify(t *testing.T) {
 		response         *http.Response    // Объект ответа.
 		responseData     []byte            // Тело ответа.
 		responseExpected string            // Ожидаемое тело ответа.
-	}{
+	}
+	var (
+		err    error
+		server *httptest.Server
+		tests  map[string]testItem
+		key    string
+		test   testItem
+		k      string
+	)
+
+	tests = map[string]testItem{
 		"Тест 01": {
 			err: nil,
 			route: func() (ret *chi.Mux) {
 				ret = chi.NewMux()
-				return ret
+
+				return
 			}(),
 			variable: &struct {
 				Uint  uint64 `json:"uint"  validate:"required"`
@@ -118,7 +148,8 @@ func TestImpl_RqLoadVerify(t *testing.T) {
 			err: nil,
 			route: func() (ret *chi.Mux) {
 				ret = chi.NewMux()
-				return ret
+
+				return
 			}(),
 			variable: &struct {
 				Uint  uint64 `json:"uint"  validate:"required"`
@@ -140,7 +171,8 @@ func TestImpl_RqLoadVerify(t *testing.T) {
 			err: nil,
 			route: func() (ret *chi.Mux) {
 				ret = chi.NewMux()
-				return ret
+
+				return
 			}(),
 			variable: &struct {
 				Uint  uint64 `json:"uint"  validate:"required"`
@@ -164,7 +196,8 @@ func TestImpl_RqLoadVerify(t *testing.T) {
 			err: nil,
 			route: func() (ret *chi.Mux) {
 				ret = chi.NewMux()
-				return ret
+
+				return
 			}(),
 			variable: &struct {
 				Uint  uint64 `json:"uint"  validate:"required"`
@@ -191,7 +224,8 @@ func TestImpl_RqLoadVerify(t *testing.T) {
 			err: nil,
 			route: func() (ret *chi.Mux) {
 				ret = chi.NewMux()
-				return ret
+
+				return
 			}(),
 			variable: &struct {
 				Uint  uint64 `json:"uint"  validate:"required"`
@@ -216,7 +250,8 @@ func TestImpl_RqLoadVerify(t *testing.T) {
 			err: nil,
 			route: func() (ret *chi.Mux) {
 				ret = chi.NewMux()
-				return ret
+
+				return
 			}(),
 			variable: &struct {
 				Uint  uint64 `json:"uint"  validate:"required"`
@@ -242,7 +277,8 @@ func TestImpl_RqLoadVerify(t *testing.T) {
 			err: nil,
 			route: func() (ret *chi.Mux) {
 				ret = chi.NewMux()
-				return ret
+
+				return
 			}(),
 			variable: &struct {
 				Uint  uint64 `json:"uint"  validate:"required"`
@@ -267,7 +303,8 @@ func TestImpl_RqLoadVerify(t *testing.T) {
 			err: nil,
 			route: func() (ret *chi.Mux) {
 				ret = chi.NewMux()
-				return ret
+
+				return
 			}(),
 			variable: &struct {
 				Uint  uint64 `json:"uint"  validate:"required"`
@@ -290,7 +327,8 @@ func TestImpl_RqLoadVerify(t *testing.T) {
 			err: nil,
 			route: func() (ret *chi.Mux) {
 				ret = chi.NewMux()
-				return ret
+
+				return
 			}(),
 			variable: &[]struct {
 				ID    uint64 `json:"id"    validate:"required"`
@@ -314,7 +352,8 @@ func TestImpl_RqLoadVerify(t *testing.T) {
 			err: nil,
 			route: func() (ret *chi.Mux) {
 				ret = chi.NewMux()
-				return ret
+
+				return
 			}(),
 			variable: &[]struct {
 				ID    uint64 `json:"id"    validate:"required"`
@@ -334,12 +373,14 @@ func TestImpl_RqLoadVerify(t *testing.T) {
 		},
 	}
 
-	for key := range tests {
+	for key = range tests {
 		// Подготовка теста.
-		test := tests[key]
+		test = tests[key]
 		test.urnHandleFunc = func() http.HandlerFunc {
 			return func(wr http.ResponseWriter, rq *http.Request) {
-				var ans = New(nil)
+				var ans Interface
+
+				ans = New(nil)
 				if err = ans.RqLoadVerify(wr, rq, test.variable); err != nil {
 					return
 				}
@@ -355,7 +396,7 @@ func TestImpl_RqLoadVerify(t *testing.T) {
 		if err != nil {
 			log.Fatal(err)
 		}
-		for k := range test.requestHeaders {
+		for k = range test.requestHeaders {
 			test.request.Header.Set(k, test.requestHeaders[k])
 		}
 		// Выполнение запроса к тестовому серверу.
@@ -371,7 +412,7 @@ func TestImpl_RqLoadVerify(t *testing.T) {
 		if strings.TrimSpace(test.responseExpected) != strings.TrimSpace(string(test.responseData)) {
 			t.Log(test.responseExpected)
 			t.Log(string(test.responseData))
-			t.Fatalf("Tест %q провален.", key)
+			t.Fatalf(errTestFailed, key)
 		}
 	}
 }

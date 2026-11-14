@@ -6,6 +6,11 @@ import (
 )
 
 func Test(t *testing.T) {
+	const (
+		tplFatalCreateTemp = "CreateTemp(): неожиданная ошибка: %v."
+		tplTryLockWrong    = "функция TryLock() вернулa %t или прервана ошибкой: %s."
+		errFhNotNil        = "дескриптор файла должен был быть освобожден и иметь значение nil."
+	)
 	var (
 		err       error
 		tmpFileFh *os.File
@@ -16,7 +21,8 @@ func Test(t *testing.T) {
 	)
 
 	if tmpFileFh, err = os.CreateTemp(os.TempDir(), "lock-"); err != nil {
-		t.Fatal(err.Error())
+		t.Fatalf(tplFatalCreateTemp, err)
+
 		return
 	}
 	_ = tmpFileFh.Close()
@@ -25,17 +31,20 @@ func Test(t *testing.T) {
 	lock = New(tmpFile)
 	locked, err = lock.TryLock()
 	if locked == false || err != nil {
-		t.Fatalf("функция TryLock() вернула %t или прервана ошибкой: %s", locked, err)
+		t.Fatalf(tplTryLockWrong, locked, err)
+
 		return
 	}
 	newLock = New(tmpFile)
 	locked, err = newLock.TryLock()
 	if locked != false || err != nil {
-		t.Fatalf("функция TryLock() вернула %t или прервана ошибкой: %s", locked, err)
+		t.Fatalf(tplTryLockWrong, locked, err)
+
 		return
 	}
 	if newLock.fh != nil {
-		t.Fatal("дескриптор файла должен был быть освобожден и иметь значение nil")
+		t.Fatal(errFhNotNil)
+
 		return
 	}
 }

@@ -4,7 +4,12 @@ import "testing"
 
 // TestFormatErrorMessage Сообщение ошибки формата ICO.
 func TestFormatErrorMessage(t *testing.T) {
-	if got := FormatError("test").Error(); got != "invalid ICO format: test" {
-		t.Fatalf("FormatError.Error() = %q", got)
+	const (
+		tplErrorMismatch = "FormatError.Error() = %q."
+		errExpected      = "invalid ICO format: test"
+	)
+
+	if got := FormatError("test").Error(); got != errExpected {
+		t.Fatalf(tplErrorMismatch, got)
 	}
 }

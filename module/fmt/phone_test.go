@@ -3,12 +3,21 @@ package fmt
 import "testing"
 
 func TestPhoneNumberFormat(t *testing.T) {
-	var result string
-
-	tests := map[string]struct {
+	const (
+		errTestFailed = "Тест %q провален."
+	)
+	// Описание одного теста форматирования номера телефона.
+	type testItem struct {
 		Source   string
 		Expected string
-	}{
+	}
+	var (
+		result string
+		tests  map[string]testItem
+		key    string
+	)
+
+	tests = map[string]testItem{
 		"01": {Source: "", Expected: ""},
 		"02": {Source: "7", Expected: "7"},
 		"03": {Source: "71", Expected: "7-1"},
@@ -31,12 +40,12 @@ func TestPhoneNumberFormat(t *testing.T) {
 		"20": {Source: "7123456789012345678", Expected: "+7123 (456) 789-01-23-45678"},
 		"21": {Source: "71234567890123456789", Expected: "+7123 (456) 789-01-23-456789"},
 	}
-	for key := range tests {
+	for key = range tests {
 		result = PhoneNumberFormat(tests[key].Source)
 		if result != tests[key].Expected {
 			t.Log(tests[key].Expected)
 			t.Log(result)
-			t.Fatalf("Тест %q провален.", key)
+			t.Fatalf(errTestFailed, key)
 		}
 	}
 }

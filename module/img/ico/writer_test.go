@@ -9,14 +9,17 @@ import (
 )
 
 // testImage Создание тестового изображения.
-func testImage(size int) *image.RGBA {
-	var im = image.NewRGBA(image.Rect(0, 0, size, size))
-	for y := 0; y < size; y++ {
-		for x := 0; x < size; x++ {
+func testImage(size int) (im *image.RGBA) {
+	var x, y int
+
+	im = image.NewRGBA(image.Rect(0, 0, size, size))
+	for y = 0; y < size; y++ {
+		for x = 0; x < size; x++ {
 			im.Set(x, y, color.RGBA{R: uint8(100 + x), G: uint8(50 + y), B: 200, A: 255})
 		}
 	}
-	return im
+
+	return
 }
 
 // failWriter Объект io.Writer всегда возвращающий ошибку.
@@ -37,22 +40,32 @@ func (faw *failAfterWriter) Write([]byte) (int, error) {
 	if faw.calls > 1 {
 		return 0, faw.err
 	}
+
 	return 0, nil
 }
 
 // TestEncodeErrors Ошибки кодирования изображения в формат ICO.
 func TestEncodeErrors(t *testing.T) {
+	const (
+		errTextWriteError   = "write error"
+		errEncodeZero       = "Encode(0x0) не вернул ошибку."
+		errEncode257        = "Encode(257x257) не вернул ошибку."
+		tplFatalHeaderWrite = "Encode(header write error) = %v."
+		tplFatalBodyWrite   = "Encode(body write error) = %v."
+	)
+	var expected error
+
 	if err := Encode(&bytes.Buffer{}, image.NewRGBA(image.Rect(0, 0, 0, 0))); err == nil {
-		t.Fatal("Encode(0x0) не вернул ошибку")
+		t.Fatal(errEncodeZero)
 	}
 	if err := Encode(&bytes.Buffer{}, testImage(257)); err == nil {
-		t.Fatal("Encode(257x257) не вернул ошибку")
+		t.Fatal(errEncode257)
 	}
-	expected := errors.New("write error")
+	expected = errors.New(errTextWriteError)
 	if err := Encode(&failWriter{err: expected}, testImage(1)); !errors.Is(err, expected) {
-		t.Fatalf("Encode(header write error) = %v", err)
+		t.Fatalf(tplFatalHeaderWrite, err)
 	}
 	if err := Encode(&failAfterWriter{err: expected}, testImage(1)); !errors.Is(err, expected) {
-		t.Fatalf("Encode(body write error) = %v", err)
+		t.Fatalf(tplFatalBodyWrite, err)
 	}
 }

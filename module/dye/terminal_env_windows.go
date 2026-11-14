@@ -70,10 +70,11 @@ func WindowsAnsiConsoleEnable() (ret uint32, err error) {
 }
 
 // WindowsAnsiConsoleRestore Восстанавливает режим консоли в предыдущее состояние.
-func WindowsAnsiConsoleRestore(mode uint32) error {
-	handle, err := windows.GetStdHandle(windows.STD_OUTPUT_HANDLE)
-	if err != nil {
-		return err
+func WindowsAnsiConsoleRestore(mode uint32) (err error) {
+	var handle windows.Handle
+
+	if handle, err = windows.GetStdHandle(windows.STD_OUTPUT_HANDLE); err != nil {
+		return
 	}
 
 	return windows.SetConsoleMode(handle, mode)

@@ -10,12 +10,21 @@ import (
 
 // TestIsForegroundNotTerminal Проверка ошибки ioctl для дескриптора не являющегося терминалом.
 func TestIsForegroundNotTerminal(t *testing.T) {
-	r, _, err := os.Pipe()
+	const (
+		tplFatalPipe = "Pipe(): неожиданная ошибка: %v."
+		errPipeTrue  = "isForeground(): для пайпа ожидалось false."
+	)
+	var (
+		r   *os.File
+		err error
+	)
+
+	r, _, err = os.Pipe()
 	if err != nil {
-		t.Fatalf("Pipe(): неожиданная ошибка: %v", err)
+		t.Fatalf(tplFatalPipe, err)
 	}
 	defer func() { _ = r.Close() }()
 	if isForeground(int(r.Fd())) {
-		t.Fatal("isForeground(): для пайпа ожидалось false")
+		t.Fatal(errPipeTrue)
 	}
 }

@@ -10,7 +10,10 @@ import (
 //
 //goland:noinspection GoUnusedExportedFunction
 func New() Interface {
-	var fif = new(impl)
+	var fif *impl
+
+	fif = new(impl)
+
 	return fif
 }
 

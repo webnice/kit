@@ -16,7 +16,9 @@ type ConstantEnvironmentName []*ConstantEnvironment
 
 // MustFindByAnchor Поиск по якорю, возвращается либо найденный объект, либо пустой объект.
 func (cen ConstantEnvironmentName) MustFindByAnchor(name string) (ret *ConstantEnvironment) {
-	for n := range cen {
+	var n int
+
+	for n = range cen {
 		if strings.EqualFold(cen[n].Anchor, name) {
 			ret = cen[n]
 			break

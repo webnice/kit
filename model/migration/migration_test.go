@@ -20,7 +20,22 @@ import (
 	"gorm.io/gorm/logger"
 )
 
+// Имя тестового драйвера базы данных.
 const migrationTestDriverName = "migration_test_driver"
+
+// Строка тестовой таблицы версий миграций.
+const migrationTestTableName = "goose_db_version"
+
+// Строки ошибок тестового драйвера базы данных.
+const (
+	errTextTransactionsNotImplemented = "transactions not implemented"
+	errTextExecNotImplemented         = "exec not implemented"
+	errTextNoSuchTable                = "no such table: goose_db_version"
+	errTextGetDbError                 = "get db error"
+)
+
+// Строка-шаблон поиска тестовой таблицы в запросе.
+const migrationTestTablePattern = "`goose_db_version`"
 
 type migrationTestRow struct {
 	id        int64
@@ -59,7 +74,7 @@ func (conn *migrationTestConn) Prepare(query string) (driver.Stmt, error) {
 func (conn *migrationTestConn) Close() error { return nil }
 
 func (conn *migrationTestConn) Begin() (driver.Tx, error) {
-	return nil, errors.New("transactions not implemented")
+	return nil, errors.New(errTextTransactionsNotImplemented)
 }
 
 func (conn *migrationTestConn) QueryContext(_ context.Context, query string, _ []driver.NamedValue) (driver.Rows, error) {
@@ -67,8 +82,13 @@ func (conn *migrationTestConn) QueryContext(_ context.Context, query string, _ [
 }
 
 func (conn *migrationTestConn) Query(query string, args []driver.Value) (driver.Rows, error) {
-	named := make([]driver.NamedValue, len(args))
-	for n := range args {
+	var (
+		named []driver.NamedValue
+		n     int
+	)
+
+	named = make([]driver.NamedValue, len(args))
+	for n = range args {
 		named[n] = driver.NamedValue{Ordinal: n + 1, Value: args[n]}
 	}
 
@@ -85,12 +105,17 @@ func (stmt *migrationTestStmt) Close() error { return nil }
 func (stmt *migrationTestStmt) NumInput() int { return 0 }
 
 func (stmt *migrationTestStmt) Exec([]driver.Value) (driver.Result, error) {
-	return nil, errors.New("exec not implemented")
+	return nil, errors.New(errTextExecNotImplemented)
 }
 
 func (stmt *migrationTestStmt) Query(args []driver.Value) (driver.Rows, error) {
-	named := make([]driver.NamedValue, len(args))
-	for n := range args {
+	var (
+		named []driver.NamedValue
+		n     int
+	)
+
+	named = make([]driver.NamedValue, len(args))
+	for n = range args {
 		named[n] = driver.NamedValue{Ordinal: n + 1, Value: args[n]}
 	}
 
@@ -98,27 +123,35 @@ func (stmt *migrationTestStmt) Query(args []driver.Value) (driver.Rows, error) {
 }
 
 func migrationTestQuery(query string) (driver.Rows, error) {
+	var (
+		rows   []migrationTestRow
+		values [][]driver.Value
+		n      int
+	)
+
 	migrationTestData.RLock()
 	defer migrationTestData.RUnlock()
-	if !migrationTestData.tableExists || !strings.Contains(query, "`goose_db_version`") {
-		return nil, errors.New("no such table: goose_db_version")
+	if !migrationTestData.tableExists || !strings.Contains(query, migrationTestTablePattern) {
+		return nil, errors.New(errTextNoSuchTable)
 	}
-
-	rows := make([]migrationTestRow, 0, len(migrationTestData.rows))
-	for _, row := range migrationTestData.rows {
-		if row.isApplied {
-			rows = append(rows, row)
+	// Отбор применённых версий миграций.
+	rows = make([]migrationTestRow, 0, len(migrationTestData.rows))
+	for n = range migrationTestData.rows {
+		if migrationTestData.rows[n].isApplied {
+			rows = append(rows, migrationTestData.rows[n])
 		}
 	}
+	// Сортировка версий по времени применения, от новых к старым.
 	sort.Slice(rows, func(i, j int) bool {
 		if rows[i].tstamp.Equal(rows[j].tstamp) {
 			return rows[i].id > rows[j].id
 		}
+
 		return rows[i].tstamp.After(rows[j].tstamp)
 	})
-
-	values := make([][]driver.Value, len(rows))
-	for n := range rows {
+	// Формирование значений строк результата запроса.
+	values = make([][]driver.Value, len(rows))
+	for n = range rows {
 		values[n] = []driver.Value{rows[n].id, rows[n].versionID, rows[n].isApplied, rows[n].tstamp}
 	}
 
@@ -159,16 +192,19 @@ func (tdb *testDatabase) Close() (err error) {
 	if tdb.sqlDB != nil {
 		err = tdb.sqlDB.Close()
 	}
+
 	return
 }
 
 func (tdb *testDatabase) E() error { return tdb.err }
 
 func (tdb *testDatabase) Status() (ret *sql.DBStats) {
+	var stats sql.DBStats
+
 	if tdb.sqlDB == nil {
 		return
 	}
-	stats := tdb.sqlDB.Stats()
+	stats = tdb.sqlDB.Stats()
 	ret = &stats
 
 	return
@@ -201,11 +237,15 @@ func (pool testErrConnPool) QueryRowContext(context.Context, string, ...any) *sq
 func (pool testErrConnPool) GetDBConn() (*sql.DB, error) { return nil, pool.err }
 
 func newTestGorm(t *testing.T) (sqlDB *sql.DB, orm *gorm.DB) {
+	const (
+		tplSqlOpenError  = "sql.Open() вернул ошибку: %v."
+		tplGormOpenError = "gorm.Open() вернул ошибку: %v."
+	)
 	var err error
 
 	resetMigrationTestData()
 	if sqlDB, err = sql.Open(migrationTestDriverName, ""); err != nil {
-		t.Fatalf("sql.Open() вернул ошибку: %v", err)
+		t.Fatalf(tplSqlOpenError, err)
 	}
 	sqlDB.SetMaxOpenConns(1)
 	t.Cleanup(func() {
@@ -216,7 +256,7 @@ func newTestGorm(t *testing.T) (sqlDB *sql.DB, orm *gorm.DB) {
 		mysql.New(mysql.Config{Conn: sqlDB, SkipInitializeWithVersion: true}),
 		&gorm.Config{DisableAutomaticPing: true, Logger: logger.Default.LogMode(logger.Silent)},
 	); err != nil {
-		t.Fatalf("gorm.Open() вернул ошибку: %v", err)
+		t.Fatalf(tplGormOpenError, err)
 	}
 
 	return
@@ -224,123 +264,170 @@ func newTestGorm(t *testing.T) (sqlDB *sql.DB, orm *gorm.DB) {
 
 // TestImpl_New Конструктор объекта миграций.
 func TestImpl_New(t *testing.T) {
-	var mmn = New()
+	const errNewNil = "New() вернул nil."
+	var mmn Interface
 
+	mmn = New()
 	if mmn == nil {
-		t.Fatal("New() вернул nil")
+		t.Fatal(errNewNil)
 	}
 }
 
 func TestImpl_GistFallback(t *testing.T) {
+	const errGistNil = "gist() вернул nil."
+
 	if New().(*impl).gist() == nil {
-		t.Fatal("gist() вернул nil")
+		t.Fatal(errGistNil)
 	}
 }
 
 func TestImpl_CurrentVersionOrmIsNil(t *testing.T) {
-	var mmn = newWithDB(&testDatabase{})
+	const (
+		errCurrentVersionNilError = "CurrentVersion() без ORM вернул nil ошибку."
+		tplCurrentVersionNotNil   = "CurrentVersion() без ORM вернул версию %+v."
+	)
+	var (
+		mmn Interface
+		ver *DbVersion
+		err error
+	)
 
-	ver, err := mmn.CurrentVersion()
+	mmn = newWithDB(&testDatabase{})
+	ver, err = mmn.CurrentVersion()
 	if err == nil {
-		t.Fatal("CurrentVersion() без ORM вернул nil ошибку")
+		t.Fatal(errCurrentVersionNilError)
 	}
 	if ver != nil {
-		t.Fatalf("CurrentVersion() без ORM вернул версию %+v", ver)
+		t.Fatalf(tplCurrentVersionNotNil, ver)
 	}
 }
 
 func TestImpl_CurrentVersionDBError(t *testing.T) {
+	const (
+		errCurrentVersionNilError = "CurrentVersion() при ошибке DB() вернул nil ошибку."
+		tplCurrentVersionNotNil   = "CurrentVersion() при ошибке DB() вернул версию %+v."
+	)
 	var (
-		expected = errors.New("get db error")
-		orm      = &gorm.DB{Config: &gorm.Config{ConnPool: testErrConnPool{err: expected}}}
-		mmn      = newWithDB(&testDatabase{gormDB: orm})
+		expected error
+		orm      *gorm.DB
+		mmn      Interface
+		ver      *DbVersion
+		err      error
 	)
 
-	ver, err := mmn.CurrentVersion()
+	expected = errors.New(errTextGetDbError)
+	orm = &gorm.DB{Config: &gorm.Config{ConnPool: testErrConnPool{err: expected}}}
+	mmn = newWithDB(&testDatabase{gormDB: orm})
+	ver, err = mmn.CurrentVersion()
 	if err == nil {
-		t.Fatal("CurrentVersion() при ошибке DB() вернул nil ошибку")
+		t.Fatal(errCurrentVersionNilError)
 	}
 	if ver != nil {
-		t.Fatalf("CurrentVersion() при ошибке DB() вернул версию %+v", ver)
+		t.Fatalf(tplCurrentVersionNotNil, ver)
 	}
 }
 
 func TestImpl_CurrentVersionPingError(t *testing.T) {
+	const (
+		tplSqlOpenError           = "sql.Open() вернул ошибку: %v."
+		tplGormOpenError          = "gorm.Open() вернул ошибку: %v."
+		errCurrentVersionNilError = "CurrentVersion() при ошибке Ping() вернул nil ошибку."
+		tplCurrentVersionNotNil   = "CurrentVersion() при ошибке Ping() вернул версию %+v."
+	)
 	var (
 		sqlDB *sql.DB
 		orm   *gorm.DB
+		ver   *DbVersion
 		err   error
 	)
 
 	if sqlDB, err = sql.Open(migrationTestDriverName, ""); err != nil {
-		t.Fatalf("sql.Open() вернул ошибку: %v", err)
+		t.Fatalf(tplSqlOpenError, err)
 	}
 	_ = sqlDB.Close()
 	if orm, err = gorm.Open(
 		mysql.New(mysql.Config{Conn: sqlDB, SkipInitializeWithVersion: true}),
 		&gorm.Config{DisableAutomaticPing: true, Logger: logger.Default.LogMode(logger.Silent)},
 	); err != nil {
-		t.Fatalf("gorm.Open() вернул ошибку: %v", err)
+		t.Fatalf(tplGormOpenError, err)
 	}
-
-	ver, err := newWithDB(&testDatabase{gormDB: orm, sqlDB: sqlDB}).CurrentVersion()
+	ver, err = newWithDB(&testDatabase{gormDB: orm, sqlDB: sqlDB}).CurrentVersion()
 	if err == nil {
-		t.Fatal("CurrentVersion() при ошибке Ping() вернул nil ошибку")
+		t.Fatal(errCurrentVersionNilError)
 	}
 	if ver != nil {
-		t.Fatalf("CurrentVersion() при ошибке Ping() вернул версию %+v", ver)
+		t.Fatalf(tplCurrentVersionNotNil, ver)
 	}
 }
 
 func TestImpl_CurrentVersionQueryError(t *testing.T) {
+	const (
+		errCurrentVersionNilError = "CurrentVersion() при отсутствующей таблице вернул nil ошибку."
+		errCurrentVersionNilVer   = "CurrentVersion() при ошибке запроса вернул nil версию."
+		tplQueryErrorNotWrapped   = "ошибка запроса не обёрнута через QErr: %v."
+	)
 	var (
-		sqlDB, orm = newTestGorm(t)
-		mmn        = newWithDB(&testDatabase{gormDB: orm, sqlDB: sqlDB})
+		sqlDB *sql.DB
+		orm   *gorm.DB
+		mmn   Interface
+		ver   *DbVersion
+		err   error
 	)
 
-	ver, err := mmn.CurrentVersion()
+	sqlDB, orm = newTestGorm(t)
+	mmn = newWithDB(&testDatabase{gormDB: orm, sqlDB: sqlDB})
+	ver, err = mmn.CurrentVersion()
 	if err == nil {
-		t.Fatal("CurrentVersion() при отсутствующей таблице вернул nil ошибку")
+		t.Fatal(errCurrentVersionNilError)
 	}
 	if ver == nil {
-		t.Fatal("CurrentVersion() при ошибке запроса вернул nil версию")
+		t.Fatal(errCurrentVersionNilVer)
 	}
 	if !strings.Contains(err.Error(), "ошибка базы данных") {
-		t.Fatalf("ошибка запроса не обёрнута через QErr: %v", err)
+		t.Fatalf(tplQueryErrorNotWrapped, err)
 	}
 }
 
 func TestImpl_CurrentVersionSuccess(t *testing.T) {
+	const (
+		tplCurrentVersionError = "CurrentVersion() вернул ошибку: %v."
+		errCurrentVersionNil   = "CurrentVersion() вернул nil версию."
+		tplIDUnexpected        = "ID = %d, ожидался 2."
+		tplVersionIDUnexpected = "VersionID = %d, ожидался 11."
+		errIsAppliedFalse      = "IsApplied = false, ожидался true."
+		errTstampInvalid       = "Tstamp.Valid = false, ожидался true."
+	)
 	var (
-		sqlDB, orm = newTestGorm(t)
-		mmn        Interface
-		ver        *DbVersion
-		err        error
+		sqlDB *sql.DB
+		orm   *gorm.DB
+		mmn   Interface
+		ver   *DbVersion
+		err   error
 	)
 
+	sqlDB, orm = newTestGorm(t)
 	setMigrationTestData(true, []migrationTestRow{
 		{id: 1, versionID: 10, isApplied: true, tstamp: time.Date(2026, 1, 1, 0, 0, 0, 0, time.UTC)},
 		{id: 2, versionID: 11, isApplied: true, tstamp: time.Date(2026, 1, 2, 0, 0, 0, 0, time.UTC)},
 		{id: 3, versionID: 12, isApplied: false, tstamp: time.Date(2026, 1, 3, 0, 0, 0, 0, time.UTC)},
 	})
-
 	mmn = newWithDB(&testDatabase{gormDB: orm, sqlDB: sqlDB})
 	if ver, err = mmn.CurrentVersion(); err != nil {
-		t.Fatalf("CurrentVersion() вернул ошибку: %v", err)
+		t.Fatalf(tplCurrentVersionError, err)
 	}
 	if ver == nil {
-		t.Fatal("CurrentVersion() вернул nil версию")
+		t.Fatal(errCurrentVersionNil)
 	}
 	if ver.ID != 2 {
-		t.Fatalf("ID = %d, ожидался 2", ver.ID)
+		t.Fatalf(tplIDUnexpected, ver.ID)
 	}
 	if ver.VersionID != 11 {
-		t.Fatalf("VersionID = %d, ожидался 11", ver.VersionID)
+		t.Fatalf(tplVersionIDUnexpected, ver.VersionID)
 	}
 	if !ver.IsApplied {
-		t.Fatal("IsApplied = false, ожидался true")
+		t.Fatal(errIsAppliedFalse)
 	}
 	if !ver.Tstamp.Valid {
-		t.Fatal("Tstamp.Valid = false, ожидался true")
+		t.Fatal(errTstampInvalid)
 	}
 }

@@ -73,10 +73,11 @@ type countWriter struct {
 	n int64
 }
 
-func (cw *countWriter) Write(p []byte) (int, error) {
-	n, err := cw.w.Write(p)
+func (cw *countWriter) Write(p []byte) (n int, err error) {
+	n, err = cw.w.Write(p)
 	cw.n += int64(n)
-	return n, err
+
+	return
 }
 
 // WriteTo Реализация интерфейса io.WriterTo.
@@ -86,6 +87,8 @@ func (i *imgItem) WriteTo(w io.Writer) (n int64, err error) {
 		errEmpty = "изображение пустое, нет данных для записи"
 		errType  = "Не реализованный тип графического изображения %q"
 	)
+	var cw *countWriter
+
 	if w == nil {
 		err = errors.New(errIsNil)
 		return
@@ -94,7 +97,7 @@ func (i *imgItem) WriteTo(w io.Writer) (n int64, err error) {
 		err = errors.New(errEmpty)
 		return
 	}
-	cw := &countWriter{w: w}
+	cw = &countWriter{w: w}
 	switch i.tpe {
 	case TypeICO:
 		err = ico.Encode(cw, i.image)

@@ -7,11 +7,23 @@ import (
 
 // TestGetFilename Выделение имени файла из пути.
 func TestGetFilename(t *testing.T) {
-	var sep = string(filepath.Separator)
-	var cases = []struct {
+	const (
+		tplUnexpected = "GetFilename(%q): ожидалось %q, получено %q."
+	)
+	// Описание одного теста выделения имени файла.
+	type testItem struct {
 		in   string
 		want string
-	}{
+	}
+	var (
+		sep   string
+		cases []testItem
+		n     int
+		got   string
+	)
+
+	sep = string(filepath.Separator)
+	cases = []testItem{
 		{"", ""},
 		{sep, ""},
 		{"file.txt", "file.txt"},
@@ -21,9 +33,9 @@ func TestGetFilename(t *testing.T) {
 		{"a" + sep, ""},
 		{filepath.Join("папка", "файл.txt"), "файл.txt"},
 	}
-	for _, tt := range cases {
-		if got := New().GetFilename(tt.in); got != tt.want {
-			t.Errorf("GetFilename(%q): ожидалось %q, получено %q", tt.in, tt.want, got)
+	for n = range cases {
+		if got = New().GetFilename(cases[n].in); got != cases[n].want {
+			t.Errorf(tplUnexpected, cases[n].in, cases[n].want, got)
 		}
 	}
 }

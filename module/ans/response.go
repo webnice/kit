@@ -70,8 +70,10 @@ func (ans *impl) BadRequestBytes(wr http.ResponseWriter, data []byte) Interface 
 
 // InternalServerError Ответ на запрос с кодом ошибки 500 и структурой описывающей ошибку.
 func (ans *impl) InternalServerError(wr http.ResponseWriter, err error) Interface {
+	const tplError = "%s"
+
 	if err != nil {
-		ans.logErrorf("%s", err)
+		ans.logErrorf(tplError, err)
 	}
 	ans.
 		NewRestError(dic.Status().InternalServerError, err).

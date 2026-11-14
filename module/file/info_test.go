@@ -10,40 +10,52 @@ import (
 
 // TestGetInfoSha512 Информация о файле с контрольной суммой.
 func TestGetInfoSha512(t *testing.T) {
+	const (
+		tplFatalUnexpected   = "GetInfoSha512(): неожиданная ошибка: %v."
+		tplNameMismatch      = "GetInfoSha512(): ожидалось имя %q, получено %q."
+		tplSizeMismatch      = "GetInfoSha512(): ожидался размер %d, получено %d."
+		tplSumMismatch       = "GetInfoSha512(): ожидалась сумма %q, получено %q."
+		errAbsentNoError     = "GetInfoSha512(): для несуществующего файла ожидалась ошибка."
+		errDirNoError        = "GetInfoSha512(): для каталога ожидалась ошибка."
+		errSizeMismatchNoErr = "GetInfoSha512(): при расхождении размера ожидалась ошибка."
+	)
 	var (
-		dir  = t.TempDir()
-		src  = createTestFile(t, dir, "info.txt", testContent)
-		sum  = sha512.Sum512(testContent)
-		want = hex.EncodeToString(sum[:])
+		dir  string
+		src  string
+		sum  [64]byte
+		want string
 		inf  *InfoSha512
 		err  error
 	)
 
+	dir = t.TempDir()
+	src = createTestFile(t, dir, "info.txt", testContent)
+	sum = sha512.Sum512(testContent)
+	want = hex.EncodeToString(sum[:])
 	if inf, err = New().GetInfoSha512(src); err != nil {
-		t.Fatalf("GetInfoSha512(): неожиданная ошибка: %v", err)
+		t.Fatalf(tplFatalUnexpected, err)
 	}
 	if inf.Name != "info.txt" {
-		t.Errorf("GetInfoSha512(): ожидалось имя %q, получено %q", "info.txt", inf.Name)
+		t.Errorf(tplNameMismatch, "info.txt", inf.Name)
 	}
 	if inf.Size != int64(len(testContent)) {
-		t.Errorf("GetInfoSha512(): ожидался размер %d, получено %d", len(testContent), inf.Size)
+		t.Errorf(tplSizeMismatch, len(testContent), inf.Size)
 	}
 	if inf.Sha512 != want {
-		t.Errorf("GetInfoSha512(): ожидалась сумма %q, получено %q", want, inf.Sha512)
+		t.Errorf(tplSumMismatch, want, inf.Sha512)
 	}
-
 	// Несуществующий файл.
 	if _, err = New().GetInfoSha512(filepath.Join(dir, "absent.txt")); err == nil {
-		t.Error("GetInfoSha512(): для несуществующего файла ожидалась ошибка")
+		t.Error(errAbsentNoError)
 	}
 	// Каталог: чтение невозможно.
 	if _, err = New().GetInfoSha512(dir); err == nil {
-		t.Error("GetInfoSha512(): для каталога ожидалась ошибка")
+		t.Error(errDirNoError)
 	}
 	// Расхождение размера: файлы /proc имеют размер 0, но читаются с данными.
 	if _, err = os.Stat("/proc/self/cmdline"); err == nil {
 		if _, err = New().GetInfoSha512("/proc/self/cmdline"); err == nil {
-			t.Error("GetInfoSha512(): при расхождении размера ожидалась ошибка")
+			t.Error(errSizeMismatchNoErr)
 		}
 	}
 }

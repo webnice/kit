@@ -26,11 +26,13 @@ func (essence *gist) ComponentName(obj any) (ret string) {
 
 // ComponentNames Возвращает список зарегистрированных компонентов.
 func (essence *gist) ComponentNames() (ret []string) {
+	var c *kitTypes.ComponentInfo
+
 	if !essence.parent.comp.IsClose {
 		return
 	}
 	essence.parent.comp.ComponentMutex.Lock()
-	for _, c := range essence.parent.comp.Component {
+	for _, c = range essence.parent.comp.Component {
 		ret = append(ret, c.ComponentName)
 	}
 	essence.parent.comp.ComponentMutex.Unlock()
