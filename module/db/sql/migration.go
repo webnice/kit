@@ -1,12 +1,11 @@
 package sql
 
 import (
-	"errors"
 	"math"
 	"sync"
 
 	//kitModuleCfg "github.com/webnice/kit/v4/module/cfg"
-	"github.com/webnice/migrate/goose"
+	"github.com/webnice/migrate/v2/goose"
 
 	// Обязательно наличие зарегистрированных драйверов баз данных.
 	_ "github.com/go-sql-driver/mysql" // mysql.
@@ -58,7 +57,7 @@ func (mys *impl) MigrationUp() (err error) {
 	// Получение текущей версии базы данных и подсчёт количества новых миграций.
 	switch current, err = goose.EnsureDBVersion(mys.conn()); {
 	case err == nil:
-	case errors.Is(err, goose.ErrNoNextVersion):
+	case goose.Errors().NoNextVersion.Is(err):
 		err = nil
 	default:
 		return
@@ -90,7 +89,7 @@ func (mys *impl) MigrationUp() (err error) {
 		}
 		switch next, err = migration.Next(current); {
 		case err == nil:
-		case errors.Is(err, goose.ErrNoNextVersion):
+		case goose.Errors().NoNextVersion.Is(err):
 			end, err = true, nil
 			continue
 		}
