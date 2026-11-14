@@ -28,20 +28,6 @@ func (tbt *impl) LogOut() (err error) {
 		fi  os.FileInfo
 	)
 
-	//
-
-	//
-
-	var pcb tgbotapi.SavePreparedKeyboardButtonConfig
-	pcb = tgbotapi.NewSavePreparedKeyboardButton(1, tgbotapi.NewKeyboardButton("Текст"))
-	spkb, _ := tbt.api.SavePreparedKeyboardButton(pcb)
-
-	_ = spkb
-
-	//
-
-	//
-
 	if err = tbt.initializationDeleteWebhook(); err != nil {
 		tbt.log().Warning(err)
 	}
@@ -76,6 +62,7 @@ func (tbt *impl) LogOut() (err error) {
 func (tbt *impl) Initialization(ctx context.Context, cfg *Configuration) (err error) {
 	const (
 		msgInfo      = "Телеграм бот авторизован под псевдонимом %q."
+		msgWait      = "Ожидание до 10 минут."
 		errLoggedOut = "Logged out"
 		timeoutTic1  = time.Minute * 1
 	)
@@ -109,7 +96,7 @@ func (tbt *impl) Initialization(ctx context.Context, cfg *Configuration) (err er
 			tic1, first = time.NewTicker(timeoutTic1), false
 		}
 		if err != nil && strings.EqualFold(err.Error(), errLoggedOut) {
-			tbt.log().Notice("Ожидание до 10 минут.")
+			tbt.log().Notice(msgWait)
 			continue
 		}
 		end = true
@@ -268,10 +255,11 @@ func (tbt *impl) initializationRegistrationWebhook() {
 // Горутина телеграм бота в режиме получения сообщений через периодический опрос api телеграм сервера.
 func (tbt *impl) goRequestUpdate(onDone chan<- struct{}, ctx context.Context) {
 	var (
-		end bool
-		upd tgbotapi.UpdateConfig
-		uch tgbotapi.UpdatesChannel
-		msg *tgbotapi.Update
+		end    bool
+		upd    tgbotapi.UpdateConfig
+		uch    tgbotapi.UpdatesChannel
+		msg    *tgbotapi.Update
+		update tgbotapi.Update
 	)
 
 	upd = tgbotapi.NewUpdate(0)
@@ -283,7 +271,7 @@ func (tbt *impl) goRequestUpdate(onDone chan<- struct{}, ctx context.Context) {
 		case <-ctx.Done(): // Канал получения прерывания.
 			end = true
 			continue
-		case update := <-uch: // Канал получения обновлений с сервера телеграм.
+		case update = <-uch: // Канал получения обновлений с сервера телеграм.
 			msg = &update
 			// Отправка полученного обновления в шину данных.
 			_, _ = tbt.Consumer(false, msg)

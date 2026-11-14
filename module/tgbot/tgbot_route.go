@@ -17,10 +17,10 @@ func (tbt *impl) ServeTelegram(_ *tgbotapi.BotAPI, upd *tgbotapi.Update) {
 	// Новая версия сообщения, которое известно боту и было отредактировано.
 	case upd.EditedMessage != nil:
 		err = tbt.makeSubscriptionMessageEvent(eventOnEditedMessage, upd)
-	// Новая версия сообщения в канал, которое известно боту и было отредактировано.
+	// Новая входящая публикация на канале любого рода — текст, фотография, стикер и т.д.
 	case upd.ChannelPost != nil:
 		err = tbt.callSubscriptionEvent(eventOnChannelPost, upd)
-	// Новая входящая публикация на канале любого рода — текст, фотография, стикер и т.д.
+	// Новая версия сообщения в канале, известная боту и отредактированная.
 	case upd.EditedChannelPost != nil:
 		err = tbt.callSubscriptionEvent(eventOnEditedChannelPost, upd)
 	// Бот был подключен к бизнес-аккаунту или отключен от него, или пользователь отредактировал существующее

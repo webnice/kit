@@ -172,7 +172,7 @@ func (r6e *Implementation) ResourceByGroupTarReader(group string) (ret *bytes.Re
 	return
 }
 
-// resourceCopy Создание копии описания ресурса.
+// Создание копии описания ресурса.
 func resourceCopy(src *Resource) (ret *Resource) {
 	ret = &Resource{
 		Size:        src.Size,

@@ -25,7 +25,7 @@ func (sh serverHandler) ServeTelegram(upd *tgbotapi.Update) {
 
 	defer func() {
 		if e := recover(); e != nil {
-			sh.tbt.log().Critical(sh.tbt.Errors().Panic.Bind(e.(error), kitModuleTrace.StackShort()))
+			sh.tbt.log().Critical(sh.tbt.Errors().Panic.Bind(e, kitModuleTrace.StackShort()))
 		}
 	}()
 	// Событие появления данных пользователя.

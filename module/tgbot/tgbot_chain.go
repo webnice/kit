@@ -21,9 +21,9 @@ func (mws Middlewares) HandlerFunc(h HandlerFunc) Handler {
 
 // ChainHandler является обработчиком с поддержкой составления и выполнения обработчика.
 type ChainHandler struct {
-	Endpoint    Handler
-	chain       Handler
-	Middlewares Middlewares
+	Endpoint    Handler     // Конечный обработчик цепочки.
+	chain       Handler     // Собранная цепочка промежуточных и конечного обработчиков.
+	Middlewares Middlewares // Срез промежуточных обработчиков цепочки.
 }
 
 func (c *ChainHandler) ServeTelegram(api *tgbotapi.BotAPI, upd *tgbotapi.Update) {

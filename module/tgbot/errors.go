@@ -45,13 +45,13 @@ type Error struct {
 	// WebhookRegistration Регистрация URI webhook ... прервано ошибкой: ...
 	WebhookRegistration dic.IError
 
-	// RegistrationNilObject "Регистрируемый объект не может быть nil."
+	// RegistrationNilObject Регистрируемый объект не может быть nil.
 	RegistrationNilObject dic.IError
 
 	// RegistrationInterface Регистрируемый объект не реализует ни один обязательный интерфейс.
 	RegistrationInterface dic.IError
 
-	// SubscriptionFnIncorrect Не корректная подписка %q, ожидался интерфейс: ...
+	// SubscriptionIncorrect Не корректная подписка %q, ожидался интерфейс: ...
 	SubscriptionIncorrect dic.IError
 }
 

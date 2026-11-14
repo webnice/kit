@@ -22,7 +22,7 @@ func (tbt *impl) callSubscriptionTelegramUserEvent(upd *tgbotapi.Update) (err er
 	// Предотвращение падения приложения из-за ошибки в алгоритме.
 	defer func() {
 		if e := recover(); e != nil {
-			tbt.log().Critical(tbt.Errors().Panic.Bind(e.(error), kitModuleTrace.StackShort()))
+			tbt.log().Critical(tbt.Errors().Panic.Bind(e, kitModuleTrace.StackShort()))
 		}
 	}()
 	if user = FindTelegramUser(upd); user == nil {
@@ -67,7 +67,7 @@ func (tbt *impl) safeCallSubscription(event int, fnAny any, upd *tgbotapi.Update
 	// Предотвращение падения приложения из-за ошибки в алгоритме.
 	defer func() {
 		if e := recover(); e != nil {
-			err = tbt.Errors().Panic.Bind(e.(error), kitModuleTrace.StackShort())
+			err = tbt.Errors().Panic.Bind(e, kitModuleTrace.StackShort())
 		}
 	}()
 	switch event {
@@ -386,7 +386,7 @@ func (tbt *impl) safeCallSubscription(event int, fnAny any, upd *tgbotapi.Update
 				Bind(reflect.TypeOf(fnAny).Elem(), "IUpdatesManagedBot")
 		}
 	default:
-		tbt.log().Warningf("не обработанное событие %d", reflect.TypeOf(event).String())
+		tbt.log().Warning(tbt.Errors().BusUnknownEvent.Bind(event))
 		return
 	}
 

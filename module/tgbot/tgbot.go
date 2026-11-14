@@ -12,7 +12,9 @@ import (
 //
 //goland:noinspection GoUnusedExportedFunction
 func New() Interface {
-	var tbt = &impl{
+	var tbt *impl
+
+	tbt = &impl{
 		cfg:              kitModuleCfg.Get(),
 		msgInp:           make(chan *tgbotapi.Update, inputChannelBufferSize),
 		subscription:     make(map[int][]any),
@@ -81,7 +83,7 @@ func (tbt *impl) defaultAllowedUpdates() []string {
 	}
 }
 
-// Use Подключение промежуточного.
+// Use Подключение промежуточных обработчиков.
 func (tbt *impl) Use(middlewares ...func(Handler) Handler) {
 	tbt.middlewares = append(tbt.middlewares, middlewares...)
 }

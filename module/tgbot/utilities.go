@@ -86,7 +86,7 @@ func requestRetryAfter(fn func() (bool, int64, int64, error)) (err error) {
 
 	defer func() {
 		if e := recover(); e != nil {
-			err = Errors().Panic.Bind(e.(error), kitModuleTrace.StackShort())
+			err = Errors().Panic.Bind(e, kitModuleTrace.StackShort())
 		}
 	}()
 	for !end {

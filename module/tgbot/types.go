@@ -39,7 +39,7 @@ type Interface interface {
 	// метода, тогда функция регистрации вернёт ошибку, а сам объект не будет зарегистрирован.
 	Registration(obj any) (err error)
 
-	// Use Подключение промежуточного.
+	// Use Подключение промежуточных обработчиков.
 	Use(middlewares ...func(Handler) Handler)
 
 	// Initialization Инициализация и запуск телеграм бота.
@@ -69,12 +69,12 @@ type impl struct {
 	botReady         bool                    // Флаг готовности телеграм бота к работе.
 	subscription     map[int][]any           // Подписка зарегистрированных объектов функционала бота.
 	subscriptionSync *sync.RWMutex           // Защита карты подписки.
-	middlewares      []func(Handler) Handler // Срез промежуточного.
+	middlewares      []func(Handler) Handler // Срез промежуточных обработчиков.
 }
 
 type serverHandler struct {
 	tbt *impl
 }
 
-// Middlewares Описание функций промежуточного.
+// Middlewares Описание функций промежуточных обработчиков.
 type Middlewares []func(Handler) Handler

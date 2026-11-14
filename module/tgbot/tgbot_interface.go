@@ -349,5 +349,6 @@ type IUpdatesRemovedChatBoost interface {
 // IUpdatesManagedBot Метод получающий обновления:
 // Обновления о создании управляемых ботов и смене их токена.
 type IUpdatesManagedBot interface {
+	// OnManagedBot Обновления о создании управляемых ботов и смене их токена.
 	OnManagedBot(api *tgbotapi.BotAPI, upd *tgbotapi.Update)
 }
