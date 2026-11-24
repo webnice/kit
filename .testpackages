@@ -20,6 +20,7 @@ github.com/webnice/kit/v5/module/img/ico
 github.com/webnice/kit/v5/module/interrupt
 github.com/webnice/kit/v5/module/lock
 github.com/webnice/kit/v5/module/log
+github.com/webnice/kit/v5/module/log/gelf
 github.com/webnice/kit/v5/module/log/level
 github.com/webnice/kit/v5/module/pdw
 github.com/webnice/kit/v5/module/rqvar

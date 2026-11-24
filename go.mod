@@ -14,6 +14,7 @@ require (
 	github.com/webnice/debug v1.2.0
 	github.com/webnice/dic v1.4.0
 	github.com/webnice/migrate/v2 v2.0.0
+	github.com/webnice/net v1.4.1
 	github.com/webnice/nix v0.0.0-20261111004726-bbda35fc39aa
 	github.com/webnice/tba/v10 v10.0.1
 	github.com/webnice/web/v4 v4.0.0
@@ -46,7 +47,6 @@ require (
 	github.com/leodido/go-urn v1.5.0 // indirect
 	github.com/pires/go-proxyproto v0.16.0 // indirect
 	github.com/rogpeppe/go-internal v1.12.0 // indirect
-	github.com/webnice/net v1.4.1 // indirect
 	golang.org/x/crypto v0.59.0 // indirect
 	golang.org/x/net v0.62.0 // indirect
 	golang.org/x/sync v0.25.0 // indirect
