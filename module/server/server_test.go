@@ -96,6 +96,11 @@ type testWarningLogger struct {
 	messages []string
 }
 
+// Warning Реализация интерфейса журналирования с записью сообщения.
+func (twl *testWarningLogger) Warning(args ...any) {
+	twl.messages = append(twl.messages, fmt.Sprint(args...))
+}
+
 // Warningf Реализация интерфейса журналирования с записью сообщения.
 func (twl *testWarningLogger) Warningf(pattern string, args ...any) {
 	twl.messages = append(twl.messages, fmt.Sprintf(pattern, args...))
