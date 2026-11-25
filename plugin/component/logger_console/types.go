@@ -37,9 +37,9 @@ type Interface interface {
 
 // Объект сущности пакета.
 type impl struct {
-	err            error
-	cfg            kitModuleCfg.Interface
-	tpl            tpl.Interface
-	handlerMux     *sync.Mutex // Блокировка обработки сообщений до выполнения функции инициализации.
-	handlerControl bool        // Включение контроля через блокировку.
+	err       error                  // Ошибка последней операции.
+	cfg       kitModuleCfg.Interface // Интерфейс конфигурации приложения.
+	tpl       tpl.Interface          // Интерфейс шаблонизатора.
+	ready     chan struct{}          // Закрывается в конце инициализации компоненты, открывая обработку сообщений.
+	readyOnce sync.Once              // Защита канала готовности от повторного закрытия.
 }

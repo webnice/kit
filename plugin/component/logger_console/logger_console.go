@@ -3,7 +3,6 @@ package loggerconsole
 import (
 	"fmt"
 	"runtime"
-	"sync"
 
 	"github.com/webnice/kit/v5/plugin/component/logger_console/tpl"
 
@@ -18,13 +17,12 @@ func init() { kitModuleCfgReg.Registration(newComponent()) }
 
 // Конструктор объекта компоненты.
 func newComponent() (ret kitTypes.Component) {
-	var lgc = &impl{
-		cfg:            kitModuleCfg.Get(),
-		handlerMux:     new(sync.Mutex),
-		handlerControl: true,
-	}
+	var lgc *impl
 
-	lgc.handlerMux.Lock()
+	lgc = &impl{
+		cfg:   kitModuleCfg.Get(),
+		ready: make(chan struct{}),
+	}
 	lgc.tpl = tpl.New(lgc.cfg.RawWriter(), defaultTpl)
 	lgc.err = lgc.cfg.Gist().Logger().
 		HandlerSubscribe(lgc.Handler, kitModuleLogLevel.Fatal, kitModuleLogLevel.Trace)
@@ -57,8 +55,8 @@ func (lgc *impl) Initiate() (err error) {
 	if err = lgc.tpl.Parse(); err != nil {
 		return
 	}
-	lgc.handlerControl = false
-	lgc.handlerMux.Unlock()
+	// Открытие ворот обработки сообщений: шаблон разобран и готов к использованию.
+	lgc.readyOnce.Do(func() { close(lgc.ready) })
 	runtime.Gosched()
 	if lgc.cfg.Debug() {
 		lgc.log().Info(tplOnInitiate)

@@ -72,6 +72,13 @@ func (essence *gist) WorkerStop() Essence {
 	return essence
 }
 
+// Context Контекст жизненного цикла шины данных.
+func (essence *gist) Context() (ctx context.Context) {
+	ctx = essence.parent.workerContext
+
+	return
+}
+
 // Statistic Статистика работы бассейна шины данных.
 // Статистика ведётся только если шина данных создана с флагом отладки New(..., isDebug=true).
 // Если шина данных создана без флага отладки, статистика вернёт nil.
