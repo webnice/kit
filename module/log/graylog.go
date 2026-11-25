@@ -1,6 +1,7 @@
 package log
 
 import (
+	"bytes"
 	"fmt"
 	"os"
 	"strings"
@@ -17,7 +18,7 @@ import (
 // Если адрес указан пустым, отправка сообщений в сервер Graylog отключается.
 func (log *logger) GraylogEnable(address string) (err error) {
 	const (
-		tplOnInitiate   = "отправка логов в сервер graylog %q включена"
+		tplOnInitiate   = "Отправка логов в сервер graylog %q включена."
 		protoDefault    = "udp"
 		addressTemplate = "%s://%s"
 		stackBack       = 3
@@ -105,7 +106,10 @@ func (log *logger) graylogDisable() (err error) {
 
 // Handler Обработчик сообщений лога, отправляющий сообщения в сервер Graylog по протоколу GELF.
 func (glg *graylog) Handler(msg *Message) {
-	const tplError = "отправка сообщения в сервер graylog %q прервана ошибкой: %s\n"
+	const (
+		tplEmpty = ""
+		tplError = "отправка сообщения в сервер graylog %q прервана ошибкой: %s\n"
+	)
 	var (
 		err     error
 		gelfMsg *kitModuleLogGelf.Message
@@ -114,10 +118,14 @@ func (glg *graylog) Handler(msg *Message) {
 	)
 
 	if msg.Pattern == nil {
-		return
+		msg.Pattern = bytes.NewBufferString(tplEmpty)
 	}
 	short = msg.Pattern.String()
-	if len(msg.Argument) > 0 {
+	// Формирование текста сообщения: аргументы подставляются в шаблон, а при пустом шаблоне аргументы
+	// склеиваются без форматирования.
+	if short == tplEmpty {
+		short = fmt.Sprint(msg.Argument...)
+	} else if len(msg.Argument) > 0 {
 		short = fmt.Sprintf(short, msg.Argument...)
 	}
 	gelfMsg = kitModuleLogGelf.NewMessage(glg.hostname, short, levelToSeverity(msg.Level))
