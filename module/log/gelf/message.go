@@ -2,6 +2,7 @@ package gelf
 
 import (
 	"encoding/json"
+	"fmt"
 	"strings"
 	"time"
 
@@ -19,6 +20,49 @@ func NewMessage(host, short string, level int32) (ret *Message) {
 		Fields:  make(map[string]any),
 		Keys:    make(map[string]any),
 	}
+
+	return
+}
+
+// Приведение имени дополнительного поля к допустимому формату GELF: буквы латинского алфавита, цифры
+// и символ подчёркивания, остальные символы заменяются на подчёркивание.
+func sanitizeKeyName(key string) (ret string) {
+	ret = strings.Map(func(ch rune) rune {
+		switch {
+		case ch >= 'a' && ch <= 'z', ch >= 'A' && ch <= 'Z', ch >= '0' && ch <= '9', ch == '_':
+			return ch
+		}
+
+		return '_'
+	}, key)
+
+	return
+}
+
+// Приведение значения дополнительного поля к допустимому формату GELF: строки и числа передаются без
+// изменений, значения остальных типов приводятся к строке.
+func sanitizeKeyValue(val any) (ret any) {
+	switch val.(type) {
+	case string,
+		int, int8, int16, int32, int64,
+		uint, uint8, uint16, uint32, uint64,
+		float32, float64:
+		ret = val
+	default:
+		ret = fmt.Sprint(val)
+	}
+
+	return
+}
+
+// Приведение значения поля сообщения верхнего уровня к кодированию в формат JSON: значения, которые не
+// кодируются в формат JSON, приводятся к строке.
+func sanitizeFieldValue(val any) (ret any) {
+	if _, err := json.Marshal(val); err != nil {
+		ret = fmt.Sprint(val)
+		return
+	}
+	ret = val
 
 	return
 }
@@ -45,13 +89,14 @@ func (msg *Message) MarshalJSON() (ret []byte, err error) {
 	}
 	item["timestamp"] = msg.Time
 	item["level"] = msg.Level
-	// Дополнительные поля сообщения верхнего уровня, имена полей передаются без изменений.
+	// Дополнительные поля сообщения верхнего уровня, имена полей приводятся к допустимому формату GELF.
 	for key = range msg.Fields {
-		item[key] = msg.Fields[key]
+		item[sanitizeKeyName(key)] = sanitizeFieldValue(msg.Fields[key])
 	}
-	// Дополнительные поля сообщения с префиксом "_".
+	// Дополнительные поля сообщения с префиксом "_", имена и значения полей приводятся к допустимому
+	// формату GELF.
 	for key = range msg.Keys {
-		item[keyPrefix+strings.TrimPrefix(key, keyPrefix)] = msg.Keys[key]
+		item[keyPrefix+sanitizeKeyName(strings.TrimPrefix(key, keyPrefix))] = sanitizeKeyValue(msg.Keys[key])
 	}
 	// Кодирование сообщения в формат JSON.
 	if ret, err = json.Marshal(item); err != nil {

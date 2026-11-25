@@ -269,10 +269,10 @@ func TestClientSend(t *testing.T) {
 	if !bytes.Equal(data, expected) {
 		t.Errorf(tplErrorMessage, data, expected)
 	}
-	// Ошибка кодирования сообщения с дополнительным полем недопустимого типа.
+	// Значение дополнительного поля недопустимого типа приводится к строке, ошибки отправки не возникает.
 	msg.Keys["fn"] = func() {}
-	if err = cli.Send(msg); err == nil {
-		t.Errorf(tplFatalExpectingError)
+	if err = cli.Send(msg); err != nil {
+		t.Errorf(tplFatalUnexpectedError, err)
 	}
 	// Ошибка сжатия сообщения с недопустимым уровнем сжатия gzip и zlib.
 	cli = &client{compression: CompressionGzip, compressLevel: 100}

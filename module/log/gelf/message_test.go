@@ -3,6 +3,7 @@ package gelf
 import (
 	"encoding/json"
 	"testing"
+	"time"
 )
 
 func TestMessageMarshal(t *testing.T) {
@@ -114,20 +115,32 @@ func TestSeverity(t *testing.T) {
 	}
 }
 
-func TestMessageMarshalError(t *testing.T) {
+func TestMessageMarshalValueString(t *testing.T) {
 	const (
-		tplFatalExpectingError = "json.Marshal() должен был вернуть ошибку."
+		tplFatalUnexpectedError = "json.Marshal() вернул неожиданную ошибку: %v."
+		tplFatalUnmarshalError  = "json.Unmarshal() вернул неожиданную ошибку: %v."
+		tplErrorFieldValue      = "поле %q содержит неверное значение: %v."
 	)
 	var (
-		err error
-		msg *Message
+		err  error
+		ok   bool
+		msg  *Message
+		buf  []byte
+		item map[string]any
+		val  string
 	)
 
-	// Ошибка кодирования сообщения с дополнительным полем недопустимого типа.
+	// Значение дополнительного поля недопустимого типа приводится к строке, ошибки кодирования не возникает.
 	msg = NewMessage("test-host", "short message", 6)
 	msg.Keys["fn"] = func() {}
-	if _, err = json.Marshal(msg); err == nil {
-		t.Errorf(tplFatalExpectingError)
+	if buf, err = json.Marshal(msg); err != nil {
+		t.Fatalf(tplFatalUnexpectedError, err)
+	}
+	if err = json.Unmarshal(buf, &item); err != nil {
+		t.Fatalf(tplFatalUnmarshalError, err)
+	}
+	if val, ok = item["_fn"].(string); !ok || val == "" {
+		t.Errorf(tplErrorFieldValue, "_fn", item["_fn"])
 	}
 }
 
@@ -158,5 +171,61 @@ func TestMessageMarshalANSI(t *testing.T) {
 	}
 	if item["full_message"] != "full message" {
 		t.Errorf(tplErrorFieldValue, "full_message", item["full_message"])
+	}
+}
+
+func TestMessageMarshalSanitize(t *testing.T) {
+	const (
+		tplFatalUnexpectedError = "json.Marshal() вернул неожиданную ошибку: %v."
+		tplFatalUnmarshalError  = "json.Unmarshal() вернул неожиданную ошибку: %v."
+		tplErrorFieldValue      = "поле %q содержит неверное значение: %v."
+		tplErrorFieldNotFound   = "поле %q не найдено в сообщении."
+	)
+	var (
+		err      error
+		ok       bool
+		msg      *Message
+		buf      []byte
+		item     map[string]any
+		expected map[string]any
+		key      string
+		val      string
+	)
+
+	msg = NewMessage("test-host", "short message", 6)
+	msg.Keys["Auth-Method"] = "plain"
+	msg.Keys["Client.IP"] = "127.0.0.1"
+	msg.Keys["wd-mailauth"] = true
+	msg.Keys["attempt"] = uint64(5)
+	msg.Fields["app-Name"] = "wd-mailauth"
+	msg.Fields["when"] = time.Date(2026, 11, 25, 12, 0, 0, 0, time.UTC)
+	msg.Fields["fn"] = func() {}
+	if buf, err = json.Marshal(msg); err != nil {
+		t.Fatalf(tplFatalUnexpectedError, err)
+	}
+	if err = json.Unmarshal(buf, &item); err != nil {
+		t.Fatalf(tplFatalUnmarshalError, err)
+	}
+	// Имена полей приводятся к допустимому формату GELF, логические значения приводятся к строке.
+	expected = map[string]any{
+		"_Auth_Method": "plain",
+		"_Client_IP":   "127.0.0.1",
+		"_wd_mailauth": "true",
+		"_attempt":     float64(5),
+		"app_Name":     "wd-mailauth",
+		"when":         "2026-11-25T12:00:00Z",
+	}
+	for key = range expected {
+		if _, ok = item[key]; !ok {
+			t.Errorf(tplErrorFieldNotFound, key)
+			continue
+		}
+		if item[key] != expected[key] {
+			t.Errorf(tplErrorFieldValue, key, item[key])
+		}
+	}
+	// Значение поля верхнего уровня, которое не кодируется в формат JSON, приводится к строке.
+	if val, ok = item["fn"].(string); !ok || val == "" {
+		t.Errorf(tplErrorFieldValue, "fn", item["fn"])
 	}
 }
