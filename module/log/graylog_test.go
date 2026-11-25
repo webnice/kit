@@ -4,15 +4,21 @@ import (
 	"bytes"
 	"encoding/json"
 	"net"
+	"os"
 	"strings"
 	"testing"
 	"time"
 
 	kitModuleLogGelf "github.com/webnice/kit/v5/module/log/gelf"
+	kitModuleLogLevel "github.com/webnice/kit/v5/module/log/level"
+	kitTypes "github.com/webnice/kit/v5/types"
 )
 
-// Приём одного сообщения GELF, отправленного обработчиком Graylog, и возврат значения поля short_message.
-func graylogReceiveShort(t *testing.T, msg *Message) (short string) {
+// Название приложения, передаваемое обработчику Graylog в тестах.
+const testGraylogAppName = "test-app"
+
+// Приём одного сообщения GELF, отправленного обработчиком Graylog, и возврат разобранных полей сообщения.
+func graylogReceive(t *testing.T, msg *Message) (item map[string]any) {
 	const (
 		tplFatalListen     = "функция net.ListenUDP(), вернула не ожидаемую ошибку: %s."
 		tplFatalDeadline   = "функция SetReadDeadline(), вернула не ожидаемую ошибку: %s."
@@ -31,7 +37,6 @@ func graylogReceiveShort(t *testing.T, msg *Message) (short string) {
 		cli     kitModuleLogGelf.Client
 		glg     *graylog
 		buf     []byte
-		item    map[string]any
 		address string
 		n       int
 		err     error
@@ -45,7 +50,7 @@ func graylogReceiveShort(t *testing.T, msg *Message) (short string) {
 	if cli, err = kitModuleLogGelf.New(address, kitModuleLogGelf.CompressionNone); err != nil {
 		t.Fatalf(tplFatalClient, err)
 	}
-	glg = &graylog{address: address, hostname: testHostname, cli: cli, wr: new(testSyncWriter)}
+	glg = &graylog{address: address, hostname: testHostname, appName: testGraylogAppName, cli: cli, wr: new(testSyncWriter)}
 	glg.Handler(msg)
 	buf = make([]byte, 65535)
 	if err = lst.SetReadDeadline(time.Now().Add(readTimeout)); err != nil {
@@ -61,7 +66,6 @@ func graylogReceiveShort(t *testing.T, msg *Message) (short string) {
 	if err = json.Unmarshal(buf[chunkHeaderSize:n], &item); err != nil {
 		t.Fatalf(tplFatalUnmarshal, err)
 	}
-	short, _ = item["short_message"].(string)
 
 	return
 }
@@ -75,12 +79,14 @@ func TestGraylogHandlerEmptyPattern(t *testing.T) {
 	)
 	var (
 		msg   *Message
+		item  map[string]any
 		short string
 	)
 
 	// Не форматный вызов логирования: шаблон пустой, аргументы склеиваются без форматирования.
 	msg = &Message{Pattern: &bytes.Buffer{}, Argument: []any{testArgument}, Keys: make(map[string]any)}
-	short = graylogReceiveShort(t, msg)
+	item = graylogReceive(t, msg)
+	short, _ = item["short_message"].(string)
 	if short != testArgument {
 		t.Errorf(tplMismatch, short, testArgument)
 	}
@@ -97,13 +103,81 @@ func TestGraylogHandlerPatternWithArguments(t *testing.T) {
 	)
 	var (
 		msg   *Message
+		item  map[string]any
 		short string
 	)
 
 	// Форматный вызов логирования: аргументы подставляются в шаблон.
 	msg = &Message{Pattern: bytes.NewBufferString(testPattern), Argument: []any{500}, Keys: make(map[string]any)}
-	short = graylogReceiveShort(t, msg)
+	item = graylogReceive(t, msg)
+	short, _ = item["short_message"].(string)
 	if short != testExpected {
 		t.Errorf(tplMismatch, short, testExpected)
+	}
+}
+
+func TestGraylogHandlerMessageFields(t *testing.T) {
+	const (
+		tplMismatch = "получено значение поля %q равное %v, ожидалось %v."
+		tplEmpty    = "поле %q отсутствует или пустое."
+		testPattern = "код ответа: %d"
+		testMessage = "код ответа: 500"
+		testHost    = "test-host"
+	)
+	var (
+		msg      *Message
+		item     map[string]any
+		expected map[string]any
+		trace    *kitTypes.TraceInfo
+		key      string
+	)
+
+	trace = kitTypes.NewTraceInfo()
+	trace.Package.WriteString("github.com/webnice/kit/v5/module/log")
+	trace.FilenameLong.WriteString("/a/b/log/graylog.go")
+	trace.FilenameShort.WriteString("graylog.go")
+	trace.Function.WriteString("Handler")
+	trace.StackTrace.WriteString("стек вызовов")
+	trace.Line = 42
+	msg = &Message{
+		Timestamp: time.Now(),
+		Level:     kitModuleLogLevel.Warning,
+		Pattern:   bytes.NewBufferString(testPattern),
+		Argument:  []any{500},
+		Keys:      make(map[string]any),
+		Trace:     trace,
+	}
+	item = graylogReceive(t, msg)
+	expected = map[string]any{
+		"short_message": testMessage,
+		"full_message":  testMessage,
+		"message":       testMessage,
+		"facility":      "github.com/webnice/kit/v5/module/log",
+		"package":       "github.com/webnice/kit/v5/module/log",
+		"module":        "log",
+		"filenameLong":  "/a/b/log/graylog.go",
+		"filenameShort": "graylog.go",
+		"fileLine":      float64(42),
+		"function":      "Handler",
+		"callStack":     "стек вызовов",
+		"levelString":   "warning",
+		"pid":           float64(os.Getpid()),
+		"hostName":      testHost,
+		"appName":       testGraylogAppName,
+		"_file":         "graylog.go",
+		"_line":         float64(42),
+		"_function":     "Handler",
+	}
+	for key = range expected {
+		if item[key] != expected[key] {
+			t.Errorf(tplMismatch, key, item[key], expected[key])
+		}
+	}
+	// Идентификатор сообщения и локальное время сообщения присутствуют и не пустые.
+	if id, _ := item["id"].(string); id == "" {
+		t.Errorf(tplEmpty, "id")
+	}
+	if now, _ := item["todayAndNow"].(string); now == "" {
+		t.Errorf(tplEmpty, "todayAndNow")
 	}
 }

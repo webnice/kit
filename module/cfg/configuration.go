@@ -493,9 +493,9 @@ func (essence *gist) graylogSync() {
 	// Включение выполняется асинхронно: на этапе загрузки конфигурации обработка сообщений лога
 	// заблокирована ожиданием инициализации компонент приложения, синхронная регистрация обработчика
 	// привела бы к взаимной блокировке.
-	go func(address string) {
-		if err := essence.parent.logger.GraylogEnable(address); err != nil {
+	go func(address, appName string) {
+		if err := essence.parent.logger.GraylogEnable(address, appName); err != nil {
 			essence.ErrorAppend(fmt.Errorf(tplGraylogEnableError, err))
 		}
-	}(essence.parent.bootstrapConfiguration.LogGraylog)
+	}(essence.parent.bootstrapConfiguration.LogGraylog, essence.parent.bootstrapConfiguration.ApplicationName)
 }

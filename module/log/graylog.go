@@ -4,19 +4,22 @@ import (
 	"bytes"
 	"fmt"
 	"os"
+	"path"
 	"strings"
 	"time"
 
 	kitModuleLogGelf "github.com/webnice/kit/v5/module/log/gelf"
 	kitModuleLogLevel "github.com/webnice/kit/v5/module/log/level"
 	kitModuleTrace "github.com/webnice/kit/v5/module/trace"
+	kitModuleUuid "github.com/webnice/kit/v5/module/uuid"
 )
 
 // GraylogEnable Включение отправки сообщений лога в сервер Graylog по протоколу GELF.
 // Адрес сервера задаётся в формате [proto://]ip.address.or.domain.name:port, где proto - udp (значение по
 // умолчанию), tcp, tls или tcp+tls.
+// appName - Название приложения, добавляемое в каждое сообщение GELF.
 // Если адрес указан пустым, отправка сообщений в сервер Graylog отключается.
-func (log *logger) GraylogEnable(address string) (err error) {
+func (log *logger) GraylogEnable(address, appName string) (err error) {
 	const (
 		tplOnInitiate   = "Отправка логов в сервер graylog %q включена."
 		protoDefault    = "udp"
@@ -30,6 +33,7 @@ func (log *logger) GraylogEnable(address string) (err error) {
 	)
 
 	address = strings.TrimSpace(address)
+	appName = strings.TrimSpace(appName)
 	log.graylogMux.Lock()
 	defer log.graylogMux.Unlock()
 	// Пустой адрес - отправка сообщений в сервер Graylog отключена.
@@ -41,8 +45,8 @@ func (log *logger) GraylogEnable(address string) (err error) {
 	if !strings.Contains(address, "://") {
 		address = fmt.Sprintf(addressTemplate, protoDefault, address)
 	}
-	// Повторное включение с тем же адресом не требует переподключения к серверу.
-	if log.graylog != nil && log.graylog.address == address {
+	// Повторное включение с теми же адресом и названием приложения не требует переподключения к серверу.
+	if log.graylog != nil && log.graylog.address == address && log.graylog.appName == appName {
 		return
 	}
 	// Сжатие gzip поддерживается только протоколом UDP, протоколы TCP и TLS сжатие не поддерживают.
@@ -50,7 +54,7 @@ func (log *logger) GraylogEnable(address string) (err error) {
 	if !strings.HasPrefix(strings.ToLower(address), protoDefault+"://") {
 		compression = kitModuleLogGelf.CompressionNone
 	}
-	glg = &graylog{address: address, wr: log.wr}
+	glg = &graylog{address: address, appName: appName, wr: log.wr}
 	if glg.cli, err = kitModuleLogGelf.New(address, compression); err != nil {
 		return
 	}
@@ -129,6 +133,10 @@ func (glg *graylog) Handler(msg *Message) {
 		short = fmt.Sprintf(short, msg.Argument...)
 	}
 	gelfMsg = kitModuleLogGelf.NewMessage(glg.hostname, short, levelToSeverity(msg.Level))
+	// Полный текст сообщения.
+	gelfMsg.Full = short
+	// Заполнение полей сообщения по схеме предыдущей библиотеки логирования.
+	glg.messageFields(gelfMsg, msg, short)
 	// Добавление ключей сообщения лога в дополнительные поля сообщения GELF.
 	for key = range msg.Keys {
 		gelfMsg.Keys[key] = msg.Keys[key]
@@ -151,6 +159,73 @@ func (glg *graylog) Handler(msg *Message) {
 	}
 
 	return
+}
+
+// Заполнение полей сообщения GELF по схеме библиотеки логирования 2019 года: идентификатор сообщения,
+// идентификатор процесса, название приложения, имя хоста, время и уровень сообщения, текст сообщения
+// и информация о точке вызова логирования.
+//
+//goland:noinspection DuplicatedCode
+func (glg *graylog) messageFields(gelfMsg *kitModuleLogGelf.Message, msg *Message, short string) {
+	const (
+		keyID            = "id"
+		keyPID           = "pid"
+		keyAppName       = "appName"
+		keyHostName      = "hostName"
+		keyTodayAndNow   = "todayAndNow"
+		keyLevelString   = "levelString"
+		keyMessage       = "message"
+		keyPackage       = "package"
+		keyModule        = "module"
+		keyFilenameLong  = "filenameLong"
+		keyFilenameShort = "filenameShort"
+		keyFileLine      = "fileLine"
+		keyFunction      = "function"
+		keyCallStack     = "callStack"
+	)
+	var (
+		err error
+		uid kitModuleUuid.UUID
+		pkg string
+	)
+
+	// Идентификатор сообщения - UUID первой версии, основанный на времени.
+	if uid, err = kitModuleUuid.Get().V1(); err == nil {
+		gelfMsg.Fields[keyID] = uid.String()
+	}
+	gelfMsg.Fields[keyPID] = os.Getpid()
+	gelfMsg.Fields[keyAppName] = glg.appName
+	gelfMsg.Fields[keyHostName] = glg.hostname
+	gelfMsg.Fields[keyTodayAndNow] = msg.Timestamp.In(time.Local)
+	gelfMsg.Fields[keyLevelString] = msg.Level.String()
+	gelfMsg.Fields[keyMessage] = short
+	if msg.Trace == nil {
+		return
+	}
+	// Название пакета и модуля, совершившего вызов логирования.
+	if msg.Trace.Package != nil && msg.Trace.Package.Len() > 0 {
+		pkg = msg.Trace.Package.String()
+		gelfMsg.Facility = pkg
+		gelfMsg.Fields[keyPackage] = pkg
+		gelfMsg.Fields[keyModule] = path.Base(pkg)
+	}
+	// Путь и имя файла, номер строки и функция, совершившие вызов логирования.
+	if msg.Trace.FilenameLong != nil && msg.Trace.FilenameLong.Len() > 0 {
+		gelfMsg.Fields[keyFilenameLong] = msg.Trace.FilenameLong.String()
+	}
+	if msg.Trace.FilenameShort != nil && msg.Trace.FilenameShort.Len() > 0 {
+		gelfMsg.Fields[keyFilenameShort] = msg.Trace.FilenameShort.String()
+	}
+	if msg.Trace.Line > 0 {
+		gelfMsg.Fields[keyFileLine] = msg.Trace.Line
+	}
+	if msg.Trace.Function != nil && msg.Trace.Function.Len() > 0 {
+		gelfMsg.Fields[keyFunction] = msg.Trace.Function.String()
+	}
+	// Стек вызовов, обрезанный до функции вызова логирования.
+	if msg.Trace.StackTrace != nil && msg.Trace.StackTrace.Len() > 0 {
+		gelfMsg.Fields[keyCallStack] = msg.Trace.StackTrace.String()
+	}
 }
 
 // Преобразование уровня логирования в уровень важности сообщения syslog.

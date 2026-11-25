@@ -70,8 +70,9 @@ type Logger interface {
 	// GraylogEnable Включение отправки сообщений лога в сервер Graylog по протоколу GELF.
 	// address - Адрес сервера Graylog, формат: [proto://]ip.address.or.domain.name:port, где proto - udp (значение
 	// по умолчанию), tcp, tls или tcp+tls. Пример: udp://127.0.0.1:12201.
+	// appName - Название приложения, добавляемое в каждое сообщение GELF.
 	// Если адрес указан пустым, отправка сообщений в сервер Graylog отключается.
-	GraylogEnable(address string) (err error)
+	GraylogEnable(address, appName string) (err error)
 
 	// GraylogDisable Выключение отправки сообщений лога в сервер Graylog и закрытие соединения с сервером.
 	// Если отправка сообщений не была включена, функция ничего не выполняет.
@@ -120,6 +121,7 @@ type subscriber struct {
 type graylog struct {
 	address  string                  // Адрес сервера Graylog.
 	hostname string                  // Имя хоста отправителя сообщений.
+	appName  string                  // Название приложения отправителя сообщений.
 	cli      kitModuleLogGelf.Client // Клиент протокола GELF.
 	wr       kitTypes.SyncWriter     // Интерфейс вывода сообщений об ошибках отправки.
 }

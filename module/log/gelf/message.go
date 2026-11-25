@@ -16,6 +16,7 @@ func NewMessage(host, short string, level int32) (ret *Message) {
 		Short:   short,
 		Time:    float64(time.Now().UnixNano()) / float64(time.Second),
 		Level:   level,
+		Fields:  make(map[string]any),
 		Keys:    make(map[string]any),
 	}
 
@@ -44,6 +45,10 @@ func (msg *Message) MarshalJSON() (ret []byte, err error) {
 	}
 	item["timestamp"] = msg.Time
 	item["level"] = msg.Level
+	// Дополнительные поля сообщения верхнего уровня, имена полей передаются без изменений.
+	for key = range msg.Fields {
+		item[key] = msg.Fields[key]
+	}
 	// Дополнительные поля сообщения с префиксом "_".
 	for key = range msg.Keys {
 		item[keyPrefix+strings.TrimPrefix(key, keyPrefix)] = msg.Keys[key]

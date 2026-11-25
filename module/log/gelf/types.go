@@ -55,6 +55,9 @@ type Message struct {
 	Level    int32   `json:"level"`                  // Уровень важности сообщения, syslog severity.
 	Facility string  `json:"facility,omitempty"`     // Категория (подсистема) отправителя сообщения.
 
+	// Fields Дополнительные поля сообщения верхнего уровня. При кодировании имена полей передаются без изменений.
+	Fields map[string]any `json:"-"`
+
 	// Keys Дополнительные поля сообщения. При кодировании имена полей получают префикс "_".
 	Keys map[string]any `json:"-"`
 }
