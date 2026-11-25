@@ -33,6 +33,11 @@ func (iweb *implWeb) info(pattern string, args ...any) {
 	}
 }
 
+// Функция оповещения в лог об отказе в обслуживании запроса из-за не разрешённого конфигурацией домена.
+func (iweb *implWeb) domainRefused(host, remoteAddr string) {
+	iweb.log().Warning(iweb.parent.Errors().DomainRefused.Bind(remoteAddr, host).Error())
+}
+
 // Add Добавление конфигурации веб сервера. Функцию можно вызывать многократно, для добавления
 // нескольких веб серверов. Серверы не должны пересекаться по занимаемому IP и порту или другим монопольно
 // выделяемым ресурсам.

@@ -13,6 +13,7 @@ const (
 	eServerByIdAlreadyStarted
 	eServerByIdNotStarted
 	eServersNotRegistered
+	eDomainRefused
 )
 
 // Текстовые значения кодов ошибок на основном языке приложения.
@@ -24,6 +25,7 @@ const (
 	cServerByIdAlreadyStarted     = "Сервер с идентификатором %q уже запущен."
 	cServerByIdNotStarted         = "Сервер с идентификатором %q не был запущен."
 	cServersNotRegistered         = "Не зарегистрирован ни один сервер."
+	cDomainRefused                = "Отказ в обслуживании запроса от %q, домен %q не разрешён конфигурацией сервера."
 )
 
 type Error struct {
@@ -49,6 +51,9 @@ type Error struct {
 
 	// ServersNotRegistered Не зарегистрирован ни один сервер.
 	ServersNotRegistered dic.IError
+
+	// DomainRefused Отказ в обслуживании запроса от ..., домен ... не разрешён конфигурацией сервера.
+	DomainRefused dic.IError
 }
 
 var (
@@ -61,6 +66,7 @@ var (
 		ServerByIdAlreadyStarted:     dic.NewError(cServerByIdAlreadyStarted, "идентификатор").CodeU8().Set(eServerByIdAlreadyStarted),
 		ServerByIdNotStarted:         dic.NewError(cServerByIdNotStarted, "идентификатор").CodeU8().Set(eServerByIdNotStarted),
 		ServersNotRegistered:         dic.NewError(cServersNotRegistered).CodeU8().Set(eServersNotRegistered),
+		DomainRefused:                dic.NewError(cDomainRefused, "адрес", "домен").CodeU8().Set(eDomainRefused),
 	}
 
 	// Errors Справочник ошибок.

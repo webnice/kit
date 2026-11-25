@@ -5,8 +5,8 @@ github.com/BurntSushi/toml v0.3.1/go.mod h1:xHWCNGjB5oqiDr8zfno3MHue2Ht5sIBksp03
 github.com/Masterminds/semver/v3 v3.1.1/go.mod h1:VPu/7SZ7ePZ3QOrcuXROw5FAcLl4a0cBrbBpGY/8hQs=
 github.com/Masterminds/semver/v3 v3.5.0 h1:kQceYJfbupGfZOKZQg0kou0DgAKhzDg2NZPAwZ/2OOE=
 github.com/Masterminds/semver/v3 v3.5.0/go.mod h1:4V+yj/TJE1HU9XfppCwVMZq3I84lprf4nC11bSS5beM=
-github.com/PuerkitoBio/goquery v1.13.0 h1:mqHbjD7Jmnul4DTR24LKTjo1uUmHUh072kteGV+xpFM=
-github.com/PuerkitoBio/goquery v1.13.0/go.mod h1:Hip5mdBL8K2wEGKJdr27sRaNwIdDajmCwB/ExUPwW+g=
+github.com/PuerkitoBio/goquery v1.14.0 h1:kfHPaR71dOh6TD4SS4g2bjN1MTYx8nUdLzb1xcJbiTU=
+github.com/PuerkitoBio/goquery v1.14.0/go.mod h1:XUxFiysSccNd2XFo0qKyhEzGlshiP21eN+7JgWvXWQc=
 github.com/andybalholm/cascadia v1.3.5 h1:RLjq12WJy58dN6eCIQrz0bAGZkztHWsEPFxP53Y7Ms8=
 github.com/andybalholm/cascadia v1.3.5/go.mod h1:BLRmbRjpEtNKieZOCCvYj4RqN+KRA41GBe/5O+G93kM=
 github.com/cockroachdb/apd v1.1.0 h1:3LFP3629v+1aKXU5Q37mxmRxX/pIu1nijXydLShEq5I=
@@ -34,8 +34,8 @@ github.com/go-playground/universal-translator v0.18.2/go.mod h1:67VZIMp5lQpDWlnS
 github.com/go-playground/validator/v10 v10.30.6 h1:E+mymlPNRzAMNz1FShrRvLeGWcprF5w305eLLgWieuo=
 github.com/go-playground/validator/v10 v10.30.6/go.mod h1:jPLL8SKCXGe/g87QmEyNw3NO28nmGt5GCnZnufm7rj4=
 github.com/go-sql-driver/mysql v1.8.1/go.mod h1:wEBSXgmK//2ZFJyE+qWnIsVGmvmEKlqwuVSjsCm7DZg=
-github.com/go-sql-driver/mysql v1.10.1 h1:arlSnNLq6a5yxGxV7qg9lF4j0C+KwD6NbQyKr9QL6ME=
-github.com/go-sql-driver/mysql v1.10.1/go.mod h1:M+cqaI7+xxXGG9swrdeUIoPG3Y3KCkF0pZej+SK+nWk=
+github.com/go-sql-driver/mysql v1.10.2 h1:5TRvGvczDohUMOCRA5aCAXgfSZOo/oNDSFD/2RrChS0=
+github.com/go-sql-driver/mysql v1.10.2/go.mod h1:M+cqaI7+xxXGG9swrdeUIoPG3Y3KCkF0pZej+SK+nWk=
 github.com/go-stack/stack v1.8.0/go.mod h1:v0f6uXyyMGvRgIKkXu+yp6POWl0qKG85gN/melR3HDY=
 github.com/gofrs/uuid v4.0.0+incompatible h1:1SD/1F5pU8p29ybwgQSwpQk+mwdRrXCYuPhW6m+TnJw=
 github.com/gofrs/uuid v4.0.0+incompatible/go.mod h1:b2aQJv3Z4Fp6yNu3cdSllBxTCLRxnplIgP/c0N/04lM=
@@ -175,8 +175,8 @@ github.com/webnice/nix v0.0.0-20261111004726-bbda35fc39aa h1:rcd4UkFQq4RxZBNHbJS
 github.com/webnice/nix v0.0.0-20261111004726-bbda35fc39aa/go.mod h1:7S++6rcGSuDphUceSXVavrNX40TSZemFYkdeWiTTRCE=
 github.com/webnice/tba/v10 v10.0.1 h1:oRg673C0ULGU6agnnX0NE8/dZ0sIsicqU57lD7JxVCM=
 github.com/webnice/tba/v10 v10.0.1/go.mod h1:THAL4h/Bd+gVkUd5gfKTZSCwGkakla6i8jF9qFYq8jY=
-github.com/webnice/web/v4 v4.0.0 h1:kFI/5gc5tkI/pcKKx7xOqzcjwM7CYrLMs9oOEVMCRHo=
-github.com/webnice/web/v4 v4.0.0/go.mod h1:uMxJInsfAH2IKMD35nHVswNgPhPlpA0B4hI4DoI8Jsk=
+github.com/webnice/web/v4 v4.0.1 h1:JGwO9DLdafIp/TgBg+vugtYj0G3QcBi/3BOzRvWghZ0=
+github.com/webnice/web/v4 v4.0.1/go.mod h1:uMxJInsfAH2IKMD35nHVswNgPhPlpA0B4hI4DoI8Jsk=
 github.com/yuin/goldmark v1.4.13/go.mod h1:6yULJ656Px+3vBD8DxQVa3kxgyrAnzto9xy5taEt/CY=
 github.com/zenazn/goji v0.9.0/go.mod h1:7S9M489iMyHBNxwZnk9/EHS098H4/F6TATF2mIxtB1Q=
 go.uber.org/atomic v1.3.2/go.mod h1:gD2HeocX3+yG+ygLZcrzQJaqmWj9AIm7n08wl/qW/PE=

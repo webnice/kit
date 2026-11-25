@@ -90,6 +90,17 @@ func (tl *testLogger) Trace(_ ...any) {}
 // Tracef Реализация интерфейса журналирования.
 func (tl *testLogger) Tracef(_ string, _ ...any) {}
 
+// testWarningLogger Заглушка интерфейса логирования с записью сообщений уровня предупреждений.
+type testWarningLogger struct {
+	testLogger
+	messages []string
+}
+
+// Warningf Реализация интерфейса журналирования с записью сообщения.
+func (twl *testWarningLogger) Warningf(pattern string, args ...any) {
+	twl.messages = append(twl.messages, fmt.Sprintf(pattern, args...))
+}
+
 // testResourceFunc Реализация интерфейса WebResource на основе функции.
 type testResourceFunc func(cfg *kitTypesServer.WebConfiguration) *kitTypesServer.Web
 

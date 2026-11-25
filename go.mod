@@ -4,11 +4,11 @@ go 1.27.0
 
 require (
 	github.com/Masterminds/semver/v3 v3.5.0
-	github.com/PuerkitoBio/goquery v1.13.0
+	github.com/PuerkitoBio/goquery v1.14.0
 	github.com/disintegration/imaging v1.6.2
 	github.com/go-chi/chi/v5 v5.5.0
 	github.com/go-playground/validator/v10 v10.30.6
-	github.com/go-sql-driver/mysql v1.10.1
+	github.com/go-sql-driver/mysql v1.10.2
 	github.com/jackc/pgx/v4 v4.18.3
 	github.com/jmoiron/sqlx v1.4.0
 	github.com/webnice/debug v1.2.0
@@ -17,7 +17,7 @@ require (
 	github.com/webnice/net v1.4.1
 	github.com/webnice/nix v0.0.0-20261111004726-bbda35fc39aa
 	github.com/webnice/tba/v10 v10.0.1
-	github.com/webnice/web/v4 v4.0.0
+	github.com/webnice/web/v4 v4.0.1
 	golang.org/x/image v0.48.0
 	golang.org/x/sys v0.50.0
 	gopkg.in/yaml.v3 v3.0.1

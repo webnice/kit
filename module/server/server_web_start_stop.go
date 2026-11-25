@@ -68,6 +68,8 @@ func (iweb *implWeb) Start(serverID string) (err error) {
 	router.Use(iweb.Lib().Middleware().WebServerControlHandler(iweb.server.Control[serverKey]))
 	router.Mount("/", iweb.router)
 	iweb.server.Control[serverKey].Server.Handler(router)
+	// Назначение функции оповещения в лог об отказе в обслуживании запроса из-за не разрешённого домена.
+	iweb.server.Control[serverKey].Configuration.Web.Server.DomainRefused = iweb.domainRefused
 	// Запуск ВЕБ сервера.
 	if err = iweb.server.Control[serverKey].
 		Server.

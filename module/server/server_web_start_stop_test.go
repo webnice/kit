@@ -1,10 +1,12 @@
 package server
 
 import (
+	"net/http"
 	"strings"
 	"testing"
 
 	kitTypesServer "github.com/webnice/kit/v5/types/server"
+	"github.com/webnice/web/v4"
 )
 
 func TestIsStarted(t *testing.T) {
@@ -98,5 +100,71 @@ func TestStopServerByIdNotStarted(t *testing.T) {
 	err = New(&testLogger{}).Web().(*implWeb).Stop("unknown-server-id")
 	if err == nil || !strings.Contains(err.Error(), "не был запущен") {
 		t.Errorf(tplStopWrong, err)
+	}
+}
+
+func TestStartDomainRefusedLogging(t *testing.T) {
+	const (
+		tplFatalPrepare  = "функция Prepare() вернула не ожидаемую ошибку: %s."
+		tplFatalStart    = "функция Start() вернула не ожидаемую ошибку: %s."
+		tplNewRequest    = "функция NewRequest() вернула не ожидаемую ошибку: %v."
+		tplDoError       = "функция Do() вернула не ожидаемую ошибку: %v."
+		tplWrongCode     = "функция ServeHTTP(), код ответа: %d, ожидалось: %d."
+		tplLoggedAllowed = "функция domainRefused(), сообщения лога: %v, ожидалось: отсутствие сообщений."
+		tplNotLogged     = "функция domainRefused(), сообщения лога: %v, ожидалось сообщение с доменом %q."
+		testHostAllowed  = "allowed.example.com"
+		testHostDenied   = "denied.example.com"
+	)
+	var (
+		lg  *testWarningLogger
+		srv Interface
+		cfg *kitTypesServer.WebConfiguration
+		si  *kitTypesServer.Server
+		req *http.Request
+		rsp *http.Response
+		err error
+	)
+
+	lg = &testWarningLogger{}
+	srv = New(lg)
+	cfg = testWebConfiguration(t)
+	cfg.Server.Domain = []string{testHostAllowed}
+	si = srv.Web().Add(cfg)
+	srv.Web().Reg(testResourceFunc(func(_ *kitTypesServer.WebConfiguration) *kitTypesServer.Web {
+		return &kitTypesServer.Web{Path: "/api"}
+	}))
+	if err = srv.(*impl).serverWeb.Prepare(cfg); err != nil {
+		t.Fatalf(tplFatalPrepare, err)
+	}
+	if err = srv.(*impl).serverWeb.Start(si.Web.Server.ID); err != nil {
+		t.Fatalf(tplFatalStart, err)
+	}
+	defer func() { _ = srv.(*impl).serverWeb.Stop(si.Web.Server.ID) }()
+	// Запрос на разрешённый домен, сообщение об отказе не логируется.
+	if req, err = http.NewRequest(http.MethodGet, "http://"+cfg.Server.HostPort()+"/", nil); err != nil {
+		t.Fatalf(tplNewRequest, err)
+	}
+	req.Host = testHostAllowed
+	if rsp, err = http.DefaultClient.Do(req); err != nil {
+		t.Fatalf(tplDoError, err)
+	}
+	_ = rsp.Body.Close()
+	if len(lg.messages) != 0 {
+		t.Errorf(tplLoggedAllowed, lg.messages)
+	}
+	// Запрос на запрещённый домен: статус 434 и сообщение об отказе в логе.
+	if req, err = http.NewRequest(http.MethodGet, "http://"+cfg.Server.HostPort()+"/", nil); err != nil {
+		t.Fatalf(tplNewRequest, err)
+	}
+	req.Host = testHostDenied
+	if rsp, err = http.DefaultClient.Do(req); err != nil {
+		t.Fatalf(tplDoError, err)
+	}
+	_ = rsp.Body.Close()
+	if rsp.StatusCode != web.Status.RequestedHostUnavailable.Code() {
+		t.Errorf(tplWrongCode, rsp.StatusCode, web.Status.RequestedHostUnavailable.Code())
+	}
+	if len(lg.messages) != 1 || !strings.Contains(lg.messages[0], testHostDenied) {
+		t.Errorf(tplNotLogged, lg.messages, testHostDenied)
 	}
 }
