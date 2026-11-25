@@ -130,3 +130,33 @@ func TestMessageMarshalError(t *testing.T) {
 		t.Errorf(tplFatalExpectingError)
 	}
 }
+
+func TestMessageMarshalANSI(t *testing.T) {
+	const (
+		tplFatalUnexpectedError = "json.Marshal() вернул неожиданную ошибку: %v."
+		tplFatalUnmarshalError  = "json.Unmarshal() вернул неожиданную ошибку: %v."
+		tplErrorFieldValue      = "поле %q содержит неверное значение: %v."
+	)
+	var (
+		err  error
+		msg  *Message
+		buf  []byte
+		item map[string]any
+	)
+
+	msg = NewMessage("test-host", "\x1b[33mshort message\x1b[0m", 6)
+	msg.Full = "\x1b[31mfull message\x1b[0m"
+	if buf, err = json.Marshal(msg); err != nil {
+		t.Fatalf(tplFatalUnexpectedError, err)
+	}
+	if err = json.Unmarshal(buf, &item); err != nil {
+		t.Fatalf(tplFatalUnmarshalError, err)
+	}
+	// Проверка очистки текстов сообщения от ANSI escape-последовательностей терминала.
+	if item["short_message"] != "short message" {
+		t.Errorf(tplErrorFieldValue, "short_message", item["short_message"])
+	}
+	if item["full_message"] != "full message" {
+		t.Errorf(tplErrorFieldValue, "full_message", item["full_message"])
+	}
+}

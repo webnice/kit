@@ -4,6 +4,8 @@ import (
 	"encoding/json"
 	"strings"
 	"time"
+
+	"github.com/webnice/kit/v5/module/dye"
 )
 
 // NewMessage Конструктор сообщения GELF.
@@ -21,6 +23,7 @@ func NewMessage(host, short string, level int32) (ret *Message) {
 }
 
 // MarshalJSON Кодирование сообщения в формат JSON с учётом дополнительных полей.
+// Краткий и полный тексты сообщения очищаются от ANSI escape-последовательностей терминала.
 func (msg *Message) MarshalJSON() (ret []byte, err error) {
 	var (
 		item map[string]any
@@ -31,9 +34,10 @@ func (msg *Message) MarshalJSON() (ret []byte, err error) {
 	item = make(map[string]any, len(msg.Keys)+7)
 	item["version"] = msg.Version
 	item["host"] = msg.Host
-	item["short_message"] = msg.Short
+	// Краткий и полный тексты очищаются от ANSI escape-последовательностей терминала.
+	item["short_message"] = dye.StripANSI(msg.Short)
 	if msg.Full != "" {
-		item["full_message"] = msg.Full
+		item["full_message"] = dye.StripANSI(msg.Full)
 	}
 	if msg.Facility != "" {
 		item["facility"] = msg.Facility
