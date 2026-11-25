@@ -37,6 +37,7 @@ type BootstrapConfiguration struct {
 	StateFile                      string     `kong:"name='state',,,,,,,,,,,,,,,,,,,,,,env='5AC281D5-349C-4EE7-AA91-C897043B3EB5',,default='${StateFile}',,,,,,,,,,,,,,,help='Путь и имя файла хранения состояния приложения.',,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,," yaml:"StateFile"               env-name:"-"  default-value:"-"  description:"Путь и имя файла хранения состояния приложения."`
 	SocketFile                     string     `kong:"name='socket',,,,,,,,,,,,,,,,,,,,,env='D5246FFD-748A-4A4C-AF66-2B840281528F',,default='${SocketFile}',,,,,,,,,,,,,,help='Сокет файл коммуникаций с приложением, только для *nix систем, путь и имя файла.',,,,,,,,,,,,,,,,,,,,,,,," yaml:"SocketFile"              env-name:"-"  default-value:"-"  description:"Сокет файл коммуникаций с приложением, только для *nix систем, путь и имя файла."`
 	LogLevel                       kmll.Level `kong:"name='log-level',,,,,,,,,,hidden,,env='D949FEDA-B6C5-4FB6-A2C7-ABFEAA99473B',,default='${LogLevel}',,,,,,,,,,,,,,,,help='Уровень логирования по умолчанию до загрузки конфигурации приложения.',,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,," yaml:"LogLevel"                env-name:"-"  default-value:"-"  description:"Уровень логирования по умолчанию до загрузки конфигурации приложения."`
+	LogGraylog                     string     `kong:"name='log-graylog',,,,,,,,hidden,,env='736C2090-1C12-42F1-84E1-27ABE1EA7380',,default='${LogGraylog}',,,,,,,,,,,,,,help='Адрес сервера Graylog для отправки логов по протоколу GELF.',,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,," yaml:"LogGraylog"              env-name:"-"  default-value:"-"  description:"Адрес сервера Graylog для отправки логов по протоколу GELF.\nФормат: [proto://]ip.address.or.domain.name:port, где proto - udp (значение по умолчанию), tcp, tls или tcp+tls.\nПример: udp://127.0.0.1:12201.\nЕсли указана пустая строка, то отправка логов в сервер graylog отключена."`
 }
 
 // CommandGroup Описание группы команд отображаемое при выводе помощи к командам.
@@ -74,6 +75,7 @@ type BootstrapDefaultValue struct {
 	StateFile              BootstrapDefaultValueFn      // Путь и имя файла хранения состояния приложения.
 	SocketFile             BootstrapDefaultValueFn      // Сокет файл коммуникаций с приложением.
 	LogLevel               BootstrapDefaultValueFn      // Уровень логирования по умолчанию до загрузки конфигурации приложения.
+	LogGraylog             BootstrapDefaultValueFn      // Адрес сервера Graylog для отправки логов по протоколу GELF.
 	CommandGroup           BootstrapCommandGroupValueFn // Список групп команд.
 }
 

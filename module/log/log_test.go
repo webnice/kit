@@ -16,7 +16,7 @@ import (
 	kitTypes "github.com/webnice/kit/v5/types"
 )
 
-// testSyncWriter Реализация интерфейса kitTypes.SyncWriter на основе буфера с блокировкой конкурентного доступа.
+// Реализация интерфейса kitTypes.SyncWriter на основе буфера с блокировкой конкурентного доступа.
 type testSyncWriter struct {
 	bytes.Buffer
 	syncProtect sync.RWMutex
@@ -57,7 +57,7 @@ func (tsw *testSyncWriter) Reset() {
 	tsw.Buffer.Reset()
 }
 
-// testBusAsyncError Имитация шины данных возвращающей ошибку при асинхронной публикации.
+// Имитация шины данных возвращающей ошибку при асинхронной публикации.
 type testBusAsyncError struct {
 	kitModuleBus.Interface
 }
@@ -70,7 +70,7 @@ func (tbae *testBusAsyncError) PublishAsync(_ any) error {
 	return errors.New(errTextPublishAsync)
 }
 
-// testBusSubscribeError Имитация шины данных возвращающей ошибку при регистрации потребителя.
+// Имитация шины данных возвращающей ошибку при регистрации потребителя.
 type testBusSubscribeError struct {
 	kitModuleBus.Interface
 }

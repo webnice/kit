@@ -68,4 +68,8 @@ const (
 	// EnvironmentLogLevel Константа для поиска переменной окружения отвечающей за:
 	// Уровень логирования по умолчанию до загрузки конфигурации приложения.
 	EnvironmentLogLevel = "D949FEDA-B6C5-4FB6-A2C7-ABFEAA99473B"
+
+	// EnvironmentLogGraylog Константа для поиска переменной окружения отвечающей за:
+	// Адрес сервера graylog для отправки логов по протоколу GELF.
+	EnvironmentLogGraylog = "736C2090-1C12-42F1-84E1-27ABE1EA7380"
 )

@@ -80,7 +80,7 @@ func (essence *gist) ConfigurationRegistration(c any, callback ...kitTypes.Callb
 	// Обход всех полей с проверкой и добавлением в срез.
 	for n = 0; n < cfItem.Type.NumField(); n++ {
 		tsf, val = cfItem.Type.Field(n), cfItem.Value.Field(n)
-		// Фильтрация по свойствам поля
+		// Фильтрация по свойствам поля.
 		if !val.CanSet() || !tsf.IsExported() || tsf.Anonymous {
 			continue
 		}
@@ -312,6 +312,10 @@ func (essence *gist) configurationCopyBootstrapConfiguration() {
 	if dc.LogLevel == defaultLogLevel() && sc.LogLevel != 0 {
 		dc.LogLevel = sc.LogLevel
 	}
+	// Адрес сервера graylog для отправки логов по протоколу GELF.
+	if dc.LogGraylog == "" && sc.LogGraylog != "" {
+		dc.LogGraylog = sc.LogGraylog
+	}
 }
 
 // Установка значений по умолчанию, значениями из переменных окружения, значениями описанными в тегах в структуры или
@@ -386,7 +390,7 @@ func (essence *gist) configurationSetDefaultValue() (err error) {
 				}
 			// Обработка структуры.
 			case dcV.CanAddr() && dcRsf.Type.Kind() == reflect.Struct:
-				// Проверка на реализацию интерфейса types.ConfigurationDefaulter
+				// Проверка на реализацию интерфейса types.ConfigurationDefaulter.
 				switch tcdi, ok = dcV.Addr().Interface().(kitTypes.ConfigurationDefaulter); ok {
 				case true:
 					objDefaultRv = reflect.New(dcRsf.Type)
@@ -414,8 +418,12 @@ func (essence *gist) configurationSetDefaultValue() (err error) {
 					csdv(objSliceStruct.Addr().Interface())
 				}
 			default:
+
+				//
 				// TODO: Сделать обработку иного типа данных, если потребуется.
 				// debug.Dumper(dcV.CanAddr(), dcRsf.Type.Kind().String())
+				//
+
 			}
 		}
 	}
@@ -467,10 +475,27 @@ func (essence *gist) ConfigurationLoad(buf *bytes.Buffer) (err error) {
 	}
 	// Обновление флага отладки конфигурации и всех частей приложения.
 	essence.Debug(essence.parent.bootstrapConfiguration.ApplicationDebug)
+	// Синхронизация отправки сообщений лога в сервер Graylog с загруженной конфигурацией.
+	essence.graylogSync()
 
 	//
 	// TODO: Сделать вызов callbackFn при динамическом изменении данных конфигураций по каждому сегменту конфигурации.
 	//
 
 	return
+}
+
+// Синхронизация состояния отправки сообщений лога в сервер Graylog с загруженной конфигурацией.
+// Если адрес сервера Graylog не указан или указан пустой, отправка сообщений отключена.
+func (essence *gist) graylogSync() {
+	const tplGraylogEnableError = "включение отправки сообщений лога в сервер graylog прервано ошибкой: %s"
+
+	// Включение выполняется асинхронно: на этапе загрузки конфигурации обработка сообщений лога
+	// заблокирована ожиданием инициализации компонент приложения, синхронная регистрация обработчика
+	// привела бы к взаимной блокировке.
+	go func(address string) {
+		if err := essence.parent.logger.GraylogEnable(address); err != nil {
+			essence.ErrorAppend(fmt.Errorf(tplGraylogEnableError, err))
+		}
+	}(essence.parent.bootstrapConfiguration.LogGraylog)
 }

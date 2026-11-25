@@ -13,7 +13,7 @@ import (
 // Печать сообщения через стандартный пакет log.
 func standardLogPrint(msg string) { standardLog.Print(msg) }
 
-// log Тип для формирования имён функций содержащих log.fatal и log.panic.
+// Тип для формирования имён функций содержащих log.fatal и log.panic.
 // Полное имя методов: github.com/webnice/kit/v5/module/log.log.fatal и ...log.log.panic.
 type log struct{}
 

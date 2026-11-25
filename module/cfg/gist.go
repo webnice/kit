@@ -14,7 +14,10 @@ import (
 
 // Создание объекта и возвращение интерфейса Essence.
 func newEssence(parent *impl) Essence {
-	var essence = &gist{parent: parent}
+	var essence *gist
+
+	essence = &gist{parent: parent}
+
 	return essence
 }
 

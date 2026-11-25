@@ -39,6 +39,7 @@ const (
 	envNameAnchorForStateFile                      = "APPLICATION_STATE"
 	envNameAnchorForSocketFile                     = "APPLICATION_SOCKET"
 	envNameAnchorForLogLevel                       = "APPLICATION_LOG_LEVEL"
+	envNameAnchorForLogGraylog                     = "APPLICATION_LOG_GRAYLOG"
 )
 
 const (

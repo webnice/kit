@@ -9,7 +9,9 @@ import (
 
 // Получение объекта интерфейса Recorder.
 func newRecorder(parent *impl) *recorder {
-	var rer = &recorder{parent: parent}
+	var rer *recorder
+
+	rer = &recorder{parent: parent}
 
 	return rer
 }

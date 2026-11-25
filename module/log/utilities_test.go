@@ -8,7 +8,7 @@ import (
 	kitModuleLogLevel "github.com/webnice/kit/v5/module/log/level"
 )
 
-// testUtilitiesNamed Именованный тип для тестирования getFuncFullName.
+// Именованный тип для тестирования getFuncFullName.
 type testUtilitiesNamed struct{}
 
 func TestGetFuncFullName(t *testing.T) {

@@ -19,11 +19,13 @@ import (
 	"sync/atomic"
 
 	kitModuleBus "github.com/webnice/kit/v5/module/bus"
+	kitModuleLogGelf "github.com/webnice/kit/v5/module/log/gelf"
 	kitModuleLogLevel "github.com/webnice/kit/v5/module/log/level"
 	kitTypes "github.com/webnice/kit/v5/types"
 )
 
 const eApplicationFatality uint8 = 252 // 252 - приложение завершилось из-за печати в лог сообщения с уровнем Fatal.
+const hostnameUnknown = "unknown"      // Имя хоста по умолчанию, используется при невозможности определить имя хоста операционной системы.
 
 var (
 	rexSpaceFirst = regexp.MustCompile(`^[\t\n\f\r ]+`)
@@ -63,6 +65,18 @@ type Logger interface {
 	// HandlerUnsubscribe Удаление обработчика сообщений лога.
 	HandlerUnsubscribe(handler Handler) (err error)
 
+	// GRAYLOG
+
+	// GraylogEnable Включение отправки сообщений лога в сервер Graylog по протоколу GELF.
+	// address - Адрес сервера Graylog, формат: [proto://]ip.address.or.domain.name:port, где proto - udp (значение
+	// по умолчанию), tcp, tls или tcp+tls. Пример: udp://127.0.0.1:12201.
+	// Если адрес указан пустым, отправка сообщений в сервер Graylog отключается.
+	GraylogEnable(address string) (err error)
+
+	// GraylogDisable Выключение отправки сообщений лога в сервер Graylog и закрытие соединения с сервером.
+	// Если отправка сообщений не была включена, функция ничего не выполняет.
+	GraylogDisable() (err error)
+
 	// ИНТЕРФЕЙСЫ
 
 	// Write Реализация интерфейса io.Writer.
@@ -88,6 +102,8 @@ type logger struct {
 	bus               kitModuleBus.Interface // Объект интерфейса Databus.
 	subscribers       *list.List             // Список зарегистрированных обработчиков сообщений лога. *subscriber
 	subscribersLock   sync.RWMutex           // Блокировка конкурентного доступа к списку обработчиков сообщений лога.
+	graylogMux        *sync.RWMutex          // Блокировка конкурентного доступа к объекту отправки сообщений лога в сервер Graylog.
+	graylog           *graylog               // Объект отправки сообщений лога в сервер Graylog, nil - отправка отключена.
 }
 
 // Handler Обработчик сообщений лога.
@@ -98,4 +114,12 @@ type subscriber struct {
 	Name string                  // Подписчик: пакет, объект.
 	Min  kitModuleLogLevel.Level // Минимальный уровень сообщений лога, включительно.
 	Max  kitModuleLogLevel.Level // Максимальный уровень сообщений лога, включительно.
+}
+
+// Объект отправки сообщений лога в сервер Graylog.
+type graylog struct {
+	address  string                  // Адрес сервера Graylog.
+	hostname string                  // Имя хоста отправителя сообщений.
+	cli      kitModuleLogGelf.Client // Клиент протокола GELF.
+	wr       kitTypes.SyncWriter     // Интерфейс вывода сообщений об ошибках отправки.
 }

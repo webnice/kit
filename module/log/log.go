@@ -6,6 +6,7 @@ import (
 	standardLog "log"
 	"os"
 	"runtime"
+	"sync"
 	"sync/atomic"
 	"time"
 
@@ -18,13 +19,16 @@ import (
 // out - Интерфейс вывода всех сообщений.
 // bus - Интерфейс шины данных.
 func New(out kitTypes.SyncWriter, bus kitModuleBus.Interface) Logger {
-	var log = &logger{
+	var log *logger
+
+	log = &logger{
 		wr:          out,
 		bus:         bus,
 		waitCounter: 0,
 		subscribers: list.New(),
+		graylogMux:  new(sync.RWMutex),
 	}
-
+	// Инициализация бассейна объектов сообщений.
 	log.messageInitPool()
 
 	return log
@@ -140,9 +144,13 @@ func (log *logger) FlushAndClose() {
 		runtime.Gosched()
 		<-time.After(time.Millisecond * 10)
 	}
+	// Отключение отправки сообщений лога в сервер Graylog.
+	if err = log.GraylogDisable(); err != nil {
+		log.fatalityErrorPrintStderr([]error{err})
+	}
 	// Сброс буфера ввода/вывода.
 	_ = log.wr.Sync()
-	// Отписывание от шины данных.
+	// Отписка от шины данных.
 	if err = log.bus.Unsubscribe(log); err != nil {
 		log.fatalityErrorPrintStderr([]error{err})
 	}

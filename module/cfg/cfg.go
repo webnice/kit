@@ -151,6 +151,7 @@ func (cfg *impl) DirectoryWorking() string {
 // DirectoryWorkingChdir Функция выполняет переход в рабочую директорию приложения.
 // Возвращается ошибка операционной системы, с причиной не возможности перейти в рабочую директорию.
 func (cfg *impl) DirectoryWorkingChdir() (err error) {
+	const tplChdirError = "syscall chdir(%q) ошибка: %s"
 	var (
 		awd string
 		cwd string
@@ -164,7 +165,7 @@ func (cfg *impl) DirectoryWorkingChdir() (err error) {
 	}
 	// Системный вызов смены рабочей директории.
 	if err = os.Chdir(awd); err != nil {
-		err = fmt.Errorf("syscall chdir(%q) error: %s", awd, err)
+		err = fmt.Errorf(tplChdirError, awd, err)
 		return
 	}
 

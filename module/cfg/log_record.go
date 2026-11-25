@@ -71,8 +71,9 @@ func (rec *record) Fatality(fy bool) kitTypes.Logger { rec.fatality = &fy; retur
 
 // Fatal Уровень 0: уровень предсмертных сообщений - система не стабильна, продолжение работы невозможно.
 func (rec *record) Fatal(args ...any) {
-	var defaultFatality = true
+	var defaultFatality bool
 
+	defaultFatality = true
 	kitModuleTrace.Short(rec.traceInfo, rec.stackBack+rec.stackBackCorrect)
 	// Присвоение времени записи.
 	if rec.timestamp.IsZero() {
@@ -87,8 +88,9 @@ func (rec *record) Fatal(args ...any) {
 
 // Fatalf Уровень 0: уровень предсмертных сообщений - система не стабильна, продолжение работы невозможно.
 func (rec *record) Fatalf(pattern string, args ...any) {
-	var defaultFatality = true
+	var defaultFatality bool
 
+	defaultFatality = true
 	kitModuleTrace.Short(rec.traceInfo, rec.stackBack+rec.stackBackCorrect)
 	// Присвоение времени записи.
 	if rec.timestamp.IsZero() {

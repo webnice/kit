@@ -183,6 +183,7 @@ func (cli *impl) KongVars() (ret []Option) {
 		varStateFile              = "StateFile"
 		varSocketFile             = "SocketFile"
 		varLogLevel               = "LogLevel"
+		varLogGraylog             = "LogGraylog"
 	)
 
 	ret = append(ret, Vars{
@@ -200,6 +201,7 @@ func (cli *impl) KongVars() (ret []Option) {
 		varStateFile:              cli.bootstrapDefaultValue.StateFile(),
 		varSocketFile:             cli.bootstrapDefaultValue.SocketFile(),
 		varLogLevel:               cli.bootstrapDefaultValue.LogLevel(),
+		varLogGraylog:             cli.bootstrapDefaultValue.LogGraylog(),
 	})
 
 	return

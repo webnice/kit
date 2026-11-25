@@ -234,6 +234,7 @@ func defaultConstantEnvironment() (ret kitModuleCfgCli.ConstantEnvironmentName) 
 		{Anchor: kitModuleCfgConst.EnvironmentStateFile, Destination: envNameAnchorForStateFile},
 		{Anchor: kitModuleCfgConst.EnvironmentSocketFile, Destination: envNameAnchorForSocketFile},
 		{Anchor: kitModuleCfgConst.EnvironmentLogLevel, Destination: envNameAnchorForLogLevel},
+		{Anchor: kitModuleCfgConst.EnvironmentLogGraylog, Destination: envNameAnchorForLogGraylog},
 	}
 
 	return

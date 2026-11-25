@@ -8,7 +8,9 @@ import (
 
 // Конструктор объекта syncWriter реализующий интерфейс kitTypes.SyncWriter.
 func newSyncWriter(parent *impl) kitTypes.SyncWriter {
-	var ret = &syncWriter{
+	var ret *syncWriter
+
+	ret = &syncWriter{
 		parent: parent,
 		wrh:    os.Stderr,
 	}
@@ -23,7 +25,9 @@ func (sw *syncWriter) Write(buf []byte) (n int, err error) {
 		return
 	}
 
+	//
 	// TODO: Сделать вывод данных для режима fork worker.
+	//
 
 	return
 }
@@ -35,7 +39,9 @@ func (sw *syncWriter) Sync() (err error) {
 		return
 	}
 
+	//
 	// TODO: Сделать вывод данных для режима fork worker.
+	//
 
 	return
 }

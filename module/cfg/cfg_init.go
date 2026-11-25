@@ -88,6 +88,7 @@ func (cfg *impl) initMainConfiguration() {
 			var lvl = defaultLogLevel()
 			return lvl.String()
 		},
+		LogGraylog:   empty,                  // Адрес сервера Graylog по умолчанию, до загрузки конфигурации - отключено.
 		CommandGroup: cfg.initGroupOfCommand, // Список групп команд, который сформируется при регистрации компонентов.
 	}); err != nil {
 		cfg.error = append(cfg.error, Errors().ConfigurationBootstrap.Bind(err))

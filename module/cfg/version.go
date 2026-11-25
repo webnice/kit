@@ -2,7 +2,10 @@ package cfg
 
 // Создание объекта и возвращение интерфейса.
 func newVersion(parent *impl) Version {
-	var ret = &version{parent: parent}
+	var ret *version
+
+	ret = &version{parent: parent}
+
 	return ret
 }
 
